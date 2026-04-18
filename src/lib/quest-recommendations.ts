@@ -1,0 +1,307 @@
+import { Quest, QuestType } from "@/lib/types";
+import { ALL_QUESTS } from "@/lib/quests";
+import {
+  getUserQuestProgressMap,
+  getQuestlineProgressMap,
+  getProfileProgressSummary,
+  getWeeklyRecap,
+  UserQuestProgressRow,
+} from "@/lib/quest-progress";
+import { QUESTLINES } from "@/lib/questlines";
+
+export interface QuestRecommendation {
+  quest: Quest;
+  reason: string;
+  confidence: number; // 0-1
+  type: "continue_questline" | "category_balance" | "difficulty_progression" | "quick_win" | "daily_streak";
+}
+
+export interface RecommendationContext {
+  userLevel: number;
+  completedQuestIds: string[];
+  activeQuestIds: string[];
+  completedCategories: string[];
+  questlineProgress: Record<string, { currentStepId: string | null; completedSteps: string[] }>;
+  recentXP: number;
+  averageDifficulty: number;
+}
+
+async function buildContext(): Promise<RecommendationContext | null> {
+  const [progressMap, profile, weeklyRecap, questlineMap] = await Promise.all([
+    getUserQuestProgressMap(),
+    getProfileProgressSummary(),
+    getWeeklyRecap(0),
+    getQuestlineProgressMap(),
+  ]);
+
+  if (!profile) {
+    return null;
+  }
+
+  const completedQuestIds = Object.entries(progressMap)
+    .filter(([, progress]) => progress.status === "completed")
+    .map(([id]) => id);
+
+  const activeQuestIds = Object.entries(progressMap)
+    .filter(([, progress]) => progress.status === "active")
+    .map(([id]) => id);
+
+  // Calculate completed categories
+  const categoryCount: Record<string, number> = {};
+  completedQuestIds.forEach((id) => {
+    const quest = ALL_QUESTS.find((q) => q.id === id);
+    if (quest) {
+      categoryCount[quest.category] = (categoryCount[quest.category] || 0) + 1;
+    }
+  });
+  const completedCategories = Object.keys(categoryCount);
+
+  // Calculate average difficulty of completed quests
+  let totalDifficulty = 0;
+  let difficultyCount = 0;
+  completedQuestIds.forEach((id) => {
+    const quest = ALL_QUESTS.find((q) => q.id === id);
+    if (quest) {
+      totalDifficulty += quest.difficulty;
+      difficultyCount++;
+    }
+  });
+  const averageDifficulty = difficultyCount > 0 ? totalDifficulty / difficultyCount : 1;
+
+  // Build questline progress
+  const questlineProgress: Record<string, { currentStepId: string | null; completedSteps: string[] }> = {};
+  QUESTLINES.forEach((ql) => {
+    const progress = questlineMap[ql.id];
+    const completedSteps = ql.steps
+      .filter((step) => {
+        const questProgress = progressMap[step.quest_id];
+        return questProgress?.status === "completed";
+      })
+      .map((s) => s.id);
+    questlineProgress[ql.id] = {
+      currentStepId: progress?.current_step_id || null,
+      completedSteps,
+    };
+  });
+
+  return {
+    userLevel: profile.level,
+    completedQuestIds,
+    activeQuestIds,
+    completedCategories,
+    questlineProgress,
+    recentXP: weeklyRecap?.xp_earned || 0,
+    averageDifficulty,
+  };
+}
+
+function getQuestlineRecommendations(context: RecommendationContext): QuestRecommendation[] {
+  const recommendations: QuestRecommendation[] = [];
+
+  QUESTLINES.forEach((questline) => {
+    const progress = context.questlineProgress[questline.id];
+    if (!progress) return;
+
+    // Find next unlocked but incomplete step
+    const currentStep = questline.steps.find((s) => s.id === progress.currentStepId);
+    if (currentStep && !context.completedQuestIds.includes(currentStep.quest_id)) {
+      const nextStepIndex = questline.steps.findIndex((s) => s.id === progress.currentStepId);
+      const nextStep = questline.steps[nextStepIndex];
+
+      if (nextStep && nextStep.quest) {
+        recommendations.push({
+          quest: nextStep.quest,
+          reason: `Continue ${questline.title}`,
+          confidence: 0.9,
+          type: "continue_questline",
+        });
+      }
+    }
+  });
+
+  return recommendations;
+}
+
+function getCategoryBalanceRecommendations(context: RecommendationContext): QuestRecommendation[] {
+  const recommendations: QuestRecommendation[] = [];
+
+  // Find underrepresented categories
+  const allCategories = Array.from(new Set(ALL_QUESTS.map((q) => q.category)));
+  const categoryCount: Record<string, number> = {};
+  context.completedCategories.forEach((cat) => {
+    categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+  });
+
+  const minCount = Math.min(...Object.values(categoryCount), 0);
+  const underrepresented = allCategories.filter((cat) => (categoryCount[cat] || 0) <= minCount);
+
+  underrepresented.slice(0, 3).forEach((category) => {
+    // Find an available quest in this category
+    const availableQuest = ALL_QUESTS.find(
+      (q) =>
+        q.category === category &&
+        !context.completedQuestIds.includes(q.id) &&
+        !context.activeQuestIds.includes(q.id)
+    );
+
+    if (availableQuest) {
+      recommendations.push({
+        quest: availableQuest,
+        reason: `Try ${category} quests`,
+        confidence: 0.7,
+        type: "category_balance",
+      });
+    }
+  });
+
+  return recommendations;
+}
+
+function getDifficultyProgressionRecommendations(context: RecommendationContext): QuestRecommendation[] {
+  const recommendations: QuestRecommendation[] = [];
+
+  // Suggest quests slightly above average difficulty
+  const targetDifficulty = Math.min(Math.ceil(context.averageDifficulty) + 1, 5);
+
+  const challengingQuests = ALL_QUESTS.filter(
+    (q) =>
+      q.difficulty === targetDifficulty &&
+      !context.completedQuestIds.includes(q.id) &&
+      !context.activeQuestIds.includes(q.id) &&
+      q.type === "main" // Prefer main quests for progression
+  );
+
+  // Pick 2 random challenging quests
+  const shuffled = challengingQuests.sort(() => 0.5 - Math.random());
+  shuffled.slice(0, 2).forEach((quest) => {
+    recommendations.push({
+      quest,
+      reason: `Level up challenge`,
+      confidence: 0.6,
+      type: "difficulty_progression",
+    });
+  });
+
+  return recommendations;
+}
+
+function getQuickWinRecommendations(context: RecommendationContext): QuestRecommendation[] {
+  const recommendations: QuestRecommendation[] = [];
+
+  // Find short, easy side quests for busy days
+  const quickQuests = ALL_QUESTS.filter(
+    (q) =>
+      q.type === "side" &&
+      q.difficulty <= 2 &&
+      !context.completedQuestIds.includes(q.id) &&
+      !context.activeQuestIds.includes(q.id)
+  );
+
+  // Sort by XP reward (descending) to maximize value
+  const bestQuickQuests = quickQuests
+    .sort((a, b) => b.xp_reward - a.xp_reward)
+    .slice(0, 3);
+
+  bestQuickQuests.forEach((quest) => {
+    recommendations.push({
+      quest,
+      reason: "Quick win (30 min or less)",
+      confidence: 0.8,
+      type: "quick_win",
+    });
+  });
+
+  return recommendations;
+}
+
+function getDailyStreakRecommendations(context: RecommendationContext): QuestRecommendation[] {
+  const recommendations: QuestRecommendation[] = [];
+
+  // If user needs to maintain streak, suggest the easiest available quest
+  const easiestAvailable = ALL_QUESTS.filter(
+    (q) =>
+      !context.completedQuestIds.includes(q.id) && !context.activeQuestIds.includes(q.id)
+  ).sort((a, b) => a.difficulty - b.difficulty)[0];
+
+  if (easiestAvailable) {
+    recommendations.push({
+      quest: easiestAvailable,
+      reason: "Keep your streak alive!",
+      confidence: 0.95,
+      type: "daily_streak",
+    });
+  }
+
+  return recommendations;
+}
+
+export async function getSmartRecommendations(limit: number = 5): Promise<QuestRecommendation[]> {
+  const context = await buildContext();
+
+  if (!context) {
+    // Return featured quests if no user data
+    return ALL_QUESTS.filter((q) => q.source === "predefined" && q.difficulty <= 2)
+      .slice(0, limit)
+      .map((quest) => ({
+        quest,
+        reason: "Great for beginners",
+        confidence: 0.5,
+        type: "quick_win" as const,
+      }));
+  }
+
+  // Gather recommendations from all strategies
+  const allRecommendations = [
+    ...getQuestlineRecommendations(context),
+    ...getDailyStreakRecommendations(context),
+    ...getQuickWinRecommendations(context),
+    ...getCategoryBalanceRecommendations(context),
+    ...getDifficultyProgressionRecommendations(context),
+  ];
+
+  // Remove duplicates (by quest ID)
+  const seen = new Set<string>();
+  const unique = allRecommendations.filter((rec) => {
+    if (seen.has(rec.quest.id)) return false;
+    seen.add(rec.quest.id);
+    return true;
+  });
+
+  // Sort by confidence and type priority
+  const typePriority: Record<string, number> = {
+    daily_streak: 5,
+    continue_questline: 4,
+    quick_win: 3,
+    category_balance: 2,
+    difficulty_progression: 1,
+  };
+
+  unique.sort((a, b) => {
+    const priorityDiff = (typePriority[b.type] || 0) - (typePriority[a.type] || 0);
+    if (priorityDiff !== 0) return priorityDiff;
+    return b.confidence - a.confidence;
+  });
+
+  return unique.slice(0, limit);
+}
+
+export async function getLowEnergySuggestion(): Promise<Quest | null> {
+  const progressMap = await getUserQuestProgressMap();
+  const completedIds = Object.entries(progressMap)
+    .filter(([, p]) => p.status === "completed")
+    .map(([id]) => id);
+  const activeIds = Object.entries(progressMap)
+    .filter(([, p]) => p.status === "active")
+    .map(([id]) => id);
+
+  // Find easiest side quest that hasn't been done
+  const candidates = ALL_QUESTS.filter(
+    (q) =>
+      q.type === "side" &&
+      q.difficulty === 1 &&
+      !completedIds.includes(q.id) &&
+      !activeIds.includes(q.id)
+  ).sort((a, b) => a.xp_reward - b.xp_reward);
+
+  return candidates[0] || null;
+}
