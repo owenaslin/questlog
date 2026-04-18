@@ -1,13 +1,39 @@
-# Questlog
+<div align="center">
 
-**Your adventure awaits, adventurer!**
+# ⚔️ QUESTLOG
 
-Questlog is an 8-bit gamified task app that turns your real-life goals into RPG quests. Complete main quests (months-long epic challenges), side quests (quick weekend adventures), and earn XP, badges, and achievements along the way.
+**Turn your life into an RPG adventure**
 
-![Pixel Art Hero](https://img.shields.io/badge/style-8--bit%20pixel%20art-green)
-![Next.js](https://img.shields.io/badge/Next.js-14-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![Supabase](https://img.shields.io/badge/Supabase-auth%20%7C%20db-green)
+[![Pixel Art](https://img.shields.io/badge/style-8--bit%20pixel%20art-00ff00?style=for-the-badge)](https://github.com/owenaslin/questlog)
+[![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?style=for-the-badge&logo=typescript)](https://typescriptlang.org)
+[![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?style=for-the-badge&logo=supabase)](https://supabase.com)
+
+<p align="center">
+  <strong>An 8-bit gamified task app where your real-life goals become RPG quests.</strong><br>
+  Complete epic main quests, quick side quests, earn XP, collect badges, and level up your life.
+</p>
+
+[🚀 Live Demo](#) · [📖 Documentation](#features) · [🛠️ Setup](#getting-started) · [🤝 Contribute](#contributing)
+
+</div>
+
+---
+
+## 🎮 What is Questlog?
+
+Questlog transforms productivity into an adventure. Instead of boring to-do lists, you get:
+
+| Feature | Description |
+|---------|-------------|
+| 🗡️ **Main Quests** | Epic, months-long challenges like learning a language or training for a marathon |
+| ⚡ **Side Quests** | Quick weekend adventures — cook something new, explore a trail, sketch a masterpiece |
+| 🎯 **Questlines** | Multi-step skill trees (Fitness Journey, Creative Mastery, Tech Mastery) |
+| 🏆 **XP & Badges** | Earn experience, unlock achievements, show off your collection |
+| 🔥 **Streaks** | Build daily habits and maintain your adventure momentum |
+| 🤖 **AI Quests** | Generate custom quests based on your location and interests |
+
+---
 
 ## ✨ Features
 
@@ -35,13 +61,19 @@ Generate custom quests based on:
 - Scanline overlay effect
 - Pixel-perfect borders and shadows
 
+---
+
 ## 🛠 Tech Stack
 
-- **Framework:** Next.js 14 (App Router)
-- **Styling:** Tailwind CSS
-- **Auth & Database:** Supabase (PostgreSQL + Row Level Security)
-- **AI:** Google Gemini
-- **Language:** TypeScript
+| Technology | Purpose |
+|------------|---------|
+| **Next.js 14** | React framework with App Router |
+| **TypeScript** | Type-safe development |
+| **Tailwind CSS** | Utility-first styling |
+| **Supabase** | PostgreSQL database + Auth |
+| **Google Gemini** | AI quest generation |
+
+---
 
 ## 🚀 Getting Started
 
@@ -50,38 +82,42 @@ Generate custom quests based on:
 - A Supabase account
 - A Google Gemini API key (optional, for AI quest generation)
 
-### Installation
+### Quick Start
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/questlog.git
-   cd questlog
-   ```
+```bash
+# Clone the repo
+git clone https://github.com/owenaslin/questlog.git
+cd questlog
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. **Set up environment variables**
-   Create a `.env.local` file:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-   GOOGLE_GEMINI_API_KEY=your_gemini_api_key
-   ```
+# Set up environment
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
 
-4. **Set up Supabase**
-   - Run the migrations in `supabase/migrations/`
-   - Enable Google OAuth in Supabase Auth (optional)
+# Run migrations in Supabase Dashboard, then:
+npm run dev
+```
 
-5. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+### Environment Variables
 
-6. Open [http://localhost:3000](http://localhost:3000)
+Create a `.env.local` file:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+GOOGLE_GEMINI_API_KEY=your_gemini_api_key  # Optional
+```
+
+### Supabase Setup
+1. Create a new Supabase project
+2. Run the migrations in `supabase/migrations/`
+3. Enable Row Level Security (RLS) policies are included
+4. (Optional) Enable Google OAuth in Authentication settings
+
+---
 
 ## 📁 Project Structure
 
@@ -89,28 +125,53 @@ Generate custom quests based on:
 questlog/
 ├── src/
 │   ├── app/              # Next.js App Router pages
-│   ├── components/       # React components
-│   ├── lib/             # Utilities, types, hooks
-│   └── styles/          # Global styles
+│   │   ├── api/          # API routes (AI generation)
+│   │   ├── quests/       # Quest browsing & details
+│   │   ├── profile/      # User profile & progress
+│   │   └── ...
+│   ├── components/       # React components (PixelButton, QuestCard, etc.)
+│   ├── lib/              # Utilities, types, hooks, data
+│   └── styles/           # Global CSS & Tailwind
 ├── supabase/
-│   ├── migrations/      # Database migrations
+│   ├── migrations/       # Database migrations
 │   └── schema.sql        # Database schema
-└── public/              # Static assets
+└── public/               # Static assets
 ```
+
+---
 
 ## 🤝 Contributing
 
-Contributions welcome! Please read our contributing guidelines before submitting PRs.
+We welcome contributions! Here's how to get started:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes
+4. Commit: `git commit -m 'Add amazing feature'`
+5. Push: `git push origin feature/amazing-feature`
+6. Open a Pull Request
+
+Please ensure your code follows the existing patterns and includes appropriate tests.
+
+---
 
 ## 📝 License
 
 MIT License — see [LICENSE](LICENSE) for details.
 
+---
+
 ## 🙏 Acknowledgments
 
-- Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) by CodeMan38
-- Inspired by classic RPG quest logs and modern productivity apps
+- **Font:** [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) by CodeMan38
+- **Inspiration:** Classic RPG quest logs and modern productivity apps
 
 ---
 
-**Start your adventure today!** ⚔️
+<div align="center">
+
+**[⬆ Back to Top](#️-questlog)**
+
+⚔️ *Start your adventure today!* 🎮
+
+</div>
