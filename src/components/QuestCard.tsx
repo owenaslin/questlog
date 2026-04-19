@@ -80,20 +80,23 @@ function CategoryBadge({ category }: { category: string }) {
 
 export default function QuestCard({ quest }: QuestCardProps) {
   return (
-    <Link href={`/quests/${quest.id}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-blue">
+    <Link href={`/quests/${quest.id}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-blue active:scale-[0.98] transition-transform">
       <article
         className="
           bg-retro-darkgray border-4 border-retro-black
           shadow-pixel hover:shadow-pixel-lg
           card-lift cursor-pointer
-          p-4 flex flex-col gap-3
-          h-full
+          p-4 md:p-4 flex flex-col gap-3
+          h-full min-h-[120px] md:min-h-0
         "
       >
         <div className="flex items-start justify-between gap-2">
           <QuestTypeBadge type={quest.type} />
           <SourceBadge source={quest.source} />
         </div>
+        
+        {/* Mobile-optimized tap target overlay */}
+        <div className="md:hidden absolute inset-0" aria-hidden="true" />
 
         <h3 className="font-pixel text-retro-yellow text-xs leading-relaxed">
           {quest.title}
