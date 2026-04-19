@@ -7,6 +7,8 @@ import { useParams } from "next/navigation";
 import HeroPortrait from "@/components/HeroPortrait";
 import { BadgeShowcase } from "@/components/BadgeGrid";
 import XPBar from "@/components/XPBar";
+import DesktopRightRail from "@/components/DesktopRightRail";
+import { useViewMode } from "@/components/ViewModeProvider";
 import { BADGES } from "@/lib/badges";
 import { AVATAR_PORTRAITS, AvatarKey, HeroProfile, PinnedQuest, deriveTitle } from "@/lib/types";
 import {
@@ -21,6 +23,7 @@ import { getSupabaseClient } from "@/lib/supabase";
 export default function HeroPage() {
   const params = useParams();
   const handle = typeof params?.handle === "string" ? params.handle : "";
+  const { isDesktopActive } = useViewMode();
 
   const [hero, setHero]                 = useState<HeroProfile | null>(null);
   const [notFound, setNotFound]         = useState(false);
@@ -127,7 +130,9 @@ export default function HeroPage() {
   const displayTitle = hero.title ?? deriveTitle(null, hero.level);
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className={isDesktopActive ? "max-w-6xl mx-auto" : "max-w-2xl mx-auto"}>
+      <div className={isDesktopActive ? "grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_288px] gap-6" : ""}>
+      <div>
 
       {/* ── Character sheet header ─────────────────────────────── */}
       <div className="tavern-card p-6 mb-6 relative">
@@ -277,6 +282,38 @@ export default function HeroPage() {
         <p className="font-pixel text-tavern-smoke-light text-[7px]">
           🍺 tarvn.xyz
         </p>
+      </div>
+      </div>
+
+      <DesktopRightRail title="Hero Ledger">
+        <div className="bg-retro-black border-2 border-retro-darkgray p-3">
+          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Legend Summary</p>
+          <p className="font-pixel text-tavern-gold text-[7px] mb-1">Level: {hero.level}</p>
+          <p className="font-pixel text-retro-cyan text-[7px] mb-1">XP: {hero.xp_total}</p>
+          <p className="font-pixel text-retro-lime text-[7px] mb-1">Completed: {completedCount}</p>
+          <p className="font-pixel text-tavern-ember text-[7px]">Best Streak: {longestStreak}</p>
+        </div>
+        <div className="bg-retro-black border-2 border-retro-darkgray p-3">
+          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Quick Actions</p>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={handleShare}
+              className="text-left font-pixel text-[7px] text-tavern-gold hover:text-tavern-candle"
+            >
+              🔗 Share Hero Link
+            </button>
+            {isOwner && (
+              <Link href="/hero/edit" className="font-pixel text-[7px] text-retro-lightblue hover:text-retro-white">
+                ✏ Edit Hero
+              </Link>
+            )}
+            <Link href="/board" className="font-pixel text-[7px] text-retro-lime hover:text-retro-white">
+              ⚔ Visit Board
+            </Link>
+          </div>
+        </div>
+      </DesktopRightRail>
       </div>
     </div>
   );
