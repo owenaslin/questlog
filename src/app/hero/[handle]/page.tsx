@@ -13,10 +13,7 @@ import { BADGES } from "@/lib/badges";
 import { AVATAR_PORTRAITS, AvatarKey, HeroProfile, PinnedQuest, deriveTitle } from "@/lib/types";
 import {
   getHeroByHandle,
-  getHeroPinnedQuests,
-  getHeroBadgeIds,
-  getHeroCompletedCount,
-  getHeroLongestStreak,
+  getHeroDashboard,
 } from "@/lib/hero";
 import { getSupabaseClient } from "@/lib/supabase";
 
@@ -57,19 +54,14 @@ export default function HeroPage() {
       const { data: session } = await supabase.auth.getSession();
       if (session?.session?.user?.id === heroData.id) setIsOwner(true);
 
-      // Load all public data in parallel
-      const [pinned, badgeIds, completed, streak] = await Promise.all([
-        getHeroPinnedQuests(heroData.id),
-        getHeroBadgeIds(heroData.id),
-        getHeroCompletedCount(heroData.id),
-        getHeroLongestStreak(heroData.id),
-      ]);
+      // Load all dashboard data in single RPC call
+      const dashboard = await getHeroDashboard(heroData.id);
 
       if (!alive) return;
-      setPinnedQuests(pinned);
-      setEarnedBadgeIds(badgeIds);
-      setCompletedCount(completed);
-      setLongestStreak(streak);
+      setPinnedQuests(dashboard.pinnedQuests);
+      setEarnedBadgeIds(dashboard.badgeIds);
+      setCompletedCount(dashboard.completedCount);
+      setLongestStreak(dashboard.longestStreak);
       setIsLoading(false);
     };
 

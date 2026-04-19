@@ -62,6 +62,38 @@ export async function getHeroLongestStreak(userId: string): Promise<number> {
   return data?.longest_streak ?? 0;
 }
 
+/** Consolidated dashboard query - replaces 4 separate queries with 1 RPC call */
+export interface HeroDashboard {
+  pinnedQuests: PinnedQuest[];
+  badgeIds: string[];
+  completedCount: number;
+  longestStreak: number;
+}
+
+export async function getHeroDashboard(userId: string): Promise<HeroDashboard> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase.rpc("get_hero_dashboard", {
+    p_user_id: userId,
+  });
+
+  if (error || !data) {
+    return {
+      pinnedQuests: [],
+      badgeIds: [],
+      completedCount: 0,
+      longestStreak: 0,
+    };
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+  return {
+    pinnedQuests: (row.pinned_quests || []) as PinnedQuest[],
+    badgeIds: (row.badge_ids || []) as string[],
+    completedCount: Number(row.completed_count) || 0,
+    longestStreak: Number(row.longest_streak) || 0,
+  };
+}
+
 /* ── Owner reads (auth required) ─────────────────────────────────────── */
 
 export async function getOwnHeroProfile(): Promise<HeroProfile | null> {
