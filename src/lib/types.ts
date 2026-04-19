@@ -31,6 +31,49 @@ export interface UserProfile {
   created_at: string;
 }
 
+export interface HeroProfile {
+  id: string;
+  display_name: string;
+  handle: string | null;
+  avatar_sprite: string;
+  is_public: boolean;
+  title: string | null;
+  xp_total: number;
+  level: number;
+  created_at: string;
+}
+
+export interface PinnedQuest {
+  id: string;
+  quest_id: string;
+  quest_title: string;
+  quest_type: QuestType;
+  quest_xp_reward: number;
+  position: number;
+  pinned_at: string;
+}
+
+export const AVATAR_PORTRAITS = {
+  wizard:  { label: "Wizard",   emoji: "🧙", bg: "#5d275d" },
+  warrior: { label: "Warrior",  emoji: "⚔",  bg: "#b13e53" },
+  rogue:   { label: "Rogue",    emoji: "🗡",  bg: "#333c57" },
+  ranger:  { label: "Ranger",   emoji: "🏹",  bg: "#257179" },
+  bard:    { label: "Bard",     emoji: "🎵",  bg: "#29366f" },
+  paladin: { label: "Paladin",  emoji: "🛡",  bg: "#8b5a2b" },
+  druid:   { label: "Druid",    emoji: "🌿",  bg: "#38b764" },
+  cleric:  { label: "Cleric",   emoji: "✨",  bg: "#3b5dc9" },
+} as const;
+
+export type AvatarKey = keyof typeof AVATAR_PORTRAITS;
+
+export function deriveTitle(topCategory: string | null, level: number): string {
+  const ranks = ["Initiate", "Adept", "Expert", "Master", "Legend"];
+  const rank = ranks[Math.min(Math.floor(level / 5), ranks.length - 1)];
+  if (!topCategory) return `${rank} Adventurer`;
+  const guild = topCategory.charAt(0).toUpperCase() + topCategory.slice(1);
+  return `${rank} of the ${guild} Guild`;
+}
+
 export interface Badge {
   id: string;
   key: string;
