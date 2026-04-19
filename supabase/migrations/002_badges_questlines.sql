@@ -158,11 +158,11 @@ BEGIN
       -- Count quests in a specific category
       WHEN 'category_count' THEN
         SELECT COUNT(*) INTO v_category_count
-        FROM public.quests q
-        JOIN public.user_quests uq ON q.id = uq.quest_id
+        FROM public.user_quests uq
+        LEFT JOIN public.quests q ON q.id = uq.quest_id
         WHERE uq.user_id = p_user_id 
           AND uq.status = 'completed'
-          AND q.category = v_badge.requirement_category;
+          AND COALESCE(uq.quest_category, q.category) = v_badge.requirement_category;
         v_requirement_met := v_category_count >= v_badge.requirement_value;
         
       -- Total quests completed
@@ -189,28 +189,30 @@ BEGIN
       WHEN 'side_quests' THEN
         SELECT COUNT(*) INTO v_total_quests
         FROM public.user_quests uq
-        JOIN public.quests q ON q.id = uq.quest_id
+        LEFT JOIN public.quests q ON q.id = uq.quest_id
         WHERE uq.user_id = p_user_id 
           AND uq.status = 'completed'
-          AND q.type = 'side';
+          AND COALESCE(uq.quest_type, q.type) = 'side';
         v_requirement_met := v_total_quests >= v_badge.requirement_value;
         
       -- Main quests completed
       WHEN 'main_quests' THEN
         SELECT COUNT(*) INTO v_total_quests
         FROM public.user_quests uq
-        JOIN public.quests q ON q.id = uq.quest_id
+        LEFT JOIN public.quests q ON q.id = uq.quest_id
         WHERE uq.user_id = p_user_id 
           AND uq.status = 'completed'
-          AND q.type = 'main';
+          AND COALESCE(uq.quest_type, q.type) = 'main';
         v_requirement_met := v_total_quests >= v_badge.requirement_value;
         
       -- Unique categories (count distinct categories)
       WHEN 'unique_categories' THEN
-        SELECT COUNT(DISTINCT q.category) INTO v_category_count
-        FROM public.quests q
-        JOIN public.user_quests uq ON q.id = uq.quest_id
-        WHERE uq.user_id = p_user_id AND uq.status = 'completed';
+        SELECT COUNT(DISTINCT COALESCE(uq.quest_category, q.category)) INTO v_category_count
+        FROM public.user_quests uq
+        LEFT JOIN public.quests q ON q.id = uq.quest_id
+        WHERE uq.user_id = p_user_id
+          AND uq.status = 'completed'
+          AND COALESCE(uq.quest_category, q.category) IS NOT NULL;
         v_requirement_met := v_category_count >= v_badge.requirement_value;
         
       -- Weekend warrior (3+ quests completed on weekend days)
@@ -259,8 +261,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION public.update_questline_progress()
 RETURNS trigger AS $$
 DECLARE
-  v_questline_id UUID;
-  v_step_id UUID;
+  v_step RECORD;
   v_next_step RECORD;
 BEGIN
   -- Only process if quest was completed
@@ -268,33 +269,44 @@ BEGIN
     -- Always check badge eligibility on any quest completion
     PERFORM public.check_and_award_badges(NEW.user_id);
 
-    -- Find if this quest is part of a questline
-    SELECT qs.questline_id, qs.id INTO v_questline_id, v_step_id
-    FROM public.questline_steps qs
-    WHERE qs.quest_id = NEW.quest_id::uuid;
-    
-    IF v_questline_id IS NOT NULL THEN
+    -- A quest can appear in more than one questline; process all matches.
+    FOR v_step IN
+      SELECT qs.questline_id, qs.id AS step_id
+      FROM public.questline_steps qs
+      WHERE qs.quest_id = NEW.quest_id::uuid
+    LOOP
       -- Get the next step in the questline
       SELECT * INTO v_next_step
       FROM public.questline_steps
-      WHERE questline_id = v_questline_id
+      WHERE questline_id = v_step.questline_id
         AND step_number = (
-          SELECT step_number + 1 
-          FROM public.questline_steps 
-          WHERE id = v_step_id
+          SELECT step_number + 1
+          FROM public.questline_steps
+          WHERE id = v_step.step_id
         )
       LIMIT 1;
-      
-      -- Update user progress
-      UPDATE public.user_questline_progress
-      SET current_step_id = COALESCE(v_next_step.id, v_step_id),
-          is_completed = (v_next_step.id IS NULL),
-          completed_at = CASE WHEN v_next_step.id IS NULL THEN now() ELSE null END
-      WHERE user_id = NEW.user_id 
-        AND questline_id = v_questline_id;
-        
-      -- Questline completion state is updated above.
-    END IF;
+
+      -- Upsert user progress for this questline
+      INSERT INTO public.user_questline_progress (
+        user_id,
+        questline_id,
+        current_step_id,
+        is_completed,
+        completed_at
+      )
+      VALUES (
+        NEW.user_id,
+        v_step.questline_id,
+        COALESCE(v_next_step.id, v_step.step_id),
+        (v_next_step.id IS NULL),
+        CASE WHEN v_next_step.id IS NULL THEN now() ELSE null END
+      )
+      ON CONFLICT (user_id, questline_id)
+      DO UPDATE
+      SET current_step_id = EXCLUDED.current_step_id,
+          is_completed = EXCLUDED.is_completed,
+          completed_at = EXCLUDED.completed_at;
+    END LOOP;
   END IF;
   
   RETURN NEW;

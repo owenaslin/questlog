@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS public.user_quests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   quest_id UUID NOT NULL,
+  quest_type TEXT CHECK (quest_type IN ('main', 'side')),
+  quest_category TEXT,
   status TEXT NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'active', 'completed')),
   accepted_at TIMESTAMPTZ,
   completed_at TIMESTAMPTZ,
