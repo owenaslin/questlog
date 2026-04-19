@@ -6,15 +6,14 @@ import { getCurrentUserId } from "@/lib/quest-progress";
 
 export async function getHeroByHandle(handle: string): Promise<HeroProfile | null> {
   const supabase = getSupabaseClient();
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id,display_name,handle,avatar_sprite,is_public,title,xp_total,level,created_at")
-    .eq("handle", handle)
-    .eq("is_public", true)
-    .single();
+  const { data, error } = await supabase.rpc("get_profile_by_handle", {
+    p_handle: handle,
+  });
 
   if (error || !data) return null;
-  return data as HeroProfile;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) return null;
+  return row as HeroProfile;
 }
 
 export async function getHeroPinnedQuests(userId: string): Promise<PinnedQuest[]> {
@@ -169,11 +168,9 @@ export async function unpinQuest(
 
 export async function isHandleAvailable(handle: string): Promise<boolean> {
   const supabase = getSupabaseClient();
-  const { data } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("handle", handle)
-    .limit(1);
-
-  return !data || data.length === 0;
+  const { data, error } = await supabase.rpc("is_handle_available", {
+    p_handle: handle,
+  });
+  if (error) return false;
+  return Boolean(data);
 }

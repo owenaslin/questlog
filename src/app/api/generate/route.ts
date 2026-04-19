@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 const requestSchema = z.object({
@@ -40,6 +41,69 @@ class AppError extends Error {
   }
 }
 
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 12;
+const requestLog = new Map<string, number[]>();
+
+function getBearerToken(request: NextRequest): string | null {
+  const authHeader = request.headers.get("authorization") || "";
+  const [scheme, token] = authHeader.split(" ");
+  if (scheme?.toLowerCase() !== "bearer" || !token) {
+    return null;
+  }
+  return token;
+}
+
+function getClientIp(request: NextRequest): string {
+  const forwardedFor = request.headers.get("x-forwarded-for") || "";
+  const firstForwarded = forwardedFor.split(",")[0]?.trim();
+  return firstForwarded || "unknown";
+}
+
+async function getAuthenticatedUserId(request: NextRequest): Promise<string | null> {
+  const token = getBearerToken(request);
+  if (!token) {
+    return null;
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new AppError("Supabase auth config is missing", 500);
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data.user) {
+    return null;
+  }
+
+  return data.user.id;
+}
+
+function isRateLimited(key: string): boolean {
+  const now = Date.now();
+  const existing = requestLog.get(key) || [];
+  const recent = existing.filter((timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS);
+
+  if (recent.length >= RATE_LIMIT_MAX_REQUESTS) {
+    requestLog.set(key, recent);
+    return true;
+  }
+
+  recent.push(now);
+  requestLog.set(key, recent);
+  return false;
+}
+
 function sanitizeForPrompt(input: string): string {
   return input
     .replace(/[<>]/g, "")
@@ -49,6 +113,16 @@ function sanitizeForPrompt(input: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getAuthenticatedUserId(request);
+    if (!userId) {
+      throw new AppError("Authentication required", 401);
+    }
+
+    const rateLimitKey = `${userId}:${getClientIp(request)}`;
+    if (isRateLimited(rateLimitKey)) {
+      throw new AppError("Rate limit exceeded. Please wait and try again.", 429);
+    }
+
     let body: unknown;
     try {
       body = await request.json();
