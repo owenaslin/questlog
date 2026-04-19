@@ -7,6 +7,8 @@ import { usePathname, useRouter } from "next/navigation";
 import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
 import WeeklyRecap from "@/components/WeeklyRecap";
+import DesktopRightRail from "@/components/DesktopRightRail";
+import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS } from "@/lib/quests";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
@@ -24,6 +26,7 @@ import { Quest } from "@/lib/types";
 export default function JournalPage() {
   const router = useRouter();
   const pathname = usePathname();
+  const { isDesktopActive } = useViewMode();
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -150,7 +153,9 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className={isDesktopActive ? "max-w-6xl mx-auto" : "max-w-2xl mx-auto"}>
+      <div className={isDesktopActive ? "grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_288px] gap-6" : ""}>
+      <div>
 
       {/* ── Page header ──────────────────────────────────────────── */}
       <div className="flex items-center gap-3 mb-6">
@@ -359,6 +364,25 @@ export default function JournalPage() {
         <Link href="/sagas" className="font-pixel text-tavern-gold text-[8px] hover:text-tavern-candle">
           📜 Sagas
         </Link>
+      </div>
+      </div>
+
+      <DesktopRightRail title="Journal Desk">
+        <div className="bg-retro-black border-2 border-retro-darkgray p-3">
+          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Snapshot</p>
+          <p className="font-pixel text-tavern-gold text-[7px] mb-1">Level: {level}</p>
+          <p className="font-pixel text-retro-lime text-[7px] mb-1">XP: {xpTotal}</p>
+          <p className="font-pixel text-retro-cyan text-[7px]">Active: {activeQuests.length}</p>
+        </div>
+        <div className="bg-retro-black border-2 border-retro-darkgray p-3">
+          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Quick Paths</p>
+          <div className="flex flex-col gap-2">
+            <Link href="/board" className="font-pixel text-[7px] text-tavern-gold hover:text-tavern-candle">⚔ Open Board</Link>
+            <Link href="/hero/edit" className="font-pixel text-[7px] text-retro-lightblue hover:text-retro-white">🧙 Edit Hero</Link>
+            <Link href="/trophies" className="font-pixel text-[7px] text-retro-lime hover:text-retro-white">🏅 View Trophies</Link>
+          </div>
+        </div>
+      </DesktopRightRail>
       </div>
     </div>
   );

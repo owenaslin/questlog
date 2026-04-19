@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import HeroPortrait, { PortraitPicker } from "@/components/HeroPortrait";
 import XPBar from "@/components/XPBar";
+import DesktopRightRail from "@/components/DesktopRightRail";
+import { useViewMode } from "@/components/ViewModeProvider";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { AvatarKey, HeroProfile, PinnedQuest, deriveTitle } from "@/lib/types";
@@ -25,6 +27,7 @@ const HANDLE_RE = /^[a-z0-9][a-z0-9\-]{1,18}[a-z0-9]$/;
 export default function HeroEditPage() {
   const router   = useRouter();
   const pathname = usePathname();
+  const { isDesktopActive } = useViewMode();
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [authError, setAuthError]           = useState<string | null>(null);
@@ -207,7 +210,9 @@ export default function HeroEditPage() {
   const displayTitle = hero?.title ?? deriveTitle(null, hero?.level ?? 1);
 
   return (
-    <div className="max-w-lg mx-auto">
+    <div className={isDesktopActive ? "max-w-6xl mx-auto" : "max-w-lg mx-auto"}>
+      <div className={isDesktopActive ? "grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_288px] gap-6" : ""}>
+      <div>
 
       {/* ── Page header ─────────────────────────────────────────── */}
       <div className="flex items-center gap-3 mb-6">
@@ -413,6 +418,34 @@ export default function HeroEditPage() {
             ← Back to Journal
           </span>
         </Link>
+      </div>
+      </div>
+
+      <DesktopRightRail title="Hero Workshop">
+        <div className="bg-retro-black border-2 border-retro-darkgray p-3">
+          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Live Summary</p>
+          <p className="font-pixel text-tavern-gold text-[7px] mb-1">Handle: {handle || "(none)"}</p>
+          <p className="font-pixel text-retro-cyan text-[7px] mb-1">Visibility: {isPublic ? "Public" : "Private"}</p>
+          <p className="font-pixel text-retro-lime text-[7px]">Pinned: {pinnedQuests.length}/5</p>
+        </div>
+        <div className="bg-retro-black border-2 border-retro-darkgray p-3">
+          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Tips</p>
+          <p className="font-pixel text-tavern-parchment text-[7px] leading-loose mb-2">
+            Keep handles short and memorable for easier sharing.
+          </p>
+          <p className="font-pixel text-tavern-parchment text-[7px] leading-loose">
+            Pin your strongest completed quests to tell your story quickly.
+          </p>
+        </div>
+        {hero?.handle && (
+          <Link
+            href={`/hero/${hero.handle}`}
+            className="font-pixel text-[7px] text-tavern-gold hover:text-tavern-candle"
+          >
+            View public hero →
+          </Link>
+        )}
+      </DesktopRightRail>
       </div>
     </div>
   );
