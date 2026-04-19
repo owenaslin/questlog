@@ -3,9 +3,23 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Questlog - Your Adventure Awaits",
+  title: "Tarvn — The Adventurer's Tavern",
   description:
-    "An 8-bit gamified task app with main quests, side quests, and AI-generated adventures.",
+    "Every hero needs a tavern. Collect quests, track your journey, celebrate triumphs and build your legend at Tarvn.",
+  metadataBase: new URL("https://tarvn.xyz"),
+  openGraph: {
+    title: "Tarvn — The Adventurer's Tavern",
+    description: "Every hero needs a tavern. Collect quests, track your journey, celebrate triumphs.",
+    url: "https://tarvn.xyz",
+    siteName: "Tarvn",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tarvn — The Adventurer's Tavern",
+    description: "Every hero needs a tavern. Collect quests, track your journey, celebrate triumphs.",
+  },
 };
 
 export default function RootLayout({
@@ -15,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="scanlines">
+      <body className="scanlines candlelight-vignette">
         <Navbar />
         <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
       </body>

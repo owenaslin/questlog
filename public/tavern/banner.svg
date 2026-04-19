@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 40" shape-rendering="crispEdges">
+  <!-- Pole -->
+  <rect x="15" y="0" width="2" height="40" fill="#8b5a2b"/>
+  <!-- Banner -->
+  <rect x="4" y="2" width="24" height="28" fill="#5d275d"/>
+  <!-- Banner border -->
+  <rect x="4" y="2" width="24" height="2" fill="#c44a36"/>
+  <rect x="4" y="28" width="24" height="2" fill="#c44a36"/>
+  <rect x="4" y="2" width="2" height="28" fill="#c44a36"/>
+  <rect x="26" y="2" width="2" height="28" fill="#c44a36"/>
+  <!-- Sword icon -->
+  <rect x="15" y="7" width="2" height="16" fill="#e8b864"/>
+  <rect x="11" y="13" width="10" height="2" fill="#e8b864"/>
+  <rect x="14" y="22" width="4" height="3" fill="#c49a3c"/>
+  <!-- Tassels -->
+  <rect x="4" y="30" width="4" height="6" fill="#c44a36"/>
+  <rect x="14" y="30" width="4" height="8" fill="#c44a36"/>
+  <rect x="24" y="30" width="4" height="6" fill="#c44a36"/>
+</svg>

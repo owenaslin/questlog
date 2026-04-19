@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import PixelButton from "@/components/PixelButton";
+import { getSupabaseClient } from "@/lib/supabase";
 import { QuestType } from "@/lib/types";
 
 interface GeneratedQuest {
@@ -64,9 +65,21 @@ export default function GeneratePage() {
     setResult(null);
 
     try {
+      const supabase = getSupabaseClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error("Please log in to use AI quest generation.");
+      }
+
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           location,
           topic: customTopic || topic,
