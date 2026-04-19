@@ -126,7 +126,7 @@ export default function QuestCard({ quest }: QuestCardProps) {
         {/* Status — wax seal style */}
         {quest.status !== "available" && (
           <div
-            className={`wax-seal w-full font-pixel text-[7px] text-center py-1.5 uppercase tracking-wider ${
+            className={`w-full font-pixel text-[7px] text-center py-1.5 uppercase tracking-wider ${
               quest.status === "active"
                 ? "bg-retro-orange text-retro-black"
                 : "bg-retro-darkgreen text-retro-white"

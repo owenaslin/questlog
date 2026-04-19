@@ -5,13 +5,10 @@ import Image from "next/image";
 import ParticleLayer from "./ParticleLayer";
 
 export type SceneType =
-  | "tavern-interior"
   | "common-room"
   | "hearthside"
   | "quest-alcove"
-  | "hero-quarters"
   | "hall-of-fame"
-  | "map-room"
   | "entrance"
   | "none";
 
@@ -67,77 +64,13 @@ function WallTorch({
         width={48}
         height={96}
         className="animate-flicker-full"
-        style={{ animationDelay: flameDelay, imageRendering: "pixelated" }}
-        priority={false}
+        style={{ animationDelay: flameDelay }}
       />
     </div>
   );
 }
 
 /* ──────────────────────────────────────────────── Scenes ──── */
-
-function TavernInterior() {
-  return (
-    <>
-      {/* Dark warm background */}
-      <div className="scene-layer" style={{ background: "#1a1510" }} />
-      {/* Wooden floor */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-20 tavern-wood-grain"
-        style={{ borderTop: "4px solid #5c3a1a" }}
-      />
-      {/* Left wall hearth */}
-      <div className="absolute bottom-20 left-[3%] hidden sm:block">
-        <Image
-          src="/tavern/hearth.svg"
-          alt="hearth"
-          width={128}
-          height={112}
-          priority={false}
-          style={{ imageRendering: "pixelated" }}
-        />
-      </div>
-      {/* Right wall banner */}
-      <div className="absolute top-8 right-[4%] hidden sm:block">
-        <Image
-          src="/tavern/banner.svg"
-          alt="banner"
-          width={96}
-          height={160}
-          priority={false}
-          style={{ imageRendering: "pixelated" }}
-        />
-      </div>
-      {/* Left torch */}
-      <WallTorch side="left" top="15%" flameDelay="0.3s" />
-      {/* Right torch */}
-      <WallTorch side="right" top="15%" flameDelay="1.1s" />
-      {/* Ember particles from hearth */}
-      <ParticleLayer
-        opacity={0.9}
-        particles={[
-          {
-            type: "ember",
-            count: 12,
-            originX: [2, 18],
-            originY: [40, 70],
-            durationRange: [1.8, 3.2],
-            delayRange: [0, 3],
-          },
-          {
-            type: "smoke",
-            count: 6,
-            originX: [4, 16],
-            originY: [30, 50],
-            durationRange: [2.5, 4],
-            delayRange: [0, 2],
-          },
-        ]}
-      />
-      <WarmOverlay intensity={0.08} />
-    </>
-  );
-}
 
 function CommonRoom() {
   return (
@@ -151,8 +84,7 @@ function CommonRoom() {
           alt="quest board"
           width={160}
           height={128}
-          priority={false}
-          style={{ imageRendering: "pixelated", opacity: 0.7 }}
+          style={{ opacity: 0.7 }}
         />
       </div>
       {/* Torches flanking board */}
@@ -183,35 +115,14 @@ function Hearthside() {
       <div className="scene-layer" style={{ background: "#1a1510" }} />
       {/* Large close-up hearth on left */}
       <div className="absolute bottom-16 left-[5%] hidden sm:block">
-        <Image
-          src="/tavern/hearth.svg"
-          alt="hearth"
-          width={192}
-          height={168}
-          priority={false}
-          style={{ imageRendering: "pixelated" }}
-        />
+        <Image src="/tavern/hearth.svg" alt="hearth" width={192} height={168} />
       </div>
       {/* Candle cluster right */}
       <div className="absolute bottom-16 right-[6%] flex gap-4 hidden sm:flex">
-        <Image
-          src="/tavern/candle.svg"
-          alt="candle"
-          width={32}
-          height={48}
-          className="animate-flicker"
-          style={{ animationDelay: "0.4s", imageRendering: "pixelated" }}
-          priority={false}
-        />
-        <Image
-          src="/tavern/candle.svg"
-          alt="candle"
-          width={24}
-          height={36}
-          className="animate-flicker"
-          style={{ animationDelay: "1.2s", imageRendering: "pixelated" }}
-          priority={false}
-        />
+        <Image src="/tavern/candle.svg" alt="candle" width={32} height={48}
+          className="animate-flicker" style={{ animationDelay: "0.4s" }} />
+        <Image src="/tavern/candle.svg" alt="candle" width={24} height={36}
+          className="animate-flicker" style={{ animationDelay: "1.2s" }} />
       </div>
       {/* Wooden floor */}
       <div
@@ -255,13 +166,7 @@ function QuestAlcove() {
       <div className="absolute top-0 right-0 w-16 h-full tavern-stone hidden sm:block" />
       {/* Dungeon background on desktop */}
       <div className="absolute inset-0 hidden md:block" style={{ opacity: 0.3 }}>
-        <Image
-          src="/tavern/dungeon.svg"
-          alt=""
-          fill
-          style={{ objectFit: "cover", imageRendering: "pixelated" }}
-          priority={false}
-        />
+        <Image src="/tavern/dungeon.svg" alt="" fill style={{ objectFit: "cover" }} />
       </div>
       {/* Left torch */}
       <WallTorch side="left" top="20%" flameDelay="0.6s" />
@@ -294,67 +199,6 @@ function QuestAlcove() {
   );
 }
 
-function HeroQuarters() {
-  return (
-    <>
-      <div className="scene-layer" style={{ background: "#1a1510" }} />
-      {/* Wood floor */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-20 tavern-wood-grain"
-        style={{ borderTop: "4px solid #5c3a1a" }}
-      />
-      {/* Shield on left wall */}
-      <div className="absolute top-8 left-[5%] hidden sm:block">
-        <Image
-          src="/tavern/shield.svg"
-          alt="shield"
-          width={96}
-          height={112}
-          priority={false}
-          style={{ imageRendering: "pixelated", opacity: 0.8 }}
-        />
-      </div>
-      {/* Chest on floor right */}
-      <div className="absolute bottom-20 right-[6%] hidden sm:block">
-        <Image
-          src="/tavern/chest.svg"
-          alt="chest"
-          width={128}
-          height={96}
-          priority={false}
-          style={{ imageRendering: "pixelated" }}
-        />
-      </div>
-      {/* Candle on left */}
-      <div className="absolute bottom-24 left-[20%] hidden sm:block">
-        <Image
-          src="/tavern/candle.svg"
-          alt="candle"
-          width={32}
-          height={48}
-          className="animate-flicker"
-          style={{ animationDelay: "0.8s", imageRendering: "pixelated" }}
-          priority={false}
-        />
-      </div>
-      <ParticleLayer
-        opacity={0.6}
-        particles={[
-          {
-            type: "dust",
-            count: 10,
-            originX: [15, 85],
-            originY: [10, 60],
-            durationRange: [6, 12],
-            delayRange: [0, 6],
-          },
-        ]}
-      />
-      <WarmOverlay intensity={0.06} />
-    </>
-  );
-}
-
 function HallOfFame() {
   return (
     <>
@@ -364,17 +208,15 @@ function HallOfFame() {
       <div className="absolute top-0 left-0 right-0 h-32 tavern-stone hidden sm:block" />
       {/* Hanging banners */}
       <div className="absolute top-0 left-[10%] hidden sm:block">
-        <Image src="/tavern/banner.svg" alt="" width={64} height={107} priority={false}
-          style={{ imageRendering: "pixelated", opacity: 0.7 }} />
+        <Image src="/tavern/banner.svg" alt="" width={64} height={107} style={{ opacity: 0.7 }} />
       </div>
       <div className="absolute top-0 right-[10%] hidden sm:block">
-        <Image src="/tavern/banner.svg" alt="" width={64} height={107} priority={false}
-          style={{ imageRendering: "pixelated", opacity: 0.6, transform: "scaleX(-1)" }} />
+        <Image src="/tavern/banner.svg" alt="" width={64} height={107}
+          style={{ opacity: 0.6, transform: "scaleX(-1)" }} />
       </div>
       {/* Raven perch */}
       <div className="absolute top-[15%] right-[8%] hidden md:block">
-        <Image src="/tavern/raven.svg" alt="" width={96} height={80} priority={false}
-          style={{ imageRendering: "pixelated", opacity: 0.8 }} />
+        <Image src="/tavern/raven.svg" alt="" width={96} height={80} style={{ opacity: 0.8 }} />
       </div>
       {/* Torches */}
       <WallTorch side="left" top="8%" flameDelay="0.4s" />
@@ -392,37 +234,6 @@ function HallOfFame() {
   );
 }
 
-function MapRoom() {
-  return (
-    <>
-      {/* Parchment map background */}
-      <div className="scene-layer parchment-texture" style={{ opacity: 0.15 }} />
-      <div className="scene-layer" style={{ background: "rgba(26,21,16,0.85)" }} />
-      {/* Candles */}
-      <div className="absolute bottom-8 left-[8%] hidden sm:block">
-        <Image src="/tavern/candle.svg" alt="" width={32} height={48} className="animate-flicker"
-          style={{ animationDelay: "0.3s", imageRendering: "pixelated" }} priority={false} />
-      </div>
-      <div className="absolute bottom-8 right-[8%] hidden sm:block">
-        <Image src="/tavern/candle.svg" alt="" width={32} height={48} className="animate-flicker"
-          style={{ animationDelay: "1.4s", imageRendering: "pixelated" }} priority={false} />
-      </div>
-      {/* Scroll */}
-      <div className="absolute top-[20%] right-[6%] hidden sm:block" style={{ opacity: 0.5 }}>
-        <Image src="/tavern/scroll.svg" alt="" width={96} height={80} priority={false}
-          style={{ imageRendering: "pixelated" }} />
-      </div>
-      <ParticleLayer
-        opacity={0.6}
-        particles={[
-          { type: "dust", count: 14, originX: [10, 90], originY: [5, 70], durationRange: [5, 12], delayRange: [0, 7] },
-        ]}
-      />
-      <WarmOverlay intensity={0.05} />
-    </>
-  );
-}
-
 function TavernEntrance() {
   return (
     <>
@@ -430,7 +241,7 @@ function TavernEntrance() {
       <div className="scene-layer" style={{ background: "linear-gradient(180deg, #0d0d1a 0%, #1a1c2c 60%, #1a1510 100%)" }} />
       {/* Stars */}
       <div className="scene-layer hidden sm:block" style={{ opacity: 0.7 }}>
-        {[...Array(20)].map((_, i) => (
+        {Array.from({ length: 20 }, (_, i) => (
           <div
             key={i}
             className={i % 3 === 0 ? "animate-blink" : ""}
@@ -448,13 +259,11 @@ function TavernEntrance() {
       {/* Mountain silhouette */}
       <div className="absolute bottom-24 left-0 right-0 hidden sm:block" style={{ opacity: 0.5 }}>
         <Image src="/tavern/mountain.svg" alt="" fill
-          style={{ objectFit: "cover", imageRendering: "pixelated", objectPosition: "bottom" }}
-          priority={false} />
+          style={{ objectFit: "cover", objectPosition: "bottom" }} />
       </div>
       {/* Door center */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 hidden sm:block">
-        <Image src="/tavern/door.svg" alt="tavern door" width={128} height={160} priority={false}
-          style={{ imageRendering: "pixelated" }} />
+        <Image src="/tavern/door.svg" alt="tavern door" width={128} height={160} />
       </div>
       {/* Torches either side of door */}
       <WallTorch side="left" top="35%" flameDelay="0.2s" />
@@ -462,8 +271,7 @@ function TavernEntrance() {
       {/* Forest silhouette at bottom */}
       <div className="absolute bottom-0 left-0 right-0 hidden sm:block" style={{ height: 96, opacity: 0.6 }}>
         <Image src="/tavern/forest.svg" alt="" fill
-          style={{ objectFit: "cover", imageRendering: "pixelated", objectPosition: "bottom" }}
-          priority={false} />
+          style={{ objectFit: "cover", objectPosition: "bottom" }} />
       </div>
       <ParticleLayer
         opacity={0.8}
@@ -482,21 +290,17 @@ function TavernEntrance() {
 export default function AmbientScene({ scene }: AmbientSceneProps) {
   if (scene === "none") return null;
 
-  const content: Record<SceneType, React.ReactNode> = {
-    "tavern-interior": <TavernInterior />,
-    "common-room":     <CommonRoom />,
-    "hearthside":      <Hearthside />,
-    "quest-alcove":    <QuestAlcove />,
-    "hero-quarters":   <HeroQuarters />,
-    "hall-of-fame":    <HallOfFame />,
-    "map-room":        <MapRoom />,
-    "entrance":        <TavernEntrance />,
-    "none":            null,
+  const sceneMap: Record<Exclude<SceneType, "none">, React.ReactNode> = {
+    "common-room":  <CommonRoom />,
+    "hearthside":   <Hearthside />,
+    "quest-alcove": <QuestAlcove />,
+    "hall-of-fame": <HallOfFame />,
+    "entrance":     <TavernEntrance />,
   };
 
   return (
     <div className="ambient-scene" aria-hidden="true">
-      {content[scene]}
+      {sceneMap[scene]}
     </div>
   );
 }

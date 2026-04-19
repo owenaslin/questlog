@@ -12,8 +12,9 @@ function dailySeed(): number {
 }
 
 function getCondition(): WeatherCondition {
-  const hour  = new Date().getHours();
-  const month = new Date().getMonth() + 1; // 1-12
+  const now   = new Date();
+  const hour  = now.getHours();
+  const month = now.getMonth() + 1; // 1-12
   const seed  = dailySeed();
 
   // Night mist (10pm–6am)
