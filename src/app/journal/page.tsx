@@ -8,6 +8,7 @@ import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
 import WeeklyRecap from "@/components/WeeklyRecap";
 import DesktopRightRail from "@/components/DesktopRightRail";
+import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS } from "@/lib/quests";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -154,6 +155,7 @@ export default function JournalPage() {
 
   return (
     <div className={isDesktopActive ? "max-w-6xl mx-auto" : "max-w-2xl mx-auto"}>
+      <AmbientScene scene="hearthside" />
       <div className={isDesktopActive ? "grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_288px] gap-6" : ""}>
       <div>
 

@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 96" shape-rendering="crispEdges">
+  <!-- Sky -->
+  <rect x="0"   y="0"  width="256" height="96" fill="#1a1c2c"/>
+  <!-- Distant fog layer -->
+  <rect x="0"   y="50" width="256" height="10" fill="#29366f" opacity="0.3"/>
+  <!-- Background trees (far, small, dark blue) -->
+  <!-- Far tree 1 -->
+  <rect x="0"   y="40" width="10" height="56" fill="#29366f"/>
+  <rect x="0"   y="32" width="16" height="16" fill="#29366f"/>
+  <rect x="4"   y="26" width="8"  height="16" fill="#29366f"/>
+  <rect x="6"   y="20" width="4"  height="10" fill="#29366f"/>
+  <!-- Far tree 2 -->
+  <rect x="16"  y="44" width="10" height="52" fill="#29366f"/>
+  <rect x="14"  y="36" width="14" height="12" fill="#29366f"/>
+  <rect x="16"  y="30" width="10" height="10" fill="#29366f"/>
+  <rect x="18"  y="24" width="6"  height="8"  fill="#29366f"/>
+  <!-- Far tree 3 -->
+  <rect x="30"  y="42" width="10" height="54" fill="#29366f"/>
+  <rect x="28"  y="34" width="14" height="12" fill="#29366f"/>
+  <rect x="30"  y="28" width="10" height="10" fill="#29366f"/>
+  <rect x="32"  y="22" width="6"  height="8"  fill="#29366f"/>
+  <!-- Far mid trees spread -->
+  <rect x="48"  y="38" width="12" height="58" fill="#29366f"/>
+  <rect x="46"  y="28" width="16" height="14" fill="#29366f"/>
+  <rect x="48"  y="22" width="12" height="10" fill="#29366f"/>
+  <rect x="50"  y="16" width="8"  height="8"  fill="#29366f"/>
+  <rect x="66"  y="40" width="10" height="56" fill="#29366f"/>
+  <rect x="64"  y="32" width="14" height="12" fill="#29366f"/>
+  <rect x="66"  y="26" width="10" height="10" fill="#29366f"/>
+  <rect x="80"  y="36" width="14" height="60" fill="#29366f"/>
+  <rect x="78"  y="26" width="18" height="14" fill="#29366f"/>
+  <rect x="80"  y="20" width="14" height="10" fill="#29366f"/>
+  <rect x="82"  y="14" width="10" height="8"  fill="#29366f"/>
+  <rect x="100" y="42" width="10" height="54" fill="#29366f"/>
+  <rect x="98"  y="32" width="14" height="14" fill="#29366f"/>
+  <rect x="116" y="38" width="12" height="58" fill="#29366f"/>
+  <rect x="114" y="28" width="16" height="14" fill="#29366f"/>
+  <rect x="116" y="22" width="12" height="10" fill="#29366f"/>
+  <rect x="130" y="40" width="10" height="56" fill="#29366f"/>
+  <rect x="128" y="32" width="14" height="12" fill="#29366f"/>
+  <rect x="146" y="36" width="14" height="60" fill="#29366f"/>
+  <rect x="144" y="26" width="18" height="14" fill="#29366f"/>
+  <rect x="146" y="18" width="14" height="10" fill="#29366f"/>
+  <rect x="148" y="12" width="10" height="8"  fill="#29366f"/>
+  <rect x="164" y="42" width="10" height="54" fill="#29366f"/>
+  <rect x="162" y="34" width="14" height="12" fill="#29366f"/>
+  <rect x="180" y="38" width="12" height="58" fill="#29366f"/>
+  <rect x="178" y="28" width="16" height="14" fill="#29366f"/>
+  <rect x="180" y="22" width="12" height="10" fill="#29366f"/>
+  <rect x="196" y="40" width="10" height="56" fill="#29366f"/>
+  <rect x="194" y="30" width="14" height="14" fill="#29366f"/>
+  <rect x="196" y="24" width="10" height="10" fill="#29366f"/>
+  <rect x="212" y="36" width="14" height="60" fill="#29366f"/>
+  <rect x="210" y="26" width="18" height="14" fill="#29366f"/>
+  <rect x="212" y="20" width="14" height="10" fill="#29366f"/>
+  <rect x="214" y="14" width="10" height="8"  fill="#29366f"/>
+  <rect x="228" y="42" width="10" height="54" fill="#29366f"/>
+  <rect x="226" y="32" width="14" height="14" fill="#29366f"/>
+  <rect x="242" y="38" width="14" height="58" fill="#29366f"/>
+  <rect x="240" y="28" width="16" height="14" fill="#29366f"/>
+  <!-- Midground trees (medium, dark green) -->
+  <!-- Tree A -->
+  <rect x="4"   y="52" width="8"  height="44" fill="#257179"/>
+  <rect x="0"   y="42" width="16" height="14" fill="#257179"/>
+  <rect x="2"   y="34" width="12" height="12" fill="#257179"/>
+  <rect x="4"   y="28" width="8"  height="8"  fill="#257179"/>
+  <!-- Tree B -->
+  <rect x="22"  y="54" width="8"  height="42" fill="#257179"/>
+  <rect x="18"  y="44" width="16" height="14" fill="#257179"/>
+  <rect x="20"  y="36" width="12" height="12" fill="#257179"/>
+  <rect x="22"  y="30" width="8"  height="8"  fill="#257179"/>
+  <!-- Tree C (big) -->
+  <rect x="40"  y="50" width="10" height="46" fill="#38b764"/>
+  <rect x="36"  y="40" width="18" height="14" fill="#257179"/>
+  <rect x="38"  y="30" width="14" height="14" fill="#257179"/>
+  <rect x="40"  y="22" width="10" height="10" fill="#257179"/>
+  <rect x="42"  y="16" width="6"  height="8"  fill="#257179"/>
+  <!-- Tree D -->
+  <rect x="58"  y="52" width="8"  height="44" fill="#257179"/>
+  <rect x="54"  y="42" width="16" height="14" fill="#257179"/>
+  <rect x="56"  y="34" width="12" height="12" fill="#257179"/>
+  <!-- Spread across center -->
+  <rect x="72"  y="48" width="10" height="48" fill="#38b764"/>
+  <rect x="68"  y="38" width="18" height="14" fill="#257179"/>
+  <rect x="70"  y="28" width="14" height="14" fill="#257179"/>
+  <rect x="72"  y="20" width="10" height="10" fill="#257179"/>
+  <rect x="90"  y="50" width="8"  height="46" fill="#257179"/>
+  <rect x="86"  y="40" width="16" height="14" fill="#257179"/>
+  <rect x="88"  y="32" width="12" height="12" fill="#257179"/>
+  <rect x="106" y="48" width="10" height="48" fill="#38b764"/>
+  <rect x="102" y="38" width="18" height="14" fill="#257179"/>
+  <rect x="104" y="28" width="14" height="14" fill="#257179"/>
+  <rect x="106" y="20" width="10" height="10" fill="#257179"/>
+  <rect x="122" y="52" width="8"  height="44" fill="#257179"/>
+  <rect x="118" y="42" width="16" height="14" fill="#257179"/>
+  <rect x="138" y="48" width="10" height="48" fill="#38b764"/>
+  <rect x="134" y="38" width="18" height="14" fill="#257179"/>
+  <rect x="136" y="28" width="14" height="14" fill="#257179"/>
+  <rect x="138" y="22" width="10" height="10" fill="#257179"/>
+  <rect x="154" y="50" width="8"  height="46" fill="#257179"/>
+  <rect x="150" y="40" width="16" height="14" fill="#257179"/>
+  <rect x="152" y="32" width="12" height="12" fill="#257179"/>
+  <rect x="168" y="48" width="10" height="48" fill="#38b764"/>
+  <rect x="164" y="38" width="18" height="14" fill="#257179"/>
+  <rect x="170" y="28" width="14" height="14" fill="#257179"/>
+  <rect x="186" y="50" width="8"  height="46" fill="#257179"/>
+  <rect x="182" y="40" width="16" height="14" fill="#257179"/>
+  <rect x="200" y="48" width="10" height="48" fill="#38b764"/>
+  <rect x="196" y="38" width="18" height="14" fill="#257179"/>
+  <rect x="202" y="28" width="14" height="14" fill="#257179"/>
+  <rect x="204" y="22" width="10" height="10" fill="#257179"/>
+  <rect x="216" y="52" width="8"  height="44" fill="#257179"/>
+  <rect x="212" y="42" width="16" height="14" fill="#257179"/>
+  <rect x="230" y="50" width="10" height="46" fill="#38b764"/>
+  <rect x="226" y="40" width="18" height="14" fill="#257179"/>
+  <rect x="228" y="30" width="14" height="14" fill="#257179"/>
+  <rect x="246" y="52" width="10" height="44" fill="#257179"/>
+  <rect x="242" y="42" width="14" height="14" fill="#257179"/>
+  <!-- Ground fill -->
+  <rect x="0"   y="80" width="256" height="16" fill="#1a1510"/>
+  <!-- Ground top highlight -->
+  <rect x="0"   y="78" width="256" height="4"  fill="#2e2518"/>
+</svg>

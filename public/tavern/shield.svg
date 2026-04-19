@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 56" shape-rendering="crispEdges">
+  <!-- Shield body -->
+  <rect x="4"  y="0"  width="40" height="36" fill="#3b5dc9"/>
+  <!-- Shield lower half (pointed) -->
+  <rect x="4"  y="36" width="40" height="8"  fill="#3b5dc9"/>
+  <rect x="6"  y="44" width="36" height="6"  fill="#3b5dc9"/>
+  <rect x="8"  y="50" width="32" height="4"  fill="#3b5dc9"/>
+  <rect x="12" y="54" width="24" height="2"  fill="#3b5dc9"/>
+  <rect x="18" y="56" width="12" height="0"  fill="#3b5dc9"/>
+  <!-- Shield tip -->
+  <rect x="14" y="54" width="20" height="2"  fill="#3b5dc9"/>
+  <rect x="20" y="56" width="8"  height="2"  fill="#3b5dc9"/>
+  <!-- Shield border outer -->
+  <rect x="4"  y="0"  width="4"  height="44" fill="#1a1c2c"/>
+  <rect x="40" y="0"  width="4"  height="44" fill="#1a1c2c"/>
+  <rect x="4"  y="0"  width="40" height="4"  fill="#1a1c2c"/>
+  <!-- Shield border inner (gold) -->
+  <rect x="8"  y="4"  width="2"  height="38" fill="#e8b864"/>
+  <rect x="38" y="4"  width="2"  height="38" fill="#e8b864"/>
+  <rect x="8"  y="4"  width="32" height="2"  fill="#e8b864"/>
+  <!-- Diagonal band (heraldic) -->
+  <rect x="10" y="6"  width="28" height="6"  fill="#c44a36"/>
+  <rect x="10" y="12" width="2"  height="4"  fill="#c44a36"/>
+  <rect x="36" y="8"  width="2"  height="4"  fill="#c44a36"/>
+  <!-- Star / crest center -->
+  <rect x="20" y="18" width="8"  height="2"  fill="#f5d76e"/>
+  <rect x="22" y="16" width="4"  height="6"  fill="#f5d76e"/>
+  <rect x="18" y="20" width="12" height="2"  fill="#f5d76e"/>
+  <!-- Star points -->
+  <rect x="16" y="18" width="4"  height="2"  fill="#f5d76e"/>
+  <rect x="28" y="18" width="4"  height="2"  fill="#f5d76e"/>
+  <rect x="20" y="14" width="2"  height="4"  fill="#f5d76e"/>
+  <rect x="26" y="14" width="2"  height="4"  fill="#f5d76e"/>
+  <rect x="20" y="24" width="2"  height="4"  fill="#f5d76e"/>
+  <rect x="26" y="24" width="2"  height="4"  fill="#f5d76e"/>
+  <!-- Highlight top-left -->
+  <rect x="10" y="6"  width="4"  height="20" fill="#5d8de0" opacity="0.5"/>
+  <!-- Shield boss (center metal knob) -->
+  <rect x="21" y="20" width="6"  height="4"  fill="#94b0c2"/>
+  <rect x="22" y="21" width="4"  height="2"  fill="#b8cad4"/>
+</svg>

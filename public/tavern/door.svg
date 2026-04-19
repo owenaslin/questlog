@@ -1,24 +1,101 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32" shape-rendering="crispEdges">
-  <!-- Door frame -->
-  <rect x="0" y="0" width="24" height="32" fill="#5c3a1a"/>
-  <!-- Door panels -->
-  <rect x="2" y="2" width="20" height="28" fill="#8b5a2b"/>
-  <!-- Top arch -->
-  <rect x="4" y="4" width="16" height="2" fill="#c4a85a"/>
-  <rect x="3" y="6" width="18" height="1" fill="#c4a85a"/>
-  <!-- Upper panel -->
-  <rect x="4" y="7" width="7" height="8" fill="#7a4e24"/>
-  <rect x="13" y="7" width="7" height="8" fill="#7a4e24"/>
-  <!-- Panel trim -->
-  <rect x="4" y="7" width="7" height="1" fill="#c4a85a"/>
-  <rect x="13" y="7" width="7" height="1" fill="#c4a85a"/>
-  <!-- Lower panel -->
-  <rect x="4" y="17" width="7" height="10" fill="#7a4e24"/>
-  <rect x="13" y="17" width="7" height="10" fill="#7a4e24"/>
-  <!-- Panel trim -->
-  <rect x="4" y="17" width="7" height="1" fill="#c4a85a"/>
-  <rect x="13" y="17" width="7" height="1" fill="#c4a85a"/>
-  <!-- Door knob -->
-  <rect x="14" y="15" width="3" height="3" fill="#e8b864"/>
-  <rect x="15" y="16" width="1" height="1" fill="#f5d76e"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80" shape-rendering="crispEdges">
+  <!-- Stone arch surround -->
+  <rect x="0"  y="0"  width="64" height="80" fill="#566c86"/>
+  <!-- Stone block pattern left -->
+  <rect x="0"  y="0"  width="8"  height="16" fill="#94b0c2"/>
+  <rect x="0"  y="18" width="8"  height="16" fill="#94b0c2"/>
+  <rect x="0"  y="36" width="8"  height="16" fill="#94b0c2"/>
+  <rect x="0"  y="54" width="8"  height="16" fill="#94b0c2"/>
+  <rect x="0"  y="72" width="8"  height="8"  fill="#94b0c2"/>
+  <!-- Stone block pattern right -->
+  <rect x="56" y="4"  width="8"  height="16" fill="#94b0c2"/>
+  <rect x="56" y="22" width="8"  height="16" fill="#94b0c2"/>
+  <rect x="56" y="40" width="8"  height="16" fill="#94b0c2"/>
+  <rect x="56" y="58" width="8"  height="16" fill="#94b0c2"/>
+  <!-- Stone joints horizontal -->
+  <rect x="0"  y="16" width="8"  height="2"  fill="#1a1c2c"/>
+  <rect x="0"  y="34" width="8"  height="2"  fill="#1a1c2c"/>
+  <rect x="0"  y="52" width="8"  height="2"  fill="#1a1c2c"/>
+  <rect x="0"  y="70" width="8"  height="2"  fill="#1a1c2c"/>
+  <rect x="56" y="20" width="8"  height="2"  fill="#1a1c2c"/>
+  <rect x="56" y="38" width="8"  height="2"  fill="#1a1c2c"/>
+  <rect x="56" y="56" width="8"  height="2"  fill="#1a1c2c"/>
+  <rect x="56" y="74" width="8"  height="2"  fill="#1a1c2c"/>
+  <!-- Stone arch top row -->
+  <rect x="0"  y="0"  width="64" height="8"  fill="#566c86"/>
+  <rect x="0"  y="0"  width="16" height="8"  fill="#94b0c2"/>
+  <rect x="18" y="0"  width="12" height="8"  fill="#94b0c2"/>
+  <rect x="32" y="0"  width="12" height="8"  fill="#566c86"/>
+  <rect x="46" y="0"  width="16" height="8"  fill="#94b0c2"/>
+  <rect x="16" y="0"  width="2"  height="8"  fill="#1a1c2c"/>
+  <rect x="30" y="0"  width="2"  height="8"  fill="#1a1c2c"/>
+  <rect x="44" y="0"  width="2"  height="8"  fill="#1a1c2c"/>
+  <!-- Arch curve (pixel approximation) -->
+  <rect x="8"  y="8"  width="4"  height="4"  fill="#566c86"/>
+  <rect x="52" y="8"  width="4"  height="4"  fill="#566c86"/>
+  <rect x="8"  y="12" width="2"  height="4"  fill="#566c86"/>
+  <rect x="54" y="12" width="2"  height="4"  fill="#566c86"/>
+  <!-- Door frame (oak) -->
+  <rect x="8"  y="8"  width="48" height="72" fill="#5c3a1a"/>
+  <!-- Door surface -->
+  <rect x="10" y="10" width="44" height="68" fill="#8b5a2b"/>
+  <!-- Door wood grain -->
+  <rect x="10" y="20" width="44" height="2"  fill="#7a4e24" opacity="0.5"/>
+  <rect x="10" y="34" width="44" height="2"  fill="#7a4e24" opacity="0.5"/>
+  <rect x="10" y="48" width="44" height="2"  fill="#7a4e24" opacity="0.5"/>
+  <rect x="10" y="62" width="44" height="2"  fill="#7a4e24" opacity="0.5"/>
+  <!-- Upper left panel -->
+  <rect x="12" y="12" width="18" height="24" fill="#7a4e24"/>
+  <rect x="12" y="12" width="18" height="3"  fill="#c4a85a"/>
+  <rect x="12" y="12" width="2"  height="24" fill="#c4a85a"/>
+  <rect x="28" y="12" width="2"  height="24" fill="#5c3a1a"/>
+  <rect x="12" y="34" width="18" height="2"  fill="#5c3a1a"/>
+  <!-- Upper right panel -->
+  <rect x="34" y="12" width="18" height="24" fill="#7a4e24"/>
+  <rect x="34" y="12" width="18" height="3"  fill="#c4a85a"/>
+  <rect x="34" y="12" width="2"  height="24" fill="#c4a85a"/>
+  <rect x="50" y="12" width="2"  height="24" fill="#5c3a1a"/>
+  <rect x="34" y="34" width="18" height="2"  fill="#5c3a1a"/>
+  <!-- Lower left panel -->
+  <rect x="12" y="40" width="18" height="30" fill="#7a4e24"/>
+  <rect x="12" y="40" width="18" height="3"  fill="#c4a85a"/>
+  <rect x="12" y="40" width="2"  height="30" fill="#c4a85a"/>
+  <rect x="28" y="40" width="2"  height="30" fill="#5c3a1a"/>
+  <rect x="12" y="68" width="18" height="2"  fill="#5c3a1a"/>
+  <!-- Lower right panel -->
+  <rect x="34" y="40" width="18" height="30" fill="#7a4e24"/>
+  <rect x="34" y="40" width="18" height="3"  fill="#c4a85a"/>
+  <rect x="34" y="40" width="2"  height="30" fill="#c4a85a"/>
+  <rect x="50" y="40" width="2"  height="30" fill="#5c3a1a"/>
+  <rect x="34" y="68" width="18" height="2"  fill="#5c3a1a"/>
+  <!-- Iron hinges left -->
+  <rect x="8"  y="14" width="8"  height="6"  fill="#333c57"/>
+  <rect x="9"  y="15" width="6"  height="4"  fill="#566c86"/>
+  <rect x="8"  y="52" width="8"  height="6"  fill="#333c57"/>
+  <rect x="9"  y="53" width="6"  height="4"  fill="#566c86"/>
+  <!-- Hinge bolts -->
+  <rect x="9"  y="15" width="2"  height="2"  fill="#94b0c2"/>
+  <rect x="13" y="15" width="2"  height="2"  fill="#94b0c2"/>
+  <rect x="9"  y="53" width="2"  height="2"  fill="#94b0c2"/>
+  <rect x="13" y="53" width="2"  height="2"  fill="#94b0c2"/>
+  <!-- Door knocker / ring -->
+  <rect x="36" y="36" width="8"  height="2"  fill="#e8b864"/>
+  <rect x="34" y="34" width="4"  height="6"  fill="#e8b864"/>
+  <rect x="44" y="34" width="4"  height="6"  fill="#e8b864"/>
+  <rect x="34" y="34" width="12" height="2"  fill="#e8b864"/>
+  <rect x="34" y="38" width="12" height="2"  fill="#e8b864"/>
+  <rect x="36" y="36" width="2"  height="2"  fill="#c49a3c"/>
+  <!-- Keyhole -->
+  <rect x="37" y="54" width="6"  height="4"  fill="#1a1510"/>
+  <rect x="36" y="56" width="8"  height="2"  fill="#1a1510"/>
+  <rect x="39" y="58" width="2"  height="4"  fill="#1a1510"/>
+  <!-- Lock plate -->
+  <rect x="34" y="52" width="12" height="12" fill="#566c86"/>
+  <rect x="35" y="53" width="10" height="10" fill="#333c57"/>
+  <rect x="37" y="54" width="6"  height="4"  fill="#1a1510"/>
+  <rect x="36" y="56" width="8"  height="2"  fill="#1a1510"/>
+  <rect x="39" y="58" width="2"  height="4"  fill="#1a1510"/>
+  <!-- Step -->
+  <rect x="8"  y="76" width="48" height="4"  fill="#566c86"/>
+  <rect x="6"  y="78" width="52" height="2"  fill="#94b0c2"/>
 </svg>

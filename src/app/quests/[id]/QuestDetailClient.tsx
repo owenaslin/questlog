@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import PixelButton from "@/components/PixelButton";
 import XPBar from "@/components/XPBar";
 import CompletionModal from "@/components/CompletionModal";
+import AmbientScene from "@/components/AmbientScene";
 import { Quest } from "@/lib/types";
 import {
   acceptQuest,
@@ -141,6 +142,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
 
   return (
     <div className="max-w-2xl mx-auto">
+      <AmbientScene scene="quest-alcove" />
       {/* Back button */}
       <Link
         href="/board"

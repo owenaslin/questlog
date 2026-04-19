@@ -79,6 +79,54 @@ const config: Config = {
           "0%": { transform: "translateY(0)", opacity: "1" },
           "100%": { transform: "translateY(-32px)", opacity: "0" },
         },
+        // New — environmental
+        ember: {
+          "0%":   { transform: "translateY(0) translateX(0)",    opacity: "1" },
+          "30%":  { transform: "translateY(-20px) translateX(4px)",  opacity: "0.9" },
+          "60%":  { transform: "translateY(-40px) translateX(-4px)", opacity: "0.6" },
+          "100%": { transform: "translateY(-64px) translateX(6px)",  opacity: "0" },
+        },
+        smoke: {
+          "0%":   { transform: "translateY(0) scale(1)",   opacity: "0.4" },
+          "50%":  { transform: "translateY(-24px) scale(1.5)", opacity: "0.2" },
+          "100%": { transform: "translateY(-48px) scale(2)",   opacity: "0" },
+        },
+        drift: {
+          "0%":   { transform: "translateX(0) translateY(0)",     opacity: "0.6" },
+          "50%":  { transform: "translateX(16px) translateY(-8px)",  opacity: "0.4" },
+          "100%": { transform: "translateX(32px) translateY(-4px)",  opacity: "0" },
+        },
+        rain: {
+          "0%":   { transform: "translateY(-16px) translateX(0)",    opacity: "0.7" },
+          "100%": { transform: "translateY(100vh) translateX(-20px)", opacity: "0.4" },
+        },
+        snow: {
+          "0%":   { transform: "translateY(-8px) translateX(0)",   opacity: "0.9" },
+          "33%":  { transform: "translateY(33vh) translateX(8px)",  opacity: "0.8" },
+          "66%":  { transform: "translateY(66vh) translateX(-8px)", opacity: "0.7" },
+          "100%": { transform: "translateY(100vh) translateX(4px)", opacity: "0.6" },
+        },
+        fogDrift: {
+          "0%":   { transform: "translateX(-10%)", opacity: "0" },
+          "20%":  { opacity: "0.12" },
+          "80%":  { opacity: "0.12" },
+          "100%": { transform: "translateX(10%)",  opacity: "0" },
+        },
+        coinShower: {
+          "0%":   { transform: "translateY(-16px) rotate(0deg)",    opacity: "1" },
+          "100%": { transform: "translateY(80px)  rotate(360deg)",   opacity: "0" },
+        },
+        tavernFlickerFull: {
+          "0%, 88%, 100%": { opacity: "1" },
+          "90%":  { opacity: "0.7" },
+          "92%":  { opacity: "1" },
+          "94%":  { opacity: "0.8" },
+          "96%":  { opacity: "1" },
+        },
+        parallaxSlow: {
+          "0%":   { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         blink: "blink 1s step-end infinite",
@@ -87,6 +135,16 @@ const config: Config = {
         flicker: "flicker 2s step-end infinite",
         "pulse-warm": "pulseWarm 2s step-end infinite",
         "float-up": "floatUp 1s steps(8) forwards",
+        // New
+        ember: "ember 2.4s steps(12) infinite",
+        smoke: "smoke 3s steps(8) infinite",
+        drift: "drift 6s steps(12) infinite",
+        rain: "rain 0.8s linear infinite",
+        snow: "snow 6s steps(16) infinite",
+        "fog-drift": "fogDrift 18s linear infinite",
+        "coin-shower": "coinShower 1s steps(8) forwards",
+        "flicker-full": "tavernFlickerFull 4s step-end infinite",
+        "parallax-slow": "parallaxSlow 60s linear infinite",
       },
     },
   },
