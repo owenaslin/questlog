@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import ViewModeProvider from "@/components/ViewModeProvider";
 
 export const metadata: Metadata = {
   title: "Tarvn — The Adventurer's Tavern",
@@ -30,8 +31,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="scanlines candlelight-vignette">
-        <Navbar />
-        <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
+        <ViewModeProvider>
+          <Navbar />
+          <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
+        </ViewModeProvider>
       </body>
     </html>
   );
