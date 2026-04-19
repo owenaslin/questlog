@@ -10,11 +10,12 @@ export function generateStaticParams() {
 }
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function QuestlineDetailPage({ params }: PageProps) {
-  const questline = getQuestlineById(params.id);
+export default async function QuestlineDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  const questline = getQuestlineById(id);
 
   if (!questline) {
     notFound();
