@@ -65,7 +65,11 @@ export function mergeQuestWithProgress(
   });
 }
 
-export async function acceptQuest(questId: string): Promise<{ success: boolean; error?: string }> {
+export async function acceptQuest(
+  questId: string,
+  questType?: Quest["type"],
+  questCategory?: string
+): Promise<{ success: boolean; error?: string }> {
   const userId = await getCurrentUserId();
   if (!userId) {
     return { success: false, error: "Please log in to accept quests." };
@@ -80,6 +84,8 @@ export async function acceptQuest(questId: string): Promise<{ success: boolean; 
       {
         user_id: userId,
         quest_id: questId,
+        quest_type: questType,
+        quest_category: questCategory,
         status: "active",
         accepted_at: now,
       },
@@ -96,6 +102,7 @@ export async function acceptQuest(questId: string): Promise<{ success: boolean; 
 export async function completeQuest(
   questId: string,
   xpReward: number,
+  questType?: Quest["type"],
   questCategory?: string
 ): Promise<{ success: boolean; alreadyCompleted?: boolean; error?: string }> {
   const userId = await getCurrentUserId();
@@ -104,63 +111,27 @@ export async function completeQuest(
   }
 
   const supabase = getSupabaseClient();
-  const now = new Date().toISOString();
 
-  const { data: existingProgress, error: existingProgressError } = await supabase
-    .from("user_quests")
-    .select("status")
-    .eq("user_id", userId)
-    .eq("quest_id", questId)
-    .maybeSingle();
+  const { data: completionData, error: completionError } = await supabase.rpc(
+    "complete_quest_atomic",
+    {
+      p_user_id: userId,
+      p_quest_id: questId,
+      p_xp: xpReward,
+      p_quest_type: questType ?? null,
+      p_quest_category: questCategory ?? null,
+    }
+  );
 
-  if (existingProgressError) {
-    return { success: false, error: existingProgressError.message };
+  if (completionError) {
+    return { success: false, error: completionError.message };
   }
 
-  if (existingProgress?.status === "completed") {
+  const rpcResult = Array.isArray(completionData) ? completionData[0] : completionData;
+  const alreadyCompleted = Boolean(rpcResult?.already_completed);
+
+  if (alreadyCompleted) {
     return { success: true, alreadyCompleted: true };
-  }
-
-  const { error: progressError } = await supabase
-    .from("user_quests")
-    .upsert(
-      {
-        user_id: userId,
-        quest_id: questId,
-        status: "completed",
-        completed_at: now,
-        accepted_at: now,
-      },
-      { onConflict: "user_id,quest_id" }
-    );
-
-  if (progressError) {
-    return { success: false, error: progressError.message };
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("xp_total")
-    .eq("id", userId)
-    .single();
-
-  if (profileError || !profile) {
-    return {
-      success: false,
-      error: profileError?.message || "Could not load profile for XP update.",
-    };
-  }
-
-  const nextXp = (profile.xp_total || 0) + xpReward;
-  const nextLevel = calculateLevelFromXp(nextXp);
-
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({ xp_total: nextXp, level: nextLevel })
-    .eq("id", userId);
-
-  if (updateError) {
-    return { success: false, error: updateError.message };
   }
 
   if (questCategory) {

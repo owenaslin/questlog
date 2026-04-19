@@ -60,7 +60,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
     setStatus("active");
 
     try {
-      const result = await acceptQuest(quest.id);
+      const result = await acceptQuest(quest.id, quest.type, quest.category);
       if (!result.success) {
         setStatus(previousStatus);
         if (result.error?.toLowerCase().includes("log in")) {
@@ -88,7 +88,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       const beforeLevel = beforeSummary?.level || calculateLevel(beforeSummary?.xp_total || 0);
       setPreviousLevel(beforeLevel);
 
-      const result = await completeQuest(quest.id, quest.xp_reward, quest.category);
+      const result = await completeQuest(quest.id, quest.xp_reward, quest.type, quest.category);
       if (!result.success) {
         setStatus(previousStatus);
         if (result.error?.toLowerCase().includes("log in")) {
