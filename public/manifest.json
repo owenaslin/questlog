@@ -1,0 +1,40 @@
+{
+  "name": "Tarvn - The Adventurer's Tavern",
+  "short_name": "Tarvn",
+  "description": "Every hero needs a tavern. Collect quests, track your journey, celebrate triumphs and build your legend.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1510",
+  "theme_color": "#1a1510",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "productivity", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/screenshots/quest-board.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/quest-detail.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}

@@ -20,9 +20,9 @@ const variantStyles = {
 };
 
 const sizeStyles = {
-  sm: "px-3 py-1 text-[8px]",
-  md: "px-5 py-2 text-[10px]",
-  lg: "px-8 py-3 text-xs",
+  sm: "px-3 py-2 md:py-1 text-[8px] min-h-[44px] md:min-h-0",
+  md: "px-5 py-3 md:py-2 text-[10px] min-h-[48px] md:min-h-0",
+  lg: "px-8 py-4 md:py-3 text-xs min-h-[56px] md:min-h-0",
 };
 
 export default function PixelButton({
