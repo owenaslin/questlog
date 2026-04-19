@@ -72,7 +72,10 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const configuredModel = process.env.GOOGLE_GEMINI_MODEL?.trim();
+    const modelCandidates = configuredModel
+      ? [configuredModel, "gemini-1.5-flash"]
+      : ["gemini-1.5-flash"];
 
     const safeLocation = sanitizeForPrompt(location);
     const safeTopic = sanitizeForPrompt(topic);
@@ -93,11 +96,20 @@ Respond with ONLY a JSON object (no markdown, no code fences) with these exact f
 }`;
 
     let result;
-    try {
-      result = await model.generateContent(prompt);
-    } catch (err) {
+    let lastError: unknown;
+    for (const candidate of modelCandidates) {
+      try {
+        const model = genAI.getGenerativeModel({ model: candidate });
+        result = await model.generateContent(prompt);
+        break;
+      } catch (err) {
+        lastError = err;
+      }
+    }
+
+    if (!result) {
       throw new AppError(
-        err instanceof Error ? err.message : "Failed to generate content",
+        lastError instanceof Error ? lastError.message : "Failed to generate content",
         502
       );
     }
