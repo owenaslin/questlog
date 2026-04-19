@@ -5,14 +5,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
+import { getProfileProgressSummary } from "@/lib/quest-progress";
 
 const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/quests", label: "Quests" },
-  { href: "/questlines", label: "Questlines" },
-  { href: "/categories", label: "Categories" },
-  { href: "/badges", label: "Badges" },
-  { href: "/generate", label: "AI Gen" },
+  { href: "/board",    label: "The Board" },
+  { href: "/sagas",    label: "Sagas" },
+  { href: "/guilds",   label: "Guilds" },
+  { href: "/trophies", label: "Trophies" },
 ];
 
 export default function Navbar() {
@@ -21,9 +20,11 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [heroLevel, setHeroLevel] = useState<number | null>(null);
+  const [heroXp, setHeroXp] = useState<number | null>(null);
 
   const currentPath = pathname || "/";
-  const loginUrl = useMemo(() => buildAuthUrl("login", currentPath), [currentPath]);
+  const loginUrl  = useMemo(() => buildAuthUrl("login",  currentPath), [currentPath]);
   const signupUrl = useMemo(() => buildAuthUrl("signup", currentPath), [currentPath]);
 
   useEffect(() => {
@@ -31,17 +32,29 @@ export default function Navbar() {
 
     const hydrateSession = async () => {
       const { data } = await supabase.auth.getSession();
-      setIsAuthenticated(Boolean(data.session));
+      const authed = Boolean(data.session);
+      setIsAuthenticated(authed);
       setIsLoadingAuth(false);
+
+      if (authed) {
+        try {
+          const summary = await getProfileProgressSummary();
+          if (summary) {
+            setHeroLevel(summary.level);
+            setHeroXp(summary.xp_total);
+          }
+        } catch {
+          // non-critical
+        }
+      }
     };
 
     hydrateSession();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
         setIsAuthenticated(Boolean(session));
+        if (!session) { setHeroLevel(null); setHeroXp(null); }
       }
     });
 
@@ -56,88 +69,115 @@ export default function Navbar() {
   };
 
   const isActivePath = (href: string) => {
-    if (!pathname) {
-      return false;
-    }
-
+    if (!pathname) return false;
     return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
   };
 
   const linkClasses = (href: string) =>
     `font-pixel text-[8px] px-3 py-2 uppercase tracking-wider transition-none ${
       isActivePath(href)
-        ? "bg-retro-darkpurple text-retro-yellow"
-        : "text-retro-lightgray hover:text-retro-white hover:bg-retro-darkgray"
+        ? "bg-tavern-oak text-tavern-gold border-b-2 border-tavern-gold"
+        : "text-tavern-parchment hover:text-tavern-gold hover:bg-tavern-smoke-light"
     }`;
 
+  /* XP bar width (0–100%) based on progress within current level (500 XP/level) */
+  const xpPct = heroXp !== null
+    ? Math.round(((heroXp % 500) / 500) * 100)
+    : 0;
+
   return (
-    <nav className="bg-retro-black border-b-4 border-retro-darkpurple sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 border-b-4 border-tavern-oak-dark"
+         style={{ background: "linear-gradient(180deg, #2a1f14 0%, #1a1510 100%)" }}>
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+
+        {/* ── Logo / tavern name ──────────────────── */}
         <Link
           href="/"
-          className="font-pixel text-retro-yellow text-sm hover:text-retro-orange transition-none"
+          className="font-pixel text-tavern-gold text-sm hover:text-tavern-candle transition-none flex items-center gap-2"
         >
-          ⚔ QUEST BOARD
+          🍺 <span>TARVN</span>
         </Link>
 
+        {/* ── Mobile hamburger ───────────────────── */}
         <button
           type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="md:hidden font-pixel text-[10px] px-3 py-2 bg-retro-darkgray text-retro-white border-2 border-retro-darkpurple"
+          className="md:hidden font-pixel text-[10px] px-3 py-2 bg-tavern-smoke text-tavern-parchment border-2 border-tavern-oak"
           aria-label="Toggle navigation"
           aria-expanded={isMenuOpen}
         >
           ☰
         </button>
 
-        <div className="hidden md:flex gap-2 items-center">
+        {/* ── Desktop nav ────────────────────────── */}
+        <div className="hidden md:flex gap-1 items-center flex-1">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={linkClasses(link.href)}
-            >
+            <Link key={link.href} href={link.href} className={linkClasses(link.href)}>
               {link.label}
             </Link>
           ))}
+        </div>
 
-          {!isLoadingAuth && isAuthenticated && (
-            <Link href="/profile" className={linkClasses("/profile")}>
-              Profile
-            </Link>
-          )}
-
+        {/* ── Hero pill (authed) / auth buttons ─── */}
+        <div className="hidden md:flex items-center gap-2">
           {isLoadingAuth ? (
-            <span className="font-pixel text-retro-gray text-[8px] px-3 py-2">...</span>
+            <span className="font-pixel text-tavern-smoke-light text-[8px] px-3 py-2 animate-flicker">...</span>
           ) : isAuthenticated ? (
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-retro-red text-retro-white hover:bg-retro-orange transition-none"
-            >
-              Logout
-            </button>
+            <>
+              {/* Hero pill */}
+              <Link
+                href="/journal"
+                className="flex items-center gap-2 bg-tavern-smoke border-2 border-tavern-oak px-3 py-1 hover:border-tavern-gold transition-none"
+              >
+                <span className="text-base leading-none">🧙</span>
+                <div className="flex flex-col gap-0.5">
+                  {heroLevel !== null && (
+                    <span className="font-pixel text-tavern-gold text-[7px]">
+                      LVL {heroLevel}
+                    </span>
+                  )}
+                  {heroXp !== null && (
+                    <div className="w-16 h-1 bg-tavern-smoke-light relative">
+                      <div
+                        className="h-full bg-tavern-gold absolute left-0 top-0 transition-none"
+                        style={{ width: `${xpPct}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-tavern-ember text-retro-white hover:bg-tavern-ember-dark transition-none"
+              >
+                Leave
+              </button>
+            </>
           ) : (
             <>
               <Link
                 href={loginUrl}
                 className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-retro-blue text-retro-white hover:bg-retro-lightblue transition-none"
               >
-                Login
+                Enter
               </Link>
               <Link
                 href={signupUrl}
-                className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-retro-green text-retro-white hover:bg-retro-lime transition-none"
+                className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-tavern-gold text-tavern-smoke hover:bg-tavern-candle transition-none"
               >
-                Sign Up
+                Join
               </Link>
             </>
           )}
         </div>
       </div>
 
+      {/* ── Mobile menu ──────────────────────────── */}
       {isMenuOpen && (
-        <div className="md:hidden border-t-4 border-retro-darkpurple bg-retro-black px-4 py-3 flex flex-col gap-2">
+        <div className="md:hidden border-t-4 border-tavern-oak-dark px-4 py-3 flex flex-col gap-2"
+             style={{ background: "#1a1510" }}>
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -150,20 +190,22 @@ export default function Navbar() {
           ))}
 
           {!isLoadingAuth && isAuthenticated && (
-            <Link href="/profile" onClick={() => setIsMenuOpen(false)} className={linkClasses("/profile")}>
-              Profile
+            <Link href="/journal" onClick={() => setIsMenuOpen(false)} className={linkClasses("/journal")}>
+              My Journal
             </Link>
           )}
 
           {isLoadingAuth ? (
-            <span className="font-pixel text-retro-gray text-[8px] px-3 py-2">Checking session...</span>
+            <span className="font-pixel text-tavern-smoke-light text-[8px] px-3 py-2">
+              Checking your bounty...
+            </span>
           ) : isAuthenticated ? (
             <button
               type="button"
               onClick={handleSignOut}
-              className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-retro-red text-retro-white text-left"
+              className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-tavern-ember text-retro-white text-left"
             >
-              Logout
+              Leave the Tavern
             </button>
           ) : (
             <>
@@ -172,14 +214,14 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
                 className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-retro-blue text-retro-white"
               >
-                Login
+                Enter the Tavern
               </Link>
               <Link
                 href={signupUrl}
                 onClick={() => setIsMenuOpen(false)}
-                className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-retro-green text-retro-white"
+                className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-tavern-gold text-tavern-smoke"
               >
-                Sign Up
+                Begin Your Legend
               </Link>
             </>
           )}
