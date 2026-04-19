@@ -9,6 +9,8 @@ REVOKE SELECT (email) ON TABLE public.profiles FROM anon, authenticated;
 DROP POLICY IF EXISTS "Public profiles are viewable by all" ON public.profiles;
 
 -- 2) Public-safe profile lookup RPC.
+DROP FUNCTION IF EXISTS public.get_profile_by_handle(TEXT);
+
 CREATE OR REPLACE FUNCTION public.get_profile_by_handle(p_handle TEXT)
 RETURNS TABLE (
   id             UUID,
