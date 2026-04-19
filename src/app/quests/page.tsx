@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import QuestCard from "@/components/QuestCard";
 import QuestCardSkeleton from "@/components/QuestCardSkeleton";
 import SmartSuggestions from "@/components/SmartSuggestions";
 import DesktopRightRail from "@/components/DesktopRightRail";
+import PullToRefresh from "@/components/PullToRefresh";
+import FloatingActionButton from "@/components/FloatingActionButton";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS, getMainQuests, getSideQuests } from "@/lib/quests";
 import { Quest, QuestSource } from "@/lib/types";
@@ -51,6 +53,19 @@ export default function QuestsPage() {
     };
 
     hydrateProgress();
+  }, []);
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    setIsLoadingProgress(true);
+    const userId = await getCurrentUserId();
+    
+    if (userId) {
+      const progressMap = await getUserQuestProgressMap();
+      setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
+    }
+    
+    setIsLoadingProgress(false);
   }, []);
 
   const filteredQuests = useMemo(() => {
@@ -104,6 +119,7 @@ export default function QuestsPage() {
 
   return (
     <div>
+      <PullToRefresh onRefresh={handleRefresh} disabled={!isAuthenticated}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
@@ -430,6 +446,15 @@ export default function QuestsPage() {
           </div>
         )
       )}
+      
+      {/* Mobile FAB for new quest */}
+      <FloatingActionButton
+        href="/generate"
+        icon="⚡"
+        label="New Quest"
+        variant="primary"
+      />
+      </PullToRefresh>
     </div>
   );
 }
