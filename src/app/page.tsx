@@ -1,112 +1,174 @@
 import Link from "next/link";
+import Image from "next/image";
 import PixelButton from "@/components/PixelButton";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center gap-8">
-      {/* Pixel Art Hero */}
-      <div className="relative">
-        <div className="text-6xl mb-4 animate-bounce-8bit">⚔</div>
-        <h1 className="font-pixel text-retro-yellow text-2xl md:text-3xl leading-relaxed mb-2">
-          QUESTLOG
-        </h1>
-        <div className="font-pixel text-retro-lightgray text-[10px] md:text-xs leading-loose">
-          Your adventure awaits, adventurer!
+    <div className="flex flex-col items-center gap-0">
+
+      {/* ── Tavern Sign ─────────────────────────────────────────── */}
+      <div className="relative flex flex-col items-center mb-2">
+        {/* Hanging chains */}
+        <div className="flex gap-24 mb-1">
+          <div className="w-1 h-6 bg-tavern-oak-dark opacity-60" />
+          <div className="w-1 h-6 bg-tavern-oak-dark opacity-60" />
+        </div>
+        {/* Sign board */}
+        <div className="tavern-card px-8 py-4 text-center relative">
+          <div className="absolute -top-2 left-4 right-4 h-1 bg-tavern-oak" />
+          <div className="text-4xl mb-2 animate-flicker">🍺</div>
+          <h1 className="font-pixel text-tavern-gold text-2xl md:text-3xl leading-relaxed mb-1 text-gold-shimmer">
+            TARVN
+          </h1>
+          <p className="font-pixel text-tavern-parchment text-[8px] tracking-widest">
+            THE ADVENTURER&apos;S TAVERN
+          </p>
         </div>
       </div>
 
-      {/* Pixel Art Divider */}
-      <div className="flex gap-2 items-center">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div
-            key={i}
-            className={`w-3 h-3 ${
-              i % 3 === 0
-                ? "bg-retro-red"
-                : i % 3 === 1
-                  ? "bg-retro-yellow"
-                  : "bg-retro-blue"
-            }`}
-          />
+      {/* ── Tavern Interior Scene ─────────────────────────────── */}
+      <div className="w-full max-w-4xl relative mb-8">
+        {/* Interior background */}
+        <div className="w-full bg-tavern-smoke border-4 border-tavern-oak-dark shadow-pixel-oak relative overflow-hidden"
+             style={{ minHeight: "320px" }}>
+
+          {/* Stone floor */}
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-retro-darkgray border-t-4 border-retro-gray" />
+
+          {/* Left wall — hearth */}
+          <div className="absolute left-4 bottom-12 flex flex-col items-center gap-2">
+            <Image src="/tavern/hearth.svg" alt="Hearth" width={80} height={70} className="image-rendering-pixelated" />
+            <Image src="/tavern/candle.svg" alt="Candle" width={20} height={30} className="image-rendering-pixelated animate-flicker" />
+          </div>
+
+          {/* Right wall — banner */}
+          <div className="absolute right-4 top-4 bottom-12 flex flex-col items-center">
+            <Image src="/tavern/banner.svg" alt="Banner" width={48} height={60} className="image-rendering-pixelated" />
+            <Image src="/tavern/candle.svg" alt="Candle" width={16} height={24} className="image-rendering-pixelated animate-flicker mt-2" style={{ animationDelay: "0.7s" }} />
+          </div>
+
+          {/* Centre — quest board */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-6 flex flex-col items-center gap-2">
+            <Image src="/tavern/board.svg" alt="Quest Board" width={96} height={80} className="image-rendering-pixelated" />
+            <p className="font-pixel text-tavern-parchment text-[7px] tracking-wider text-center">
+              QUEST BOARD
+            </p>
+          </div>
+
+          {/* Centre bottom — door / entrance */}
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 flex flex-col items-end">
+            <Image src="/tavern/door.svg" alt="Door" width={56} height={74} className="image-rendering-pixelated" />
+          </div>
+
+          {/* Floating candles */}
+          <div className="absolute top-6 left-1/4">
+            <Image src="/tavern/candle.svg" alt="" width={14} height={20} className="image-rendering-pixelated animate-flicker" style={{ animationDelay: "1.2s" }} />
+          </div>
+          <div className="absolute top-6 right-1/4">
+            <Image src="/tavern/candle.svg" alt="" width={14} height={20} className="image-rendering-pixelated animate-flicker" style={{ animationDelay: "0.4s" }} />
+          </div>
+
+          {/* Ambient warm overlay */}
+          <div className="absolute inset-0 pointer-events-none"
+               style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(232,184,100,0.08) 0%, transparent 65%)" }} />
+        </div>
+      </div>
+
+      {/* ── Welcome scroll ───────────────────────────────────────── */}
+      <div className="parchment-card max-w-lg w-full px-6 py-4 text-center mb-8 relative">
+        <div className="flex justify-center mb-1">
+          <Image src="/tavern/scroll.svg" alt="" width={32} height={28} className="image-rendering-pixelated opacity-60" />
+        </div>
+        <p className="font-pixel text-tavern-parchment text-[9px] leading-loose">
+          Welcome, adventurer. Pull up a stool.<br />
+          The board is full of quests waiting for a hero.<br />
+          What legend will you write tonight?
+        </p>
+      </div>
+
+      {/* ── Three Rooms ──────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl w-full mb-10">
+
+        <Link href="/board" className="group block">
+          <div className="tavern-card p-5 text-center transition-none group-hover:-translate-y-1 group-hover:shadow-pixel-gold h-full">
+            <Image src="/tavern/board.svg" alt="" width={40} height={34} className="image-rendering-pixelated mx-auto mb-3" />
+            <h2 className="font-pixel text-tavern-gold text-[9px] mb-2">THE BOARD</h2>
+            <p className="font-pixel text-tavern-parchment text-[7px] leading-loose opacity-80">
+              Browse & collect quests. Ask the Quest Giver for a custom adventure.
+            </p>
+          </div>
+        </Link>
+
+        <Link href="/journal" className="group block">
+          <div className="tavern-card p-5 text-center transition-none group-hover:-translate-y-1 group-hover:shadow-pixel-gold h-full">
+            <Image src="/tavern/scroll.svg" alt="" width={40} height={34} className="image-rendering-pixelated mx-auto mb-3" />
+            <h2 className="font-pixel text-tavern-gold text-[9px] mb-2">MY JOURNAL</h2>
+            <p className="font-pixel text-tavern-parchment text-[7px] leading-loose opacity-80">
+              Track your active quests, streaks, and weekly deeds by the hearth.
+            </p>
+          </div>
+        </Link>
+
+        <Link href="/sagas" className="group block">
+          <div className="tavern-card p-5 text-center transition-none group-hover:-translate-y-1 group-hover:shadow-pixel-gold h-full">
+            <Image src="/tavern/banner.svg" alt="" width={32} height={40} className="image-rendering-pixelated mx-auto mb-3" />
+            <h2 className="font-pixel text-tavern-gold text-[9px] mb-2">THE SAGAS</h2>
+            <p className="font-pixel text-tavern-parchment text-[7px] leading-loose opacity-80">
+              Multi-part questlines for heroes who seek a longer legend.
+            </p>
+          </div>
+        </Link>
+      </div>
+
+      {/* ── More spots ───────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl w-full mb-10">
+        {[
+          { href: "/guilds",   icon: "🏰", label: "GUILDS",   sub: "Browse by category" },
+          { href: "/trophies", icon: "🏅", label: "TROPHIES", sub: "Badges & honours" },
+          { href: "/board?source=ai", icon: "🤖", label: "AI QUEST",  sub: "Generate with magic" },
+          { href: "/board?new=1",     icon: "✏",  label: "CREATE",    sub: "Write your own" },
+        ].map(({ href, icon, label, sub }) => (
+          <Link key={href} href={href} className="group block">
+            <div className="bg-tavern-smoke border-2 border-tavern-oak p-3 text-center transition-none group-hover:border-tavern-gold h-full">
+              <div className="text-xl mb-1">{icon}</div>
+              <p className="font-pixel text-tavern-gold text-[8px] mb-1">{label}</p>
+              <p className="font-pixel text-tavern-parchment text-[6px] opacity-70">{sub}</p>
+            </div>
+          </Link>
         ))}
       </div>
 
-      {/* Description Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl w-full">
-        <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6">
-          <div className="text-3xl mb-3">🗡</div>
-          <h2 className="font-pixel text-retro-red text-xs mb-3">
-            MAIN QUESTS
-          </h2>
-          <p className="font-pixel text-retro-lightgray text-[8px] leading-loose">
-            Epic challenges that take months to complete. Learn a language,
-            train for a marathon, or build something amazing.
-          </p>
-        </div>
-
-        <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6">
-          <div className="text-3xl mb-3">⚡</div>
-          <h2 className="font-pixel text-retro-blue text-xs mb-3">
-            SIDE QUESTS
-          </h2>
-          <p className="font-pixel text-retro-lightgray text-[8px] leading-loose">
-            Quick adventures from a few hours to a weekend. Cook something new,
-            explore a trail, or sketch a masterpiece.
-          </p>
-        </div>
-      </div>
-
-      {/* Feature highlights */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl w-full">
-        <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel-sm p-4 text-center">
-          <div className="text-2xl mb-2">🏆</div>
-          <h3 className="font-pixel text-retro-lime text-[9px] mb-2">EARN XP</h3>
-          <p className="font-pixel text-retro-lightgray text-[7px] leading-loose">
-            Complete quests to earn experience points and level up your adventurer.
-          </p>
-        </div>
-        <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel-sm p-4 text-center">
-          <div className="text-2xl mb-2">🤖</div>
-          <h3 className="font-pixel text-retro-cyan text-[9px] mb-2">AI QUESTS</h3>
-          <p className="font-pixel text-retro-lightgray text-[7px] leading-loose">
-            Generate custom quests based on your location and interests with AI.
-          </p>
-        </div>
-        <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel-sm p-4 text-center">
-          <div className="text-2xl mb-2">✏</div>
-          <h3 className="font-pixel text-retro-orange text-[9px] mb-2">CREATE</h3>
-          <p className="font-pixel text-retro-lightgray text-[7px] leading-loose">
-            Design your own quests and share the adventure with others.
-          </p>
-        </div>
-      </div>
-
-      {/* CTA Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Link href="/quests">
+      {/* ── Primary CTA ──────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-12">
+        <Link href="/board">
           <PixelButton variant="primary" size="lg">
-            Browse Quests
+            ⚔ Enter the Tavern
           </PixelButton>
         </Link>
         <Link href="/signup">
           <PixelButton variant="success" size="lg">
-            Start Adventure
+            🍺 Start Your Legend
           </PixelButton>
         </Link>
       </div>
 
-      {/* Pixel Art Footer Decoration */}
-      <div className="flex gap-1 mt-8">
-        {Array.from({ length: 20 }).map((_, i) => (
+      {/* ── Floor pixel divider ───────────────────────────────────── */}
+      <div className="flex gap-1 mb-4">
+        {Array.from({ length: 24 }).map((_, i) => (
           <div
             key={i}
-            className="w-2 h-2 bg-retro-darkgray"
+            className="w-2 h-2"
             style={{
-              opacity: [0.3, 0.5, 0.4, 0.6, 0.35, 0.45, 0.55, 0.4, 0.5, 0.3, 0.6, 0.4, 0.5, 0.35, 0.45, 0.55, 0.4, 0.5, 0.3, 0.6][i],
+              backgroundColor: i % 2 === 0 ? "#5c3a1a" : "#8b5a2b",
+              opacity: 0.6,
             }}
           />
         ))}
       </div>
+
+      <p className="font-pixel text-tavern-smoke-light text-[7px] mb-4">
+        🍺 tarvn.xyz — every hero needs a tavern
+      </p>
     </div>
   );
 }

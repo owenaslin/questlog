@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" shape-rendering="crispEdges">
+  <!-- Foam -->
+  <rect x="2" y="1" width="12" height="3" fill="#f4f4f4"/>
+  <rect x="1" y="2" width="14" height="2" fill="#f4f4f4"/>
+  <!-- Mug body -->
+  <rect x="1" y="4" width="14" height="14" fill="#c4a85a"/>
+  <rect x="2" y="5" width="12" height="12" fill="#e8b864"/>
+  <!-- Liquid -->
+  <rect x="2" y="8" width="12" height="9" fill="#c49a3c"/>
+  <!-- Handle -->
+  <rect x="15" y="6" width="3" height="2" fill="#8b5a2b"/>
+  <rect x="17" y="8" width="2" height="4" fill="#8b5a2b"/>
+  <rect x="15" y="12" width="3" height="2" fill="#8b5a2b"/>
+  <!-- Shine -->
+  <rect x="3" y="5" width="2" height="4" fill="#f5d76e" opacity="0.6"/>
+</svg>

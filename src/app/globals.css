@@ -177,6 +177,89 @@ a, button {
   outline-offset: 2px;
 }
 
+/* ── Tavern visual layer ─────────────────────────────────────────────── */
+
+/* Tavern card — oak border + parchment-tinted inset */
+.tavern-card {
+  border: 4px solid #5c3a1a;
+  box-shadow: 4px 4px 0px 0px #5c3a1a;
+  background-color: #2a1f14;
+  position: relative;
+}
+
+.tavern-card::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid #8b5a2b;
+  pointer-events: none;
+}
+
+/* Parchment card — warm beige for notices / quest giver speech */
+.parchment-card {
+  border: 4px solid #c4a85a;
+  box-shadow: 4px 4px 0px 0px #8b5a2b;
+  background-color: #2e2518;
+  color: #e8d4a0;
+}
+
+/* Candlelight warm vignette (apply to page wrapper) */
+.candlelight-vignette::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(232, 184, 100, 0.04) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Torch flicker glow on an element */
+.torch-glow {
+  box-shadow: 0 0 8px 2px rgba(232, 184, 100, 0.25);
+  animation: tavernFlicker 3s step-end infinite;
+}
+
+@keyframes tavernFlicker {
+  0%, 90%, 100% { box-shadow: 0 0 8px 2px rgba(232, 184, 100, 0.25); }
+  93%            { box-shadow: 0 0 4px 1px rgba(196, 74, 54, 0.3); }
+  96%            { box-shadow: 0 0 12px 4px rgba(232, 184, 100, 0.4); }
+}
+
+/* Gold shimmer on text */
+.text-gold-shimmer {
+  color: #e8b864;
+  text-shadow: 0 0 6px rgba(232, 184, 100, 0.5);
+}
+
+/* XP particle float-up */
+@keyframes floatUp {
+  0%   { transform: translateY(0);    opacity: 1; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+
+.xp-particle {
+  animation: floatUp 0.8s steps(8) forwards;
+  position: absolute;
+  pointer-events: none;
+  font-family: "Press Start 2P", cursive;
+  font-size: 10px;
+  color: #e8b864;
+}
+
+/* Tavern scrollbar accent */
+::-webkit-scrollbar-thumb {
+  background: #8b5a2b !important;
+  border: 2px solid #5c3a1a !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e8b864 !important;
+}
+
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *,
