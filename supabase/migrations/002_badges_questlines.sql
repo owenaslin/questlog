@@ -265,10 +265,13 @@ DECLARE
 BEGIN
   -- Only process if quest was completed
   IF NEW.status = 'completed' AND OLD.status != 'completed' THEN
+    -- Always check badge eligibility on any quest completion
+    PERFORM public.check_and_award_badges(NEW.user_id);
+
     -- Find if this quest is part of a questline
     SELECT qs.questline_id, qs.id INTO v_questline_id, v_step_id
     FROM public.questline_steps qs
-    WHERE qs.quest_id = NEW.quest_id;
+    WHERE qs.quest_id = NEW.quest_id::uuid;
     
     IF v_questline_id IS NOT NULL THEN
       -- Get the next step in the questline
@@ -290,10 +293,7 @@ BEGIN
       WHERE user_id = NEW.user_id 
         AND questline_id = v_questline_id;
         
-      -- If questline completed, check for badge reward
-      IF v_next_step.id IS NULL THEN
-        PERFORM public.check_and_award_badges(NEW.user_id);
-      END IF;
+      -- Questline completion state is updated above.
     END IF;
   END IF;
   
