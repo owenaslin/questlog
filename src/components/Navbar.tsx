@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { getProfileProgressSummary } from "@/lib/quest-progress";
+import { getOwnHeroProfile } from "@/lib/hero";
 
 const navLinks = [
   { href: "/board",    label: "The Board" },
@@ -22,6 +23,7 @@ export default function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [heroLevel, setHeroLevel] = useState<number | null>(null);
   const [heroXp, setHeroXp] = useState<number | null>(null);
+  const [heroHandle, setHeroHandle] = useState<string | null>(null);
 
   const currentPath = pathname || "/";
   const loginUrl  = useMemo(() => buildAuthUrl("login",  currentPath), [currentPath]);
@@ -38,11 +40,15 @@ export default function Navbar() {
 
       if (authed) {
         try {
-          const summary = await getProfileProgressSummary();
+          const [summary, heroData] = await Promise.all([
+            getProfileProgressSummary(),
+            getOwnHeroProfile(),
+          ]);
           if (summary) {
             setHeroLevel(summary.level);
             setHeroXp(summary.xp_total);
           }
+          if (heroData?.handle) setHeroHandle(heroData.handle);
         } catch {
           // non-critical
         }
@@ -54,7 +60,7 @@ export default function Navbar() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
         setIsAuthenticated(Boolean(session));
-        if (!session) { setHeroLevel(null); setHeroXp(null); }
+        if (!session) { setHeroLevel(null); setHeroXp(null); setHeroHandle(null); }
       }
     });
 
@@ -126,7 +132,7 @@ export default function Navbar() {
             <>
               {/* Hero pill */}
               <Link
-                href="/journal"
+                href={heroHandle ? `/hero/${heroHandle}` : "/hero/edit"}
                 className="flex items-center gap-2 bg-tavern-smoke border-2 border-tavern-oak px-3 py-1 hover:border-tavern-gold transition-none"
               >
                 <span className="text-base leading-none">🧙</span>
@@ -190,9 +196,14 @@ export default function Navbar() {
           ))}
 
           {!isLoadingAuth && isAuthenticated && (
-            <Link href="/journal" onClick={() => setIsMenuOpen(false)} className={linkClasses("/journal")}>
-              My Journal
-            </Link>
+            <>
+              <Link href="/journal" onClick={() => setIsMenuOpen(false)} className={linkClasses("/journal")}>
+                My Journal
+              </Link>
+              <Link href="/hero/edit" onClick={() => setIsMenuOpen(false)} className={linkClasses("/hero/edit")}>
+                Edit Hero
+              </Link>
+            </>
           )}
 
           {isLoadingAuth ? (
