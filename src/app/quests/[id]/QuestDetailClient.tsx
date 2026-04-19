@@ -35,6 +35,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [previousLevel, setPreviousLevel] = useState<number | null>(null);
   const [newLevel, setNewLevel] = useState<number | null>(null);
+  const [newStreak, setNewStreak] = useState<number | undefined>(undefined);
+  const [isNewLongest, setIsNewLongest] = useState(false);
 
   useEffect(() => {
     const hydrateStatus = async () => {
@@ -118,7 +120,11 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       }
 
       // Update streak tracking
-      await updateStreakOnCompletion();
+      const streakResult = await updateStreakOnCompletion();
+      if (streakResult.success) {
+        setNewStreak(streakResult.newStreak);
+        setIsNewLongest(streakResult.isNewLongest ?? false);
+      }
 
       // Show completion modal
       setTimeout(() => {
@@ -137,10 +143,10 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
     <div className="max-w-2xl mx-auto">
       {/* Back button */}
       <Link
-        href="/quests"
-        className="font-pixel text-retro-lightgray text-[8px] hover:text-retro-white mb-6 inline-block"
+        href="/board"
+        className="font-pixel text-tavern-parchment text-[8px] hover:text-tavern-gold mb-6 inline-block"
       >
-        ← Back to Quest Board
+        ← Back to The Board
       </Link>
 
       {/* Quest Card */}
@@ -261,7 +267,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
               )}
               <XPBar xpTotal={profileXpTotal ?? xpEarned} />
               <div className="flex gap-2">
-                <Link href="/quests">
+                <Link href="/board">
                   <PixelButton variant="secondary">Find More Quests</PixelButton>
                 </Link>
                 <button
@@ -283,6 +289,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
           xpEarned={xpEarned}
           newXpTotal={profileXpTotal}
           newLevel={newLevel ?? undefined}
+          newStreak={newStreak}
+          isNewLongest={isNewLongest}
           onClose={() => setShowCompletionModal(false)}
         />
       )}
