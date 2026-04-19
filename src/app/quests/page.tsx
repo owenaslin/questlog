@@ -8,6 +8,7 @@ import SmartSuggestions from "@/components/SmartSuggestions";
 import DesktopRightRail from "@/components/DesktopRightRail";
 import PullToRefresh from "@/components/PullToRefresh";
 import FloatingActionButton from "@/components/FloatingActionButton";
+import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS, getMainQuests, getSideQuests } from "@/lib/quests";
 import { Quest, QuestSource } from "@/lib/types";
@@ -119,6 +120,7 @@ export default function QuestsPage() {
 
   return (
     <div>
+      <AmbientScene scene="common-room" />
       <PullToRefresh onRefresh={handleRefresh} disabled={!isAuthenticated}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 48" shape-rendering="crispEdges">
+  <!-- Flame outer glow -->
+  <rect x="6"  y="1"  width="12" height="2"  fill="#ffcd75" opacity="0.3"/>
+  <!-- Flame tip -->
+  <rect x="9"  y="0"  width="6"  height="2"  fill="#f5d76e"/>
+  <rect x="8"  y="1"  width="8"  height="2"  fill="#f5d76e"/>
+  <!-- Flame mid -->
+  <rect x="7"  y="2"  width="10" height="4"  fill="#ef7d57"/>
+  <rect x="6"  y="4"  width="12" height="3"  fill="#ef7d57"/>
+  <!-- Flame base -->
+  <rect x="8"  y="6"  width="8"  height="3"  fill="#c44a36"/>
+  <rect x="9"  y="8"  width="6"  height="3"  fill="#c44a36"/>
+  <!-- Torch head (basket) -->
+  <rect x="7"  y="10" width="10" height="8"  fill="#5c3a1a"/>
+  <rect x="6"  y="11" width="12" height="6"  fill="#7a4e24"/>
+  <!-- Basket bands -->
+  <rect x="6"  y="11" width="12" height="2"  fill="#8b5a2b"/>
+  <rect x="6"  y="15" width="12" height="2"  fill="#8b5a2b"/>
+  <!-- Basket weave slots -->
+  <rect x="8"  y="12" width="2"  height="3"  fill="#5c3a1a"/>
+  <rect x="12" y="12" width="2"  height="3"  fill="#5c3a1a"/>
+  <rect x="16" y="12" width="2"  height="3"  fill="#5c3a1a"/>
+  <!-- Handle -->
+  <rect x="10" y="18" width="4"  height="26" fill="#8b5a2b"/>
+  <!-- Handle shadow -->
+  <rect x="10" y="18" width="2"  height="26" fill="#7a4e24"/>
+  <!-- Handle highlight -->
+  <rect x="13" y="18" width="1"  height="26" fill="#a06835"/>
+  <!-- Handle notch -->
+  <rect x="9"  y="26" width="6"  height="2"  fill="#c4a85a"/>
+  <rect x="9"  y="32" width="6"  height="2"  fill="#c4a85a"/>
+  <!-- Wall mount bracket -->
+  <rect x="0"  y="36" width="10" height="4"  fill="#566c86"/>
+  <rect x="0"  y="37" width="10" height="2"  fill="#94b0c2"/>
+  <rect x="14" y="36" width="10" height="4"  fill="#566c86"/>
+  <rect x="14" y="37" width="10" height="2"  fill="#94b0c2"/>
+  <!-- Handle base wrap -->
+  <rect x="9"  y="43" width="6"  height="5"  fill="#5c3a1a"/>
+  <rect x="8"  y="45" width="8"  height="3"  fill="#3d2510"/>
+</svg>

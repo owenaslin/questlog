@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import PixelButton from "@/components/PixelButton";
+import AmbientScene from "@/components/AmbientScene";
 
 export default function HomePage() {
   return (
     <div className="flex flex-col items-center gap-0">
+      <AmbientScene scene="entrance" />
 
       {/* ── Tavern Sign ─────────────────────────────────────────── */}
       <div className="relative flex flex-col items-center mb-2">
@@ -35,49 +37,75 @@ export default function HomePage() {
           {/* Stone floor */}
           <div className="absolute bottom-0 left-0 right-0 h-12 bg-retro-darkgray border-t-4 border-retro-gray" />
 
-          {/* Left wall — hearth */}
-          <div className="absolute left-4 bottom-12 flex flex-col items-center gap-2">
-            <Image src="/tavern/hearth.svg" alt="Hearth" width={80} height={70} className="image-rendering-pixelated" />
-            <Image src="/tavern/candle.svg" alt="Candle" width={20} height={30} className="image-rendering-pixelated animate-flicker" />
+          {/* Left wall — hearth → Journal */}
+          <Link href="/journal" className="absolute left-2 md:left-6 bottom-0 group flex flex-col items-center gap-1 cursor-pointer" title="Journal — by the hearth">
+            <Image src="/tavern/hearth.svg" alt="Hearth" width={128} height={112} className="image-rendering-pixelated group-hover:brightness-125 transition-none" style={{ imageRendering: "pixelated" }} />
+            <span className="font-pixel text-[6px] text-tavern-gold opacity-0 group-hover:opacity-100 transition-none tracking-wider pb-1"
+                  style={{ textShadow: "0 0 6px rgba(232,184,100,0.8)" }}>
+              JOURNAL
+            </span>
+          </Link>
+
+          {/* Left torch */}
+          <div className="absolute left-36 md:left-44 top-6 torch-halo pointer-events-none">
+            <Image src="/tavern/torch.svg" alt="" width={36} height={72} className="image-rendering-pixelated animate-flicker-full" style={{ imageRendering: "pixelated", animationDelay: "0.3s" }} />
           </div>
 
-          {/* Right wall — banner */}
-          <div className="absolute right-4 top-4 bottom-12 flex flex-col items-center">
-            <Image src="/tavern/banner.svg" alt="Banner" width={48} height={60} className="image-rendering-pixelated" />
-            <Image src="/tavern/candle.svg" alt="Candle" width={16} height={24} className="image-rendering-pixelated animate-flicker mt-2" style={{ animationDelay: "0.7s" }} />
+          {/* Right wall — banner → Sagas */}
+          <Link href="/sagas" className="absolute right-2 md:right-6 top-0 group flex flex-col items-center cursor-pointer" title="The Sagas">
+            <Image src="/tavern/banner.svg" alt="Banner" width={72} height={120} className="image-rendering-pixelated group-hover:brightness-125 transition-none" style={{ imageRendering: "pixelated" }} />
+            <span className="font-pixel text-[6px] text-tavern-gold opacity-0 group-hover:opacity-100 transition-none tracking-wider mt-1"
+                  style={{ textShadow: "0 0 6px rgba(232,184,100,0.8)" }}>
+              SAGAS
+            </span>
+          </Link>
+
+          {/* Right torch */}
+          <div className="absolute right-20 md:right-28 top-6 torch-halo pointer-events-none">
+            <Image src="/tavern/torch.svg" alt="" width={36} height={72} className="image-rendering-pixelated animate-flicker-full" style={{ imageRendering: "pixelated", animationDelay: "1.1s" }} />
           </div>
 
-          {/* Centre — quest board */}
-          <div className="absolute left-1/2 -translate-x-1/2 top-6 flex flex-col items-center gap-2">
-            <Image src="/tavern/board.svg" alt="Quest Board" width={96} height={80} className="image-rendering-pixelated" />
-            <p className="font-pixel text-tavern-parchment text-[7px] tracking-wider text-center">
+          {/* Centre — quest board → Board */}
+          <Link href="/board" className="absolute left-1/2 -translate-x-1/2 top-4 group flex flex-col items-center gap-1 cursor-pointer" title="Quest Board">
+            <Image src="/tavern/board.svg" alt="Quest Board" width={160} height={128} className="image-rendering-pixelated group-hover:brightness-125 transition-none" style={{ imageRendering: "pixelated" }} />
+            <p className="font-pixel text-tavern-gold text-[7px] tracking-wider text-center group-hover:animate-pulse"
+               style={{ textShadow: "0 0 6px rgba(232,184,100,0.5)" }}>
               QUEST BOARD
             </p>
+          </Link>
+
+          {/* Centre bottom — door → Board (enter tavern) */}
+          <Link href="/board" className="absolute left-1/2 -translate-x-1/2 bottom-0 group cursor-pointer" title="Enter the tavern">
+            <Image src="/tavern/door.svg" alt="Door" width={96} height={120} className="image-rendering-pixelated group-hover:brightness-125 transition-none" style={{ imageRendering: "pixelated" }} />
+            <span className="absolute -top-5 left-1/2 -translate-x-1/2 font-pixel text-[6px] text-tavern-gold opacity-0 group-hover:opacity-100 transition-none whitespace-nowrap"
+                  style={{ textShadow: "0 0 6px rgba(232,184,100,0.8)" }}>
+              ENTER
+            </span>
+          </Link>
+
+          {/* Table candles — non-interactive */}
+          <div className="absolute bottom-8 left-1/4 pointer-events-none">
+            <Image src="/tavern/candle.svg" alt="" width={24} height={36} className="image-rendering-pixelated animate-flicker" style={{ imageRendering: "pixelated", animationDelay: "1.2s" }} />
+          </div>
+          <div className="absolute bottom-8 right-1/4 pointer-events-none">
+            <Image src="/tavern/candle.svg" alt="" width={20} height={30} className="image-rendering-pixelated animate-flicker" style={{ imageRendering: "pixelated", animationDelay: "0.4s" }} />
           </div>
 
-          {/* Centre bottom — door / entrance */}
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 flex flex-col items-end">
-            <Image src="/tavern/door.svg" alt="Door" width={56} height={74} className="image-rendering-pixelated" />
-          </div>
+          {/* Mug → Journal */}
+          <Link href="/journal" className="absolute bottom-6 left-[35%] hidden sm:block group cursor-pointer" title="Journal">
+            <Image src="/tavern/mug.svg" alt="Mug" width={48} height={56} className="image-rendering-pixelated group-hover:brightness-125 transition-none" style={{ imageRendering: "pixelated", opacity: 0.85 }} />
+          </Link>
 
-          {/* Floating candles */}
-          <div className="absolute top-6 left-1/4">
-            <Image src="/tavern/candle.svg" alt="" width={14} height={20} className="image-rendering-pixelated animate-flicker" style={{ animationDelay: "1.2s" }} />
-          </div>
-          <div className="absolute top-6 right-1/4">
-            <Image src="/tavern/candle.svg" alt="" width={14} height={20} className="image-rendering-pixelated animate-flicker" style={{ animationDelay: "0.4s" }} />
-          </div>
-
-          {/* Ambient warm overlay */}
+          {/* Ambient warm overlay (stronger) */}
           <div className="absolute inset-0 pointer-events-none"
-               style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(232,184,100,0.08) 0%, transparent 65%)" }} />
+               style={{ background: "radial-gradient(ellipse at 20% 90%, rgba(232,184,100,0.14) 0%, transparent 45%), radial-gradient(ellipse at 80% 20%, rgba(196,74,54,0.06) 0%, transparent 50%)" }} />
         </div>
       </div>
 
       {/* ── Welcome scroll ───────────────────────────────────────── */}
       <div className="parchment-card max-w-lg w-full px-6 py-4 text-center mb-8 relative">
-        <div className="flex justify-center mb-1">
-          <Image src="/tavern/scroll.svg" alt="" width={32} height={28} className="image-rendering-pixelated opacity-60" />
+        <div className="flex justify-center mb-2">
+          <Image src="/tavern/scroll.svg" alt="" width={96} height={80} className="image-rendering-pixelated opacity-70" style={{ imageRendering: "pixelated" }} />
         </div>
         <p className="font-pixel text-tavern-parchment text-[9px] leading-loose">
           Welcome, adventurer. Pull up a stool.<br />

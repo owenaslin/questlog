@@ -9,18 +9,15 @@ interface QuestCardProps {
   quest: Quest;
 }
 
-function DifficultyStars({ difficulty }: { difficulty: number }) {
+function DifficultySwords({ difficulty }: { difficulty: number }) {
   return (
-    <div className="flex gap-1">
+    <div className="flex items-end gap-[3px]" title={`Difficulty: ${difficulty}/5`}>
       {Array.from({ length: 5 }).map((_, i) => (
         <span
           key={i}
-          className={`text-[10px] ${
-            i < difficulty ? "text-retro-yellow" : "text-retro-darkgray"
-          }`}
-        >
-          ★
-        </span>
+          className={`sword-icon${i < difficulty ? " active" : ""}`}
+          style={{ height: `${10 + i * 2}px`, width: "6px" }}
+        />
       ))}
     </div>
   );
@@ -83,36 +80,42 @@ export default function QuestCard({ quest }: QuestCardProps) {
     <Link href={`/quests/${quest.id}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-blue active:scale-[0.98] transition-transform">
       <article
         className="
-          bg-retro-darkgray border-4 border-retro-black
-          shadow-pixel hover:shadow-pixel-lg
+          tavern-card-wood
+          hover:shadow-pixel-lg
           card-lift cursor-pointer
           p-4 md:p-4 flex flex-col gap-3
           h-full min-h-[120px] md:min-h-0
+          relative overflow-hidden
         "
       >
+        {/* Top badge row */}
         <div className="flex items-start justify-between gap-2">
           <QuestTypeBadge type={quest.type} />
           <SourceBadge source={quest.source} />
         </div>
-        
+
         {/* Mobile-optimized tap target overlay */}
         <div className="md:hidden absolute inset-0" aria-hidden="true" />
 
-        <h3 className="font-pixel text-retro-yellow text-xs leading-relaxed">
+        {/* Title */}
+        <h3 className="font-pixel text-tavern-gold text-xs leading-relaxed">
           {quest.title}
         </h3>
 
+        {/* Description */}
         <p className="text-retro-lightgray text-[10px] font-pixel leading-relaxed line-clamp-2">
           {quest.description}
         </p>
 
+        {/* Difficulty & XP */}
         <div className="flex items-center justify-between mt-auto">
-          <DifficultyStars difficulty={quest.difficulty} />
+          <DifficultySwords difficulty={quest.difficulty} />
           <span className="font-pixel text-retro-lime text-[10px]">
             +{quest.xp_reward} XP
           </span>
         </div>
 
+        {/* Duration & Category */}
         <div className="flex items-center justify-between">
           <span className="font-pixel text-retro-lightgray text-[8px]">
             ⏱ {quest.duration_label}
@@ -120,13 +123,15 @@ export default function QuestCard({ quest }: QuestCardProps) {
           <CategoryBadge category={quest.category} />
         </div>
 
+        {/* Status — wax seal style */}
         {quest.status !== "available" && (
           <div
-            className={`font-pixel text-[8px] text-center py-1 uppercase ${
+            className={`wax-seal w-full font-pixel text-[7px] text-center py-1.5 uppercase tracking-wider ${
               quest.status === "active"
                 ? "bg-retro-orange text-retro-black"
-                : "bg-retro-green text-retro-white"
+                : "bg-retro-darkgreen text-retro-white"
             }`}
+            style={{ boxShadow: "2px 2px 0 rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)" }}
             role="status"
             aria-label={quest.status === "active" ? "Quest in progress" : "Quest completed"}
           >

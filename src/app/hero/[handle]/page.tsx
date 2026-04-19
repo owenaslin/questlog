@@ -8,6 +8,7 @@ import HeroPortrait from "@/components/HeroPortrait";
 import { BadgeShowcase } from "@/components/BadgeGrid";
 import XPBar from "@/components/XPBar";
 import DesktopRightRail from "@/components/DesktopRightRail";
+import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { BADGES } from "@/lib/badges";
 import { AVATAR_PORTRAITS, AvatarKey, HeroProfile, PinnedQuest, deriveTitle } from "@/lib/types";
@@ -123,6 +124,7 @@ export default function HeroPage() {
 
   return (
     <div className={isDesktopActive ? "max-w-6xl mx-auto" : "max-w-2xl mx-auto"}>
+      <AmbientScene scene="hall-of-fame" />
       <div className={isDesktopActive ? "grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_288px] gap-6" : ""}>
       <div>
 

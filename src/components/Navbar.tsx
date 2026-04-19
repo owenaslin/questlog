@@ -84,7 +84,7 @@ export default function Navbar() {
   const linkClasses = (href: string) =>
     `font-pixel text-[8px] px-3 py-2 uppercase tracking-wider transition-none ${
       isActivePath(href)
-        ? "bg-tavern-oak text-tavern-gold border-b-2 border-tavern-gold"
+        ? "bg-tavern-oak text-tavern-gold border-b-2 border-tavern-gold nav-active-glow"
         : "text-tavern-parchment hover:text-tavern-gold hover:bg-tavern-smoke-light"
     }`;
 
@@ -94,8 +94,10 @@ export default function Navbar() {
     : 0;
 
   return (
-    <nav className="sticky top-0 z-50 border-b-4 border-tavern-oak-dark"
+    <nav className="sticky top-0 z-50"
          style={{ background: "linear-gradient(180deg, #2a1f14 0%, #1a1510 100%)" }}>
+      {/* Oak beam top accent */}
+      <div className="oak-beam w-full" />
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
 
         {/* ── Logo / tavern name ──────────────────── */}
@@ -273,6 +275,8 @@ export default function Navbar() {
           )}
         </div>
       )}
+      {/* Oak beam bottom border */}
+      <div className="oak-beam w-full" />
     </nav>
   );
 }

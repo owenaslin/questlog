@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ViewModeProvider from "@/components/ViewModeProvider";
+import WeatherLayer from "@/components/WeatherLayer";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -76,6 +77,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png" />
       </head>
       <body className="scanlines candlelight-vignette pb-20 md:pb-0">
+        <WeatherLayer />
         <ViewModeProvider>
           <Navbar />
           <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
