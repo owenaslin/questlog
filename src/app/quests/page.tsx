@@ -7,7 +7,7 @@ import QuestCardSkeleton from "@/components/QuestCardSkeleton";
 import SmartSuggestions from "@/components/SmartSuggestions";
 import DesktopRightRail from "@/components/DesktopRightRail";
 import PullToRefresh from "@/components/PullToRefresh";
-import FloatingActionButton from "@/components/FloatingActionButton";
+import QuestForge from "@/components/QuestForge";
 import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS, getMainQuests, getSideQuests } from "@/lib/quests";
@@ -35,6 +35,7 @@ type StatusFilter = "all" | "available" | "active" | "completed";
 
 export default function QuestsPage() {
   const { isDesktopActive } = useViewMode();
+  const [forgeOpen, setForgeOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<number>(0);
   const [sourceFilter, setSourceFilter] = useState<QuestSource | "all">("all");
@@ -134,7 +135,14 @@ export default function QuestsPage() {
             {MAIN_QUEST_COUNT} Main Quests • {SIDE_QUEST_COUNT} Side Quests • {allQuests.length} Total
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setForgeOpen(true)}
+            className="font-pixel text-[9px] px-4 py-2 bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle transition-none"
+          >
+            🔨 Forge a Quest
+          </button>
           <Link
             href="/categories"
             className="font-pixel text-[9px] px-4 py-2 bg-retro-darkgray text-retro-lightgray border-b-4 border-retro-black hover:bg-retro-gray transition-none"
@@ -445,14 +453,12 @@ export default function QuestsPage() {
         )
       )}
       
-      {/* Mobile FAB for new quest */}
-      <FloatingActionButton
-        href="/generate"
-        icon="⚡"
-        label="New Quest"
-        variant="primary"
-      />
       </PullToRefresh>
+
+      <QuestForge
+        isOpen={forgeOpen}
+        onClose={() => setForgeOpen(false)}
+      />
     </div>
   );
 }

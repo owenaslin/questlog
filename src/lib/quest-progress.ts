@@ -1,5 +1,6 @@
 import { getSupabaseClient } from "@/lib/supabase";
 import { calculateLevel, Quest, QuestStatus } from "@/lib/types";
+import { ALL_QUESTS } from "@/lib/quests";
 
 export interface UserQuestProgressRow {
   quest_id: string;
@@ -391,5 +392,46 @@ export async function getWeeklyHistory(limit: number = 4): Promise<WeeklyRecap[]
     quests_completed: row.quests_completed || 0,
     xp_earned: row.xp_earned || 0,
     categories: Array.isArray(row.categories) ? row.categories : [],
+  }));
+}
+
+/**
+ * Returns active quests that were created by the user (source "user" or "ai")
+ * and stored in the DB. These are not in ALL_QUESTS so need a separate fetch.
+ */
+export async function getUserCreatedActiveQuests(): Promise<Quest[]> {
+  const userId = await getCurrentUserId();
+  if (!userId) return [];
+
+  const supabase = getSupabaseClient();
+
+  // Get active quest IDs for this user that aren't in the predefined list
+  const { data: progress } = await supabase
+    .from("user_quests")
+    .select("quest_id")
+    .eq("user_id", userId)
+    .eq("status", "active");
+
+  if (!progress?.length) return [];
+
+  const predefinedIds = new Set(ALL_QUESTS.map((q) => q.id));
+  const customIds = progress
+    .map((p) => p.quest_id as string)
+    .filter((id) => !predefinedIds.has(id));
+
+  if (!customIds.length) return [];
+
+  const { data: quests, error } = await supabase
+    .from("quests")
+    .select(
+      "id,title,description,type,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
+    )
+    .in("id", customIds);
+
+  if (error || !quests) return [];
+
+  return quests.map((q) => ({
+    ...(q as Quest),
+    status: "active" as QuestStatus,
   }));
 }

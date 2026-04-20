@@ -19,6 +19,7 @@ import {
   getUserQuestProgressMap,
   getUserStreak,
   getWeeklyRecap,
+  getUserCreatedActiveQuests,
   UserStreak,
   WeeklyRecap as WeeklyRecapType,
 } from "@/lib/quest-progress";
@@ -79,12 +80,13 @@ export default function JournalPage() {
     const load = async () => {
       setIsLoading(true);
       try {
-        const [summary, progressMap, recentIds, streakData, weeklyData] = await Promise.all([
+        const [summary, progressMap, recentIds, streakData, weeklyData, userQuests] = await Promise.all([
           getProfileProgressSummary(),
           getUserQuestProgressMap(),
           getRecentCompletedQuestIds(12),
           getUserStreak(),
           getWeeklyRecap(0),
+          getUserCreatedActiveQuests(),
         ]);
         if (!alive) return;
 
@@ -97,7 +99,10 @@ export default function JournalPage() {
           status: progressMap[q.id]?.status ?? q.status,
         }));
 
-        setActiveQuests(merged.filter((q) => q.status === "active"));
+        // Merge predefined active quests with user-created DB quests
+        const predefinedActive = merged.filter((q) => q.status === "active");
+        const allActive = [...predefinedActive, ...userQuests];
+        setActiveQuests(allActive);
 
         const completedById = new Map(
           merged.filter((q) => q.status === "completed").map((q) => [q.id, q])

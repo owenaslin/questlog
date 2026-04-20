@@ -3,6 +3,12 @@ import { BASE_MAIN_QUEST_XP, BASE_SIDE_QUEST_XP } from "@/lib/constants";
 export type QuestType = "main" | "side";
 export type QuestSource = "predefined" | "user" | "ai";
 export type QuestStatus = "available" | "active" | "completed";
+
+export const QUEST_CATEGORIES = [
+  "Fitness", "Education", "Creative", "Tech", "Food", "Outdoors",
+  "Social", "Wellness", "Community", "Career", "Business", "Culture", "Productivity",
+] as const;
+export type QuestCategory = typeof QUEST_CATEGORIES[number];
 export type BadgeRarity = "common" | "rare" | "epic" | "legendary";
 export type QuestlineType = "linear" | "skill_tree";
 export type QuestDifficulty = "beginner" | "intermediate" | "advanced";
