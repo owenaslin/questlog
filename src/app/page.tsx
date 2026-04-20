@@ -20,7 +20,7 @@ export default function HomePage() {
           <div className="absolute -top-2 left-4 right-4 h-1 bg-tavern-oak" />
           <div className="text-4xl mb-2 animate-flicker">🍺</div>
           <h1 className="font-pixel text-tavern-gold text-2xl md:text-3xl leading-relaxed mb-1 text-gold-shimmer">
-            TARVN
+            tavrn
           </h1>
           <p className="font-pixel text-tavern-parchment text-[8px] tracking-widest">
             THE ADVENTURER&apos;S TAVERN

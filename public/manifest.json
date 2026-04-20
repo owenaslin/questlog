@@ -1,6 +1,6 @@
 {
-  "name": "Tarvn - The Adventurer's Tavern",
-  "short_name": "Tarvn",
+  "name": "tavrn - The Adventurer's Tavern",
+  "short_name": "tavrn",
   "description": "Every hero needs a tavern. Collect quests, track your journey, celebrate triumphs and build your legend.",
   "start_url": "/",
   "display": "standalone",

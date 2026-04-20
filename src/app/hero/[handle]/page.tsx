@@ -36,8 +36,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // fall through to defaults
   }
 
-  const title = `${displayName} — Tarvn`;
-  const description = `Level ${level} adventurer with ${xpTotal.toLocaleString()} XP. View their hero page on Tarvn.`;
+  const title = `${displayName} — tavrn`;
+  const description = `Level ${level} adventurer with ${xpTotal.toLocaleString()} XP. View their hero page on tavrn.`;
   const ogImage = `https://tarvn.xyz/api/og/hero/${handle}`;
 
   return {

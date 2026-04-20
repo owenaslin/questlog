@@ -104,7 +104,7 @@ export default function Navbar() {
           href="/"
           className="font-pixel text-tavern-gold text-sm hover:text-tavern-candle transition-none flex items-center gap-2"
         >
-          🍺 <span>TARVN</span>
+          🍺 <span>tavrn</span>
         </Link>
 
         {/* ── Mobile hamburger ───────────────────── */}

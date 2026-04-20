@@ -49,10 +49,10 @@ export default function CompletionModal({
     const heroUrl = heroHandle
       ? `https://tarvn.xyz/hero/${heroHandle}`
       : `https://tarvn.xyz`;
-    const shareText = `Just earned +${xpEarned} XP completing "${quest.title}" on Tarvn! My legend grows. 🍺`;
+    const shareText = `Just earned +${xpEarned} XP completing "${quest.title}" on tavrn! My legend grows. 🍺`;
     if (typeof navigator !== "undefined" && navigator.share) {
       navigator.share({
-        title: `I completed "${quest.title}" on Tarvn!`,
+        title: `I completed "${quest.title}" on tavrn!`,
         text: shareText,
         url: heroUrl,
       }).catch(() => {/* dismissed */});
