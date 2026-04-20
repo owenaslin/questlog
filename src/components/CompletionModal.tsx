@@ -14,6 +14,7 @@ interface CompletionModalProps {
   newLevel?: number;
   newStreak?: number;
   isNewLongest?: boolean;
+  heroHandle?: string;
   onClose: () => void;
 }
 
@@ -29,6 +30,7 @@ export default function CompletionModal({
   newLevel,
   newStreak,
   isNewLongest,
+  heroHandle,
   onClose,
 }: CompletionModalProps) {
   const [showParticles, setShowParticles] = useState(false);
@@ -44,16 +46,18 @@ export default function CompletionModal({
   }, []);
 
   const handleShare = () => {
+    const heroUrl = heroHandle
+      ? `https://tarvn.xyz/hero/${heroHandle}`
+      : `https://tarvn.xyz`;
+    const shareText = `Just earned +${xpEarned} XP completing "${quest.title}" on Tarvn! My legend grows. 🍺`;
     if (typeof navigator !== "undefined" && navigator.share) {
       navigator.share({
         title: `I completed "${quest.title}" on Tarvn!`,
-        text: `Just earned +${xpEarned} XP completing "${quest.title}". My legend grows. 🍺`,
-        url: `https://tarvn.xyz`,
+        text: shareText,
+        url: heroUrl,
       }).catch(() => {/* dismissed */});
     } else {
-      navigator.clipboard?.writeText(
-        `Just completed "${quest.title}" on Tarvn! +${xpEarned} XP earned. 🍺 tarvn.xyz`
-      );
+      navigator.clipboard?.writeText(`${shareText} ${heroUrl}`);
     }
   };
 

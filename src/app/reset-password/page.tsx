@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import PixelButton from "@/components/PixelButton";
 import PasswordStrengthMeter from "@/components/PasswordStrengthMeter";
 import { getSupabaseClient } from "@/lib/supabase";
+import { buildAuthUrl, sanitizeRedirectPath } from "@/lib/auth-redirect";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function ResetPasswordPage() {
 
     const initializeRecovery = async () => {
       const params = new URLSearchParams(window.location.search);
-      setRedirectTarget(params.get("redirect") || "/profile");
+      setRedirectTarget(sanitizeRedirectPath(params.get("redirect")));
       const hasRecoveryType = params.get("type") === "recovery";
       const { data } = await supabase.auth.getSession();
 
@@ -84,13 +85,7 @@ export default function ResetPasswordPage() {
       setMessage("Password updated successfully. Redirecting to login...");
 
       setTimeout(() => {
-        const params = new URLSearchParams(window.location.search);
-        const redirect = params.get("redirect");
-        const next = redirect
-          ? `/auth?mode=login&status=password-updated&redirect=${encodeURIComponent(redirect)}`
-          : "/auth?mode=login&status=password-updated";
-
-        router.replace(next);
+        router.replace(`${buildAuthUrl("login", redirectTarget)}&status=password-updated`);
       }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update password.");

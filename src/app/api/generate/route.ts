@@ -70,9 +70,9 @@ async function isRateLimited(key: string): Promise<boolean> {
     
     return false;
   } catch (err) {
-    // If KV fails, fall back to allowing the request (fail open)
+    // If KV fails, fail closed to avoid opening abuse vector.
     console.error("Rate limit KV error:", err);
-    return false;
+    return true;
   }
 }
 
@@ -83,12 +83,6 @@ function getBearerToken(request: NextRequest): string | null {
     return null;
   }
   return token;
-}
-
-function getClientIp(request: NextRequest): string {
-  const forwardedFor = request.headers.get("x-forwarded-for") || "";
-  const firstForwarded = forwardedFor.split(",")[0]?.trim();
-  return firstForwarded || "unknown";
 }
 
 async function getAuthenticatedUserId(request: NextRequest): Promise<string | null> {
@@ -134,7 +128,7 @@ export async function POST(request: NextRequest) {
       throw new AppError("Authentication required", 401);
     }
 
-    const rateLimitKey = `rate_limit:generate:${userId}:${getClientIp(request)}`;
+    const rateLimitKey = `rate_limit:generate:${userId}`;
     if (await isRateLimited(rateLimitKey)) {
       throw new AppError("Rate limit exceeded. Please wait and try again.", 429);
     }
@@ -246,14 +240,20 @@ Respond with ONLY a JSON object (no markdown, no code fences) with these exact f
     console.error("Generation error:", error);
 
     if (error instanceof AppError) {
+      const errorMessage =
+        error.statusCode >= 500
+          ? "The generation service is temporarily unavailable. Please try again."
+          : error.message;
+
       return NextResponse.json(
-        { error: error.message },
+        { error: errorMessage },
         { status: error.statusCode }
       );
     }
 
-    const message =
-      error instanceof Error ? error.message : "Failed to generate quest";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: "The generation service is temporarily unavailable. Please try again." },
+      { status: 500 }
+    );
   }
 }

@@ -27,9 +27,8 @@ export default function Navbar() {
   const [heroXp, setHeroXp] = useState<number | null>(null);
   const [heroHandle, setHeroHandle] = useState<string | null>(null);
 
-  const currentPath = pathname || "/";
-  const loginUrl  = useMemo(() => buildAuthUrl("login",  currentPath), [currentPath]);
-  const signupUrl = useMemo(() => buildAuthUrl("signup", currentPath), [currentPath]);
+  const loginUrl = useMemo(() => buildAuthUrl("login", pathname || "/"), [pathname]);
+  const signupUrl = useMemo(() => buildAuthUrl("signup", pathname || "/"), [pathname]);
 
   useEffect(() => {
     const supabase = getSupabaseClient();

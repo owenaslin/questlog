@@ -292,9 +292,9 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {activeQuests.map((quest, i) => (
+        {activeQuests.map((quest) => (
           <div
-            key={i}
+            key={quest.id}
             className="bg-retro-darkgray border-4 border-retro-black p-4"
           >
             <div className="flex items-center justify-between mb-2">
@@ -336,9 +336,9 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {completedQuests.map((quest, i) => (
+        {completedQuests.map((quest) => (
           <div
-            key={i}
+            key={quest.id}
             className="bg-retro-darkgray border-4 border-retro-black p-3 flex items-center justify-between opacity-80"
           >
             <div className="flex items-center gap-3">
@@ -378,8 +378,8 @@ export default function ProfilePage() {
           </p>
         ) : (
           <div className="flex flex-col gap-2">
-            {completedQuests.slice(0, 5).map((quest, i) => (
-              <div key={i} className="flex items-center gap-3 text-[8px]">
+            {completedQuests.slice(0, 5).map((quest) => (
+              <div key={quest.id} className="flex items-center gap-3 text-[8px]">
                 <span className="font-pixel text-retro-green">✓</span>
                 <span className="font-pixel text-retro-lightgray flex-1">
                   Completed "{quest.title}"

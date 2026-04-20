@@ -21,6 +21,15 @@ import { buildAuthUrl } from "@/lib/auth-redirect";
 
 const allQuests: Quest[] = ALL_QUESTS;
 
+const QUEST_TABS: { key: TabType; label: string; icon: string }[] = [
+  { key: "all", label: "All Quests", icon: "📜" },
+  { key: "main", label: "Main Quests", icon: "⚔" },
+  { key: "side", label: "Side Quests", icon: "🗡" },
+];
+
+const MAIN_QUEST_COUNT = getMainQuests().length;
+const SIDE_QUEST_COUNT = getSideQuests().length;
+
 type TabType = "all" | "main" | "side";
 type StatusFilter = "all" | "available" | "active" | "completed";
 
@@ -58,16 +67,17 @@ export default function QuestsPage() {
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
-    setIsLoadingProgress(true);
-    const userId = await getCurrentUserId();
-    
-    if (userId) {
-      const progressMap = await getUserQuestProgressMap();
-      setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
+    if (!isAuthenticated) {
+      return;
     }
-    
+
+    setIsLoadingProgress(true);
+
+    const progressMap = await getUserQuestProgressMap();
+    setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
+
     setIsLoadingProgress(false);
-  }, []);
+  }, [isAuthenticated]);
 
   const filteredQuests = useMemo(() => {
     return questsWithProgress.filter((q) => {
@@ -91,14 +101,6 @@ export default function QuestsPage() {
   const todayPrimaryQuest = activeQuests[0] || availableSideQuests[0] || null;
   const todayQuickQuests = availableSideQuests.slice(0, 3);
 
-  const tabs: { key: TabType; label: string; icon: string }[] = [
-    { key: "all", label: "All Quests", icon: "📜" },
-    { key: "main", label: "Main Quests", icon: "⚔" },
-    { key: "side", label: "Side Quests", icon: "🗡" },
-  ];
-
-  const mainQuestCount = getMainQuests().length;
-  const sideQuestCount = getSideQuests().length;
   const selectedQuest = useMemo(
     () => filteredQuests.find((quest) => quest.id === selectedQuestId) ?? filteredQuests[0] ?? null,
     [filteredQuests, selectedQuestId]
@@ -129,7 +131,7 @@ export default function QuestsPage() {
             ⚔ Quest Board
           </h1>
           <p className="font-pixel text-retro-lightgray text-[9px]">
-            {mainQuestCount} Main Quests • {sideQuestCount} Side Quests • {allQuests.length} Total
+            {MAIN_QUEST_COUNT} Main Quests • {SIDE_QUEST_COUNT} Side Quests • {allQuests.length} Total
           </p>
         </div>
         <div className="flex gap-2">
@@ -206,7 +208,7 @@ export default function QuestsPage() {
         )}
 
         {/* Smart Suggestions */}
-        {isAuthenticated && (
+        {isAuthenticated && !isDesktopActive && (
           <div className="mt-4 pt-4 border-t-2 border-retro-black">
             <SmartSuggestions maxSuggestions={3} />
           </div>
@@ -215,7 +217,7 @@ export default function QuestsPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
-        {tabs.map((tab) => (
+        {QUEST_TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
@@ -372,13 +374,7 @@ export default function QuestsPage() {
                         href={`/quests/${selectedQuest.id}`}
                         className="font-pixel text-[8px] px-4 py-2 bg-retro-blue text-retro-white border-b-4 border-retro-darkblue hover:bg-retro-lightblue"
                       >
-                        Open Quest
-                      </Link>
-                      <Link
-                        href={`/quests/${selectedQuest.id}`}
-                        className="font-pixel text-[8px] px-4 py-2 bg-retro-darkgray text-retro-lightgray border-b-4 border-retro-black hover:bg-retro-gray"
-                      >
-                        View Details
+                        Open Quest Details
                       </Link>
                     </div>
                   </>

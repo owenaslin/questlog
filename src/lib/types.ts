@@ -1,3 +1,5 @@
+import { BASE_MAIN_QUEST_XP, BASE_SIDE_QUEST_XP } from "@/lib/constants";
+
 export type QuestType = "main" | "side";
 export type QuestSource = "predefined" | "user" | "ai";
 export type QuestStatus = "available" | "active" | "completed";
@@ -130,7 +132,7 @@ export interface Category {
 }
 
 export function calculateXP(type: QuestType, difficulty: number): number {
-  const base = type === "main" ? 200 : 50;
+  const base = type === "main" ? BASE_MAIN_QUEST_XP : BASE_SIDE_QUEST_XP;
   return difficulty * base;
 }
 
