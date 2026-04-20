@@ -108,11 +108,26 @@ export default function HeroEditPage() {
     if (!HANDLE_RE.test(handle)) { setHandleStatus("invalid"); return; }
 
     setHandleStatus("checking");
+    let cancelled = false;
+    const currentHandle = handle;
+
     const t = setTimeout(async () => {
-      const available = await isHandleAvailable(handle);
-      setHandleStatus(available ? "available" : "taken");
+      try {
+        const available = await isHandleAvailable(currentHandle);
+        if (!cancelled) {
+          setHandleStatus(available ? "available" : "taken");
+        }
+      } catch {
+        if (!cancelled) {
+          setHandleStatus("idle");
+        }
+      }
     }, 500);
-    return () => clearTimeout(t);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
   }, [handle, hero?.handle]);
 
   /* ── Save profile ─────────────────────────────────────────────── */
@@ -151,14 +166,28 @@ export default function HeroEditPage() {
   const togglePin = useCallback(async (quest: Quest) => {
     const alreadyPinned = pinnedQuests.some((p) => p.quest_id === quest.id);
     setPinWorking(quest.id);
+    setSaveError(null);
 
-    if (alreadyPinned) {
-      await unpinQuest(quest.id);
-      setPinnedQuests((prev) => prev.filter((p) => p.quest_id !== quest.id));
-    } else {
-      if (pinnedQuests.length >= 5) { setPinWorking(null); return; }
-      const result = await pinQuest(quest.id, quest.title, quest.type, quest.xp_reward);
-      if (result.success) {
+    try {
+      if (alreadyPinned) {
+        const result = await unpinQuest(quest.id);
+        if (!result.success) {
+          setSaveError(result.error ?? "Could not unpin quest.");
+          return;
+        }
+        setPinnedQuests((prev) => prev.filter((p) => p.quest_id !== quest.id));
+      } else {
+        if (pinnedQuests.length >= 5) {
+          setSaveError("You can pin up to 5 quests.");
+          return;
+        }
+
+        const result = await pinQuest(quest.id, quest.title, quest.type, quest.xp_reward);
+        if (!result.success) {
+          setSaveError(result.error ?? "Could not pin quest.");
+          return;
+        }
+
         setPinnedQuests((prev) => [
           ...prev,
           {
@@ -172,8 +201,11 @@ export default function HeroEditPage() {
           },
         ]);
       }
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Could not update pinned quests.");
+    } finally {
+      setPinWorking(null);
     }
-    setPinWorking(null);
   }, [pinnedQuests]);
 
   /* ── Loading / error states ──────────────────────────────────── */

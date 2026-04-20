@@ -53,6 +53,14 @@ export default function GeneratePage() {
   }, []);
 
   const handleGenerate = async () => {
+    const normalizedLocation = location.trim();
+    const normalizedTopic = (customTopic || topic).trim();
+
+    if (!normalizedLocation || !normalizedTopic) {
+      setError("Please provide both a location and a topic before generating.");
+      return;
+    }
+
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -81,8 +89,8 @@ export default function GeneratePage() {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          location,
-          topic: customTopic || topic,
+          location: normalizedLocation,
+          topic: normalizedTopic,
           questType,
         }),
         signal: controller.signal,
@@ -201,7 +209,7 @@ export default function GeneratePage() {
           variant="success"
           size="lg"
           onClick={handleGenerate}
-          disabled={loading || (!location && !topic && !customTopic)}
+          disabled={loading || !location.trim() || !(customTopic || topic).trim()}
         >
           {loading ? "⏳ Generating..." : "⚡ Generate Quest"}
         </PixelButton>
@@ -278,8 +286,8 @@ export default function GeneratePage() {
           </div>
 
           <div className="flex gap-3">
-            <PixelButton variant="success" onClick={() => alert("Quest accepted! (Supabase integration coming soon)")}>
-              ✓ Accept Quest
+            <PixelButton variant="success" disabled>
+              ✓ Accept Quest (Coming Soon)
             </PixelButton>
             <PixelButton variant="secondary" onClick={handleGenerate}>
               ↻ Regenerate

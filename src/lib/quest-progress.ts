@@ -1,5 +1,5 @@
 import { getSupabaseClient } from "@/lib/supabase";
-import { Quest, QuestStatus } from "@/lib/types";
+import { calculateLevel, Quest, QuestStatus } from "@/lib/types";
 
 export interface UserQuestProgressRow {
   quest_id: string;
@@ -14,10 +14,6 @@ export interface ProfileProgressSummary {
   level: number;
   completedCount: number;
   activeCount: number;
-}
-
-function calculateLevelFromXp(xp: number): number {
-  return Math.floor(xp / 500) + 1;
 }
 
 export async function getCurrentUserId(): Promise<string | null> {
@@ -177,7 +173,7 @@ export async function getProfileProgressSummary(): Promise<ProfileProgressSummar
 
   return {
     xp_total: profile.xp_total || 0,
-    level: profile.level || calculateLevelFromXp(profile.xp_total || 0),
+    level: profile.level || calculateLevel(profile.xp_total || 0),
     completedCount: completedCount || 0,
     activeCount: activeCount || 0,
   };

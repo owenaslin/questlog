@@ -15,6 +15,7 @@ import {
   getUserQuestProgressMap,
   updateStreakOnCompletion,
 } from "@/lib/quest-progress";
+import { getOwnHeroProfile } from "@/lib/hero";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { calculateLevel } from "@/lib/types";
 
@@ -38,19 +39,20 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [newLevel, setNewLevel] = useState<number | null>(null);
   const [newStreak, setNewStreak] = useState<number | undefined>(undefined);
   const [isNewLongest, setIsNewLongest] = useState(false);
+  const [heroHandle, setHeroHandle] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const hydrateStatus = async () => {
-      const progressMap = await getUserQuestProgressMap();
-      const progress = progressMap[quest.id];
-      if (progress?.status) {
-        setStatus(progress.status);
-      }
+      const [progressMap, summary, heroProfile] = await Promise.all([
+        getUserQuestProgressMap(),
+        getProfileProgressSummary(),
+        getOwnHeroProfile(),
+      ]);
 
-      const summary = await getProfileProgressSummary();
-      if (summary) {
-        setProfileXpTotal(summary.xp_total);
-      }
+      const progress = progressMap[quest.id];
+      if (progress?.status) setStatus(progress.status);
+      if (summary) setProfileXpTotal(summary.xp_total);
+      if (heroProfile?.handle) setHeroHandle(heroProfile.handle);
     };
 
     hydrateStatus();
@@ -293,6 +295,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
           newLevel={newLevel ?? undefined}
           newStreak={newStreak}
           isNewLongest={isNewLongest}
+          heroHandle={heroHandle}
           onClose={() => setShowCompletionModal(false)}
         />
       )}
