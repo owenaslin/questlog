@@ -169,7 +169,7 @@ export default function ProfilePage() {
 
   if (isCheckingAuth) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto tavrn-panel p-4 md:p-6">
         <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6">
           <div className="flex items-center gap-6 animate-pulse">
             <div className="w-20 h-20 bg-retro-black" />
@@ -186,7 +186,7 @@ export default function ProfilePage() {
 
   if (authCheckError) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto tavrn-panel p-4 md:p-6">
         <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6 text-center">
           <p className="font-pixel text-retro-red text-[9px] mb-4">{authCheckError}</p>
           <button
@@ -202,7 +202,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto tavrn-panel p-4 md:p-6">
       {/* Profile Header */}
       <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6 mb-8">
         <div className="flex items-center gap-6">
@@ -280,7 +280,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Active Quests */}
-      <h2 className="font-pixel text-retro-orange text-sm mb-4">
+      <h2 className="tavrn-kicker text-retro-orange text-sm mb-4">
         ▶ Active Quests
       </h2>
       <div className="flex flex-col gap-3 mb-8">
@@ -324,7 +324,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Completed Quests */}
-      <h2 className="font-pixel text-retro-green text-sm mb-4">
+      <h2 className="tavrn-kicker text-retro-green text-sm mb-4">
         ✓ Completed Quests
       </h2>
       <div className="flex flex-col gap-2">

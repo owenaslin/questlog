@@ -10,9 +10,10 @@ import { getOwnHeroProfile } from "@/lib/hero";
 import { useViewMode } from "@/components/ViewModeProvider";
 
 const navLinks = [
-  { href: "/board",    label: "The Board" },
-  { href: "/sagas",    label: "Sagas" },
-  { href: "/guilds",   label: "Guilds" },
+  { href: "/", label: "Tonight" },
+  { href: "/board", label: "The Board" },
+  { href: "/profile", label: "My Saga" },
+  { href: "/sagas", label: "Sagas" },
   { href: "/trophies", label: "Trophies" },
 ];
 
@@ -102,9 +103,9 @@ export default function Navbar() {
         {/* ── Logo / tavern name ──────────────────── */}
         <Link
           href="/"
-          className="font-pixel text-tavern-gold text-sm hover:text-tavern-candle transition-none flex items-center gap-2"
+          className="text-tavern-gold hover:text-tavern-candle transition-none flex items-center gap-2"
         >
-          🍺 <span>tavrn</span>
+          🍺 <span className="tavrn-wordmark text-2xl leading-none">tavrn</span>
         </Link>
 
         {/* ── Mobile hamburger ───────────────────── */}

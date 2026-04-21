@@ -143,7 +143,7 @@ export default function JournalPage() {
 
   if (authError) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto tavrn-panel p-4 md:p-6">
         <div className="tavern-card p-6 text-center">
           <p className="font-pixel text-tavern-ember text-[9px] mb-4">{authError}</p>
           <button
@@ -159,7 +159,7 @@ export default function JournalPage() {
   }
 
   return (
-    <div className={isDesktopActive ? "max-w-6xl mx-auto" : "max-w-2xl mx-auto"}>
+    <div className={isDesktopActive ? "max-w-6xl mx-auto tavrn-panel p-4 md:p-6" : "max-w-2xl mx-auto tavrn-panel p-4 md:p-6"}>
       <AmbientScene scene="hearthside" />
       <div className={isDesktopActive ? "grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_288px] gap-6" : ""}>
       <div>
@@ -168,7 +168,7 @@ export default function JournalPage() {
       <div className="flex items-center gap-3 mb-6">
         <Image src="/tavern/scroll.svg" alt="" width={28} height={24} />
         <div>
-          <h1 className="font-pixel text-tavern-gold text-sm">My Journal</h1>
+          <h1 className="tavrn-wordmark text-3xl leading-none">My Saga</h1>
           <p className="font-pixel text-tavern-smoke-light text-[7px] mt-0.5">
             {heroName}&apos;s adventure log
           </p>

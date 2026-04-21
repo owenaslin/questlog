@@ -5,7 +5,6 @@ import Link from "next/link";
 import { CATEGORIES, getCategoryByKey, ALL_QUESTS } from "@/lib/quests";
 import { Category } from "@/lib/types";
 import QuestCard from "@/components/QuestCard";
-import PixelButton from "@/components/PixelButton";
 
 export default function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -25,7 +24,7 @@ export default function CategoriesPage() {
 
   if (selectedCategory && category) {
     return (
-      <div>
+      <div className="tavrn-panel p-4 md:p-6">
         {/* Back Button & Header */}
         <button
           onClick={() => setSelectedCategory(null)}
@@ -35,7 +34,7 @@ export default function CategoriesPage() {
         </button>
 
         <div
-          className="border-4 border-retro-black p-6 mb-6"
+          className="tavern-card p-6 mb-6"
           style={{ backgroundColor: `${category.color}33` }} // 33 = 20% opacity in hex
         >
           <div className="flex items-center gap-4 mb-4">
@@ -114,7 +113,7 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div>
+    <div className="tavrn-panel p-4 md:p-6">
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="font-pixel text-retro-yellow text-xl mb-2">
@@ -137,7 +136,7 @@ export default function CategoriesPage() {
       </div>
 
       {/* Stats */}
-      <div className="mt-12 bg-retro-darkgray border-4 border-retro-black p-6">
+      <div className="mt-12 tavern-card p-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div>
             <span className="font-pixel text-retro-yellow text-2xl block">

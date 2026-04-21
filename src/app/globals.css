@@ -2,11 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&display=swap");
 
 :root {
-  --color-bg: #1a1c2c;
-  --color-text: #f4f4f4;
+  --color-bg: #161210;
+  --color-text: #efd9a8;
+  --fell: "IM Fell English SC", serif;
+  --pixel: "Press Start 2P", cursive;
+  --body: "Inter", sans-serif;
+  --mono: "JetBrains Mono", monospace;
+  --smoke: #161210;
+  --smoke-2: #1d1713;
+  --oak: #2a1d14;
+  --oak-2: #3a2a1d;
+  --parchment: #efd9a8;
+  --parchment-dim: #d5be92;
+  --parchment-faint: rgba(239, 217, 168, 0.55);
+  --gold: #e8b864;
+  --gold-dark: #c49a3c;
+  --ember: #c44a36;
+  --lime: #a7f070;
+  --ink: #2a1d14;
+  --ink-dim: #4b3b2e;
 }
 
 * {
@@ -14,10 +31,21 @@
 }
 
 body {
-  background-color: var(--color-bg);
+  background: radial-gradient(1200px 550px at 20% -5%, rgba(232, 184, 100, 0.1), transparent 50%),
+    radial-gradient(950px 420px at 85% 0%, rgba(196, 74, 54, 0.08), transparent 52%),
+    var(--color-bg);
   color: var(--color-text);
-  font-family: "Press Start 2P", cursive;
+  font-family: var(--body);
   min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--pixel);
 }
 
 /* Pixel-art scrollbar */
@@ -61,6 +89,47 @@ body {
 .pixel-border {
   border: 4px solid #1a1c2c;
   box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.tavrn-shell {
+  background: linear-gradient(180deg, rgba(42, 29, 20, 0.9), rgba(22, 18, 16, 0.98));
+  border: 2px solid rgba(239, 217, 168, 0.2);
+}
+
+.tavrn-panel {
+  background: linear-gradient(180deg, rgba(42, 29, 20, 0.96), rgba(29, 23, 19, 0.96));
+  border: 2px solid var(--oak-2);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.tavrn-kicker {
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tavrn-wordmark {
+  font-family: var(--fell);
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+
+.tavrn-button {
+  font-family: var(--pixel);
+  font-size: 9px;
+  background: var(--gold);
+  color: #1a1008;
+  border: 2px solid #0a0807;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.82);
+  padding: 0.6rem 0.85rem;
+  text-transform: uppercase;
+}
+
+.tavrn-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.85);
 }
 
 /* Blinking cursor for text */
@@ -497,3 +566,35 @@ a, button {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Global retrofit: apply tavrn brand to legacy retro utility usage ────── */
+.bg-retro-black { background-color: #161210 !important; }
+.bg-retro-darkgray { background-color: #1d1713 !important; }
+.bg-retro-gray { background-color: #4b3b2e !important; }
+.bg-retro-lightgray { background-color: #7c6650 !important; }
+.bg-retro-white { background-color: #f6e7c0 !important; }
+.bg-retro-yellow { background-color: #e8b864 !important; }
+.bg-retro-orange { background-color: #c98a52 !important; }
+.bg-retro-red { background-color: #c44a36 !important; }
+.bg-retro-green { background-color: #4e8a4a !important; }
+.bg-retro-lime { background-color: #a7f070 !important; }
+.bg-retro-darkpurple { background-color: #3a1a3a !important; }
+
+.text-retro-white { color: #f6e7c0 !important; }
+.text-retro-lightgray { color: #cfb88f !important; }
+.text-retro-gray { color: #9d8366 !important; }
+.text-retro-yellow { color: #e8b864 !important; }
+.text-retro-orange { color: #d99a63 !important; }
+.text-retro-red { color: #e06a56 !important; }
+.text-retro-green { color: #74b46f !important; }
+.text-retro-lime { color: #a7f070 !important; }
+.text-retro-cyan { color: #9fd6d3 !important; }
+.text-retro-blue { color: #7ea0df !important; }
+
+.border-retro-black { border-color: #3a2a1d !important; }
+.border-retro-darkgray { border-color: #5a4634 !important; }
+.border-retro-gray { border-color: #7c6650 !important; }
+.border-retro-lightgray { border-color: #b89d77 !important; }
+.border-retro-yellow { border-color: #e8b864 !important; }
+.border-retro-red { border-color: #c44a36 !important; }
+.border-retro-blue { border-color: #7ea0df !important; }
