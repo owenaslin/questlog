@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Quest } from "@/lib/types";
+import { Badge, Quest } from "@/lib/types";
 import PixelButton from "./PixelButton";
 import XPBar from "./XPBar";
 
@@ -15,6 +15,7 @@ interface CompletionModalProps {
   newStreak?: number;
   isNewLongest?: boolean;
   heroHandle?: string;
+  newBadges?: Badge[];
   onClose: () => void;
 }
 
@@ -22,6 +23,13 @@ interface CompletionModalProps {
 const PARTICLE_POSITIONS = [12, 28, 44, 60, 76, 20, 36, 52, 68, 84, 8, 40, 56, 72, 88];
 const PARTICLE_DELAYS    = [0, 0.2, 0.4, 0.1, 0.3, 0.5, 0.15, 0.35, 0.25, 0.45, 0.05, 0.55, 0.1, 0.4, 0.2];
 const CONFETTI_COLORS    = ["bg-tavern-gold", "bg-tavern-ember", "bg-retro-lime", "bg-retro-cyan", "bg-retro-yellow"];
+
+const rarityBorder: Record<string, string> = {
+  common:    "#6b7280",
+  rare:      "#3b82f6",
+  epic:      "#a855f7",
+  legendary: "#f59e0b",
+};
 
 export default function CompletionModal({
   quest,
@@ -31,6 +39,7 @@ export default function CompletionModal({
   newStreak,
   isNewLongest,
   heroHandle,
+  newBadges = [],
   onClose,
 }: CompletionModalProps) {
   const [showParticles, setShowParticles] = useState(false);
@@ -186,6 +195,35 @@ export default function CompletionModal({
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* ── Badge unlocks ── */}
+          {newBadges.length > 0 && (
+            <div className="mb-4">
+              {newBadges.map((badge) => (
+                <div
+                  key={badge.id}
+                  className="flex items-center gap-3 p-3 mb-2"
+                  style={{
+                    border: `2px solid ${rarityBorder[badge.rarity] ?? "#6b7280"}`,
+                    background: "#0f0d07",
+                  }}
+                >
+                  <span className="text-2xl flex-shrink-0">{badge.icon}</span>
+                  <div className="min-w-0">
+                    <div
+                      className="font-pixel text-[7px] uppercase tracking-wider mb-0.5"
+                      style={{ color: rarityBorder[badge.rarity] ?? "#6b7280" }}
+                    >
+                      🏅 {badge.rarity} trophy unlocked!
+                    </div>
+                    <div className="font-pixel text-tavern-gold text-[9px] leading-snug">
+                      {badge.name}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
