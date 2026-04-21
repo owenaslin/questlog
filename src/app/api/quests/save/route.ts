@@ -1,18 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { kv } from "@vercel/kv";
 import { QUEST_CATEGORIES } from "@/lib/types";
 
-// ── XP clamp (defence in depth — don't trust client XP value blindly) ────────
-
-const XP_CAPS = {
-  side: { min: 25,  max: 250  },
-  main: { min: 100, max: 1000 },
-} as const;
+// ── XP cap (defence in depth) ─────────────────────────────────────────────────
+// quest.type is client-supplied so we cannot fully prevent a user from claiming
+// "main" to access the higher ceiling. We intentionally omit the minimum floor
+// so that a legitimate low-XP side quest is never inflated by a type mismatch.
+// A full fix would require a server-side DB lookup of the original quest.
+const XP_MAX_BY_TYPE = { side: 250, main: 1000 } as const;
 
 function clampXP(xp: number, type: "main" | "side"): number {
-  const { min, max } = XP_CAPS[type];
-  return Math.max(min, Math.min(max, Math.round(xp)));
+  return Math.min(XP_MAX_BY_TYPE[type], Math.max(1, Math.round(xp)));
+}
+
+// ── Rate limiting ─────────────────────────────────────────────────────────────
+
+const RATE_LIMIT_WINDOW_MS = 3600; // 1 hour
+const RATE_LIMIT_MAX_SAVES = 20;
+
+async function checkSaveRateLimit(userId: string): Promise<boolean> {
+  const key = `rate_limit:save:${userId}`;
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT_WINDOW_MS * 1000;
+  try {
+    const timestamps = await kv.lrange<number>(key, 0, -1);
+    const recent = timestamps.filter((ts) => ts > windowStart);
+    if (recent.length >= RATE_LIMIT_MAX_SAVES) return false;
+    await kv.lpush(key, now);
+    await kv.expire(key, RATE_LIMIT_WINDOW_MS);
+    return true;
+  } catch {
+    // Fail open in development; fail closed in production.
+    return process.env.NODE_ENV === "development";
+  }
 }
 
 // ── Zod schema ────────────────────────────────────────────────────────────────
@@ -61,6 +83,9 @@ export async function POST(req: NextRequest) {
     const auth = await getAuthToken(req);
     if (!auth) throw new AppError("Authentication required", 401);
     const { userId, token } = auth;
+
+    const allowed = await checkSaveRateLimit(userId);
+    if (!allowed) throw new AppError("Too many quests saved. Please wait before saving another.", 429);
 
     let body: unknown;
     try { body = await req.json(); } catch { throw new AppError("Invalid JSON", 400); }

@@ -61,8 +61,8 @@ export function getQuestsByDifficulty(difficulty: number): Quest[] {
   return ALL_QUESTS.filter((q) => q.difficulty === difficulty);
 }
 
-// Get random quest
-export function getRandomQuest(): Quest {
+// Get random quest (returns undefined if ALL_QUESTS is empty)
+export function getRandomQuest(): Quest | undefined {
   return ALL_QUESTS[Math.floor(Math.random() * ALL_QUESTS.length)];
 }
 

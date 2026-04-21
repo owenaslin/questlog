@@ -96,6 +96,12 @@ export async function acceptQuest(
   return { success: true };
 }
 
+/**
+ * Marks a quest complete and awards XP via the complete_quest_atomic RPC, then
+ * separately updates weekly_activity. These are two distinct DB operations — if
+ * the second fails the XP is still awarded (not rolled back). Acceptable for
+ * this app's consistency requirements.
+ */
 export async function completeQuest(
   questId: string,
   xpReward: number,
@@ -346,6 +352,8 @@ export async function getWeeklyRecap(weeksAgo: number = 0): Promise<WeeklyRecap 
 
   const today = new Date();
   const weekStart = new Date(today);
+  // getDay() returns 0 for Sunday — this produces a Sunday-start week.
+  // Must match the week boundary used by the update_weekly_activity stored procedure.
   weekStart.setDate(today.getDate() - today.getDay() - weeksAgo * 7);
   const weekStartStr = weekStart.toISOString().split("T")[0];
 

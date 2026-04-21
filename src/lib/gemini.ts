@@ -15,8 +15,9 @@
 const FALLBACK_MODEL = "gemini-2.0-flash-lite";
 const CACHE_TTL_MS   = 24 * 60 * 60 * 1000; // 24 h
 
-let cachedModel: string | null = null;
-let cacheExpiresAt              = 0;
+// Keyed by API key so different accounts (e.g. different env vars across
+// deployments) never share a stale cached model name.
+const modelCache = new Map<string, { model: string; expiresAt: number }>();
 
 interface GeminiModelEntry {
   name: string;
@@ -35,12 +36,14 @@ function parseFlashVersion(name: string): [number, number] {
  */
 export async function getLatestFlashModel(apiKey: string): Promise<string> {
   // Return cached value while still fresh.
-  if (cachedModel && Date.now() < cacheExpiresAt) {
-    return cachedModel;
+  const cached = modelCache.get(apiKey);
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.model;
   }
 
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=100`;
+    // AbortSignal.timeout requires Node ≥ 17 (Next.js 13+ ships Node 18+, so this is safe).
     const res  = await fetch(url, { signal: AbortSignal.timeout(5_000) });
 
     if (!res.ok) {
@@ -70,8 +73,7 @@ export async function getLatestFlashModel(apiKey: string): Promise<string> {
     const best = candidates[0] ?? FALLBACK_MODEL;
     console.info(`[gemini] resolved latest flash model: ${best}`);
 
-    cachedModel    = best;
-    cacheExpiresAt = Date.now() + CACHE_TTL_MS;
+    modelCache.set(apiKey, { model: best, expiresAt: Date.now() + CACHE_TTL_MS });
     return best;
   } catch (err) {
     console.warn("[gemini] model resolution failed — using fallback:", err);

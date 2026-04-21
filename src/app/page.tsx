@@ -27,10 +27,13 @@ export default function HomePage() {
   const [dataLoading,   setDataLoading]   = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     const load = async () => {
       const supabase = getSupabaseClient();
       const { data } = await supabase.auth.getSession();
       const session  = data.session;
+
+      if (!mounted) return;
 
       if (session) {
         const meta = session.user.user_metadata;
@@ -56,6 +59,8 @@ export default function HomePage() {
           getUserCreatedActiveQuests(),
         ]);
 
+        if (!mounted) return;
+
         setProfile(profileData);
         setStreak(streakData);
 
@@ -76,16 +81,18 @@ export default function HomePage() {
         setPickedId(quests[1]?.id ?? quests[0]?.id ?? null);
       } catch (err) {
         console.error("[tonight] data fetch failed:", err);
+        if (!mounted) return;
         // Show real daily quests even if personal data failed to load
         const quests = getDailyQuests();
         setTonightQuests(quests);
         setPickedId(quests[1]?.id ?? quests[0]?.id ?? null);
       } finally {
-        setDataLoading(false);
+        if (mounted) setDataLoading(false);
       }
     };
 
     load();
+    return () => { mounted = false; };
   }, []);
 
   const isLoggedIn  = authChecked && heroName !== null;
@@ -140,6 +147,7 @@ export default function HomePage() {
                     <button
                       key={quest.id}
                       type="button"
+                      aria-pressed={active}
                       onClick={() => setPickedId(quest.id)}
                       className={`text-left tavern-card p-4 transition-none ${
                         active ? "ring-2 ring-tavern-gold" : "opacity-90 hover:opacity-100"
