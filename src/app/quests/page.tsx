@@ -8,7 +8,6 @@ import SmartSuggestions from "@/components/SmartSuggestions";
 import DesktopRightRail from "@/components/DesktopRightRail";
 import PullToRefresh from "@/components/PullToRefresh";
 import QuestForge from "@/components/QuestForge";
-import OnboardingModal from "@/components/OnboardingModal";
 import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS, getMainQuests, getSideQuests } from "@/lib/quests";
@@ -16,10 +15,8 @@ import { Quest, QuestSource } from "@/lib/types";
 import {
   getCurrentUserId,
   getUserQuestProgressMap,
-  getProfileProgressSummary,
   mergeQuestWithProgress,
 } from "@/lib/quest-progress";
-import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 
 const allQuests: Quest[] = ALL_QUESTS;
@@ -47,8 +44,6 @@ export default function QuestsPage() {
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingHeroName, setOnboardingHeroName] = useState("Adventurer");
 
   useEffect(() => {
     const hydrateProgress = async () => {
@@ -63,23 +58,9 @@ export default function QuestsPage() {
       }
 
       setIsAuthenticated(true);
-      const [progressMap, summary] = await Promise.all([
-        getUserQuestProgressMap(),
-        getProfileProgressSummary(),
-      ]);
+      const progressMap = await getUserQuestProgressMap();
       setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
       setIsLoadingProgress(false);
-
-      // Show onboarding for brand-new users (no quests completed or active)
-      const alreadyDone = typeof window !== "undefined" && localStorage.getItem("onboardingComplete") === "true";
-      const isNewUser = !alreadyDone && (summary?.completedCount ?? 0) === 0 && (summary?.activeCount ?? 0) === 0;
-      if (isNewUser) {
-        const supabase = getSupabaseClient();
-        const { data } = await supabase.auth.getSession();
-        const meta = data.session?.user.user_metadata;
-        setOnboardingHeroName(meta?.display_name || meta?.name || "Adventurer");
-        setShowOnboarding(true);
-      }
     };
 
     hydrateProgress();
@@ -478,18 +459,6 @@ export default function QuestsPage() {
         isOpen={forgeOpen}
         onClose={() => setForgeOpen(false)}
       />
-
-      {showOnboarding && (
-        <OnboardingModal
-          heroName={onboardingHeroName}
-          onDismiss={() => {
-            setShowOnboarding(false);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("onboardingComplete", "true");
-            }
-          }}
-        />
-      )}
     </div>
   );
 }
