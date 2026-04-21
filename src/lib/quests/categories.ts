@@ -81,6 +81,38 @@ export const CATEGORIES: Category[] = [
     color: "#8b5cf6",
     quest_count: 10,
   },
+  {
+    key: "community",
+    name: "Community",
+    description: "Give back through volunteering, local events, and neighbourhood action",
+    icon: "🏘",
+    color: "#10b981",
+    quest_count: 10,
+  },
+  {
+    key: "business",
+    name: "Business",
+    description: "Build ventures, develop entrepreneurial skills, and launch ideas",
+    icon: "📈",
+    color: "#f59e0b",
+    quest_count: 10,
+  },
+  {
+    key: "culture",
+    name: "Culture",
+    description: "Explore art, history, language, and the richness of human expression",
+    icon: "🎭",
+    color: "#ec4899",
+    quest_count: 10,
+  },
+  {
+    key: "productivity",
+    name: "Productivity",
+    description: "Build systems, sharpen focus, and master your workflow",
+    icon: "⚡",
+    color: "#6366f1",
+    quest_count: 10,
+  },
 ];
 
 export function getCategoryByKey(key: string): Category | undefined {

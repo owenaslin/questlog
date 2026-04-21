@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
+import StreakWarningBanner from "@/components/StreakWarningBanner";
 import WeeklyRecap from "@/components/WeeklyRecap";
 import DesktopRightRail from "@/components/DesktopRightRail";
 import AmbientScene from "@/components/AmbientScene";
@@ -20,6 +21,7 @@ import {
   getUserStreak,
   getWeeklyRecap,
   getUserCreatedActiveQuests,
+  abandonQuest,
   UserStreak,
   WeeklyRecap as WeeklyRecapType,
 } from "@/lib/quest-progress";
@@ -42,6 +44,8 @@ export default function JournalPage() {
   const [streak, setStreak]                 = useState<UserStreak | null>(null);
   const [weeklyRecap, setWeeklyRecap]       = useState<WeeklyRecapType | null>(null);
   const [isLoading, setIsLoading]           = useState(true);
+  const [abandoningId, setAbandoningId]     = useState<string | null>(null);
+  const [abandonConfirmId, setAbandonConfirmId] = useState<string | null>(null);
 
   /* ── Auth check ─────────────────────────────────────────────────── */
   useEffect(() => {
@@ -124,6 +128,25 @@ export default function JournalPage() {
   const xpTotal = profileSummary?.xp_total ?? 0;
   const level   = profileSummary?.level ?? 1;
 
+  /* Streak-at-risk: user has a streak but hasn't completed anything today */
+  const isStreakAtRisk = (() => {
+    if (!streak || streak.current_streak === 0) return false;
+    if (!streak.last_activity_date) return true;
+    const today = new Date().toISOString().slice(0, 10);
+    return streak.last_activity_date < today;
+  })();
+
+  /* ── Abandon handler ────────────────────────────────────────────── */
+  const handleAbandon = async (questId: string) => {
+    setAbandoningId(questId);
+    setAbandonConfirmId(null);
+    const result = await abandonQuest(questId);
+    if (result.success) {
+      setActiveQuests((prev) => prev.filter((q) => q.id !== questId));
+    }
+    setAbandoningId(null);
+  };
+
   /* ── Loading skeleton ─────────────────────────────────────────────── */
   if (isCheckingAuth) {
     return (
@@ -163,6 +186,11 @@ export default function JournalPage() {
       <AmbientScene scene="hearthside" />
       <div className={isDesktopActive ? "grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_288px] gap-6" : ""}>
       <div>
+
+      {/* ── Streak at-risk warning ───────────────────────────────── */}
+      {isStreakAtRisk && !isLoading && (
+        <StreakWarningBanner streakDays={streak!.current_streak} />
+      )}
 
       {/* ── Page header ──────────────────────────────────────────── */}
       <div className="flex items-center gap-3 mb-6">
@@ -277,12 +305,42 @@ export default function JournalPage() {
                     <span className="font-pixel text-tavern-smoke-light text-[7px]">{quest.duration_label}</span>
                   </div>
                 </div>
-                <Link
-                  href={`/board/${quest.id}`}
-                  className="font-pixel text-[7px] px-3 py-2 border border-tavern-gold text-tavern-gold hover:bg-tavern-smoke-light flex-shrink-0 whitespace-nowrap"
-                >
-                  Continue →
-                </Link>
+                <div className="flex flex-col gap-1.5 flex-shrink-0">
+                  <Link
+                    href={`/board/${quest.id}`}
+                    className="font-pixel text-[7px] px-3 py-2 border border-tavern-gold text-tavern-gold hover:bg-tavern-smoke-light whitespace-nowrap text-center"
+                  >
+                    Continue →
+                  </Link>
+                  {abandonConfirmId !== quest.id ? (
+                    <button
+                      type="button"
+                      onClick={() => setAbandonConfirmId(quest.id)}
+                      className="font-pixel text-[6px] px-3 py-1.5 border border-tavern-oak text-tavern-smoke-light hover:border-retro-gray hover:text-retro-gray transition-none whitespace-nowrap"
+                      disabled={abandoningId === quest.id}
+                    >
+                      ↩ Abandon
+                    </button>
+                  ) : (
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleAbandon(quest.id)}
+                        className="font-pixel text-[6px] px-2 py-1 border border-retro-red text-retro-red hover:bg-retro-red hover:text-retro-white transition-none"
+                        disabled={abandoningId === quest.id}
+                      >
+                        {abandoningId === quest.id ? "…" : "Yes"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAbandonConfirmId(null)}
+                        className="font-pixel text-[6px] px-2 py-1 border border-tavern-oak text-tavern-smoke-light hover:border-retro-gray transition-none"
+                      >
+                        No
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

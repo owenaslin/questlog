@@ -479,6 +479,17 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
           {/* ── Preview stage ────────────────────────────────────── */}
           {stage === "preview" && preview && (
             <div>
+              {/* Mode switcher available during preview */}
+              <div className="flex justify-end mb-3">
+                <button
+                  type="button"
+                  onClick={() => { setPreview(null); setStage("form"); setMode(mode === "ai" ? "user" : "ai"); }}
+                  className="font-pixel text-[7px] text-tavern-smoke-light hover:text-tavern-parchment underline"
+                >
+                  Switch to {mode === "ai" ? "✎ Write It" : "⚡ Quest Giver"} mode
+                </button>
+              </div>
+
               {/* Quest Giver XP award banner */}
               <div
                 className="text-center py-4 mb-5"
