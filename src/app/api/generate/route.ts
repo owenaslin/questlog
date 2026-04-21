@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
+import { getLatestFlashModel } from "@/lib/gemini";
 
 const requestSchema = z.object({
   location: z.string().min(1).max(100).trim(),
@@ -90,7 +91,12 @@ async function checkRateLimit(
       recentCount: recent.length,
     };
   } catch (err) {
-    // If KV fails, fail closed to avoid opening abuse vector.
+    // In development without KV configured, fail open so local testing works.
+    // In production, fail closed to prevent abuse if KV becomes unavailable.
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[rate-limit] KV unavailable in dev — allowing request:", err);
+      return { isLimited: false, recentCount: 0 };
+    }
     console.error("Rate limit KV error:", err);
     return {
       isLimited: true,
@@ -196,9 +202,8 @@ export async function POST(request: NextRequest) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const configuredModel = process.env.GOOGLE_GEMINI_MODEL?.trim();
-    const modelCandidates = configuredModel
-      ? [configuredModel, "gemini-1.5-flash"]
-      : ["gemini-1.5-flash"];
+    const resolvedModel   = configuredModel || await getLatestFlashModel(apiKey);
+    const modelCandidates = [resolvedModel];
 
     const safeLocation = sanitizeForPrompt(location);
     const safeTopic = sanitizeForPrompt(topic);

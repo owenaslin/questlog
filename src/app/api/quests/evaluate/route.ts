@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
 import { QUEST_CATEGORIES } from "@/lib/types";
+import { getLatestFlashModel } from "@/lib/gemini";
 
 const XP_CAPS = {
   side: { min: 25,  max: 250  },
@@ -91,7 +92,13 @@ async function checkRateLimit(
       isLimited: false,
       recentCount: recent.length,
     };
-  } catch {
+  } catch (err) {
+    // In development without KV configured, fail open so local testing works.
+    // In production, fail closed to prevent abuse if KV becomes unavailable.
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[rate-limit] KV unavailable in dev — allowing request:", err);
+      return { isLimited: false, recentCount: 0 };
+    }
     return {
       isLimited: true,
       recentCount: RATE_LIMIT_MAX_REQ,
@@ -223,7 +230,7 @@ export async function POST(req: NextRequest) {
     if (!apiKey) throw new AppError("AI service not configured", 500);
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const modelName = process.env.GOOGLE_GEMINI_MODEL?.trim() || "gemini-1.5-flash";
+    const modelName = process.env.GOOGLE_GEMINI_MODEL?.trim() || await getLatestFlashModel(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = input.mode === "ai"
