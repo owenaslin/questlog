@@ -7,15 +7,12 @@ import PixelButton from "@/components/PixelButton";
 import XPBar from "@/components/XPBar";
 import CompletionModal from "@/components/CompletionModal";
 import AmbientScene from "@/components/AmbientScene";
-import { Badge, Quest } from "@/lib/types";
+import { Quest } from "@/lib/types";
 import {
   acceptQuest,
-  abandonQuest,
   completeQuest,
-  checkAndReturnNewBadges,
   getProfileProgressSummary,
   getUserQuestProgressMap,
-  getUserEarnedBadgeIds,
   updateStreakOnCompletion,
 } from "@/lib/quest-progress";
 import { getOwnHeroProfile } from "@/lib/hero";
@@ -43,9 +40,6 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [newStreak, setNewStreak] = useState<number | undefined>(undefined);
   const [isNewLongest, setIsNewLongest] = useState(false);
   const [heroHandle, setHeroHandle] = useState<string | undefined>(undefined);
-  const [newBadges, setNewBadges] = useState<Badge[]>([]);
-  const [isAbandonConfirm, setIsAbandonConfirm] = useState(false);
-  const [isAbandoning, setIsAbandoning] = useState(false);
 
   useEffect(() => {
     const hydrateStatus = async () => {
@@ -94,11 +88,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
     setStatus("completed");
 
     try {
-      // Snapshot badge IDs and level before completion so we can diff after
-      const [beforeSummary, prevBadgeIds] = await Promise.all([
-        getProfileProgressSummary(),
-        getUserEarnedBadgeIds(),
-      ]);
+      // Capture level before completion
+      const beforeSummary = await getProfileProgressSummary();
       const beforeLevel = beforeSummary?.level || calculateLevel(beforeSummary?.xp_total || 0);
       setPreviousLevel(beforeLevel);
 
@@ -131,17 +122,11 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         setNewLevel(afterLevel > beforeLevel ? afterLevel : null);
       }
 
-      // Update streak tracking and check for newly awarded badges in parallel
-      const [streakResult, earnedBadges] = await Promise.all([
-        updateStreakOnCompletion(),
-        checkAndReturnNewBadges(prevBadgeIds),
-      ]);
+      // Update streak tracking
+      const streakResult = await updateStreakOnCompletion();
       if (streakResult.success) {
         setNewStreak(streakResult.newStreak);
         setIsNewLongest(streakResult.isNewLongest ?? false);
-      }
-      if (earnedBadges.length > 0) {
-        setNewBadges(earnedBadges);
       }
 
       // Show completion modal
@@ -154,27 +139,6 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       setActionError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setIsWorking(false);
-    }
-  };
-
-  const handleAbandon = async () => {
-    setIsAbandoning(true);
-    setActionError(null);
-    const previousStatus = status;
-    setStatus("available");
-    setIsAbandonConfirm(false);
-
-    try {
-      const result = await abandonQuest(quest.id);
-      if (!result.success) {
-        setStatus(previousStatus);
-        setActionError(result.error || "Could not abandon quest.");
-      }
-    } catch (err) {
-      setStatus(previousStatus);
-      setActionError(err instanceof Error ? err.message : "An unexpected error occurred.");
-    } finally {
-      setIsAbandoning(false);
     }
   };
 
@@ -287,7 +251,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
               <div className="font-pixel text-retro-orange text-[10px] bg-retro-black px-4 py-2 animate-pulse">
                 ▶ Quest In Progress
               </div>
-              <PixelButton variant="primary" size="lg" onClick={handleComplete} disabled={isWorking || isAbandoning}>
+              <PixelButton variant="primary" size="lg" onClick={handleComplete} disabled={isWorking}>
                 {isWorking ? (
                   <span className="flex items-center gap-2">
                     <span className="animate-spin">⟳</span> Completing...
@@ -296,37 +260,6 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                   "✓ Complete Quest"
                 )}
               </PixelButton>
-
-              {/* Abandon quest */}
-              {!isAbandonConfirm ? (
-                <button
-                  type="button"
-                  onClick={() => setIsAbandonConfirm(true)}
-                  className="font-pixel text-[7px] text-retro-gray border border-retro-darkgray px-3 py-2 hover:border-retro-gray hover:text-retro-lightgray transition-none"
-                  disabled={isWorking || isAbandoning}
-                >
-                  ↩ Abandon Quest
-                </button>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <span className="font-pixel text-retro-gray text-[7px]">Are you sure?</span>
-                  <button
-                    type="button"
-                    onClick={handleAbandon}
-                    className="font-pixel text-[7px] text-retro-red border border-retro-red px-3 py-1.5 hover:bg-retro-red hover:text-retro-white transition-none"
-                    disabled={isAbandoning}
-                  >
-                    {isAbandoning ? "Abandoning…" : "Yes, abandon"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsAbandonConfirm(false)}
-                    className="font-pixel text-[7px] text-retro-gray border border-retro-darkgray px-3 py-1.5 hover:border-retro-gray transition-none"
-                  >
-                    Keep going
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
@@ -363,7 +296,6 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
           newStreak={newStreak}
           isNewLongest={isNewLongest}
           heroHandle={heroHandle}
-          newBadges={newBadges}
           onClose={() => setShowCompletionModal(false)}
         />
       )}

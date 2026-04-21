@@ -1,31 +1,9 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import PixelButton from "@/components/PixelButton";
 import AmbientScene from "@/components/AmbientScene";
-import { getSupabaseClient } from "@/lib/supabase";
 
 export default function HomePage() {
-  const [heroName, setHeroName] = useState<string | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
-
-  useEffect(() => {
-    const check = async () => {
-      const supabase = getSupabaseClient();
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        const meta = data.session.user.user_metadata;
-        setHeroName(meta?.display_name || meta?.name || "Adventurer");
-      }
-      setAuthChecked(true);
-    };
-    check();
-  }, []);
-
-  const isLoggedIn = authChecked && heroName !== null;
-
   return (
     <div className="flex flex-col items-center gap-0">
       <AmbientScene scene="entrance" />
@@ -129,19 +107,11 @@ export default function HomePage() {
         <div className="flex justify-center mb-2">
           <Image src="/tavern/scroll.svg" alt="" width={96} height={80} className="image-rendering-pixelated opacity-70" style={{ imageRendering: "pixelated" }} />
         </div>
-        {isLoggedIn ? (
-          <p className="font-pixel text-tavern-parchment text-[9px] leading-loose">
-            Welcome back, {heroName}.<br />
-            The hearth burns and the board awaits.<br />
-            Your legend continues tonight.
-          </p>
-        ) : (
-          <p className="font-pixel text-tavern-parchment text-[9px] leading-loose">
-            Welcome, adventurer. Pull up a stool.<br />
-            The board is full of quests waiting for a hero.<br />
-            What legend will you write tonight?
-          </p>
-        )}
+        <p className="font-pixel text-tavern-parchment text-[9px] leading-loose">
+          Welcome, adventurer. Pull up a stool.<br />
+          The board is full of quests waiting for a hero.<br />
+          What legend will you write tonight?
+        </p>
       </div>
 
       {/* ── Three Rooms ──────────────────────────────────────────── */}
@@ -196,38 +166,18 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* ── Primary CTA — auth-aware ──────────────────────────────── */}
+      {/* ── Primary CTA ──────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row gap-4 mb-12">
-        {isLoggedIn ? (
-          <>
-            <Link href="/journal">
-              <PixelButton variant="primary" size="lg">
-                📜 Back to Your Journal
-              </PixelButton>
-            </Link>
-            <Link href="/board">
-              <PixelButton variant="secondary" size="lg">
-                ⚔ Browse The Board
-              </PixelButton>
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link href="/board">
-              <PixelButton variant="primary" size="lg">
-                ⚔ Enter the Tavern
-              </PixelButton>
-            </Link>
-            {/* Only show signup CTA when we've confirmed not logged in */}
-            {authChecked && (
-              <Link href="/signup">
-                <PixelButton variant="success" size="lg">
-                  🍺 Start Your Legend
-                </PixelButton>
-              </Link>
-            )}
-          </>
-        )}
+        <Link href="/board">
+          <PixelButton variant="primary" size="lg">
+            ⚔ Enter the Tavern
+          </PixelButton>
+        </Link>
+        <Link href="/signup">
+          <PixelButton variant="success" size="lg">
+            🍺 Start Your Legend
+          </PixelButton>
+        </Link>
       </div>
 
       {/* ── Floor pixel divider ───────────────────────────────────── */}
