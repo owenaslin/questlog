@@ -1,5 +1,18 @@
 import { Quest, QuestType } from "@/lib/types";
 import { ALL_QUESTS } from "@/lib/quests";
+
+// O(1) quest lookup by ID — avoids repeated O(n) ALL_QUESTS.find() calls.
+const questById = new Map(ALL_QUESTS.map((q) => [q.id, q]));
+
+/** Unbiased Fisher-Yates shuffle (returns a new array). */
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 import {
   getUserQuestProgressMap,
   getQuestlineProgressMap,
@@ -46,26 +59,19 @@ async function buildContext(): Promise<RecommendationContext | null> {
     .filter(([, progress]) => progress.status === "active")
     .map(([id]) => id);
 
-  // Calculate completed categories
+  // Calculate completed categories — use O(1) Map lookups instead of find().
   const categoryCount: Record<string, number> = {};
-  completedQuestIds.forEach((id) => {
-    const quest = ALL_QUESTS.find((q) => q.id === id);
-    if (quest) {
-      categoryCount[quest.category] = (categoryCount[quest.category] || 0) + 1;
-    }
-  });
-  const completedCategories = Object.keys(categoryCount);
-
-  // Calculate average difficulty of completed quests
   let totalDifficulty = 0;
   let difficultyCount = 0;
-  completedQuestIds.forEach((id) => {
-    const quest = ALL_QUESTS.find((q) => q.id === id);
+  for (const id of completedQuestIds) {
+    const quest = questById.get(id);
     if (quest) {
+      categoryCount[quest.category] = (categoryCount[quest.category] || 0) + 1;
       totalDifficulty += quest.difficulty;
       difficultyCount++;
     }
-  });
+  }
+  const completedCategories = Object.keys(categoryCount);
   const averageDifficulty = difficultyCount > 0 ? totalDifficulty / difficultyCount : 1;
 
   // Build questline progress
@@ -102,20 +108,16 @@ function getQuestlineRecommendations(context: RecommendationContext): QuestRecom
     const progress = context.questlineProgress[questline.id];
     if (!progress) return;
 
-    // Find next unlocked but incomplete step
+    // Recommend the current step if it hasn't been completed yet.
+    // currentStep is the step to do next — no need for a second findIndex.
     const currentStep = questline.steps.find((s) => s.id === progress.currentStepId);
-    if (currentStep && !context.completedQuestIds.includes(currentStep.quest_id)) {
-      const nextStepIndex = questline.steps.findIndex((s) => s.id === progress.currentStepId);
-      const nextStep = questline.steps[nextStepIndex];
-
-      if (nextStep && nextStep.quest) {
-        recommendations.push({
-          quest: nextStep.quest,
-          reason: `Continue ${questline.title}`,
-          confidence: 0.9,
-          type: "continue_questline",
-        });
-      }
+    if (currentStep?.quest && !context.completedQuestIds.includes(currentStep.quest_id)) {
+      recommendations.push({
+        quest: currentStep.quest,
+        reason: `Continue ${questline.title}`,
+        confidence: 0.9,
+        type: "continue_questline",
+      });
     }
   });
 
@@ -125,14 +127,16 @@ function getQuestlineRecommendations(context: RecommendationContext): QuestRecom
 function getCategoryBalanceRecommendations(context: RecommendationContext): QuestRecommendation[] {
   const recommendations: QuestRecommendation[] = [];
 
-  // Find underrepresented categories
+  // Find underrepresented categories.
   const allCategories = Array.from(new Set(ALL_QUESTS.map((q) => q.category)));
   const categoryCount: Record<string, number> = {};
   context.completedCategories.forEach((cat) => {
     categoryCount[cat] = (categoryCount[cat] || 0) + 1;
   });
 
-  const minCount = Math.min(...Object.values(categoryCount), 0);
+  // Math.min() with no args returns Infinity; handle that explicitly.
+  const counts = Object.values(categoryCount);
+  const minCount = counts.length > 0 ? Math.min(...counts) : 0;
   const underrepresented = allCategories.filter((cat) => (categoryCount[cat] || 0) <= minCount);
 
   underrepresented.slice(0, 3).forEach((category) => {
@@ -171,8 +175,8 @@ function getDifficultyProgressionRecommendations(context: RecommendationContext)
       q.type === "main" // Prefer main quests for progression
   );
 
-  // Pick 2 random challenging quests
-  const shuffled = challengingQuests.sort(() => 0.5 - Math.random());
+  // Pick 2 random challenging quests (Fisher-Yates ensures uniform distribution).
+  const shuffled = shuffleArray(challengingQuests);
   shuffled.slice(0, 2).forEach((quest) => {
     recommendations.push({
       quest,

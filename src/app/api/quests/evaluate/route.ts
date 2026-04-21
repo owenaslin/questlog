@@ -31,14 +31,14 @@ function logSecurityEvent(
 const requestSchema = z.discriminatedUnion("mode", [
   z.object({
     mode:      z.literal("ai"),
-    topic:     z.string().min(1).max(100).trim(),
-    location:  z.string().max(100).trim().optional().default(""),
+    topic:     z.string().trim().min(1).max(100), // trim before min so " " is rejected
+    location:  z.string().trim().max(100).optional().default(""),
     questType: z.enum(["main", "side"]),
   }),
   z.object({
     mode:        z.literal("user"),
-    title:       z.string().min(5).max(80).trim(),
-    description: z.string().min(20).max(400).trim(),
+    title:       z.string().trim().min(5).max(80),
+    description: z.string().trim().min(20).max(400),
     questType:   z.enum(["main", "side"]),
     category:    z.enum(QUEST_CATEGORIES),
   }),

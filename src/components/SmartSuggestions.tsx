@@ -21,18 +21,29 @@ export default function SmartSuggestions({
   const [activeMode, setActiveMode] = useState<"smart" | "low-energy">("smart");
 
   useEffect(() => {
+    let mounted = true;
     const loadRecommendations = async () => {
       setIsLoading(true);
-      const [recs, lowEnergy] = await Promise.all([
-        getSmartRecommendations(maxSuggestions),
-        showLowEnergy ? getLowEnergySuggestion() : Promise.resolve(null),
-      ]);
-      setRecommendations(recs);
-      setLowEnergyQuest(lowEnergy);
-      setIsLoading(false);
+      try {
+        const [recs, lowEnergy] = await Promise.all([
+          getSmartRecommendations(maxSuggestions),
+          showLowEnergy ? getLowEnergySuggestion() : Promise.resolve(null),
+        ]);
+        if (!mounted) return;
+        setRecommendations(recs);
+        setLowEnergyQuest(lowEnergy);
+      } catch {
+        if (!mounted) return;
+        // Show empty state rather than staying stuck on "Loading suggestions…"
+        setRecommendations([]);
+        setLowEnergyQuest(null);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
     };
 
     loadRecommendations();
+    return () => { mounted = false; };
   }, [maxSuggestions, showLowEnergy]);
 
   if (isLoading) {

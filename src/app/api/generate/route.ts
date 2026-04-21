@@ -6,8 +6,8 @@ import { kv } from "@vercel/kv";
 import { getLatestFlashModel } from "@/lib/gemini";
 
 const requestSchema = z.object({
-  location: z.string().min(1).max(100).trim(),
-  topic: z.string().min(1).max(100).trim(),
+  location: z.string().trim().min(1).max(100), // trim before min so " " is rejected
+  topic: z.string().trim().min(1).max(100),
   questType: z.enum(["main", "side"]),
 });
 

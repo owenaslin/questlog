@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import PixelButton from "@/components/PixelButton";
@@ -30,6 +30,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const pathname = usePathname();
   const [status, setStatus] = useState(quest.status);
   const [isWorking, setIsWorking] = useState(false);
+  // Guard against double-tap: ensures handleComplete can't fire concurrently.
+  const isCompletingRef = useRef(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [profileXpTotal, setProfileXpTotal] = useState<number | null>(null);
   const [xpEarned, setXpEarned] = useState(0);
@@ -42,6 +44,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [heroHandle, setHeroHandle] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    let mounted = true;
     const hydrateStatus = async () => {
       const [progressMap, summary, heroProfile] = await Promise.all([
         getUserQuestProgressMap(),
@@ -49,6 +52,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         getOwnHeroProfile(),
       ]);
 
+      if (!mounted) return;
       const progress = progressMap[quest.id];
       if (progress?.status) setStatus(progress.status);
       if (summary) setProfileXpTotal(summary.xp_total);
@@ -56,6 +60,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
     };
 
     hydrateStatus();
+    return () => { mounted = false; };
   }, [quest.id]);
 
   const handleAccept = async () => {
@@ -82,6 +87,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   };
 
   const handleComplete = async () => {
+    if (isCompletingRef.current) return; // prevent double-tap
+    isCompletingRef.current = true;
     setIsWorking(true);
     setActionError(null);
     const previousStatus = status;
@@ -139,6 +146,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       setActionError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setIsWorking(false);
+      isCompletingRef.current = false;
     }
   };
 

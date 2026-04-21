@@ -46,9 +46,12 @@ export default function QuestsPage() {
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
     const hydrateProgress = async () => {
       setIsLoadingProgress(true);
       const userId = await getCurrentUserId();
+
+      if (!mounted) return;
 
       if (!userId) {
         setIsAuthenticated(false);
@@ -59,11 +62,13 @@ export default function QuestsPage() {
 
       setIsAuthenticated(true);
       const progressMap = await getUserQuestProgressMap();
+      if (!mounted) return;
       setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
       setIsLoadingProgress(false);
     };
 
     hydrateProgress();
+    return () => { mounted = false; };
   }, []);
 
   // Pull-to-refresh handler
@@ -224,10 +229,12 @@ export default function QuestsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6" role="tablist" aria-label="Quest type">
         {QUEST_TABS.map((tab) => (
           <button
             key={tab.key}
+            role="tab"
+            aria-selected={activeTab === tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`font-pixel text-[9px] px-4 py-2 transition-none ${
               activeTab === tab.key
@@ -243,10 +250,11 @@ export default function QuestsPage() {
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
         <div>
-          <label className="font-pixel text-retro-lightgray text-[8px] block mb-2">
+          <label htmlFor="filter-difficulty" className="font-pixel text-retro-lightgray text-[8px] block mb-2">
             Difficulty
           </label>
           <select
+            id="filter-difficulty"
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(Number(e.target.value))}
             className="font-pixel text-[9px]"
@@ -261,10 +269,11 @@ export default function QuestsPage() {
         </div>
 
         <div>
-          <label className="font-pixel text-retro-lightgray text-[8px] block mb-2">
+          <label htmlFor="filter-source" className="font-pixel text-retro-lightgray text-[8px] block mb-2">
             Source
           </label>
           <select
+            id="filter-source"
             value={sourceFilter}
             onChange={(e) =>
               setSourceFilter(e.target.value as QuestSource | "all")
@@ -280,10 +289,11 @@ export default function QuestsPage() {
 
         {isAuthenticated && (
           <div>
-            <label className="font-pixel text-retro-lightgray text-[8px] block mb-2">
+            <label htmlFor="filter-status" className="font-pixel text-retro-lightgray text-[8px] block mb-2">
               Status
             </label>
             <select
+              id="filter-status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
               className="font-pixel text-[9px]"

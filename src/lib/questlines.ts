@@ -4,16 +4,21 @@ import { FITNESS_QUESTS_WITH_IDS } from "./quests/fitness";
 import { CREATIVE_QUESTS_WITH_IDS } from "./quests/creative";
 import { TECH_QUESTS_WITH_IDS } from "./quests/tech";
 
-// Helper to find quest by title (more stable than array indices)
-function findQuestByTitle(quests: Quest[], title: string): Quest {
+// Helper to find quest by title (more stable than array indices).
+// Returns null and logs an error rather than throwing so a renamed quest
+// doesn't crash the whole module at load time.
+function findQuestByTitle(quests: Quest[], title: string): Quest | null {
   const quest = quests.find((q) => q.title === title);
-  if (!quest) throw new Error(`Quest not found: ${title}`);
+  if (!quest) {
+    console.error(`[questlines] Quest not found: "${title}". Check for title changes in quest data.`);
+    return null;
+  }
   return quest;
 }
 
 // Step factory for cleaner questline definitions
 type StepConfig = {
-  quest: Quest;
+  quest: Quest | null; // null when findQuestByTitle can't resolve the title
   step_number: number;
   is_starting_step?: boolean;
   is_unlocked?: boolean;
@@ -47,7 +52,7 @@ function createStep({
 // ============================================
 
 export const FITNESS_JOURNEY_QUESTLINE: Omit<Questline, "id" | "steps" | "badge_reward"> & {
-  steps: (Omit<QuestlineStep, "id" | "quest" | "quest_id"> & { quest: Quest })[];
+  steps: (Omit<QuestlineStep, "id" | "quest" | "quest_id"> & { quest: Quest | null })[];
 } = {
   title: "The Fitness Journey",
   description: "Transform your body and build lasting healthy habits through progressive challenges",
@@ -66,7 +71,7 @@ export const FITNESS_JOURNEY_QUESTLINE: Omit<Questline, "id" | "steps" | "badge_
 };
 
 export const CREATIVE_MASTERY_QUESTLINE: Omit<Questline, "id" | "steps" | "badge_reward"> & {
-  steps: (Omit<QuestlineStep, "id" | "quest" | "quest_id"> & { quest: Quest })[];
+  steps: (Omit<QuestlineStep, "id" | "quest" | "quest_id"> & { quest: Quest | null })[];
 } = {
   title: "Creative Mastery",
   description: "Unlock your creative potential through daily practice and artistic exploration",
@@ -89,7 +94,7 @@ export const CREATIVE_MASTERY_QUESTLINE: Omit<Questline, "id" | "steps" | "badge
 // ============================================
 
 export const TECH_MASTERY_QUESTLINE: Omit<Questline, "id" | "steps" | "badge_reward"> & {
-  steps: (Omit<QuestlineStep, "id" | "quest" | "quest_id"> & { quest: Quest })[];
+  steps: (Omit<QuestlineStep, "id" | "quest" | "quest_id"> & { quest: Quest | null })[];
 } = {
   title: "Tech Mastery",
   description: "Choose your path in technology—Web Development, AI/ML, or Game Development",
@@ -152,14 +157,17 @@ export const QUESTLINE_BADGES: Omit<Badge, "id" | "earned_at">[] = [
 // Helper function to create full Questline objects with IDs
 export function createQuestline(
   base: Omit<Questline, "id" | "steps" | "badge_reward"> & {
-    steps: (Omit<QuestlineStep, "id" | "quest" | "quest_id"> & { quest: Quest })[];
+    steps: (Omit<QuestlineStep, "id" | "quest" | "quest_id"> & { quest: Quest | null })[];
   },
   badgeReward?: Badge
 ): Questline {
   const questlineId = generateStableId(`questline-${base.title}`);
-  
+
+  // Filter out any steps whose quest couldn't be resolved (renamed/deleted quests).
+  const validSteps = base.steps.filter((s): s is typeof s & { quest: Quest } => s.quest !== null);
+
   // Create steps with IDs
-  const steps: QuestlineStep[] = base.steps.map((step, index) => {
+  const steps: QuestlineStep[] = validSteps.map((step, index) => {
     const stepId = generateStableId(`${questlineId}-step-${index}`);
     return {
       id: stepId,
@@ -214,21 +222,29 @@ export function createQuestline(
   };
 }
 
-// Create all questlines
-export const QUESTLINES: Questline[] = [
-  createQuestline(FITNESS_JOURNEY_QUESTLINE, {
-    ...QUESTLINE_BADGES[0],
-    id: generateStableId(`badge-${QUESTLINE_BADGES[0].key}`),
-  }),
-  createQuestline(CREATIVE_MASTERY_QUESTLINE, {
-    ...QUESTLINE_BADGES[1],
-    id: generateStableId(`badge-${QUESTLINE_BADGES[1].key}`),
-  }),
-  createQuestline(TECH_MASTERY_QUESTLINE, {
-    ...QUESTLINE_BADGES[2],
-    id: generateStableId(`badge-${QUESTLINE_BADGES[2].key}`),
-  }),
-];
+// Create all questlines. Wrapped in a try/catch so a single renamed quest
+// title doesn't crash the whole module — QUESTLINES degrades to [] instead.
+export const QUESTLINES: Questline[] = (() => {
+  try {
+    return [
+      createQuestline(FITNESS_JOURNEY_QUESTLINE, {
+        ...QUESTLINE_BADGES[0],
+        id: generateStableId(`badge-${QUESTLINE_BADGES[0].key}`),
+      }),
+      createQuestline(CREATIVE_MASTERY_QUESTLINE, {
+        ...QUESTLINE_BADGES[1],
+        id: generateStableId(`badge-${QUESTLINE_BADGES[1].key}`),
+      }),
+      createQuestline(TECH_MASTERY_QUESTLINE, {
+        ...QUESTLINE_BADGES[2],
+        id: generateStableId(`badge-${QUESTLINE_BADGES[2].key}`),
+      }),
+    ];
+  } catch (err) {
+    console.error("[questlines] Failed to build questlines:", err);
+    return [];
+  }
+})();
 
 // Get questline by ID
 export function getQuestlineById(id: string): Questline | undefined {
