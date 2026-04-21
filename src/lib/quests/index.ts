@@ -1,5 +1,5 @@
 // Quest Library - Organized by Category
-// Total: 160+ quests across 14 categories
+// Total: 120+ quests across 10 categories
 
 import { Quest, Category } from "@/lib/types";
 
@@ -14,10 +14,6 @@ import { WELLNESS_QUESTS_WITH_IDS } from "./wellness";
 import { FOOD_QUESTS_WITH_IDS } from "./food";
 import { CAREER_QUESTS_WITH_IDS } from "./career";
 import { LIFESTYLE_QUESTS_WITH_IDS } from "./lifestyle";
-import { COMMUNITY_QUESTS_WITH_IDS } from "./community";
-import { BUSINESS_QUESTS_WITH_IDS } from "./business";
-import { CULTURE_QUESTS_WITH_IDS } from "./culture";
-import { PRODUCTIVITY_QUESTS_WITH_IDS } from "./productivity";
 
 export { CATEGORIES, getCategoryByKey, getCategoryColor } from "./categories";
 export { FITNESS_QUESTS_WITH_IDS as FITNESS_QUESTS } from "./fitness";
@@ -30,10 +26,6 @@ export { WELLNESS_QUESTS_WITH_IDS as WELLNESS_QUESTS } from "./wellness";
 export { FOOD_QUESTS_WITH_IDS as FOOD_QUESTS } from "./food";
 export { CAREER_QUESTS_WITH_IDS as CAREER_QUESTS } from "./career";
 export { LIFESTYLE_QUESTS_WITH_IDS as LIFESTYLE_QUESTS } from "./lifestyle";
-export { COMMUNITY_QUESTS_WITH_IDS as COMMUNITY_QUESTS } from "./community";
-export { BUSINESS_QUESTS_WITH_IDS as BUSINESS_QUESTS } from "./business";
-export { CULTURE_QUESTS_WITH_IDS as CULTURE_QUESTS } from "./culture";
-export { PRODUCTIVITY_QUESTS_WITH_IDS as PRODUCTIVITY_QUESTS } from "./productivity";
 
 // Combined quest library
 export const ALL_QUESTS: Quest[] = [
@@ -47,10 +39,6 @@ export const ALL_QUESTS: Quest[] = [
   ...FOOD_QUESTS_WITH_IDS,
   ...CAREER_QUESTS_WITH_IDS,
   ...LIFESTYLE_QUESTS_WITH_IDS,
-  ...COMMUNITY_QUESTS_WITH_IDS,
-  ...BUSINESS_QUESTS_WITH_IDS,
-  ...CULTURE_QUESTS_WITH_IDS,
-  ...PRODUCTIVITY_QUESTS_WITH_IDS,
 ];
 
 // Get quests by category
