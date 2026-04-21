@@ -1,5 +1,5 @@
 import { getSupabaseClient } from "@/lib/supabase";
-import { calculateLevel, Quest, QuestStatus } from "@/lib/types";
+import { Badge, calculateLevel, Quest, QuestStatus } from "@/lib/types";
 import { ALL_QUESTS } from "@/lib/quests";
 
 export interface UserQuestProgressRow {
@@ -393,6 +393,144 @@ export async function getWeeklyHistory(limit: number = 4): Promise<WeeklyRecap[]
     xp_earned: row.xp_earned || 0,
     categories: Array.isArray(row.categories) ? row.categories : [],
   }));
+}
+
+/**
+ * Awards badges then returns any newly-earned ones by comparing the badge set
+ * before and after the RPC call. Caller should capture prevBadgeIds before
+ * triggering the completion.
+ */
+export async function checkAndReturnNewBadges(prevBadgeIds: string[]): Promise<Badge[]> {
+  const userId = await getCurrentUserId();
+  if (!userId) return [];
+
+  const supabase = getSupabaseClient();
+
+  // Trigger the badge-award RPC
+  await supabase.rpc("check_and_award_badges", { p_user_id: userId });
+
+  // Fetch the full updated badge list for this user
+  const { data: earned } = await supabase
+    .from("user_badges")
+    .select("badge_id, earned_at")
+    .eq("user_id", userId);
+
+  if (!earned?.length) return [];
+
+  const prevSet = new Set(prevBadgeIds);
+  const newIds = earned
+    .map((r) => r.badge_id as string)
+    .filter((id) => !prevSet.has(id));
+
+  if (!newIds.length) return [];
+
+  // Fetch badge details for newly earned IDs
+  const { data: badges } = await supabase
+    .from("badges")
+    .select("id, key, name, description, icon, rarity, requirement_type, requirement_value, requirement_category")
+    .in("id", newIds);
+
+  if (!badges?.length) return [];
+
+  // Attach earned_at timestamp
+  const earnedAtMap = Object.fromEntries(
+    earned.map((r) => [r.badge_id as string, r.earned_at as string])
+  );
+
+  return badges.map((b) => ({
+    ...(b as Badge),
+    earned_at: earnedAtMap[b.id] ?? new Date().toISOString(),
+  }));
+}
+
+/**
+ * Reverts an active quest back to "available", clearing accepted_at.
+ */
+export async function abandonQuest(
+  questId: string
+): Promise<{ success: boolean; error?: string }> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return { success: false, error: "Please log in to manage quests." };
+  }
+
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from("user_quests")
+    .update({ status: "available", accepted_at: null, updated_at: new Date().toISOString() })
+    .eq("user_id", userId)
+    .eq("quest_id", questId);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+/**
+ * Returns progress data useful for rendering badge unlock progress indicators.
+ */
+export interface UserBadgeProgress {
+  totalCompleted: number;
+  completedByCategory: Record<string, number>;
+  completedMain: number;
+  completedSide: number;
+  currentStreak: number;
+  longestStreak: number;
+  level: number;
+}
+
+export async function getUserBadgeProgress(): Promise<UserBadgeProgress | null> {
+  const userId = await getCurrentUserId();
+  if (!userId) return null;
+
+  const supabase = getSupabaseClient();
+
+  const [
+    { data: completedQuests },
+    { data: streakData },
+    { data: profileData },
+  ] = await Promise.all([
+    supabase
+      .from("user_quests")
+      .select("quest_category, quest_type")
+      .eq("user_id", userId)
+      .eq("status", "completed"),
+    supabase
+      .from("user_streaks")
+      .select("current_streak, longest_streak")
+      .eq("user_id", userId)
+      .single(),
+    supabase
+      .from("profiles")
+      .select("level, xp_total")
+      .eq("id", userId)
+      .single(),
+  ]);
+
+  const quests = completedQuests ?? [];
+
+  const completedByCategory: Record<string, number> = {};
+  let completedMain = 0;
+  let completedSide = 0;
+
+  for (const q of quests) {
+    const cat = (q.quest_category as string | null) ?? "Unknown";
+    completedByCategory[cat] = (completedByCategory[cat] ?? 0) + 1;
+    if (q.quest_type === "main") completedMain++;
+    else completedSide++;
+  }
+
+  return {
+    totalCompleted: quests.length,
+    completedByCategory,
+    completedMain,
+    completedSide,
+    currentStreak: streakData?.current_streak ?? 0,
+    longestStreak: streakData?.longest_streak ?? 0,
+    level: profileData?.level ?? calculateLevel(profileData?.xp_total ?? 0),
+  };
 }
 
 /**
