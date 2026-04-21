@@ -57,6 +57,18 @@ Questlog implements the following security measures:
 - **Parameterized Queries** — Supabase ORM prevents SQL injection
 - **Environment Variable Isolation** — Secrets never exposed in client-side code
 
+## Incident Response
+
+If there is possible credential exposure (for example from a provider-side incident), follow:
+
+- `SECURITY_INCIDENT_RESPONSE.md`
+
+Additional requirements:
+
+- Rotate exposed credentials immediately before deleting projects/accounts.
+- Mark private environment variables as sensitive in hosted platforms.
+- Keep `SUPABASE_SERVICE_ROLE_KEY` out of normal app runtime unless absolutely required.
+
 ## Supported Versions
 
 | Version | Supported |

@@ -12,6 +12,18 @@ const XP_CAPS = {
 
 const RATE_LIMIT_WINDOW_MS  = 60;
 const RATE_LIMIT_MAX_REQ    = 12;
+const RATE_LIMIT_ALERT_THRESHOLD = 8;
+
+function logSecurityEvent(
+  event: string,
+  details: Record<string, string | number | boolean | null>
+) {
+  console.warn("[security:event]", event, {
+    ...details,
+    route: "/api/quests/evaluate",
+    at: new Date().toISOString(),
+  });
+}
 
 // ── Zod schemas ──────────────────────────────────────────────────────────────
 
@@ -59,18 +71,31 @@ function clampXP(xp: number, type: "main" | "side"): number {
   return Math.max(min, Math.min(max, xp));
 }
 
-async function isRateLimited(key: string): Promise<boolean> {
+async function checkRateLimit(
+  key: string
+): Promise<{ isLimited: boolean; recentCount: number }> {
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW_MS * 1000;
   try {
     const timestamps = await kv.lrange<number>(key, 0, -1);
     const recent = timestamps.filter((ts) => ts > windowStart);
-    if (recent.length >= RATE_LIMIT_MAX_REQ) return true;
+    if (recent.length >= RATE_LIMIT_MAX_REQ) {
+      return {
+        isLimited: true,
+        recentCount: recent.length,
+      };
+    }
     await kv.lpush(key, now);
     await kv.expire(key, RATE_LIMIT_WINDOW_MS);
-    return false;
+    return {
+      isLimited: false,
+      recentCount: recent.length,
+    };
   } catch {
-    return true;
+    return {
+      isLimited: true,
+      recentCount: RATE_LIMIT_MAX_REQ,
+    };
   }
 }
 
@@ -165,7 +190,23 @@ export async function POST(req: NextRequest) {
     if (!userId) throw new AppError("Authentication required", 401);
 
     const rateLimitKey = `rate_limit:evaluate:${userId}`;
-    if (await isRateLimited(rateLimitKey)) {
+    const rateLimitState = await checkRateLimit(rateLimitKey);
+    if (rateLimitState.recentCount >= RATE_LIMIT_ALERT_THRESHOLD) {
+      logSecurityEvent("rate_limit_pressure", {
+        userId,
+        recentCount: rateLimitState.recentCount,
+        limit: RATE_LIMIT_MAX_REQ,
+        windowSeconds: RATE_LIMIT_WINDOW_MS,
+      });
+    }
+
+    if (rateLimitState.isLimited) {
+      logSecurityEvent("rate_limit_block", {
+        userId,
+        recentCount: rateLimitState.recentCount,
+        limit: RATE_LIMIT_MAX_REQ,
+        windowSeconds: RATE_LIMIT_WINDOW_MS,
+      });
       throw new AppError("The Quest Giver needs a moment to recover. Please wait and try again.", 429);
     }
 
