@@ -90,7 +90,12 @@ async function checkRateLimit(
       recentCount: recent.length,
     };
   } catch (err) {
-    // If KV fails, fail closed to avoid opening abuse vector.
+    // In development without KV configured, fail open so local testing works.
+    // In production, fail closed to prevent abuse if KV becomes unavailable.
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[rate-limit] KV unavailable in dev — allowing request:", err);
+      return { isLimited: false, recentCount: 0 };
+    }
     console.error("Rate limit KV error:", err);
     return {
       isLimited: true,
@@ -197,8 +202,8 @@ export async function POST(request: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const configuredModel = process.env.GOOGLE_GEMINI_MODEL?.trim();
     const modelCandidates = configuredModel
-      ? [configuredModel, "gemini-1.5-flash"]
-      : ["gemini-1.5-flash"];
+      ? [configuredModel, "gemini-2.0-flash-lite"]
+      : ["gemini-2.0-flash-lite"];
 
     const safeLocation = sanitizeForPrompt(location);
     const safeTopic = sanitizeForPrompt(topic);

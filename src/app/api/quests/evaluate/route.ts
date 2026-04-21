@@ -91,7 +91,13 @@ async function checkRateLimit(
       isLimited: false,
       recentCount: recent.length,
     };
-  } catch {
+  } catch (err) {
+    // In development without KV configured, fail open so local testing works.
+    // In production, fail closed to prevent abuse if KV becomes unavailable.
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[rate-limit] KV unavailable in dev — allowing request:", err);
+      return { isLimited: false, recentCount: 0 };
+    }
     return {
       isLimited: true,
       recentCount: RATE_LIMIT_MAX_REQ,
@@ -223,7 +229,7 @@ export async function POST(req: NextRequest) {
     if (!apiKey) throw new AppError("AI service not configured", 500);
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const modelName = process.env.GOOGLE_GEMINI_MODEL?.trim() || "gemini-1.5-flash";
+    const modelName = process.env.GOOGLE_GEMINI_MODEL?.trim() || "gemini-2.0-flash-lite";
     const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = input.mode === "ai"
