@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
+import { getLatestFlashModel } from "@/lib/gemini";
 
 const requestSchema = z.object({
   location: z.string().min(1).max(100).trim(),
@@ -201,9 +202,8 @@ export async function POST(request: NextRequest) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const configuredModel = process.env.GOOGLE_GEMINI_MODEL?.trim();
-    const modelCandidates = configuredModel
-      ? [configuredModel, "gemini-2.0-flash-lite"]
-      : ["gemini-2.0-flash-lite"];
+    const resolvedModel   = configuredModel || await getLatestFlashModel(apiKey);
+    const modelCandidates = [resolvedModel];
 
     const safeLocation = sanitizeForPrompt(location);
     const safeTopic = sanitizeForPrompt(topic);
