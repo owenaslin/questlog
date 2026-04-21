@@ -55,10 +55,10 @@ export default function BadgesPage() {
   }, [earnedBadgeIds]);
 
   return (
-    <div>
+    <div className="tavrn-panel p-4 md:p-6">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="font-pixel text-retro-yellow text-xl mb-2">
+        <h1 className="tavrn-wordmark text-4xl leading-none mb-2">
           🏅 Badge Collection
         </h1>
         <p className="font-pixel text-retro-lightgray text-[10px] max-w-2xl mx-auto leading-loose">
@@ -67,7 +67,7 @@ export default function BadgesPage() {
       </div>
 
       {/* Progress Overview */}
-      <div className="bg-retro-darkgray border-4 border-retro-black p-6 mb-8">
+      <div className="tavern-card p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
           <span className="font-pixel text-retro-lightgray text-xs">
             Collection Progress
@@ -187,7 +187,7 @@ export default function BadgesPage() {
           onClick={() => setSelectedBadge(null)}
         >
           <div
-            className="bg-retro-darkgray border-4 border-retro-black shadow-pixel-lg max-w-md w-full p-6"
+            className="tavern-card shadow-pixel-lg max-w-md w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">

@@ -122,7 +122,7 @@ export default function QuestsPage() {
   }, [filteredQuests]);
 
   return (
-    <div>
+    <div className="tavrn-panel p-4 md:p-6">
       <AmbientScene scene="common-room" />
       <PullToRefresh onRefresh={handleRefresh} disabled={!isAuthenticated}>
       {/* Header */}
@@ -159,9 +159,9 @@ export default function QuestsPage() {
       </div>
 
       {/* Today / Next Action */}
-      <div className="mb-8 bg-retro-darkgray border-4 border-retro-black p-4 md:p-5">
+      <div className="mb-8 tavern-card p-4 md:p-5">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-pixel text-retro-cyan text-sm">▶ Today</h2>
+          <h2 className="tavrn-kicker text-sm">▶ Today</h2>
           {!isAuthenticated && (
             <Link
               href={buildAuthUrl("login", "/quests")}
@@ -241,7 +241,7 @@ export default function QuestsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-8 bg-retro-darkgray border-4 border-retro-black p-4">
+      <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
         <div>
           <label className="font-pixel text-retro-lightgray text-[8px] block mb-2">
             Difficulty

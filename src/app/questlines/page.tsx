@@ -17,10 +17,10 @@ export default function QuestlinesPage() {
   const skillTreeCount = getSkillTrees().length;
 
   return (
-    <div>
+    <div className="tavrn-panel p-4 md:p-6">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="font-pixel text-retro-yellow text-xl mb-2">
+        <h1 className="tavrn-wordmark text-4xl leading-none mb-2">
           🗺️ Questlines
         </h1>
         <p className="font-pixel text-retro-lightgray text-[10px] max-w-2xl mx-auto leading-loose">
@@ -85,7 +85,7 @@ export default function QuestlinesPage() {
       )}
 
       {/* Info Section */}
-      <div className="mt-12 bg-retro-darkgray border-4 border-retro-black p-6">
+      <div className="mt-12 tavern-card p-6">
         <h2 className="font-pixel text-retro-cyan text-sm mb-4">
           📖 What are Questlines?
         </h2>
