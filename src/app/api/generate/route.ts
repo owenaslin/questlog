@@ -44,12 +44,26 @@ class AppError extends Error {
 
 const RATE_LIMIT_WINDOW_MS = 60;
 const RATE_LIMIT_MAX_REQUESTS = 12;
+const RATE_LIMIT_ALERT_THRESHOLD = 8;
+
+function logSecurityEvent(
+  event: string,
+  details: Record<string, string | number | boolean | null>
+) {
+  console.warn("[security:event]", event, {
+    ...details,
+    route: "/api/generate",
+    at: new Date().toISOString(),
+  });
+}
 
 /**
  * Check if user is rate limited using Vercel KV (distributed across instances)
  * Stores timestamps as a Redis list with automatic expiration
  */
-async function isRateLimited(key: string): Promise<boolean> {
+async function checkRateLimit(
+  key: string
+): Promise<{ isLimited: boolean; recentCount: number }> {
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW_MS * 1000;
   
@@ -61,18 +75,27 @@ async function isRateLimited(key: string): Promise<boolean> {
     const recent = timestamps.filter((ts) => ts > windowStart);
     
     if (recent.length >= RATE_LIMIT_MAX_REQUESTS) {
-      return true;
+      return {
+        isLimited: true,
+        recentCount: recent.length,
+      };
     }
     
     // Add current timestamp
     await kv.lpush(key, now);
     await kv.expire(key, RATE_LIMIT_WINDOW_MS); // Auto-expire after window
     
-    return false;
+    return {
+      isLimited: false,
+      recentCount: recent.length,
+    };
   } catch (err) {
     // If KV fails, fail closed to avoid opening abuse vector.
     console.error("Rate limit KV error:", err);
-    return true;
+    return {
+      isLimited: true,
+      recentCount: RATE_LIMIT_MAX_REQUESTS,
+    };
   }
 }
 
@@ -129,7 +152,23 @@ export async function POST(request: NextRequest) {
     }
 
     const rateLimitKey = `rate_limit:generate:${userId}`;
-    if (await isRateLimited(rateLimitKey)) {
+    const rateLimitState = await checkRateLimit(rateLimitKey);
+    if (rateLimitState.recentCount >= RATE_LIMIT_ALERT_THRESHOLD) {
+      logSecurityEvent("rate_limit_pressure", {
+        userId,
+        recentCount: rateLimitState.recentCount,
+        limit: RATE_LIMIT_MAX_REQUESTS,
+        windowSeconds: RATE_LIMIT_WINDOW_MS,
+      });
+    }
+
+    if (rateLimitState.isLimited) {
+      logSecurityEvent("rate_limit_block", {
+        userId,
+        recentCount: rateLimitState.recentCount,
+        limit: RATE_LIMIT_MAX_REQUESTS,
+        windowSeconds: RATE_LIMIT_WINDOW_MS,
+      });
       throw new AppError("Rate limit exceeded. Please wait and try again.", 429);
     }
 
