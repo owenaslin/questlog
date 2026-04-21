@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabase";
 import {
@@ -48,30 +48,41 @@ export default function HomePage() {
       }
 
       // Logged-in: fetch profile, streak, and quest progress in parallel
-      const [profileData, streakData, progressMap, customActive] = await Promise.all([
-        getProfileProgressSummary(),
-        getUserStreak(),
-        getUserQuestProgressMap(),
-        getUserCreatedActiveQuests(),
-      ]);
+      try {
+        const [profileData, streakData, progressMap, customActive] = await Promise.all([
+          getProfileProgressSummary(),
+          getUserStreak(),
+          getUserQuestProgressMap(),
+          getUserCreatedActiveQuests(),
+        ]);
 
-      setProfile(profileData);
-      setStreak(streakData);
+        setProfile(profileData);
+        setStreak(streakData);
 
-      const completedIds = Object.entries(progressMap)
-        .filter(([, p]) => p.status === "completed")
-        .map(([id]) => id);
-      const activeIds = Object.entries(progressMap)
-        .filter(([, p]) => p.status === "active")
-        .map(([id]) => id);
+        const completedIds = Object.entries(progressMap)
+          .filter(([, p]) => p.status === "completed")
+          .map(([id]) => id);
+        const activeIdSet = new Set(
+          Object.entries(progressMap)
+            .filter(([, p]) => p.status === "active")
+            .map(([id]) => id)
+        );
 
-      const activePredefined = ALL_QUESTS.find((q) => activeIds.includes(q.id)) ?? null;
-      setActiveQuest(activePredefined ?? customActive[0] ?? null);
+        const activePredefined = ALL_QUESTS.find((q) => activeIdSet.has(q.id)) ?? null;
+        setActiveQuest(activePredefined ?? customActive[0] ?? null);
 
-      const quests = getDailyQuests(completedIds);
-      setTonightQuests(quests);
-      setPickedId(quests[1]?.id ?? quests[0]?.id ?? null);
-      setDataLoading(false);
+        const quests = getDailyQuests(completedIds);
+        setTonightQuests(quests);
+        setPickedId(quests[1]?.id ?? quests[0]?.id ?? null);
+      } catch (err) {
+        console.error("[tonight] data fetch failed:", err);
+        // Show real daily quests even if personal data failed to load
+        const quests = getDailyQuests();
+        setTonightQuests(quests);
+        setPickedId(quests[1]?.id ?? quests[0]?.id ?? null);
+      } finally {
+        setDataLoading(false);
+      }
     };
 
     load();
@@ -237,13 +248,8 @@ export default function HomePage() {
           ) : (
             /* Guest placeholder */
             <div className="space-y-3">
-              <div>
-                <p className="font-pixel text-[8px] text-tavern-parchment">Your saga awaits</p>
-                <p className="text-[11px] text-[#bda780] mt-1">sign in to track your quests</p>
-              </div>
-              <div className="h-2 bg-black/40 border border-tavern-oak">
-                <div className="h-full bg-retro-lime" style={{ width: "0%" }} />
-              </div>
+              <p className="font-pixel text-[8px] text-tavern-parchment">Your saga awaits</p>
+              <p className="text-[11px] text-[#bda780]">sign in to track your quests</p>
             </div>
           )}
         </div>
