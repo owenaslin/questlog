@@ -122,7 +122,7 @@ export default function JournalPage() {
         const sagaData = generatePersonalSaga(
           completedQuestsWithDates,
           streakData?.longest_streak ?? 0,
-          new Date().toISOString()
+          summary?.created_at || new Date().toISOString()
         );
         setSaga(sagaData);
       } catch (err) {

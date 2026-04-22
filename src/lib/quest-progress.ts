@@ -15,6 +15,7 @@ export interface ProfileProgressSummary {
   level: number;
   completedCount: number;
   activeCount: number;
+  created_at?: string;
 }
 
 export async function getCurrentUserId(): Promise<string | null> {
@@ -161,7 +162,7 @@ export async function getProfileProgressSummary(): Promise<ProfileProgressSummar
   const supabase = getSupabaseClient();
 
   const [{ data: profile }, { count: completedCount }, { count: activeCount }] = await Promise.all([
-    supabase.from("profiles").select("xp_total,level").eq("id", userId).single(),
+    supabase.from("profiles").select("xp_total,level,created_at").eq("id", userId).single(),
     supabase
       .from("user_quests")
       .select("id", { count: "exact", head: true })
@@ -183,6 +184,7 @@ export async function getProfileProgressSummary(): Promise<ProfileProgressSummar
     level: profile.level || calculateLevel(profile.xp_total || 0),
     completedCount: completedCount || 0,
     activeCount: activeCount || 0,
+    created_at: profile.created_at || undefined,
   };
 }
 
