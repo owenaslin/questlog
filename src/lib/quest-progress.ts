@@ -204,6 +204,31 @@ export async function getRecentCompletedQuestIds(limit = 5): Promise<string[]> {
   return (data || []).map((row) => row.quest_id as string);
 }
 
+export async function getCompletedCategoryCounts(): Promise<Record<string, number>> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return {};
+  }
+
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("user_quests")
+    .select("quest_category")
+    .eq("user_id", userId)
+    .eq("status", "completed");
+
+  if (error || !data) {
+    return {};
+  }
+
+  return data.reduce<Record<string, number>>((acc, row) => {
+    const category = row.quest_category as string | null;
+    if (!category) return acc;
+    acc[category] = (acc[category] || 0) + 1;
+    return acc;
+  }, {});
+}
+
 export interface UserBadgeRow {
   badge_id: string;
   earned_at: string;

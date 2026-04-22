@@ -8,12 +8,12 @@ import XPBar from "@/components/XPBar";
 import CompletionModal from "@/components/CompletionModal";
 import MilestoneCelebration from "@/components/MilestoneCelebration";
 import AmbientScene from "@/components/AmbientScene";
-import { ALL_QUESTS } from "@/lib/quests";
 import { Quest } from "@/lib/types";
 import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {
   acceptQuest,
   completeQuest,
+  getCompletedCategoryCounts,
   getProfileProgressSummary,
   getUserQuestProgressMap,
   updateStreakOnCompletion,
@@ -148,16 +148,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       const totalCompleted = Object.values(updatedProgressMap).filter(
         (p) => p.status === "completed"
       ).length;
-      const completedByCategory: Record<string, number> = {};
-      for (const [questId, progress] of Object.entries(updatedProgressMap)) {
-        if (progress.status !== "completed") continue;
-        const completedQuest =
-          questId === quest.id ? quest : ALL_QUESTS.find((q) => q.id === questId) ?? null;
-        if (completedQuest) {
-          completedByCategory[completedQuest.category] =
-            (completedByCategory[completedQuest.category] || 0) + 1;
-        }
-      }
+      const completedByCategory = await getCompletedCategoryCounts();
 
       const detectedMilestones = detectMilestones({
         questJustCompleted: quest,
