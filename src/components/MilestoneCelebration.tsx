@@ -17,6 +17,7 @@ export default function MilestoneCelebration({
   const [showParticles, setShowParticles] = useState(false);
 
   useEffect(() => {
+    if (milestones.length === 0) return;
     setShowParticles(true);
     const timer = setTimeout(() => {
       if (currentIndex < milestones.length - 1) {
@@ -27,6 +28,10 @@ export default function MilestoneCelebration({
     }, 4000);
     return () => clearTimeout(timer);
   }, [currentIndex, milestones.length, onComplete]);
+
+  if (milestones.length === 0) {
+    return null;
+  }
 
   const currentMilestone = milestones[currentIndex];
   const color = getMilestoneColor(currentMilestone.rarity);
@@ -145,6 +150,12 @@ function getMilestoneEmoji(type: Milestone["type"]): string {
 }
 
 function ParticleField({ rarity }: { rarity: Milestone["rarity"] }) {
+  const [viewportHeight, setViewportHeight] = useState(800);
+
+  useEffect(() => {
+    setViewportHeight(window.innerHeight);
+  }, []);
+
   const particleCount = rarity === "legendary" ? 50 : rarity === "epic" ? 30 : 15;
   const colors =
     rarity === "legendary"
@@ -167,7 +178,7 @@ function ParticleField({ rarity }: { rarity: Milestone["rarity"] }) {
             top: -10,
           }}
           animate={{
-            y: window.innerHeight + 20,
+            y: viewportHeight + 20,
             x: (Math.random() - 0.5) * 200,
             rotate: Math.random() * 720,
             opacity: [0, 1, 1, 0],

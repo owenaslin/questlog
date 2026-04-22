@@ -6,8 +6,11 @@ import { usePathname, useRouter } from "next/navigation";
 import PixelButton from "@/components/PixelButton";
 import XPBar from "@/components/XPBar";
 import CompletionModal from "@/components/CompletionModal";
+import MilestoneCelebration from "@/components/MilestoneCelebration";
 import AmbientScene from "@/components/AmbientScene";
+import { ALL_QUESTS } from "@/lib/quests";
 import { Quest } from "@/lib/types";
+import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {
   acceptQuest,
   completeQuest,
@@ -42,6 +45,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [newStreak, setNewStreak] = useState<number | undefined>(undefined);
   const [isNewLongest, setIsNewLongest] = useState(false);
   const [heroHandle, setHeroHandle] = useState<string | undefined>(undefined);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [showMilestoneCelebration, setShowMilestoneCelebration] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -123,9 +128,11 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       setShowXpAnimation(true);
 
       const summary = await getProfileProgressSummary();
+      let afterSummaryLevel = beforeLevel;
       if (summary) {
         setProfileXpTotal(summary.xp_total);
         const afterLevel = summary.level || calculateLevel(summary.xp_total);
+        afterSummaryLevel = afterLevel;
         setNewLevel(afterLevel > beforeLevel ? afterLevel : null);
       }
 
@@ -136,9 +143,41 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         setIsNewLongest(streakResult.isNewLongest ?? false);
       }
 
-      // Show completion modal
+      // Detect milestones based on latest completion state
+      const updatedProgressMap = await getUserQuestProgressMap();
+      const totalCompleted = Object.values(updatedProgressMap).filter(
+        (p) => p.status === "completed"
+      ).length;
+      const completedByCategory: Record<string, number> = {};
+      for (const [questId, progress] of Object.entries(updatedProgressMap)) {
+        if (progress.status !== "completed") continue;
+        const completedQuest =
+          questId === quest.id ? quest : ALL_QUESTS.find((q) => q.id === questId) ?? null;
+        if (completedQuest) {
+          completedByCategory[completedQuest.category] =
+            (completedByCategory[completedQuest.category] || 0) + 1;
+        }
+      }
+
+      const detectedMilestones = detectMilestones({
+        questJustCompleted: quest,
+        newStreak: streakResult.newStreak ?? 0,
+        oldStreak: Math.max((streakResult.newStreak ?? 0) - 1, 0),
+        newLevel: afterSummaryLevel,
+        oldLevel: beforeLevel,
+        totalCompleted,
+        completedByCategory,
+        isFirstQuest: totalCompleted === 1,
+      });
+      setMilestones(detectedMilestones);
+
+      // Show milestone celebration first, then completion modal
       setTimeout(() => {
-        setShowCompletionModal(true);
+        if (detectedMilestones.length > 0) {
+          setShowMilestoneCelebration(true);
+        } else {
+          setShowCompletionModal(true);
+        }
         setShowXpAnimation(false);
       }, 1000);
     } catch (err) {
@@ -294,6 +333,17 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         </div>
       </div>
 
+      {/* Milestone Celebration (full-screen) */}
+      {showMilestoneCelebration && milestones.length > 0 && (
+        <MilestoneCelebration
+          milestones={milestones}
+          onComplete={() => {
+            setShowMilestoneCelebration(false);
+            setShowCompletionModal(true);
+          }}
+        />
+      )}
+
       {/* Completion Celebration Modal */}
       {showCompletionModal && profileXpTotal !== null && (
         <CompletionModal
@@ -304,6 +354,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
           newStreak={newStreak}
           isNewLongest={isNewLongest}
           heroHandle={heroHandle}
+          milestones={milestones}
           onClose={() => setShowCompletionModal(false)}
         />
       )}
