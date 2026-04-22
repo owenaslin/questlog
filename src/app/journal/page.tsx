@@ -25,7 +25,6 @@ import {
   getUserCreatedActiveQuests,
   UserStreak,
   WeeklyRecap as WeeklyRecapType,
-  UserQuestProgressRow,
 } from "@/lib/quest-progress";
 import { Quest } from "@/lib/types";
 

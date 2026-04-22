@@ -109,16 +109,3 @@ export function getMilestoneColor(rarity: Milestone["rarity"]): string {
       return "#22c55e"; // green
   }
 }
-
-export function getMilestoneAnimation(rarity: Milestone["rarity"]): string {
-  switch (rarity) {
-    case "legendary":
-      return "shake-gold";
-    case "epic":
-      return "pulse-purple";
-    case "rare":
-      return "pulse-blue";
-    default:
-      return "pulse";
-  }
-}

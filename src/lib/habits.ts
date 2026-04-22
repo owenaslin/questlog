@@ -30,6 +30,9 @@ export interface CreateHabitInput {
   recurrence_type: HabitRecurrenceType;
   recurrence_data: HabitRecurrenceData;
   xp_reward?: number;
+}
+
+export interface UpdateHabitInput extends Partial<CreateHabitInput> {
   is_active?: boolean;
 }
 
@@ -65,7 +68,7 @@ export async function createHabit(input: CreateHabitInput): Promise<{
 
 export async function updateHabit(
   habitId: string,
-  updates: Partial<CreateHabitInput>
+  updates: UpdateHabitInput
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
   

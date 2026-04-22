@@ -27,7 +27,6 @@ interface QuestWithDate extends Quest {
 }
 
 const MASTERY_THRESHOLD = 10;
-const VERSATILE_THRESHOLD = 5;
 const LEGEND_THRESHOLD = 50;
 
 const TEMPLATES = {

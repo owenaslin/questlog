@@ -223,5 +223,3 @@ export default function LivingFlame({ streakDays, size = "md" }: LivingFlameProp
     </div>
   );
 }
-
-export { getFlameState };
