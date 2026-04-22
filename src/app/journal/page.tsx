@@ -17,6 +17,7 @@ import { ALL_QUESTS } from "@/lib/quests";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import {
+  getCompletedQuestsForSaga,
   getProfileProgressSummary,
   getRecentCompletedQuestIds,
   getUserQuestProgressMap,
@@ -115,14 +116,8 @@ export default function JournalPage() {
           recentIds.map((id) => completedById.get(id)).filter((q): q is Quest => Boolean(q))
         );
 
-        // Generate personal saga from completed quests
-        const completedQuestsWithDates = Object.entries(progressMap)
-          .filter(([, p]) => p.status === "completed" && p.completed_at)
-          .map(([id, p]) => {
-            const quest = ALL_QUESTS.find((q) => q.id === id);
-            return quest ? { ...quest, completed_at: p.completed_at! } : null;
-          })
-          .filter((q): q is Quest & { completed_at: string } => Boolean(q));
+        // Generate personal saga from all completed quests (predefined + custom/AI)
+        const completedQuestsWithDates = await getCompletedQuestsForSaga();
 
         const sagaData = generatePersonalSaga(
           completedQuestsWithDates,
