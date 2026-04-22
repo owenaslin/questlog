@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Quest } from "@/lib/types";
+import { Milestone, getMilestoneColor } from "@/lib/milestones";
 import PixelButton from "./PixelButton";
 import XPBar from "./XPBar";
 
@@ -15,6 +16,7 @@ interface CompletionModalProps {
   newStreak?: number;
   isNewLongest?: boolean;
   heroHandle?: string;
+  milestones?: Milestone[];
   onClose: () => void;
 }
 
@@ -31,6 +33,7 @@ export default function CompletionModal({
   newStreak,
   isNewLongest,
   heroHandle,
+  milestones = [],
   onClose,
 }: CompletionModalProps) {
   const [showParticles, setShowParticles] = useState(false);
@@ -137,6 +140,26 @@ export default function CompletionModal({
           <p className="font-pixel text-tavern-parchment text-[8px] leading-loose text-center mb-5">
             {quest.title}
           </p>
+
+          {/* ── Milestones ── */}
+          {milestones.length > 0 && (
+            <div className="mb-4 space-y-2">
+              {milestones.map((milestone, idx) => (
+                <div
+                  key={idx}
+                  className="text-center p-2 animate-pulse"
+                  style={{
+                    border: `2px solid ${getMilestoneColor(milestone.rarity)}`,
+                    background: "#1a0d05",
+                  }}
+                >
+                  <div className="font-pixel text-[8px]" style={{ color: getMilestoneColor(milestone.rarity) }}>
+                    {getMilestoneEmoji(milestone.type)} {milestone.title}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* ── XP earned ── */}
           <div
@@ -276,4 +299,21 @@ export default function CompletionModal({
       `}</style>
     </div>
   );
+}
+
+function getMilestoneEmoji(type: Milestone["type"]): string {
+  switch (type) {
+    case "streak":
+      return "🔥";
+    case "category_mastery":
+      return "🏆";
+    case "level_up":
+      return "⬆️";
+    case "first_quest":
+      return "⚔️";
+    case "total_quests":
+      return "📜";
+    default:
+      return "✨";
+  }
 }

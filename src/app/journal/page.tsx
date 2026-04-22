@@ -9,12 +9,15 @@ import StreakDisplay from "@/components/StreakDisplay";
 import WeeklyRecap from "@/components/WeeklyRecap";
 import DesktopRightRail from "@/components/DesktopRightRail";
 import RoutinesSection from "@/components/RoutinesSection";
+import PersonalSaga from "@/components/PersonalSaga";
+import { generatePersonalSaga } from "@/lib/saga-generator";
 import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS } from "@/lib/quests";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import {
+  getCompletedQuestsForSaga,
   getProfileProgressSummary,
   getRecentCompletedQuestIds,
   getUserQuestProgressMap,
@@ -43,6 +46,7 @@ export default function JournalPage() {
   const [streak, setStreak]                 = useState<UserStreak | null>(null);
   const [weeklyRecap, setWeeklyRecap]       = useState<WeeklyRecapType | null>(null);
   const [isLoading, setIsLoading]           = useState(true);
+  const [saga, setSaga]                     = useState<ReturnType<typeof generatePersonalSaga> | null>(null);
 
   /* ── Auth check ─────────────────────────────────────────────────── */
   useEffect(() => {
@@ -111,6 +115,16 @@ export default function JournalPage() {
         setCompletedQuests(
           recentIds.map((id) => completedById.get(id)).filter((q): q is Quest => Boolean(q))
         );
+
+        // Generate personal saga from all completed quests (predefined + custom/AI)
+        const completedQuestsWithDates = await getCompletedQuestsForSaga();
+
+        const sagaData = generatePersonalSaga(
+          completedQuestsWithDates,
+          streakData?.longest_streak ?? 0,
+          summary?.created_at || new Date().toISOString()
+        );
+        setSaga(sagaData);
       } catch (err) {
         console.error("Journal load error:", err);
       } finally {
@@ -217,6 +231,13 @@ export default function JournalPage() {
         </div>
         <WeeklyRecap recap={weeklyRecap} isLoading={isLoading} />
       </div>
+
+      {/* ── Personal Saga ─────────────────────────────────────────── */}
+      {saga && (
+        <div className="mb-8">
+          <PersonalSaga saga={saga} heroName={heroName} />
+        </div>
+      )}
 
       {/* ── Active Quests — journal entries ───────────────────────── */}
       <div className="mb-8">

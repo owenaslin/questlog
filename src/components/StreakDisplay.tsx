@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import LivingFlame from "./LivingFlame";
 
 interface StreakDisplayProps {
   currentStreak: number;
@@ -41,10 +42,10 @@ export default function StreakDisplay({
 
   return (
     <div className="flex items-center gap-3">
-      {/* Current Streak */}
+      {/* Current Streak with Living Flame */}
       <div
         className={`
-          flex items-center gap-2 rounded border-2
+          flex items-center gap-3 rounded border-2
           ${sizeClasses[size].container}
           ${isActive
             ? "bg-retro-orange border-retro-yellow text-retro-white"
@@ -53,7 +54,7 @@ export default function StreakDisplay({
           ${isRecord ? "animate-pulse" : ""}
         `}
       >
-        <span className={sizeClasses[size].icon}>🔥</span>
+        <LivingFlame streakDays={currentStreak} size={size} />
         <div className="flex flex-col items-start">
           <span className={`font-pixel ${sizeClasses[size].number} leading-none`}>
             {currentStreak}

@@ -18,7 +18,6 @@ import {
   getQuestlineProgressMap,
   getProfileProgressSummary,
   getWeeklyRecap,
-  UserQuestProgressRow,
 } from "@/lib/quest-progress";
 import { QUESTLINES } from "@/lib/questlines";
 

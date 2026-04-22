@@ -15,6 +15,7 @@ export interface ProfileProgressSummary {
   level: number;
   completedCount: number;
   activeCount: number;
+  created_at?: string;
 }
 
 export async function getCurrentUserId(): Promise<string | null> {
@@ -161,7 +162,7 @@ export async function getProfileProgressSummary(): Promise<ProfileProgressSummar
   const supabase = getSupabaseClient();
 
   const [{ data: profile }, { count: completedCount }, { count: activeCount }] = await Promise.all([
-    supabase.from("profiles").select("xp_total,level").eq("id", userId).single(),
+    supabase.from("profiles").select("xp_total,level,created_at").eq("id", userId).single(),
     supabase
       .from("user_quests")
       .select("id", { count: "exact", head: true })
@@ -183,6 +184,7 @@ export async function getProfileProgressSummary(): Promise<ProfileProgressSummar
     level: profile.level || calculateLevel(profile.xp_total || 0),
     completedCount: completedCount || 0,
     activeCount: activeCount || 0,
+    created_at: profile.created_at || undefined,
   };
 }
 
@@ -202,6 +204,97 @@ export async function getRecentCompletedQuestIds(limit = 5): Promise<string[]> {
     .limit(limit);
 
   return (data || []).map((row) => row.quest_id as string);
+}
+
+export type CompletedQuestForSaga = Quest & { completed_at: string };
+
+export async function getCompletedQuestsForSaga(): Promise<CompletedQuestForSaga[]> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return [];
+  }
+
+  const supabase = getSupabaseClient();
+
+  const { data: completedRows, error: completedError } = await supabase
+    .from("user_quests")
+    .select("quest_id,completed_at,updated_at")
+    .eq("user_id", userId)
+    .eq("status", "completed");
+
+  if (completedError || !completedRows?.length) {
+    return [];
+  }
+
+  const predefinedById = new Map(ALL_QUESTS.map((q) => [q.id, q]));
+  const completionDateById: Record<string, string> = {};
+  const completedPredefined: CompletedQuestForSaga[] = [];
+  const customIds: string[] = [];
+
+  for (const row of completedRows) {
+    const questId = row.quest_id as string;
+    const completedAt = (row.completed_at || row.updated_at || new Date().toISOString()) as string;
+    const predefined = predefinedById.get(questId);
+
+    if (predefined) {
+      completedPredefined.push({
+        ...predefined,
+        status: "completed",
+        completed_at: completedAt,
+      });
+    } else {
+      customIds.push(questId);
+      completionDateById[questId] = completedAt;
+    }
+  }
+
+  if (!customIds.length) {
+    return completedPredefined;
+  }
+
+  const { data: customQuests, error: customError } = await supabase
+    .from("quests")
+    .select(
+      "id,title,description,type,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
+    )
+    .in("id", customIds);
+
+  if (customError || !customQuests?.length) {
+    return completedPredefined;
+  }
+
+  const completedCustom: CompletedQuestForSaga[] = customQuests.map((q) => ({
+    ...(q as Quest),
+    status: "completed",
+    completed_at: completionDateById[q.id] || new Date().toISOString(),
+  }));
+
+  return [...completedPredefined, ...completedCustom];
+}
+
+export async function getCompletedCategoryCounts(): Promise<Record<string, number>> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return {};
+  }
+
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("user_quests")
+    .select("quest_category")
+    .eq("user_id", userId)
+    .eq("status", "completed");
+
+  if (error || !data) {
+    return {};
+  }
+
+  return data.reduce<Record<string, number>>((acc, row) => {
+    const category = row.quest_category as string | null;
+    if (!category) return acc;
+    acc[category] = (acc[category] || 0) + 1;
+    return acc;
+  }, {});
 }
 
 export interface UserBadgeRow {
