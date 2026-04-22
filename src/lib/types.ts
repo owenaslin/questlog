@@ -157,3 +157,72 @@ export function xpForNextLevel(currentXP: number): {
     needed: 500,
   };
 }
+
+// ============================================
+// HABITS SYSTEM TYPES
+// ============================================
+
+export type HabitRecurrenceType = "daily" | "weekdays" | "interval" | "weekly";
+
+export interface HabitRecurrenceData {
+  // For 'weekdays': array of day indices (0=Sun, 1=Mon, etc.)
+  days?: number[];
+  // For 'interval': number of days between occurrences
+  intervalDays?: number;
+  // For 'weekly': day of week (0-6)
+  dayOfWeek?: number;
+}
+
+export interface Habit {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  icon: string;
+  color: string;
+  recurrence_type: HabitRecurrenceType;
+  recurrence_data: HabitRecurrenceData;
+  xp_reward: number;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HabitCompletion {
+  id: string;
+  habit_id: string;
+  user_id: string;
+  completed_at: string;
+  xp_awarded: number;
+  completion_date: string;
+  created_at: string;
+}
+
+export interface HabitStreak {
+  id: string;
+  habit_id: string;
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_completed_date: string | null;
+  updated_at: string;
+}
+
+// Extended habit with computed fields for UI
+export interface HabitWithStatus extends Habit {
+  streak: HabitStreak | null;
+  is_completed_today: boolean;
+  completions_this_week: number;
+}
+
+export interface HabitCompletionHistory {
+  date: string;
+  completed: boolean;
+}
+
+export interface HabitCalendarData {
+  habit: Habit;
+  streak: HabitStreak | null;
+  history: HabitCompletionHistory[]; // Last 30 days
+}

@@ -8,6 +8,7 @@ import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
 import WeeklyRecap from "@/components/WeeklyRecap";
 import DesktopRightRail from "@/components/DesktopRightRail";
+import RoutinesSection from "@/components/RoutinesSection";
 import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS } from "@/lib/quests";
@@ -190,6 +191,9 @@ export default function JournalPage() {
           <XPBar xpTotal={xpTotal} showLabel={false} />
         </div>
       </div>
+
+      {/* ── Daily Routines ───────────────────────────────────────── */}
+      <RoutinesSection />
 
       {/* ── Streak + Weekly recap ─────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
