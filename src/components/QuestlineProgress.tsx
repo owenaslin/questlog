@@ -103,7 +103,7 @@ function LinearProgress({
   );
 }
 
-// Skill tree - branching layout
+// Skill tree - branching layout (fully dynamic — no hardcoded branch names or column counts)
 function SkillTreeProgress({
   steps,
   onStepClick,
@@ -112,10 +112,23 @@ function SkillTreeProgress({
   onStepClick?: (step: QuestlineStep) => void;
 }) {
   const rootStep = steps.find((s) => s.is_starting_step);
-  const branches = ["Web Dev", "AI/ML", "Game Dev"];
+  const rootCompleted = rootStep?.is_completed ?? false;
+
+  // Extract unique branch names in order of first appearance from step data.
+  const branches = Array.from(
+    new Set(steps.filter((s) => s.branch_name).map((s) => s.branch_name!))
+  );
+
+  if (!rootStep && branches.length === 0) {
+    return (
+      <p className="font-pixel text-retro-gray text-[8px]">No steps defined.</p>
+    );
+  }
+
+  const lineColor = rootCompleted ? "bg-retro-green" : "bg-retro-darkgray";
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className="flex flex-col items-center gap-6">
       {/* Root Node */}
       {rootStep && (
         <div className="w-full max-w-md">
@@ -123,64 +136,56 @@ function SkillTreeProgress({
         </div>
       )}
 
-      {/* Connector */}
-      <div className="flex flex-col items-center">
-        <div
-          className={`
-            w-[2px] h-8
-            ${rootStep?.is_completed ? "bg-retro-green" : "bg-retro-darkgray"}
-          `}
-        />
-        <div
-          className={`
-            w-48 h-[2px]
-            ${rootStep?.is_completed ? "bg-retro-green" : "bg-retro-darkgray"}
-          `}
-        />
-        <div className="flex gap-32">
-          {branches.map((_, i) => (
-            <div
-              key={i}
-              className={`
-                w-[2px] h-4
-                ${rootStep?.is_completed ? "bg-retro-green" : "bg-retro-darkgray"}
-              `}
-            />
-          ))}
+      {/* Connector: vertical drop → full-width horizontal bar → per-branch drops */}
+      {branches.length > 0 && (
+        <div className="flex flex-col items-center w-full">
+          <div className={`w-[2px] h-6 ${lineColor}`} />
+          <div className={`w-full h-[2px] ${lineColor}`} />
+          <div className="w-full flex justify-around">
+            {branches.map((b) => (
+              <div key={b} className={`w-[2px] h-4 ${lineColor}`} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Branch Columns */}
-      <div className="grid grid-cols-3 gap-4 w-full">
-        {branches.map((branch) => {
-          const branchSteps = steps
-            .filter((s) => s.branch_name === branch)
-            .sort((a, b) => (a.step_number || 0) - (b.step_number || 0));
+      {/* Branch Columns — horizontal-scroll on narrow screens */}
+      {branches.length > 0 && (
+        <div className="w-full overflow-x-auto">
+          <div
+            className="grid gap-4 min-w-[480px] sm:min-w-0"
+            style={{ gridTemplateColumns: `repeat(${branches.length}, minmax(0, 1fr))` }}
+          >
+            {branches.map((branch) => {
+              const branchSteps = steps
+                .filter((s) => s.branch_name === branch)
+                .sort((a, b) => (a.step_number || 0) - (b.step_number || 0));
 
-          return (
-            <div key={branch} className="flex flex-col items-center gap-4">
-              <h4 className="font-pixel text-retro-cyan text-xs text-center mb-2">
-                {branch}
-              </h4>
-              {branchSteps.map((step, index) => (
-                <div key={step.id} className="w-full">
-                  <SkillTreeNode step={step} onStepClick={onStepClick} />
-                  {index < branchSteps.length - 1 && (
-                    <div className="flex justify-center py-2">
-                      <div
-                        className={`
-                          w-[2px] h-4
-                          ${step.is_completed ? "bg-retro-green" : "bg-retro-darkgray"}
-                        `}
-                      />
+              return (
+                <div key={branch} className="flex flex-col items-center gap-2">
+                  <h4 className="font-pixel text-retro-cyan text-[8px] uppercase tracking-wider text-center mb-1">
+                    {branch}
+                  </h4>
+                  {branchSteps.map((step, index) => (
+                    <div key={step.id} className="w-full">
+                      <SkillTreeNode step={step} onStepClick={onStepClick} />
+                      {index < branchSteps.length - 1 && (
+                        <div className="flex justify-center py-1">
+                          <div
+                            className={`w-[2px] h-4 ${
+                              step.is_completed ? "bg-retro-green" : "bg-retro-darkgray"
+                            }`}
+                          />
+                        </div>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -16,6 +16,7 @@ import type { Quest } from "@/lib/types";
 import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
 import DailyHabitsWidget from "@/components/DailyHabitsWidget";
+import OnboardingModal from "@/components/OnboardingModal";
 
 export default function HomePage() {
   const [heroName,      setHeroName]      = useState<string | null>(null);
@@ -26,6 +27,7 @@ export default function HomePage() {
   const [tonightQuests, setTonightQuests] = useState<Quest[]>([]);
   const [pickedId,      setPickedId]      = useState<string | null>(null);
   const [dataLoading,   setDataLoading]   = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -64,6 +66,16 @@ export default function HomePage() {
 
         setProfile(profileData);
         setStreak(streakData);
+
+        // Show onboarding modal to brand-new users who haven't dismissed it
+        if (
+          profileData &&
+          profileData.completedCount === 0 &&
+          profileData.activeCount === 0 &&
+          !localStorage.getItem("tavrn_onboarding_done")
+        ) {
+          setShowOnboarding(true);
+        }
 
         const completedIds = Object.entries(progressMap)
           .filter(([, p]) => p.status === "completed")
@@ -277,6 +289,17 @@ export default function HomePage() {
           </Link>
         </div>
       </aside>
+
+      {/* First-time user onboarding — only shown to brand-new accounts */}
+      {showOnboarding && heroName && (
+        <OnboardingModal
+          heroName={heroName}
+          onDismiss={() => {
+            localStorage.setItem("tavrn_onboarding_done", "1");
+            setShowOnboarding(false);
+          }}
+        />
+      )}
     </div>
   );
 }
