@@ -9,6 +9,8 @@ import StreakDisplay from "@/components/StreakDisplay";
 import WeeklyRecap from "@/components/WeeklyRecap";
 import DesktopRightRail from "@/components/DesktopRightRail";
 import RoutinesSection from "@/components/RoutinesSection";
+import PersonalSaga from "@/components/PersonalSaga";
+import { generatePersonalSaga } from "@/lib/saga-generator";
 import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS } from "@/lib/quests";
@@ -23,6 +25,7 @@ import {
   getUserCreatedActiveQuests,
   UserStreak,
   WeeklyRecap as WeeklyRecapType,
+  UserQuestProgressRow,
 } from "@/lib/quest-progress";
 import { Quest } from "@/lib/types";
 
@@ -43,6 +46,7 @@ export default function JournalPage() {
   const [streak, setStreak]                 = useState<UserStreak | null>(null);
   const [weeklyRecap, setWeeklyRecap]       = useState<WeeklyRecapType | null>(null);
   const [isLoading, setIsLoading]           = useState(true);
+  const [saga, setSaga]                     = useState<ReturnType<typeof generatePersonalSaga> | null>(null);
 
   /* ── Auth check ─────────────────────────────────────────────────── */
   useEffect(() => {
@@ -111,6 +115,22 @@ export default function JournalPage() {
         setCompletedQuests(
           recentIds.map((id) => completedById.get(id)).filter((q): q is Quest => Boolean(q))
         );
+
+        // Generate personal saga from completed quests
+        const completedQuestsWithDates = Object.entries(progressMap)
+          .filter(([, p]) => p.status === "completed" && p.completed_at)
+          .map(([id, p]) => {
+            const quest = ALL_QUESTS.find((q) => q.id === id);
+            return quest ? { ...quest, completed_at: p.completed_at! } : null;
+          })
+          .filter((q): q is Quest & { completed_at: string } => Boolean(q));
+
+        const sagaData = generatePersonalSaga(
+          completedQuestsWithDates,
+          streakData?.longest_streak ?? 0,
+          new Date().toISOString()
+        );
+        setSaga(sagaData);
       } catch (err) {
         console.error("Journal load error:", err);
       } finally {
@@ -217,6 +237,13 @@ export default function JournalPage() {
         </div>
         <WeeklyRecap recap={weeklyRecap} isLoading={isLoading} />
       </div>
+
+      {/* ── Personal Saga ─────────────────────────────────────────── */}
+      {saga && (
+        <div className="mb-8">
+          <PersonalSaga saga={saga} heroName={heroName} />
+        </div>
+      )}
 
       {/* ── Active Quests — journal entries ───────────────────────── */}
       <div className="mb-8">
