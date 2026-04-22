@@ -15,6 +15,7 @@ import { getDailyQuests, ALL_QUESTS } from "@/lib/quests";
 import type { Quest } from "@/lib/types";
 import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
+import DailyHabitsWidget from "@/components/DailyHabitsWidget";
 
 export default function HomePage() {
   const [heroName,      setHeroName]      = useState<string | null>(null);
@@ -261,6 +262,9 @@ export default function HomePage() {
             </div>
           )}
         </div>
+
+        {/* Daily Habits Widget */}
+        <DailyHabitsWidget maxDisplay={5} />
 
         {/* Quest Giver */}
         <div className="tavern-card p-4" style={{ background: "linear-gradient(180deg, #3a1a3a, #1a0820)" }}>
