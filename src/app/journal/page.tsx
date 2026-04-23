@@ -18,12 +18,10 @@ import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import {
   getCompletedQuestsForSaga,
-  getProfileProgressSummary,
-  getRecentCompletedQuestIds,
-  getUserQuestProgressMap,
-  getUserStreak,
+  getUserDashboardSnapshot,
   getWeeklyRecap,
   getUserCreatedActiveQuests,
+  mergeQuestWithProgress,
   UserStreak,
   WeeklyRecap as WeeklyRecapType,
 } from "@/lib/quest-progress";
@@ -85,24 +83,23 @@ export default function JournalPage() {
     const load = async () => {
       setIsLoading(true);
       try {
-        const [summary, progressMap, recentIds, streakData, weeklyData, userQuests] = await Promise.all([
-          getProfileProgressSummary(),
-          getUserQuestProgressMap(),
-          getRecentCompletedQuestIds(12),
-          getUserStreak(),
+        const [snapshot, weeklyData, userQuests] = await Promise.all([
+          getUserDashboardSnapshot(),
           getWeeklyRecap(0),
           getUserCreatedActiveQuests(),
         ]);
         if (!alive) return;
 
+        const summary = snapshot?.profileSummary ?? null;
+        const progressMap = snapshot?.progressMap ?? {};
+        const recentIds = snapshot?.recentCompletedIds ?? [];
+        const streakData = snapshot?.streak ?? null;
+
         if (summary)    setProfileSummary(summary);
         if (streakData) setStreak(streakData);
         if (weeklyData) setWeeklyRecap(weeklyData);
 
-        const merged = ALL_QUESTS.map((q) => ({
-          ...q,
-          status: progressMap[q.id]?.status ?? q.status,
-        }));
+        const merged = mergeQuestWithProgress(ALL_QUESTS, progressMap);
 
         // Merge predefined active quests with user-created DB quests
         const predefinedActive = merged.filter((q) => q.status === "active");

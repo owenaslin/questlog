@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabase";
 import {
-  getProfileProgressSummary,
-  getUserStreak,
-  getUserQuestProgressMap,
+  getUserDashboardSnapshot,
   getUserCreatedActiveQuests,
   type ProfileProgressSummary,
   type UserStreak,
@@ -55,14 +53,16 @@ export default function HomePage() {
 
       // Logged-in: fetch profile, streak, and quest progress in parallel
       try {
-        const [profileData, streakData, progressMap, customActive] = await Promise.all([
-          getProfileProgressSummary(),
-          getUserStreak(),
-          getUserQuestProgressMap(),
+        const [snapshot, customActive] = await Promise.all([
+          getUserDashboardSnapshot(),
           getUserCreatedActiveQuests(),
         ]);
 
         if (!mounted) return;
+
+        const profileData = snapshot?.profileSummary ?? null;
+        const streakData = snapshot?.streak ?? null;
+        const progressMap = snapshot?.progressMap ?? {};
 
         setProfile(profileData);
         setStreak(streakData);

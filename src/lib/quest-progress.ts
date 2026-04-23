@@ -19,10 +19,89 @@ export interface ProfileProgressSummary {
   created_at?: string;
 }
 
+interface DashboardSnapshotRpcRow {
+  profile_xp_total: number;
+  profile_level: number;
+  profile_created_at: string | null;
+  completed_count: number;
+  active_count: number;
+  streak_current: number;
+  streak_longest: number;
+  streak_last_activity_date: string | null;
+  recent_completed_ids: string[] | null;
+  badge_ids: string[] | null;
+  progress_rows:
+    | Array<{
+        quest_id: string;
+        status: QuestStatus;
+        accepted_at: string | null;
+        completed_at: string | null;
+        updated_at: string;
+      }>
+    | null;
+}
+
+export interface DashboardSnapshot {
+  profileSummary: ProfileProgressSummary;
+  streak: UserStreak;
+  progressMap: Record<string, UserQuestProgressRow>;
+  recentCompletedIds: string[];
+  badgeIds: string[];
+}
+
 export async function getCurrentUserId(): Promise<string | null> {
   const supabase = getSupabaseClient();
   const { data } = await supabase.auth.getSession();
   return data.session?.user.id ?? null;
+}
+
+export async function getUserDashboardSnapshot(): Promise<DashboardSnapshot | null> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return null;
+  }
+
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase.rpc("get_user_dashboard_snapshot");
+
+  if (error || !data) {
+    return null;
+  }
+
+  const row = (Array.isArray(data) ? data[0] : data) as DashboardSnapshotRpcRow;
+  if (!row) {
+    return null;
+  }
+
+  const progressRows = Array.isArray(row.progress_rows) ? row.progress_rows : [];
+  const progressMap = progressRows.reduce<Record<string, UserQuestProgressRow>>((acc, progress) => {
+    acc[progress.quest_id] = {
+      quest_id: progress.quest_id,
+      status: progress.status,
+      accepted_at: progress.accepted_at,
+      completed_at: progress.completed_at,
+      updated_at: progress.updated_at,
+    };
+    return acc;
+  }, {});
+
+  return {
+    profileSummary: {
+      xp_total: row.profile_xp_total || 0,
+      level: row.profile_level || calculateLevel(row.profile_xp_total || 0),
+      completedCount: Number(row.completed_count) || 0,
+      activeCount: Number(row.active_count) || 0,
+      created_at: row.profile_created_at || undefined,
+    },
+    streak: {
+      current_streak: row.streak_current || 0,
+      longest_streak: row.streak_longest || 0,
+      last_activity_date: row.streak_last_activity_date,
+    },
+    progressMap,
+    recentCompletedIds: row.recent_completed_ids || [],
+    badgeIds: row.badge_ids || [],
+  };
 }
 
 export async function getUserQuestProgressMap(): Promise<Record<string, UserQuestProgressRow>> {

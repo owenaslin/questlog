@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
-import { getProfileProgressSummary } from "@/lib/quest-progress";
+import { getUserDashboardSnapshot } from "@/lib/quest-progress";
 import { getOwnHeroProfile } from "@/lib/hero";
 import { useViewMode } from "@/components/ViewModeProvider";
 
@@ -42,10 +42,11 @@ export default function Navbar() {
 
       if (authed) {
         try {
-          const [summary, heroData] = await Promise.all([
-            getProfileProgressSummary(),
+          const [snapshot, heroData] = await Promise.all([
+            getUserDashboardSnapshot(),
             getOwnHeroProfile(),
           ]);
+          const summary = snapshot?.profileSummary ?? null;
           if (summary) {
             setHeroLevel(summary.level);
             setHeroXp(summary.xp_total);

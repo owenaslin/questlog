@@ -12,12 +12,9 @@ import { ALL_QUESTS } from "@/lib/quests";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import {
-  getProfileProgressSummary,
-  getRecentCompletedQuestIds,
-  getUserQuestProgressMap,
-  getUserStreak,
-  getUserEarnedBadgeIds,
+  getUserDashboardSnapshot,
   getWeeklyRecap,
+  mergeQuestWithProgress,
   UserStreak,
   WeeklyRecap as WeeklyRecapType,
 } from "@/lib/quest-progress";
@@ -106,20 +103,20 @@ export default function ProfilePage() {
       setIsLoadingProgress(true);
 
       try {
-        const [summary, progressMap, recentCompletedIds, streakData, weeklyData, badgeIds] = await Promise.all([
-          getProfileProgressSummary(),
-          getUserQuestProgressMap(),
-          getRecentCompletedQuestIds(10),
-          getUserStreak(),
+        const [snapshot, weeklyData] = await Promise.all([
+          getUserDashboardSnapshot(),
           getWeeklyRecap(0),
-          getUserEarnedBadgeIds(),
         ]);
 
         if (!isMounted) return;
 
-        if (streakData) {
-          setStreak(streakData);
-        }
+        const summary = snapshot?.profileSummary ?? null;
+        const progressMap = snapshot?.progressMap ?? {};
+        const recentCompletedIds = snapshot?.recentCompletedIds ?? [];
+        const streakData = snapshot?.streak ?? null;
+        const badgeIds = snapshot?.badgeIds ?? [];
+
+        if (streakData) setStreak(streakData);
         if (weeklyData) {
           setWeeklyRecap(weeklyData);
         }
@@ -129,10 +126,7 @@ export default function ProfilePage() {
           setProfileSummary(summary);
         }
 
-        const merged = ALL_QUESTS.map((quest) => ({
-          ...quest,
-          status: progressMap[quest.id]?.status || quest.status,
-        }));
+        const merged = mergeQuestWithProgress(ALL_QUESTS, progressMap);
 
         setActiveQuests(merged.filter((q) => q.status === "active").slice(0, 8));
 
