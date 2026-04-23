@@ -241,3 +241,19 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_habit_completion_xp
   AFTER INSERT ON public.habit_completions
   FOR EACH ROW EXECUTE FUNCTION public.award_habit_xp();
+
+-- Function to deduct XP when a habit completion is removed (uncomplete)
+CREATE OR REPLACE FUNCTION public.revoke_habit_xp()
+RETURNS trigger AS $$
+BEGIN
+  UPDATE public.profiles
+  SET xp_total = GREATEST(0, xp_total - OLD.xp_awarded),
+      level = GREATEST(1, FLOOR(SQRT(GREATEST(0, xp_total - OLD.xp_awarded) / 100.0)::INTEGER) + 1)
+  WHERE id = OLD.user_id;
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_habit_completion_revoke_xp
+  AFTER DELETE ON public.habit_completions
+  FOR EACH ROW EXECUTE FUNCTION public.revoke_habit_xp();

@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { HabitWithStatus } from "@/lib/types";
-import { getHabitsForToday, getHabitsSummary } from "@/lib/habits";
-import { completeHabit, uncompleteHabit } from "@/lib/habits";
+import { getHabitsForToday, completeHabit, uncompleteHabit } from "@/lib/habits";
 import HabitCheck from "./HabitCheck";
 
 interface DailyHabitsWidgetProps {
@@ -21,13 +20,16 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
   });
   const [loadingHabitId, setLoadingHabitId] = useState<string | null>(null);
   const [xpAnimations, setXpAnimations] = useState<{ id: string; amount: number }[]>([]);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const loadData = useCallback(async () => {
-    const [todayHabits, habitsSummary] = await Promise.all([
-      getHabitsForToday(),
-      getHabitsSummary(),
-    ]);
-
+    const todayHabits = await getHabitsForToday();
+    if (!mountedRef.current) return;
     setHabits(todayHabits);
     setSummary({
       totalScheduled: todayHabits.length,
@@ -162,7 +164,7 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
               className={`
-                flex items-center gap-3 p-2 rounded-lg border transition-all
+                relative flex items-center gap-3 p-2 rounded-lg border transition-all
                 ${habit.is_completed_today
                   ? "border-tavern-gold/30 bg-tavern-gold/5"
                   : "border-tavern-oak/50 bg-tavern-smoke/30 hover:border-tavern-gold/30"
