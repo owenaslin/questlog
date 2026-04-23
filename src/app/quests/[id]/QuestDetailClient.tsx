@@ -14,8 +14,7 @@ import {
   acceptQuest,
   completeQuest,
   getCompletedCategoryCounts,
-  getProfileProgressSummary,
-  getUserQuestProgressMap,
+  getUserDashboardSnapshot,
   updateStreakOnCompletion,
 } from "@/lib/quest-progress";
 import { getOwnHeroProfile } from "@/lib/hero";
@@ -51,13 +50,14 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   useEffect(() => {
     let mounted = true;
     const hydrateStatus = async () => {
-      const [progressMap, summary, heroProfile] = await Promise.all([
-        getUserQuestProgressMap(),
-        getProfileProgressSummary(),
+      const [snapshot, heroProfile] = await Promise.all([
+        getUserDashboardSnapshot(),
         getOwnHeroProfile(),
       ]);
 
       if (!mounted) return;
+      const progressMap = snapshot?.progressMap ?? {};
+      const summary = snapshot?.profileSummary ?? null;
       const progress = progressMap[quest.id];
       if (progress?.status) setStatus(progress.status);
       if (summary) setProfileXpTotal(summary.xp_total);
@@ -101,7 +101,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
 
     try {
       // Capture level before completion
-      const beforeSummary = await getProfileProgressSummary();
+      const beforeSnapshot = await getUserDashboardSnapshot();
+      const beforeSummary = beforeSnapshot?.profileSummary ?? null;
       const beforeLevel = beforeSummary?.level || calculateLevel(beforeSummary?.xp_total || 0);
       setPreviousLevel(beforeLevel);
 
@@ -116,7 +117,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       }
 
       if (result.alreadyCompleted) {
-        const summary = await getProfileProgressSummary();
+        const summary = (await getUserDashboardSnapshot())?.profileSummary ?? null;
         if (summary) {
           setProfileXpTotal(summary.xp_total);
         }
@@ -127,15 +128,6 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       setXpEarned(quest.xp_reward);
       setShowXpAnimation(true);
 
-      const summary = await getProfileProgressSummary();
-      let afterSummaryLevel = beforeLevel;
-      if (summary) {
-        setProfileXpTotal(summary.xp_total);
-        const afterLevel = summary.level || calculateLevel(summary.xp_total);
-        afterSummaryLevel = afterLevel;
-        setNewLevel(afterLevel > beforeLevel ? afterLevel : null);
-      }
-
       // Update streak tracking
       const streakResult = await updateStreakOnCompletion();
       if (streakResult.success) {
@@ -144,11 +136,22 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       }
 
       // Detect milestones based on latest completion state
-      const updatedProgressMap = await getUserQuestProgressMap();
+      const [afterSnapshot, completedByCategory] = await Promise.all([
+        getUserDashboardSnapshot(),
+        getCompletedCategoryCounts(),
+      ]);
+      const summary = afterSnapshot?.profileSummary ?? null;
+      const updatedProgressMap = afterSnapshot?.progressMap ?? {};
       const totalCompleted = Object.values(updatedProgressMap).filter(
         (p) => p.status === "completed"
       ).length;
-      const completedByCategory = await getCompletedCategoryCounts();
+      let afterSummaryLevel = beforeLevel;
+      if (summary) {
+        setProfileXpTotal(summary.xp_total);
+        const afterLevel = summary.level || calculateLevel(summary.xp_total);
+        afterSummaryLevel = afterLevel;
+        setNewLevel(afterLevel > beforeLevel ? afterLevel : null);
+      }
 
       const detectedMilestones = detectMilestones({
         questJustCompleted: quest,
