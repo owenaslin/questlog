@@ -399,6 +399,7 @@ export async function getUserStreak(): Promise<UserStreak | null> {
 
 export async function updateStreakOnCompletion(): Promise<{
   success: boolean;
+  previousStreak?: number;
   newStreak?: number;
   streakBroken?: boolean;
   isNewLongest?: boolean;
@@ -410,6 +411,15 @@ export async function updateStreakOnCompletion(): Promise<{
   }
 
   const supabase = getSupabaseClient();
+
+  // Capture streak before the RPC mutates it so callers have the exact pre-completion value.
+  const { data: streakBefore } = await supabase
+    .from("user_streaks")
+    .select("current_streak")
+    .eq("user_id", userId)
+    .single();
+  const previousStreak = streakBefore?.current_streak ?? 0;
+
   const { data, error } = await supabase.rpc("update_user_streak", {
     p_user_id: userId,
     p_completion_date: new Date().toISOString().split("T")[0],
@@ -424,6 +434,7 @@ export async function updateStreakOnCompletion(): Promise<{
 
   return {
     success: true,
+    previousStreak,
     newStreak: result?.new_streak || 0,
     streakBroken: result?.streak_broken || false,
     isNewLongest: result?.is_new_longest || false,

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 interface LivingFlameProps {
@@ -74,9 +74,37 @@ const sizeClasses = {
   lg: { container: "w-24 h-24", flame: "w-12 h-16" },
 };
 
+interface Particle {
+  width: number;
+  height: number;
+  left: string;
+  animY: number[];
+  animX: number[];
+  duration: number;
+  delay: number;
+}
+
 export default function LivingFlame({ streakDays, size = "md" }: LivingFlameProps) {
   const state = getFlameState(streakDays);
   const classes = sizeClasses[size];
+
+  // Particle random values are computed client-side only to avoid SSR/hydration
+  // mismatches (same pattern used by ParticleLayer.tsx in this codebase).
+  const [particles, setParticles] = useState<Particle[]>([]);
+  useEffect(() => {
+    if (state.particleCount === 0) { setParticles([]); return; }
+    setParticles(
+      Array.from({ length: state.particleCount }, (_, i) => ({
+        width:    2 + Math.random() * 3,
+        height:   2 + Math.random() * 3,
+        left:     `${20 + Math.random() * 60}%`,
+        animY:    [-10, -40 - Math.random() * 30],
+        animX:    [(i % 2 === 0 ? 1 : -1) * Math.random() * 10, 0],
+        duration: 1 + Math.random() * 2,
+        delay:    Math.random() * 2,
+      }))
+    );
+  }, [state.particleCount]);
 
   if (streakDays === 0) {
     return (
@@ -178,30 +206,30 @@ export default function LivingFlame({ streakDays, size = "md" }: LivingFlameProp
         </svg>
       </motion.div>
 
-      {/* Floating particles */}
-      {state.particleCount > 0 && (
+      {/* Floating particles — rendered from useEffect state to avoid SSR mismatch */}
+      {particles.length > 0 && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {Array.from({ length: state.particleCount }).map((_, i) => (
+          {particles.map((p, i) => (
             <motion.div
               key={i}
               className="absolute rounded-full"
               style={{
-                width: 2 + Math.random() * 3,
-                height: 2 + Math.random() * 3,
+                width: p.width,
+                height: p.height,
                 backgroundColor: state.color,
-                left: `${20 + Math.random() * 60}%`,
+                left: p.left,
                 bottom: "20%",
               }}
               animate={{
-                y: [-10, -40 - Math.random() * 30],
-                x: [(i % 2 === 0 ? 1 : -1) * Math.random() * 10, 0],
+                y: p.animY,
+                x: p.animX,
                 opacity: [0, 1, 0],
                 scale: [0.5, 1, 0],
               }}
               transition={{
-                duration: 1 + Math.random() * 2,
+                duration: p.duration,
                 repeat: Infinity,
-                delay: Math.random() * 2,
+                delay: p.delay,
                 ease: "easeOut",
               }}
             />

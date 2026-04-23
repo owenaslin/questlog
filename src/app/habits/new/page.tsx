@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HabitRecurrenceType, HabitRecurrenceData } from "@/lib/types";
 import { createHabit } from "@/lib/habits";
 import { validateRecurrenceData, buildRecurrenceData } from "@/lib/habit-recurrence";
 import RecurrencePicker from "@/components/RecurrencePicker";
+import { getSupabaseClient } from "@/lib/supabase";
 
 const ICON_OPTIONS = [
   "✓", "💪", "🧘", "📚", "💧", "🥗", "🏃", "💤", "🎨", "🎵",
@@ -30,6 +31,12 @@ export default function NewHabitPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getSupabaseClient().auth.getSession().then(({ data }) => {
+      if (!data.session) router.replace("/login");
+    });
+  }, [router]);
 
   const [formData, setFormData] = useState({
     title: "",
