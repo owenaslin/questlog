@@ -56,23 +56,9 @@ const TEMPLATES = {
   ],
 };
 
-/**
- * Simple, deterministic hash so the same user always reads the same chapter
- * text. Seeded by the chapter type plus a caller-supplied context string
- * (e.g. the first quest's title) — stable across re-mounts.
- */
-function stableHash(str: string): number {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = Math.imul(31, h) + str.charCodeAt(i);
-    h |= 0; // coerce to 32-bit int
-  }
-  return Math.abs(h);
-}
-
-function pickTemplate(type: keyof typeof TEMPLATES, seed: string): string {
+function pickTemplate(type: keyof typeof TEMPLATES): string {
   const options = TEMPLATES[type];
-  return options[stableHash(`${type}:${seed}`) % options.length];
+  return options[Math.floor(Math.random() * options.length)];
 }
 
 function formatDate(dateStr: string): string {
@@ -123,18 +109,15 @@ export function generatePersonalSaga(
   const dominantCount = categories[0][1].count;
   const categoriesExplored = categories.length;
 
-  const firstQuest = sortedQuests[0];
   const chapters: SagaChapter[] = [];
 
-  // Stable seed derived from the user's first quest — same user, same story.
-  const sagaSeed = firstQuest.title;
-
   // Chapter 1: The Beginning
+  const firstQuest = sortedQuests[0];
   chapters.push({
     type: "beginning",
     questCount: 1,
     title: "The First Step",
-    description: pickTemplate("beginning", sagaSeed)
+    description: pickTemplate("beginning")
       .replace("{date}", formatDate(firstQuest.completed_at))
       .replace("{quest}", firstQuest.title),
     date: firstQuest.completed_at,
@@ -149,7 +132,7 @@ export function generatePersonalSaga(
       category: dominantCategory,
       questCount: dominantCount,
       title: `Mastery of ${dominantCategory}`,
-      description: pickTemplate("mastery", sagaSeed)
+      description: pickTemplate("mastery")
         .replace("{category}", dominantCategory)
         .replace("{count}", dominantCount.toString())
         .replace("{quest}", notableQuest.title),
@@ -164,7 +147,7 @@ export function generatePersonalSaga(
         type: "versatile",
         questCount: sortedQuests.length,
         title: "The Versatile Hero",
-        description: pickTemplate("versatile", sagaSeed).replace("{categories}", categoryNames),
+        description: pickTemplate("versatile").replace("{categories}", categoryNames),
       });
     } else {
       const secondCategory = categories[1][0];
@@ -173,7 +156,7 @@ export function generatePersonalSaga(
         category: secondCategory,
         questCount: sortedQuests.length,
         title: `Discovering ${secondCategory}`,
-        description: pickTemplate("pivot", sagaSeed)
+        description: pickTemplate("pivot")
           .replace("{oldCategory}", dominantCategory)
           .replace("{newCategory}", secondCategory),
       });
@@ -186,7 +169,7 @@ export function generatePersonalSaga(
       type: "legend",
       questCount: sortedQuests.length,
       title: "Legendary Status",
-      description: pickTemplate("legend", sagaSeed).replace("{count}", sortedQuests.length.toString()),
+      description: pickTemplate("legend").replace("{count}", sortedQuests.length.toString()),
     });
   }
 

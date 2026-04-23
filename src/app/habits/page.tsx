@@ -7,12 +7,10 @@ import { HabitWithStatus, HabitRecurrenceType, HabitRecurrenceData } from "@/lib
 import { getUserHabits, toggleHabitActive, updateHabitOrder } from "@/lib/habits";
 import { getRecurrenceDescription } from "@/lib/habit-recurrence";
 import HabitCard from "@/components/HabitCard";
-import { getSupabaseClient } from "@/lib/supabase";
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<HabitWithStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [filter, setFilter] = useState<"all" | "active" | "paused">("active");
   const [isReorderMode, setIsReorderMode] = useState(false);
   const [stats, setStats] = useState({
@@ -23,10 +21,9 @@ export default function HabitsPage() {
   });
 
   const loadHabits = useCallback(async () => {
-    let mounted = true;
     setIsLoading(true);
     const allHabits = await getUserHabits({ activeOnly: false });
-    if (!mounted) return;
+    
     setHabits(allHabits);
     setStats({
       total: allHabits.length,
@@ -35,19 +32,10 @@ export default function HabitsPage() {
       completedToday: allHabits.filter((h) => h.is_completed_today).length,
     });
     setIsLoading(false);
-    return () => { mounted = false; };
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-    getSupabaseClient().auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      const authed = !!data.session;
-      setIsAuthenticated(authed);
-      if (authed) loadHabits();
-      else setIsLoading(false);
-    });
-    return () => { mounted = false; };
+    loadHabits();
   }, [loadHabits]);
 
   const handleToggleActive = async (habit: HabitWithStatus) => {
@@ -75,16 +63,6 @@ export default function HabitsPage() {
       await updateHabitOrder(orderUpdates);
     }
   };
-
-  if (isAuthenticated === false) {
-    return (
-      <div className="tavrn-panel p-8 text-center">
-        <p className="font-pixel text-tavern-gold text-[10px] mb-3">📋 Habits</p>
-        <p className="text-tavern-parchment mb-4">Sign in to track your daily habits and build streaks.</p>
-        <Link href="/login" className="tavrn-button inline-block">Sign In</Link>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (

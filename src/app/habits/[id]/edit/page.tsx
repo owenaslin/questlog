@@ -7,7 +7,6 @@ import { HabitRecurrenceType, HabitRecurrenceData } from "@/lib/types";
 import { getHabitById, updateHabit, deleteHabit } from "@/lib/habits";
 import { validateRecurrenceData } from "@/lib/habit-recurrence";
 import RecurrencePicker from "@/components/RecurrencePicker";
-import { getSupabaseClient } from "@/lib/supabase";
 
 const ICON_OPTIONS = [
   "✓", "💪", "🧘", "📚", "💧", "🥗", "🏃", "💤", "🎨", "🎵",
@@ -39,13 +38,6 @@ export default function EditHabitPage() {
     xp_reward: 10,
     is_active: true,
   });
-
-  // Auth guard — redirect unauthenticated users before loading habit data
-  useEffect(() => {
-    getSupabaseClient().auth.getSession().then(({ data }) => {
-      if (!data.session) router.replace("/login");
-    });
-  }, [router]);
 
   useEffect(() => {
     const loadHabit = async () => {

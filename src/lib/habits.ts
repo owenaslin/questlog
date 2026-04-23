@@ -279,16 +279,6 @@ export async function uncompleteHabit(habitId: string): Promise<{
   const supabase = getSupabaseClient();
   const today = getTodayString();
 
-  // Fetch xp_awarded before deleting so we can deduct it from the profile.
-  // The DB trigger `on_habit_completion_revoke_xp` handles this automatically
-  // once the schema migration is applied; this client-side path is the fallback.
-  const { data: existing } = await supabase
-    .from("habit_completions")
-    .select("xp_awarded")
-    .eq("habit_id", habitId)
-    .eq("completion_date", today)
-    .single();
-
   const { error } = await supabase
     .from("habit_completions")
     .delete()
@@ -297,20 +287,6 @@ export async function uncompleteHabit(habitId: string): Promise<{
 
   if (error) {
     return { success: false, error: error.message };
-  }
-
-  // Deduct XP from profile (fallback if trigger not yet applied to live DB)
-  if (existing?.xp_awarded) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, xp_total")
-      .single();
-    if (profile) {
-      await supabase
-        .from("profiles")
-        .update({ xp_total: Math.max(0, profile.xp_total - existing.xp_awarded) })
-        .eq("id", profile.id);
-    }
   }
 
   return { success: true };
@@ -485,21 +461,21 @@ export async function getHabitsSummary(): Promise<HabitsSummary> {
 export async function updateHabitOrder(
   habitOrders: { id: string; sort_order: number }[]
 ): Promise<{ success: boolean; error?: string }> {
-  if (habitOrders.length === 0) return { success: true };
-
   const supabase = getSupabaseClient();
-  const now = new Date().toISOString();
 
-  // Single upsert replaces N round-trips.
-  const { error } = await supabase
-    .from("habits")
-    .upsert(
-      habitOrders.map(({ id, sort_order }) => ({ id, sort_order, updated_at: now })),
-      { onConflict: "id" }
-    );
+  // Update each habit's sort_order
+  const updates = habitOrders.map(({ id, sort_order }) =>
+    supabase
+      .from("habits")
+      .update({ sort_order, updated_at: new Date().toISOString() })
+      .eq("id", id)
+  );
 
-  if (error) {
-    return { success: false, error: error.message };
+  const results = await Promise.all(updates);
+  const errors = results.filter((r) => r.error);
+
+  if (errors.length > 0) {
+    return { success: false, error: errors[0].error?.message };
   }
 
   return { success: true };

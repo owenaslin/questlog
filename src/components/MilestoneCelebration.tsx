@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Milestone, getMilestoneColor } from "@/lib/milestones";
 
@@ -15,8 +15,6 @@ export default function MilestoneCelebration({
 }: MilestoneCelebrationProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showParticles, setShowParticles] = useState(false);
-  // Track the final auto-close timer so it can be cancelled on unmount.
-  const finalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (milestones.length === 0) return;
@@ -25,16 +23,10 @@ export default function MilestoneCelebration({
       if (currentIndex < milestones.length - 1) {
         setCurrentIndex((prev) => prev + 1);
       } else {
-        finalTimerRef.current = setTimeout(onComplete, 2000);
+        setTimeout(onComplete, 2000);
       }
     }, 4000);
-    return () => {
-      clearTimeout(timer);
-      if (finalTimerRef.current) {
-        clearTimeout(finalTimerRef.current);
-        finalTimerRef.current = null;
-      }
-    };
+    return () => clearTimeout(timer);
   }, [currentIndex, milestones.length, onComplete]);
 
   if (milestones.length === 0) {

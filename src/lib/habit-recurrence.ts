@@ -24,16 +24,14 @@ export function isHabitScheduledForDate(
     }
 
     case "interval": {
+      // For interval, we'd need to know the start date to calculate
+      // This is simplified - assumes created_at is the start
       const intervalDays = habit.recurrence_data.intervalDays ?? 1;
       const createdAt = new Date(habit.created_at);
-      // Use midnight-normalised local dates so DST shifts (±1 h) don't skew
-      // the integer day count. Math.round absorbs the ±1 h error.
-      const targetMidnight  = new Date(date.getFullYear(),    date.getMonth(),    date.getDate());
-      const createdMidnight = new Date(createdAt.getFullYear(), createdAt.getMonth(), createdAt.getDate());
-      const daysSinceCreated = Math.round(
-        (targetMidnight.getTime() - createdMidnight.getTime()) / (1000 * 60 * 60 * 24)
+      const daysSinceCreated = Math.floor(
+        (date.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
       );
-      return daysSinceCreated >= 0 && daysSinceCreated % intervalDays === 0;
+      return daysSinceCreated % intervalDays === 0;
     }
 
     default:
@@ -127,43 +125,37 @@ export function getRecurrenceDescription(habit: Habit): string {
   }
 }
 
-/** Format a Date as a local-timezone YYYY-MM-DD string (not UTC). */
-function localDateString(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
 /**
- * Get today's date string in local time (YYYY-MM-DD).
- * Uses local timezone so users in UTC-5 etc. don't see yesterday's date.
+ * Get today's date string in ISO format (YYYY-MM-DD)
  */
 export function getTodayString(): string {
-  return localDateString(new Date());
+  return new Date().toISOString().split("T")[0];
 }
 
 /**
- * Get start of week (Sunday) date string in local time.
+ * Get start of week (Sunday) date string
  */
 export function getWeekStartString(date: Date = new Date()): string {
   const d = new Date(date);
-  d.setDate(d.getDate() - d.getDay()); // rewind to Sunday
-  return localDateString(d);
+  const day = d.getDay();
+  const diff = d.getDate() - day;
+  const sunday = new Date(d.setDate(diff));
+  return sunday.toISOString().split("T")[0];
 }
 
 /**
- * Get array of local-time date strings for the last N days (oldest first).
+ * Get array of date strings for the last N days
  */
 export function getLastNDays(n: number): string[] {
   const dates: string[] = [];
   const today = new Date();
-
+  
   for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
-    dates.push(localDateString(d));
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split("T")[0]);
   }
-
+  
   return dates;
 }
 
