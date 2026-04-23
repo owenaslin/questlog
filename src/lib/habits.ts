@@ -144,72 +144,54 @@ export async function getUserHabits(options?: {
   const supabase = getSupabaseClient();
   const today = getTodayString();
   const weekStart = getWeekStartString();
+  const { data, error } = await supabase.rpc("get_user_habits_snapshot", {
+    p_today: today,
+    p_week_start: weekStart,
+    p_active_only: options?.activeOnly !== false,
+  });
 
-  // Build query
-  let query = supabase.from("habits").select("*").order("sort_order", { ascending: true });
-
-  if (options?.activeOnly !== false) {
-    query = query.eq("is_active", true);
-  }
-
-  const { data: habits, error: habitsError } = await query;
-
-  if (habitsError || !habits) {
-    console.error("Error fetching habits:", habitsError);
+  if (error || !data) {
+    console.error("Error fetching habits snapshot:", error);
     return [];
   }
 
-  // Get today's completions
-  const { data: todayCompletions, error: completionsError } = await supabase
-    .from("habit_completions")
-    .select("habit_id")
-    .eq("completion_date", today);
+  return (data as Array<Record<string, unknown>>).map((row) => {
+    const habit: Habit = {
+      id: row.id as string,
+      user_id: row.user_id as string,
+      title: row.title as string,
+      description: (row.description as string | null) ?? null,
+      icon: row.icon as string,
+      color: row.color as string,
+      recurrence_type: row.recurrence_type as HabitRecurrenceType,
+      recurrence_data: (row.recurrence_data as HabitRecurrenceData) || {},
+      xp_reward: Number(row.xp_reward) || 0,
+      is_active: Boolean(row.is_active),
+      sort_order: Number(row.sort_order) || 0,
+      created_at: row.created_at as string,
+      updated_at: row.updated_at as string,
+    };
 
-  if (completionsError) {
-    console.error("Error fetching completions:", completionsError);
-  }
+    const streak: HabitStreak | null =
+      options?.includeStreaks === false || !row.streak_id
+        ? null
+        : {
+            id: row.streak_id as string,
+            habit_id: row.id as string,
+            user_id: row.user_id as string,
+            current_streak: Number(row.streak_current) || 0,
+            longest_streak: Number(row.streak_longest) || 0,
+            last_completed_date: (row.streak_last_completed_date as string | null) ?? null,
+            updated_at: row.streak_updated_at as string,
+          };
 
-  const completedToday = new Set(todayCompletions?.map((c) => c.habit_id) || []);
-
-  // Get week's completions for all habits
-  const { data: weekCompletions, error: weekError } = await supabase
-    .from("habit_completions")
-    .select("habit_id")
-    .gte("completion_date", weekStart);
-
-  if (weekError) {
-    console.error("Error fetching week completions:", weekError);
-  }
-
-  const weekCompletionCounts: Record<string, number> = {};
-  weekCompletions?.forEach((c) => {
-    weekCompletionCounts[c.habit_id] = (weekCompletionCounts[c.habit_id] || 0) + 1;
+    return {
+      ...habit,
+      streak,
+      is_completed_today: Boolean(row.is_completed_today),
+      completions_this_week: Number(row.completions_this_week) || 0,
+    } as HabitWithStatus;
   });
-
-  // Get streaks if requested
-  let streaks: Record<string, HabitStreak> = {};
-  if (options?.includeStreaks !== false) {
-    const { data: streakData, error: streakError } = await supabase
-      .from("habit_streaks")
-      .select("*");
-
-    if (streakError) {
-      console.error("Error fetching streaks:", streakError);
-    } else {
-      streaks = (streakData || []).reduce((acc, s) => {
-        acc[s.habit_id] = s as HabitStreak;
-        return acc;
-      }, {} as Record<string, HabitStreak>);
-    }
-  }
-
-  // Combine data
-  return (habits as Habit[]).map((habit) => ({
-    ...habit,
-    streak: streaks[habit.id] || null,
-    is_completed_today: completedToday.has(habit.id),
-    completions_this_week: weekCompletionCounts[habit.id] || 0,
-  }));
 }
 
 export async function getHabitsForToday(): Promise<HabitWithStatus[]> {
@@ -441,44 +423,31 @@ export async function getHabitsSummary(): Promise<HabitsSummary> {
   const today = getTodayString();
   const weekStart = getWeekStartString();
 
-  // Get all habits
-  const { data: habits } = await supabase
-    .from("habits")
-    .select("id, is_active");
+  const { data, error } = await supabase.rpc("get_habits_summary_snapshot", {
+    p_today: today,
+    p_week_start: weekStart,
+  });
 
-  // Get today's completions
-  const { data: todayCompletions } = await supabase
-    .from("habit_completions")
-    .select("habit_id")
-    .eq("completion_date", today);
+  if (error || !data || !data.length) {
+    return {
+      totalHabits: 0,
+      activeHabits: 0,
+      completedToday: 0,
+      totalCompletionsThisWeek: 0,
+      currentStreaks: 0,
+      longestStreak: 0,
+    };
+  }
 
-  // Get week's completions
-  const { data: weekCompletions } = await supabase
-    .from("habit_completions")
-    .select("*")
-    .gte("completion_date", weekStart);
-
-  // Get streaks
-  const { data: streaks } = await supabase
-    .from("habit_streaks")
-    .select("current_streak, longest_streak");
-
-  const totalHabits = habits?.length || 0;
-  const activeHabits = habits?.filter((h) => h.is_active).length || 0;
-  const completedToday = todayCompletions?.length || 0;
-  const totalCompletionsThisWeek = weekCompletions?.length || 0;
-  const currentStreaks =
-    streaks?.filter((s) => s.current_streak > 0).length || 0;
-  const longestStreak =
-    streaks?.reduce((max, s) => Math.max(max, s.longest_streak), 0) || 0;
+  const row = (Array.isArray(data) ? data[0] : data) as Record<string, unknown>;
 
   return {
-    totalHabits,
-    activeHabits,
-    completedToday,
-    totalCompletionsThisWeek,
-    currentStreaks,
-    longestStreak,
+    totalHabits: Number(row.total_habits) || 0,
+    activeHabits: Number(row.active_habits) || 0,
+    completedToday: Number(row.completed_today) || 0,
+    totalCompletionsThisWeek: Number(row.total_completions_this_week) || 0,
+    currentStreaks: Number(row.current_streaks) || 0,
+    longestStreak: Number(row.longest_streak) || 0,
   };
 }
 
