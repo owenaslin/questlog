@@ -56,11 +56,6 @@ export async function getCurrentUserId(): Promise<string | null> {
 }
 
 export async function getUserDashboardSnapshot(): Promise<DashboardSnapshot | null> {
-  const userId = await getCurrentUserId();
-  if (!userId) {
-    return null;
-  }
-
   const supabase = getSupabaseClient();
   const { data, error } = await supabase.rpc("get_user_dashboard_snapshot");
 

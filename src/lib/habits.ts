@@ -13,8 +13,6 @@ import {
   getTodayString,
   getWeekStartString,
   getLastNDays,
-  isToday,
-  isThisWeek,
   isHabitScheduledForDate,
 } from "@/lib/habit-recurrence";
 

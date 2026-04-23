@@ -39,7 +39,6 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [xpEarned, setXpEarned] = useState(0);
   const [showXpAnimation, setShowXpAnimation] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const [previousLevel, setPreviousLevel] = useState<number | null>(null);
   const [newLevel, setNewLevel] = useState<number | null>(null);
   const [newStreak, setNewStreak] = useState<number | undefined>(undefined);
   const [isNewLongest, setIsNewLongest] = useState(false);
@@ -104,7 +103,6 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       const beforeSnapshot = await getUserDashboardSnapshot();
       const beforeSummary = beforeSnapshot?.profileSummary ?? null;
       const beforeLevel = beforeSummary?.level || calculateLevel(beforeSummary?.xp_total || 0);
-      setPreviousLevel(beforeLevel);
 
       const result = await completeQuest(quest.id, quest.xp_reward, quest.type, quest.category);
       if (!result.success) {
