@@ -301,15 +301,19 @@ export async function uncompleteHabit(habitId: string): Promise<{
 
   // Deduct XP from profile (fallback if trigger not yet applied to live DB)
   if (existing?.xp_awarded) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, xp_total")
-      .single();
-    if (profile) {
-      await supabase
+    const userId = (await supabase.auth.getSession()).data.session?.user.id;
+    if (userId) {
+      const { data: profile } = await supabase
         .from("profiles")
-        .update({ xp_total: Math.max(0, profile.xp_total - existing.xp_awarded) })
-        .eq("id", profile.id);
+        .select("xp_total")
+        .eq("id", userId)
+        .single();
+      if (profile) {
+        await supabase
+          .from("profiles")
+          .update({ xp_total: Math.max(0, profile.xp_total - existing.xp_awarded) })
+          .eq("id", userId);
+      }
     }
   }
 
