@@ -153,7 +153,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       const detectedMilestones = detectMilestones({
         questJustCompleted: quest,
         newStreak: streakResult.newStreak ?? 0,
-        oldStreak: Math.max((streakResult.newStreak ?? 0) - 1, 0),
+        oldStreak: streakResult.previousStreak ?? 0,
         newLevel: afterSummaryLevel,
         oldLevel: beforeLevel,
         totalCompleted,

@@ -39,6 +39,7 @@ const config: Config = {
           "oak-dark": "#5c3a1a",
           parchment: "#e8d4a0",
           "parchment-dark": "#c4a85a",
+          "parchment-dim": "#a08c6a",
           candle: "#f5d76e",
           smoke: "#4a3f35",
           "smoke-light": "#6b5a4e",
