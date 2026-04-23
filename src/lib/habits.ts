@@ -1,18 +1,14 @@
 import { getSupabaseClient } from "@/lib/supabase";
 import {
   Habit,
-  HabitCompletion,
   HabitStreak,
   HabitWithStatus,
-  HabitCalendarData,
-  HabitCompletionHistory,
   HabitRecurrenceType,
   HabitRecurrenceData,
 } from "@/lib/types";
 import {
   getTodayString,
   getWeekStartString,
-  getLastNDays,
   isHabitScheduledForDate,
 } from "@/lib/habit-recurrence";
 
@@ -40,7 +36,7 @@ export async function createHabit(input: CreateHabitInput): Promise<{
   error?: string;
 }> {
   const supabase = getSupabaseClient();
-  
+
   const { data, error } = await supabase
     .from("habits")
     .insert({
@@ -69,7 +65,7 @@ export async function updateHabit(
   updates: UpdateHabitInput
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
-  
+
   const { error } = await supabase
     .from("habits")
     .update({
@@ -87,7 +83,7 @@ export async function updateHabit(
 
 export async function deleteHabit(habitId: string): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
-  
+
   const { error } = await supabase
     .from("habits")
     .delete()
@@ -105,7 +101,7 @@ export async function toggleHabitActive(
   isActive: boolean
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
-  
+
   const { error } = await supabase
     .from("habits")
     .update({ is_active: isActive, updated_at: new Date().toISOString() })
@@ -124,7 +120,7 @@ export async function toggleHabitActive(
 
 export async function getHabitById(habitId: string): Promise<Habit | null> {
   const supabase = getSupabaseClient();
-  
+
   const { data, error } = await supabase
     .from("habits")
     .select("*")
@@ -195,7 +191,7 @@ export async function getUserHabits(options?: {
 export async function getHabitsForToday(): Promise<HabitWithStatus[]> {
   const habits = await getUserHabits({ activeOnly: true });
   const today = new Date();
-  
+
   return habits.filter((h) => isHabitScheduledForDate(h, today));
 }
 
@@ -298,155 +294,6 @@ export async function uncompleteHabit(habitId: string): Promise<{
   }
 
   return { success: true };
-}
-
-export async function getHabitCompletions(
-  habitId: string,
-  startDate?: string,
-  endDate?: string
-): Promise<HabitCompletion[]> {
-  const supabase = getSupabaseClient();
-  
-  let query = supabase
-    .from("habit_completions")
-    .select("*")
-    .eq("habit_id", habitId)
-    .order("completion_date", { ascending: false });
-
-  if (startDate) {
-    query = query.gte("completion_date", startDate);
-  }
-  if (endDate) {
-    query = query.lte("completion_date", endDate);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Error fetching completions:", error);
-    return [];
-  }
-
-  return (data || []) as HabitCompletion[];
-}
-
-// ============================================
-// HABIT STREAKS
-// ============================================
-
-export async function getHabitStreak(habitId: string): Promise<HabitStreak | null> {
-  const supabase = getSupabaseClient();
-  
-  const { data, error } = await supabase
-    .from("habit_streaks")
-    .select("*")
-    .eq("habit_id", habitId)
-    .single();
-
-  if (error || !data) return null;
-  return data as HabitStreak;
-}
-
-// ============================================
-// CALENDAR / HISTORY DATA
-// ============================================
-
-export async function getHabitCalendarData(
-  habitId: string,
-  days: number = 30
-): Promise<HabitCalendarData | null> {
-  const supabase = getSupabaseClient();
-
-  // Get habit
-  const { data: habit, error: habitError } = await supabase
-    .from("habits")
-    .select("*")
-    .eq("id", habitId)
-    .single();
-
-  if (habitError || !habit) return null;
-
-  // Get streak
-  const { data: streak } = await supabase
-    .from("habit_streaks")
-    .select("*")
-    .eq("habit_id", habitId)
-    .single();
-
-  // Get completions for date range
-  const dateRange = getLastNDays(days);
-  const startDate = dateRange[0];
-  const endDate = dateRange[dateRange.length - 1];
-
-  const { data: completions, error: compError } = await supabase
-    .from("habit_completions")
-    .select("completion_date")
-    .eq("habit_id", habitId)
-    .gte("completion_date", startDate)
-    .lte("completion_date", endDate);
-
-  if (compError) {
-    console.error("Error fetching calendar completions:", compError);
-  }
-
-  const completedDates = new Set(completions?.map((c) => c.completion_date) || []);
-
-  const history: HabitCompletionHistory[] = dateRange.map((date) => ({
-    date,
-    completed: completedDates.has(date),
-  }));
-
-  return {
-    habit: habit as Habit,
-    streak: streak as HabitStreak | null,
-    history,
-  };
-}
-
-// ============================================
-// STATS & SUMMARIES
-// ============================================
-
-export interface HabitsSummary {
-  totalHabits: number;
-  activeHabits: number;
-  completedToday: number;
-  totalCompletionsThisWeek: number;
-  currentStreaks: number; // Habits with streak > 0
-  longestStreak: number;
-}
-
-export async function getHabitsSummary(): Promise<HabitsSummary> {
-  const supabase = getSupabaseClient();
-  const today = getTodayString();
-  const weekStart = getWeekStartString();
-
-  const { data, error } = await supabase.rpc("get_habits_summary_snapshot", {
-    p_today: today,
-    p_week_start: weekStart,
-  });
-
-  if (error || !data || !data.length) {
-    return {
-      totalHabits: 0,
-      activeHabits: 0,
-      completedToday: 0,
-      totalCompletionsThisWeek: 0,
-      currentStreaks: 0,
-      longestStreak: 0,
-    };
-  }
-
-  const row = (Array.isArray(data) ? data[0] : data) as Record<string, unknown>;
-
-  return {
-    totalHabits: Number(row.total_habits) || 0,
-    activeHabits: Number(row.active_habits) || 0,
-    completedToday: Number(row.completed_today) || 0,
-    totalCompletionsThisWeek: Number(row.total_completions_this_week) || 0,
-    currentStreaks: Number(row.current_streaks) || 0,
-    longestStreak: Number(row.longest_streak) || 0,
-  };
 }
 
 // ============================================

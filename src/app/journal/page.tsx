@@ -14,8 +14,8 @@ import { generatePersonalSaga } from "@/lib/saga-generator";
 import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS } from "@/lib/quests";
-import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
+import { useRequireAuth } from "@/lib/auth-hooks";
 import {
   getCompletedQuestsForSaga,
   getUserDashboardSnapshot,
@@ -32,9 +32,12 @@ export default function JournalPage() {
   const pathname = usePathname();
   const { isDesktopActive } = useViewMode();
 
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [heroName, setHeroName] = useState<string>("Adventurer");
+  const {
+    isCheckingAuth,
+    authError,
+    userName,
+  } = useRequireAuth("/journal");
+  const heroName = userName || "Adventurer";
 
   const [profileSummary, setProfileSummary] = useState<{
     xp_total: number; level: number; completedCount: number; activeCount: number;
@@ -45,35 +48,6 @@ export default function JournalPage() {
   const [weeklyRecap, setWeeklyRecap]       = useState<WeeklyRecapType | null>(null);
   const [isLoading, setIsLoading]           = useState(true);
   const [saga, setSaga]                     = useState<ReturnType<typeof generatePersonalSaga> | null>(null);
-
-  /* ── Auth check ─────────────────────────────────────────────────── */
-  useEffect(() => {
-    const supabase = getSupabaseClient();
-    let alive = true;
-
-    const check = async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        if (!data.session) {
-          router.replace(buildAuthUrl("login", pathname || "/journal"));
-          return;
-        }
-        if (!alive) return;
-        const meta = data.session.user.user_metadata;
-        setHeroName(meta?.display_name || meta?.name || "Adventurer");
-        setIsCheckingAuth(false);
-      } catch (err) {
-        if (alive) {
-          setAuthError(err instanceof Error ? err.message : "Session error.");
-          setIsCheckingAuth(false);
-        }
-      }
-    };
-
-    check();
-    return () => { alive = false; };
-  }, [pathname, router]);
 
   /* ── Load progress ───────────────────────────────────────────────── */
   useEffect(() => {

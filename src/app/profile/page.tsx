@@ -9,8 +9,8 @@ import StreakDisplay from "@/components/StreakDisplay";
 import WeeklyRecap from "@/components/WeeklyRecap";
 import { BADGES } from "@/lib/badges";
 import { ALL_QUESTS } from "@/lib/quests";
-import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
+import { useRequireAuth } from "@/lib/auth-hooks";
 import {
   getUserDashboardSnapshot,
   getWeeklyRecap,
@@ -23,10 +23,12 @@ import { Quest } from "@/lib/types";
 export default function ProfilePage() {
   const router = useRouter();
   const pathname = usePathname();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [authCheckError, setAuthCheckError] = useState<string | null>(null);
-  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
-  const [sessionName, setSessionName] = useState<string | null>(null);
+  const {
+    isCheckingAuth,
+    authError: authCheckError,
+    userEmail: sessionEmail,
+    userName: sessionName,
+  } = useRequireAuth("/profile");
   const [profileSummary, setProfileSummary] = useState<{
     xp_total: number;
     level: number;
@@ -39,58 +41,6 @@ export default function ProfilePage() {
   const [streak, setStreak] = useState<UserStreak | null>(null);
   const [weeklyRecap, setWeeklyRecap] = useState<WeeklyRecapType | null>(null);
   const [earnedBadgeIds, setEarnedBadgeIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    const supabase = getSupabaseClient();
-    let isMounted = true;
-
-    const timeout = window.setTimeout(() => {
-      if (isMounted) {
-        setAuthCheckError("Session check timed out. Please try again.");
-        setIsCheckingAuth(false);
-      }
-    }, 8000);
-
-    const ensureAuth = async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-
-        if (error) {
-          throw error;
-        }
-
-        if (!data.session) {
-          router.replace(buildAuthUrl("login", pathname || "/profile"));
-          return;
-        }
-
-        if (!isMounted) {
-          return;
-        }
-
-        setSessionEmail(data.session.user.email || null);
-        const userMeta = data.session.user.user_metadata;
-        setSessionName(userMeta?.display_name || userMeta?.name || null);
-        setIsCheckingAuth(false);
-      } catch (err) {
-        if (!isMounted) {
-          return;
-        }
-
-        setAuthCheckError(err instanceof Error ? err.message : "Could not verify your session.");
-        setIsCheckingAuth(false);
-      } finally {
-        window.clearTimeout(timeout);
-      }
-    };
-
-    ensureAuth();
-
-    return () => {
-      isMounted = false;
-      window.clearTimeout(timeout);
-    };
-  }, [pathname, router]);
 
   useEffect(() => {
     if (isCheckingAuth || authCheckError) {
