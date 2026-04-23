@@ -14,9 +14,8 @@ function shuffleArray<T>(arr: T[]): T[] {
   return a;
 }
 import {
-  getUserQuestProgressMap,
+  getUserDashboardSnapshot,
   getQuestlineProgressMap,
-  getProfileProgressSummary,
   getWeeklyRecap,
 } from "@/lib/quest-progress";
 import { QUESTLINES } from "@/lib/questlines";
@@ -39,12 +38,14 @@ export interface RecommendationContext {
 }
 
 async function buildContext(): Promise<RecommendationContext | null> {
-  const [progressMap, profile, weeklyRecap, questlineMap] = await Promise.all([
-    getUserQuestProgressMap(),
-    getProfileProgressSummary(),
+  const [snapshot, weeklyRecap, questlineMap] = await Promise.all([
+    getUserDashboardSnapshot(),
     getWeeklyRecap(0),
     getQuestlineProgressMap(),
   ]);
+
+  const profile = snapshot?.profileSummary ?? null;
+  const progressMap = snapshot?.progressMap ?? {};
 
   if (!profile) {
     return null;
@@ -102,6 +103,7 @@ async function buildContext(): Promise<RecommendationContext | null> {
 
 function getQuestlineRecommendations(context: RecommendationContext): QuestRecommendation[] {
   const recommendations: QuestRecommendation[] = [];
+  const completedQuestIdSet = new Set(context.completedQuestIds);
 
   QUESTLINES.forEach((questline) => {
     const progress = context.questlineProgress[questline.id];
@@ -110,7 +112,7 @@ function getQuestlineRecommendations(context: RecommendationContext): QuestRecom
     // Recommend the current step if it hasn't been completed yet.
     // currentStep is the step to do next — no need for a second findIndex.
     const currentStep = questline.steps.find((s) => s.id === progress.currentStepId);
-    if (currentStep?.quest && !context.completedQuestIds.includes(currentStep.quest_id)) {
+    if (currentStep?.quest && !completedQuestIdSet.has(currentStep.quest_id)) {
       recommendations.push({
         quest: currentStep.quest,
         reason: `Continue ${questline.title}`,
@@ -125,6 +127,8 @@ function getQuestlineRecommendations(context: RecommendationContext): QuestRecom
 
 function getCategoryBalanceRecommendations(context: RecommendationContext): QuestRecommendation[] {
   const recommendations: QuestRecommendation[] = [];
+  const completedQuestIdSet = new Set(context.completedQuestIds);
+  const activeQuestIdSet = new Set(context.activeQuestIds);
 
   // Find underrepresented categories.
   const allCategories = Array.from(new Set(ALL_QUESTS.map((q) => q.category)));
@@ -143,8 +147,8 @@ function getCategoryBalanceRecommendations(context: RecommendationContext): Ques
     const availableQuest = ALL_QUESTS.find(
       (q) =>
         q.category === category &&
-        !context.completedQuestIds.includes(q.id) &&
-        !context.activeQuestIds.includes(q.id)
+        !completedQuestIdSet.has(q.id) &&
+        !activeQuestIdSet.has(q.id)
     );
 
     if (availableQuest) {
@@ -162,6 +166,8 @@ function getCategoryBalanceRecommendations(context: RecommendationContext): Ques
 
 function getDifficultyProgressionRecommendations(context: RecommendationContext): QuestRecommendation[] {
   const recommendations: QuestRecommendation[] = [];
+  const completedQuestIdSet = new Set(context.completedQuestIds);
+  const activeQuestIdSet = new Set(context.activeQuestIds);
 
   // Suggest quests slightly above average difficulty
   const targetDifficulty = Math.min(Math.ceil(context.averageDifficulty) + 1, 5);
@@ -169,8 +175,8 @@ function getDifficultyProgressionRecommendations(context: RecommendationContext)
   const challengingQuests = ALL_QUESTS.filter(
     (q) =>
       q.difficulty === targetDifficulty &&
-      !context.completedQuestIds.includes(q.id) &&
-      !context.activeQuestIds.includes(q.id) &&
+      !completedQuestIdSet.has(q.id) &&
+      !activeQuestIdSet.has(q.id) &&
       q.type === "main" // Prefer main quests for progression
   );
 
@@ -190,14 +196,16 @@ function getDifficultyProgressionRecommendations(context: RecommendationContext)
 
 function getQuickWinRecommendations(context: RecommendationContext): QuestRecommendation[] {
   const recommendations: QuestRecommendation[] = [];
+  const completedQuestIdSet = new Set(context.completedQuestIds);
+  const activeQuestIdSet = new Set(context.activeQuestIds);
 
   // Find short, easy side quests for busy days
   const quickQuests = ALL_QUESTS.filter(
     (q) =>
       q.type === "side" &&
       q.difficulty <= 2 &&
-      !context.completedQuestIds.includes(q.id) &&
-      !context.activeQuestIds.includes(q.id)
+      !completedQuestIdSet.has(q.id) &&
+      !activeQuestIdSet.has(q.id)
   );
 
   // Sort by XP reward (descending) to maximize value
@@ -219,11 +227,12 @@ function getQuickWinRecommendations(context: RecommendationContext): QuestRecomm
 
 function getDailyStreakRecommendations(context: RecommendationContext): QuestRecommendation[] {
   const recommendations: QuestRecommendation[] = [];
+  const completedQuestIdSet = new Set(context.completedQuestIds);
+  const activeQuestIdSet = new Set(context.activeQuestIds);
 
   // If user needs to maintain streak, suggest the easiest available quest
   const easiestAvailable = ALL_QUESTS.filter(
-    (q) =>
-      !context.completedQuestIds.includes(q.id) && !context.activeQuestIds.includes(q.id)
+    (q) => !completedQuestIdSet.has(q.id) && !activeQuestIdSet.has(q.id)
   ).sort((a, b) => a.difficulty - b.difficulty)[0];
 
   if (easiestAvailable) {
@@ -289,21 +298,24 @@ export async function getSmartRecommendations(limit: number = 5): Promise<QuestR
 }
 
 export async function getLowEnergySuggestion(): Promise<Quest | null> {
-  const progressMap = await getUserQuestProgressMap();
+  const snapshot = await getUserDashboardSnapshot();
+  const progressMap = snapshot?.progressMap ?? {};
   const completedIds = Object.entries(progressMap)
     .filter(([, p]) => p.status === "completed")
     .map(([id]) => id);
   const activeIds = Object.entries(progressMap)
     .filter(([, p]) => p.status === "active")
     .map(([id]) => id);
+  const completedIdSet = new Set(completedIds);
+  const activeIdSet = new Set(activeIds);
 
   // Find easiest side quest that hasn't been done
   const candidates = ALL_QUESTS.filter(
     (q) =>
       q.type === "side" &&
       q.difficulty === 1 &&
-      !completedIds.includes(q.id) &&
-      !activeIds.includes(q.id)
+      !completedIdSet.has(q.id) &&
+      !activeIdSet.has(q.id)
   ).sort((a, b) => a.xp_reward - b.xp_reward);
 
   return candidates[0] || null;
