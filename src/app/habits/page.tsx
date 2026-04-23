@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { HabitWithStatus, HabitRecurrenceType, HabitRecurrenceData } from "@/lib/types";
+import { HabitWithStatus } from "@/lib/types";
 import { getUserHabits, toggleHabitActive, updateHabitOrder } from "@/lib/habits";
 import { getRecurrenceDescription } from "@/lib/habit-recurrence";
 import HabitCard from "@/components/HabitCard";
@@ -22,11 +22,16 @@ export default function HabitsPage() {
     completedToday: 0,
   });
 
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
   const loadHabits = useCallback(async () => {
-    let mounted = true;
     setIsLoading(true);
     const allHabits = await getUserHabits({ activeOnly: false });
-    if (!mounted) return;
+    if (!mountedRef.current) return;
     setHabits(allHabits);
     setStats({
       total: allHabits.length,
@@ -35,7 +40,6 @@ export default function HabitsPage() {
       completedToday: allHabits.filter((h) => h.is_completed_today).length,
     });
     setIsLoading(false);
-    return () => { mounted = false; };
   }, []);
 
   useEffect(() => {
@@ -64,16 +68,15 @@ export default function HabitsPage() {
   });
 
   const handleReorder = async (newOrder: HabitWithStatus[]) => {
+    // Guard: only reorder when showing all habits. Reordering a filtered
+    // subset and writing it back to state would silently drop the hidden habits.
+    if (filter !== "all") return;
     setHabits(newOrder);
-    
-    // Only save if we're not filtering
-    if (filter === "all") {
-      const orderUpdates = newOrder.map((h, index) => ({
-        id: h.id,
-        sort_order: index,
-      }));
-      await updateHabitOrder(orderUpdates);
-    }
+    const orderUpdates = newOrder.map((h, index) => ({
+      id: h.id,
+      sort_order: index,
+    }));
+    await updateHabitOrder(orderUpdates);
   };
 
   if (isAuthenticated === false) {

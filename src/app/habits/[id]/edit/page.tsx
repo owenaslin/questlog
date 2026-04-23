@@ -40,20 +40,17 @@ export default function EditHabitPage() {
     is_active: true,
   });
 
-  // Auth guard — redirect unauthenticated users before loading habit data
+  // Auth guard + habit load in a single effect so the habit fetch never
+  // fires before the redirect when the user is unauthenticated.
   useEffect(() => {
-    getSupabaseClient().auth.getSession().then(({ data }) => {
-      if (!data.session) router.replace("/login");
-    });
-  }, [router]);
+    let mounted = true;
+    const init = async () => {
+      const { data } = await getSupabaseClient().auth.getSession();
+      if (!data.session) { router.replace("/login"); return; }
 
-  useEffect(() => {
-    const loadHabit = async () => {
       const habit = await getHabitById(habitId);
-      if (!habit) {
-        router.push("/habits");
-        return;
-      }
+      if (!mounted) return;
+      if (!habit) { router.push("/habits"); return; }
 
       setFormData({
         title: habit.title,
@@ -68,7 +65,8 @@ export default function EditHabitPage() {
       setIsLoading(false);
     };
 
-    loadHabit();
+    init();
+    return () => { mounted = false; };
   }, [habitId, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -1,4 +1,3 @@
-import { Quest } from "./types";
 import { v5 as uuidv5 } from "uuid";
 
 const NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8"; // UUID v5 namespace
@@ -7,7 +6,11 @@ export function generateStableId(title: string): string {
   return uuidv5(title, NAMESPACE);
 }
 
-export const SEED_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
+// ─── Legacy seed data ────────────────────────────────────────────────────────
+// These quests are superseded by the typed per-category files in src/lib/quests/.
+// Kept here as a reference snapshot only — nothing imports SEED_QUESTS.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _SEED_QUESTS_UNUSED = [
   // ===== MAIN QUESTS =====
   {
     title: "Learn a New Language",

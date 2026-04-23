@@ -16,6 +16,7 @@ import {
   getRecentCompletedQuestIds,
   getUserQuestProgressMap,
   getUserStreak,
+  getUserEarnedBadgeIds,
   getWeeklyRecap,
   UserStreak,
   WeeklyRecap as WeeklyRecapType,
@@ -40,6 +41,7 @@ export default function ProfilePage() {
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [streak, setStreak] = useState<UserStreak | null>(null);
   const [weeklyRecap, setWeeklyRecap] = useState<WeeklyRecapType | null>(null);
+  const [earnedBadgeIds, setEarnedBadgeIds] = useState<string[]>([]);
 
   useEffect(() => {
     const supabase = getSupabaseClient();
@@ -104,12 +106,13 @@ export default function ProfilePage() {
       setIsLoadingProgress(true);
 
       try {
-        const [summary, progressMap, recentCompletedIds, streakData, weeklyData] = await Promise.all([
+        const [summary, progressMap, recentCompletedIds, streakData, weeklyData, badgeIds] = await Promise.all([
           getProfileProgressSummary(),
           getUserQuestProgressMap(),
           getRecentCompletedQuestIds(10),
           getUserStreak(),
           getWeeklyRecap(0),
+          getUserEarnedBadgeIds(),
         ]);
 
         if (!isMounted) return;
@@ -120,6 +123,7 @@ export default function ProfilePage() {
         if (weeklyData) {
           setWeeklyRecap(weeklyData);
         }
+        setEarnedBadgeIds(badgeIds);
 
         if (summary) {
           setProfileSummary(summary);
@@ -271,10 +275,7 @@ export default function ProfilePage() {
         </div>
         <BadgeShowcase
           badges={BADGES}
-          earnedBadgeIds={[
-            BADGES.find((b) => b.key === "first_steps")?.id || "",
-            BADGES.find((b) => b.key === "getting_started")?.id || "",
-          ].filter(Boolean)}
+          earnedBadgeIds={earnedBadgeIds}
           maxDisplay={4}
         />
       </div>

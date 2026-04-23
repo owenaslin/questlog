@@ -1,6 +1,7 @@
 import { getSupabaseClient } from "@/lib/supabase";
 import { calculateLevel, Quest, QuestStatus } from "@/lib/types";
 import { ALL_QUESTS } from "@/lib/quests";
+import { getTodayString } from "@/lib/habit-recurrence";
 
 export interface UserQuestProgressRow {
   quest_id: string;
@@ -422,7 +423,7 @@ export async function updateStreakOnCompletion(): Promise<{
 
   const { data, error } = await supabase.rpc("update_user_streak", {
     p_user_id: userId,
-    p_completion_date: new Date().toISOString().split("T")[0],
+    p_completion_date: getTodayString(), // local-timezone date, not UTC
   });
 
   if (error) {
@@ -455,11 +456,10 @@ export async function getWeeklyRecap(weeksAgo: number = 0): Promise<WeeklyRecap 
   }
 
   const today = new Date();
-  const weekStart = new Date(today);
-  // getDay() returns 0 for Sunday — this produces a Sunday-start week.
+  // Build the week-start date in local time (Sunday = day 0).
   // Must match the week boundary used by the update_weekly_activity stored procedure.
-  weekStart.setDate(today.getDate() - today.getDay() - weeksAgo * 7);
-  const weekStartStr = weekStart.toISOString().split("T")[0];
+  const ws = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() - weeksAgo * 7);
+  const weekStartStr = `${ws.getFullYear()}-${String(ws.getMonth() + 1).padStart(2, "0")}-${String(ws.getDate()).padStart(2, "0")}`;
 
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
