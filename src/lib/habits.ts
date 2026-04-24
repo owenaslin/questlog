@@ -1,20 +1,14 @@
 import { getSupabaseClient } from "@/lib/supabase";
 import {
   Habit,
-  HabitCompletion,
   HabitStreak,
   HabitWithStatus,
-  HabitCalendarData,
-  HabitCompletionHistory,
   HabitRecurrenceType,
   HabitRecurrenceData,
 } from "@/lib/types";
 import {
   getTodayString,
   getWeekStartString,
-  getLastNDays,
-  isToday,
-  isThisWeek,
   isHabitScheduledForDate,
 } from "@/lib/habit-recurrence";
 
@@ -42,7 +36,7 @@ export async function createHabit(input: CreateHabitInput): Promise<{
   error?: string;
 }> {
   const supabase = getSupabaseClient();
-  
+
   const { data, error } = await supabase
     .from("habits")
     .insert({
@@ -71,7 +65,7 @@ export async function updateHabit(
   updates: UpdateHabitInput
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
-  
+
   const { error } = await supabase
     .from("habits")
     .update({
@@ -89,7 +83,7 @@ export async function updateHabit(
 
 export async function deleteHabit(habitId: string): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
-  
+
   const { error } = await supabase
     .from("habits")
     .delete()
@@ -107,7 +101,7 @@ export async function toggleHabitActive(
   isActive: boolean
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
-  
+
   const { error } = await supabase
     .from("habits")
     .update({ is_active: isActive, updated_at: new Date().toISOString() })
@@ -126,7 +120,7 @@ export async function toggleHabitActive(
 
 export async function getHabitById(habitId: string): Promise<Habit | null> {
   const supabase = getSupabaseClient();
-  
+
   const { data, error } = await supabase
     .from("habits")
     .select("*")
@@ -144,78 +138,60 @@ export async function getUserHabits(options?: {
   const supabase = getSupabaseClient();
   const today = getTodayString();
   const weekStart = getWeekStartString();
+  const { data, error } = await supabase.rpc("get_user_habits_snapshot", {
+    p_today: today,
+    p_week_start: weekStart,
+    p_active_only: options?.activeOnly !== false,
+  });
 
-  // Build query
-  let query = supabase.from("habits").select("*").order("sort_order", { ascending: true });
-
-  if (options?.activeOnly !== false) {
-    query = query.eq("is_active", true);
-  }
-
-  const { data: habits, error: habitsError } = await query;
-
-  if (habitsError || !habits) {
-    console.error("Error fetching habits:", habitsError);
+  if (error || !data) {
+    console.error("Error fetching habits snapshot:", error);
     return [];
   }
 
-  // Get today's completions
-  const { data: todayCompletions, error: completionsError } = await supabase
-    .from("habit_completions")
-    .select("habit_id")
-    .eq("completion_date", today);
+  return (data as Array<Record<string, unknown>>).map((row) => {
+    const habit: Habit = {
+      id: row.id as string,
+      user_id: row.user_id as string,
+      title: row.title as string,
+      description: (row.description as string | null) ?? null,
+      icon: row.icon as string,
+      color: row.color as string,
+      recurrence_type: row.recurrence_type as HabitRecurrenceType,
+      recurrence_data: (row.recurrence_data as HabitRecurrenceData) || {},
+      xp_reward: Number(row.xp_reward) || 0,
+      is_active: Boolean(row.is_active),
+      sort_order: Number(row.sort_order) || 0,
+      created_at: row.created_at as string,
+      updated_at: row.updated_at as string,
+    };
 
-  if (completionsError) {
-    console.error("Error fetching completions:", completionsError);
-  }
+    const streak: HabitStreak | null =
+      options?.includeStreaks === false || !row.streak_id
+        ? null
+        : {
+            id: row.streak_id as string,
+            habit_id: row.id as string,
+            user_id: row.user_id as string,
+            current_streak: Number(row.streak_current) || 0,
+            longest_streak: Number(row.streak_longest) || 0,
+            last_completed_date: (row.streak_last_completed_date as string | null) ?? null,
+            updated_at: row.streak_updated_at as string,
+          };
 
-  const completedToday = new Set(todayCompletions?.map((c) => c.habit_id) || []);
-
-  // Get week's completions for all habits
-  const { data: weekCompletions, error: weekError } = await supabase
-    .from("habit_completions")
-    .select("habit_id")
-    .gte("completion_date", weekStart);
-
-  if (weekError) {
-    console.error("Error fetching week completions:", weekError);
-  }
-
-  const weekCompletionCounts: Record<string, number> = {};
-  weekCompletions?.forEach((c) => {
-    weekCompletionCounts[c.habit_id] = (weekCompletionCounts[c.habit_id] || 0) + 1;
+    return {
+      ...habit,
+      streak,
+      is_completed_today: Boolean(row.is_completed_today),
+      completions_this_week: Number(row.completions_this_week) || 0,
+    } as HabitWithStatus;
   });
-
-  // Get streaks if requested
-  let streaks: Record<string, HabitStreak> = {};
-  if (options?.includeStreaks !== false) {
-    const { data: streakData, error: streakError } = await supabase
-      .from("habit_streaks")
-      .select("*");
-
-    if (streakError) {
-      console.error("Error fetching streaks:", streakError);
-    } else {
-      streaks = (streakData || []).reduce((acc, s) => {
-        acc[s.habit_id] = s as HabitStreak;
-        return acc;
-      }, {} as Record<string, HabitStreak>);
-    }
-  }
-
-  // Combine data
-  return (habits as Habit[]).map((habit) => ({
-    ...habit,
-    streak: streaks[habit.id] || null,
-    is_completed_today: completedToday.has(habit.id),
-    completions_this_week: weekCompletionCounts[habit.id] || 0,
-  }));
 }
 
 export async function getHabitsForToday(): Promise<HabitWithStatus[]> {
   const habits = await getUserHabits({ activeOnly: true });
   const today = new Date();
-  
+
   return habits.filter((h) => isHabitScheduledForDate(h, today));
 }
 
@@ -301,181 +277,23 @@ export async function uncompleteHabit(habitId: string): Promise<{
 
   // Deduct XP from profile (fallback if trigger not yet applied to live DB)
   if (existing?.xp_awarded) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, xp_total")
-      .single();
-    if (profile) {
-      await supabase
+    const userId = (await supabase.auth.getSession()).data.session?.user.id;
+    if (userId) {
+      const { data: profile } = await supabase
         .from("profiles")
-        .update({ xp_total: Math.max(0, profile.xp_total - existing.xp_awarded) })
-        .eq("id", profile.id);
+        .select("xp_total")
+        .eq("id", userId)
+        .single();
+      if (profile) {
+        await supabase
+          .from("profiles")
+          .update({ xp_total: Math.max(0, profile.xp_total - existing.xp_awarded) })
+          .eq("id", userId);
+      }
     }
   }
 
   return { success: true };
-}
-
-export async function getHabitCompletions(
-  habitId: string,
-  startDate?: string,
-  endDate?: string
-): Promise<HabitCompletion[]> {
-  const supabase = getSupabaseClient();
-  
-  let query = supabase
-    .from("habit_completions")
-    .select("*")
-    .eq("habit_id", habitId)
-    .order("completion_date", { ascending: false });
-
-  if (startDate) {
-    query = query.gte("completion_date", startDate);
-  }
-  if (endDate) {
-    query = query.lte("completion_date", endDate);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Error fetching completions:", error);
-    return [];
-  }
-
-  return (data || []) as HabitCompletion[];
-}
-
-// ============================================
-// HABIT STREAKS
-// ============================================
-
-export async function getHabitStreak(habitId: string): Promise<HabitStreak | null> {
-  const supabase = getSupabaseClient();
-  
-  const { data, error } = await supabase
-    .from("habit_streaks")
-    .select("*")
-    .eq("habit_id", habitId)
-    .single();
-
-  if (error || !data) return null;
-  return data as HabitStreak;
-}
-
-// ============================================
-// CALENDAR / HISTORY DATA
-// ============================================
-
-export async function getHabitCalendarData(
-  habitId: string,
-  days: number = 30
-): Promise<HabitCalendarData | null> {
-  const supabase = getSupabaseClient();
-
-  // Get habit
-  const { data: habit, error: habitError } = await supabase
-    .from("habits")
-    .select("*")
-    .eq("id", habitId)
-    .single();
-
-  if (habitError || !habit) return null;
-
-  // Get streak
-  const { data: streak } = await supabase
-    .from("habit_streaks")
-    .select("*")
-    .eq("habit_id", habitId)
-    .single();
-
-  // Get completions for date range
-  const dateRange = getLastNDays(days);
-  const startDate = dateRange[0];
-  const endDate = dateRange[dateRange.length - 1];
-
-  const { data: completions, error: compError } = await supabase
-    .from("habit_completions")
-    .select("completion_date")
-    .eq("habit_id", habitId)
-    .gte("completion_date", startDate)
-    .lte("completion_date", endDate);
-
-  if (compError) {
-    console.error("Error fetching calendar completions:", compError);
-  }
-
-  const completedDates = new Set(completions?.map((c) => c.completion_date) || []);
-
-  const history: HabitCompletionHistory[] = dateRange.map((date) => ({
-    date,
-    completed: completedDates.has(date),
-  }));
-
-  return {
-    habit: habit as Habit,
-    streak: streak as HabitStreak | null,
-    history,
-  };
-}
-
-// ============================================
-// STATS & SUMMARIES
-// ============================================
-
-export interface HabitsSummary {
-  totalHabits: number;
-  activeHabits: number;
-  completedToday: number;
-  totalCompletionsThisWeek: number;
-  currentStreaks: number; // Habits with streak > 0
-  longestStreak: number;
-}
-
-export async function getHabitsSummary(): Promise<HabitsSummary> {
-  const supabase = getSupabaseClient();
-  const today = getTodayString();
-  const weekStart = getWeekStartString();
-
-  // Get all habits
-  const { data: habits } = await supabase
-    .from("habits")
-    .select("id, is_active");
-
-  // Get today's completions
-  const { data: todayCompletions } = await supabase
-    .from("habit_completions")
-    .select("habit_id")
-    .eq("completion_date", today);
-
-  // Get week's completions
-  const { data: weekCompletions } = await supabase
-    .from("habit_completions")
-    .select("*")
-    .gte("completion_date", weekStart);
-
-  // Get streaks
-  const { data: streaks } = await supabase
-    .from("habit_streaks")
-    .select("current_streak, longest_streak");
-
-  const totalHabits = habits?.length || 0;
-  const activeHabits = habits?.filter((h) => h.is_active).length || 0;
-  const completedToday = todayCompletions?.length || 0;
-  const totalCompletionsThisWeek = weekCompletions?.length || 0;
-  const currentStreaks =
-    streaks?.filter((s) => s.current_streak > 0).length || 0;
-  const longestStreak =
-    streaks?.reduce((max, s) => Math.max(max, s.longest_streak), 0) || 0;
-
-  return {
-    totalHabits,
-    activeHabits,
-    completedToday,
-    totalCompletionsThisWeek,
-    currentStreaks,
-    longestStreak,
-  };
 }
 
 // ============================================

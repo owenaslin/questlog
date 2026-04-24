@@ -1,6 +1,7 @@
 import { getSupabaseClient } from "@/lib/supabase";
 import { calculateLevel, Quest, QuestStatus } from "@/lib/types";
 import { ALL_QUESTS } from "@/lib/quests";
+import { getTodayString } from "@/lib/habit-recurrence";
 
 export interface UserQuestProgressRow {
   quest_id: string;
@@ -18,10 +19,84 @@ export interface ProfileProgressSummary {
   created_at?: string;
 }
 
+interface DashboardSnapshotRpcRow {
+  profile_xp_total: number;
+  profile_level: number;
+  profile_created_at: string | null;
+  completed_count: number;
+  active_count: number;
+  streak_current: number;
+  streak_longest: number;
+  streak_last_activity_date: string | null;
+  recent_completed_ids: string[] | null;
+  badge_ids: string[] | null;
+  progress_rows:
+    | Array<{
+        quest_id: string;
+        status: QuestStatus;
+        accepted_at: string | null;
+        completed_at: string | null;
+        updated_at: string;
+      }>
+    | null;
+}
+
+export interface DashboardSnapshot {
+  profileSummary: ProfileProgressSummary;
+  streak: UserStreak;
+  progressMap: Record<string, UserQuestProgressRow>;
+  recentCompletedIds: string[];
+  badgeIds: string[];
+}
+
 export async function getCurrentUserId(): Promise<string | null> {
   const supabase = getSupabaseClient();
   const { data } = await supabase.auth.getSession();
   return data.session?.user.id ?? null;
+}
+
+export async function getUserDashboardSnapshot(): Promise<DashboardSnapshot | null> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase.rpc("get_user_dashboard_snapshot");
+
+  if (error || !data) {
+    return null;
+  }
+
+  const row = (Array.isArray(data) ? data[0] : data) as DashboardSnapshotRpcRow;
+  if (!row) {
+    return null;
+  }
+
+  const progressRows = Array.isArray(row.progress_rows) ? row.progress_rows : [];
+  const progressMap = progressRows.reduce<Record<string, UserQuestProgressRow>>((acc, progress) => {
+    acc[progress.quest_id] = {
+      quest_id: progress.quest_id,
+      status: progress.status,
+      accepted_at: progress.accepted_at,
+      completed_at: progress.completed_at,
+      updated_at: progress.updated_at,
+    };
+    return acc;
+  }, {});
+
+  return {
+    profileSummary: {
+      xp_total: row.profile_xp_total || 0,
+      level: row.profile_level || calculateLevel(row.profile_xp_total || 0),
+      completedCount: Number(row.completed_count) || 0,
+      activeCount: Number(row.active_count) || 0,
+      created_at: row.profile_created_at || undefined,
+    },
+    streak: {
+      current_streak: row.streak_current || 0,
+      longest_streak: row.streak_longest || 0,
+      last_activity_date: row.streak_last_activity_date,
+    },
+    progressMap,
+    recentCompletedIds: row.recent_completed_ids || [],
+    badgeIds: row.badge_ids || [],
+  };
 }
 
 export async function getUserQuestProgressMap(): Promise<Record<string, UserQuestProgressRow>> {
@@ -422,7 +497,7 @@ export async function updateStreakOnCompletion(): Promise<{
 
   const { data, error } = await supabase.rpc("update_user_streak", {
     p_user_id: userId,
-    p_completion_date: new Date().toISOString().split("T")[0],
+    p_completion_date: getTodayString(), // local-timezone date, not UTC
   });
 
   if (error) {
@@ -455,11 +530,10 @@ export async function getWeeklyRecap(weeksAgo: number = 0): Promise<WeeklyRecap 
   }
 
   const today = new Date();
-  const weekStart = new Date(today);
-  // getDay() returns 0 for Sunday — this produces a Sunday-start week.
+  // Build the week-start date in local time (Sunday = day 0).
   // Must match the week boundary used by the update_weekly_activity stored procedure.
-  weekStart.setDate(today.getDate() - today.getDay() - weeksAgo * 7);
-  const weekStartStr = weekStart.toISOString().split("T")[0];
+  const ws = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() - weeksAgo * 7);
+  const weekStartStr = `${ws.getFullYear()}-${String(ws.getMonth() + 1).padStart(2, "0")}-${String(ws.getDate()).padStart(2, "0")}`;
 
   const supabase = getSupabaseClient();
   const { data, error } = await supabase

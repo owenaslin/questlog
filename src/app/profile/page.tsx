@@ -9,14 +9,12 @@ import StreakDisplay from "@/components/StreakDisplay";
 import WeeklyRecap from "@/components/WeeklyRecap";
 import { BADGES } from "@/lib/badges";
 import { ALL_QUESTS } from "@/lib/quests";
-import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
+import { useRequireAuth } from "@/lib/auth-hooks";
 import {
-  getProfileProgressSummary,
-  getRecentCompletedQuestIds,
-  getUserQuestProgressMap,
-  getUserStreak,
+  getUserDashboardSnapshot,
   getWeeklyRecap,
+  mergeQuestWithProgress,
   UserStreak,
   WeeklyRecap as WeeklyRecapType,
 } from "@/lib/quest-progress";
@@ -25,10 +23,12 @@ import { Quest } from "@/lib/types";
 export default function ProfilePage() {
   const router = useRouter();
   const pathname = usePathname();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [authCheckError, setAuthCheckError] = useState<string | null>(null);
-  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
-  const [sessionName, setSessionName] = useState<string | null>(null);
+  const {
+    isCheckingAuth,
+    authError: authCheckError,
+    userEmail: sessionEmail,
+    userName: sessionName,
+  } = useRequireAuth("/profile");
   const [profileSummary, setProfileSummary] = useState<{
     xp_total: number;
     level: number;
@@ -40,58 +40,7 @@ export default function ProfilePage() {
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [streak, setStreak] = useState<UserStreak | null>(null);
   const [weeklyRecap, setWeeklyRecap] = useState<WeeklyRecapType | null>(null);
-
-  useEffect(() => {
-    const supabase = getSupabaseClient();
-    let isMounted = true;
-
-    const timeout = window.setTimeout(() => {
-      if (isMounted) {
-        setAuthCheckError("Session check timed out. Please try again.");
-        setIsCheckingAuth(false);
-      }
-    }, 8000);
-
-    const ensureAuth = async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-
-        if (error) {
-          throw error;
-        }
-
-        if (!data.session) {
-          router.replace(buildAuthUrl("login", pathname || "/profile"));
-          return;
-        }
-
-        if (!isMounted) {
-          return;
-        }
-
-        setSessionEmail(data.session.user.email || null);
-        const userMeta = data.session.user.user_metadata;
-        setSessionName(userMeta?.display_name || userMeta?.name || null);
-        setIsCheckingAuth(false);
-      } catch (err) {
-        if (!isMounted) {
-          return;
-        }
-
-        setAuthCheckError(err instanceof Error ? err.message : "Could not verify your session.");
-        setIsCheckingAuth(false);
-      } finally {
-        window.clearTimeout(timeout);
-      }
-    };
-
-    ensureAuth();
-
-    return () => {
-      isMounted = false;
-      window.clearTimeout(timeout);
-    };
-  }, [pathname, router]);
+  const [earnedBadgeIds, setEarnedBadgeIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (isCheckingAuth || authCheckError) {
@@ -104,31 +53,30 @@ export default function ProfilePage() {
       setIsLoadingProgress(true);
 
       try {
-        const [summary, progressMap, recentCompletedIds, streakData, weeklyData] = await Promise.all([
-          getProfileProgressSummary(),
-          getUserQuestProgressMap(),
-          getRecentCompletedQuestIds(10),
-          getUserStreak(),
+        const [snapshot, weeklyData] = await Promise.all([
+          getUserDashboardSnapshot(),
           getWeeklyRecap(0),
         ]);
 
         if (!isMounted) return;
 
-        if (streakData) {
-          setStreak(streakData);
-        }
+        const summary = snapshot?.profileSummary ?? null;
+        const progressMap = snapshot?.progressMap ?? {};
+        const recentCompletedIds = snapshot?.recentCompletedIds ?? [];
+        const streakData = snapshot?.streak ?? null;
+        const badgeIds = snapshot?.badgeIds ?? [];
+
+        if (streakData) setStreak(streakData);
         if (weeklyData) {
           setWeeklyRecap(weeklyData);
         }
+        setEarnedBadgeIds(badgeIds);
 
         if (summary) {
           setProfileSummary(summary);
         }
 
-        const merged = ALL_QUESTS.map((quest) => ({
-          ...quest,
-          status: progressMap[quest.id]?.status || quest.status,
-        }));
+        const merged = mergeQuestWithProgress(ALL_QUESTS, progressMap);
 
         setActiveQuests(merged.filter((q) => q.status === "active").slice(0, 8));
 
@@ -271,10 +219,7 @@ export default function ProfilePage() {
         </div>
         <BadgeShowcase
           badges={BADGES}
-          earnedBadgeIds={[
-            BADGES.find((b) => b.key === "first_steps")?.id || "",
-            BADGES.find((b) => b.key === "getting_started")?.id || "",
-          ].filter(Boolean)}
+          earnedBadgeIds={earnedBadgeIds}
           maxDisplay={4}
         />
       </div>

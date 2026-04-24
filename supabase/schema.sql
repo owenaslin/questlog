@@ -172,8 +172,6 @@ RETURNS trigger AS $$
 DECLARE
   v_streak_record RECORD;
   v_previous_date DATE;
-  v_expected_date DATE;
-  v_recurrence_type TEXT;
 BEGIN
   -- Get the streak record for this habit
   SELECT * INTO v_streak_record

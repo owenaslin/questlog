@@ -27,10 +27,6 @@ export const DEFAULT_QUEST_LIMIT = 10;
 export const MAX_RECENT_QUESTS = 10;
 export const MAX_ACTIVE_QUESTS = 8;
 export const MAX_SUGGESTIONS = 3;
-export const MAX_WEEKLY_HISTORY = 4;
-
-// Streak
-export const STREAK_CHECK_RECENCY_DAYS = 1;
 
 // Validation
 export const MAX_DISPLAY_NAME_LENGTH = 50;

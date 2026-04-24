@@ -14,16 +14,14 @@ import { generatePersonalSaga } from "@/lib/saga-generator";
 import AmbientScene from "@/components/AmbientScene";
 import { useViewMode } from "@/components/ViewModeProvider";
 import { ALL_QUESTS } from "@/lib/quests";
-import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
+import { useRequireAuth } from "@/lib/auth-hooks";
 import {
   getCompletedQuestsForSaga,
-  getProfileProgressSummary,
-  getRecentCompletedQuestIds,
-  getUserQuestProgressMap,
-  getUserStreak,
+  getUserDashboardSnapshot,
   getWeeklyRecap,
   getUserCreatedActiveQuests,
+  mergeQuestWithProgress,
   UserStreak,
   WeeklyRecap as WeeklyRecapType,
 } from "@/lib/quest-progress";
@@ -34,9 +32,12 @@ export default function JournalPage() {
   const pathname = usePathname();
   const { isDesktopActive } = useViewMode();
 
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [heroName, setHeroName] = useState<string>("Adventurer");
+  const {
+    isCheckingAuth,
+    authError,
+    userName,
+  } = useRequireAuth("/journal");
+  const heroName = userName || "Adventurer";
 
   const [profileSummary, setProfileSummary] = useState<{
     xp_total: number; level: number; completedCount: number; activeCount: number;
@@ -48,35 +49,6 @@ export default function JournalPage() {
   const [isLoading, setIsLoading]           = useState(true);
   const [saga, setSaga]                     = useState<ReturnType<typeof generatePersonalSaga> | null>(null);
 
-  /* ── Auth check ─────────────────────────────────────────────────── */
-  useEffect(() => {
-    const supabase = getSupabaseClient();
-    let alive = true;
-
-    const check = async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        if (!data.session) {
-          router.replace(buildAuthUrl("login", pathname || "/journal"));
-          return;
-        }
-        if (!alive) return;
-        const meta = data.session.user.user_metadata;
-        setHeroName(meta?.display_name || meta?.name || "Adventurer");
-        setIsCheckingAuth(false);
-      } catch (err) {
-        if (alive) {
-          setAuthError(err instanceof Error ? err.message : "Session error.");
-          setIsCheckingAuth(false);
-        }
-      }
-    };
-
-    check();
-    return () => { alive = false; };
-  }, [pathname, router]);
-
   /* ── Load progress ───────────────────────────────────────────────── */
   useEffect(() => {
     if (isCheckingAuth || authError) return;
@@ -85,24 +57,23 @@ export default function JournalPage() {
     const load = async () => {
       setIsLoading(true);
       try {
-        const [summary, progressMap, recentIds, streakData, weeklyData, userQuests] = await Promise.all([
-          getProfileProgressSummary(),
-          getUserQuestProgressMap(),
-          getRecentCompletedQuestIds(12),
-          getUserStreak(),
+        const [snapshot, weeklyData, userQuests] = await Promise.all([
+          getUserDashboardSnapshot(),
           getWeeklyRecap(0),
           getUserCreatedActiveQuests(),
         ]);
         if (!alive) return;
 
+        const summary = snapshot?.profileSummary ?? null;
+        const progressMap = snapshot?.progressMap ?? {};
+        const recentIds = snapshot?.recentCompletedIds ?? [];
+        const streakData = snapshot?.streak ?? null;
+
         if (summary)    setProfileSummary(summary);
         if (streakData) setStreak(streakData);
         if (weeklyData) setWeeklyRecap(weeklyData);
 
-        const merged = ALL_QUESTS.map((q) => ({
-          ...q,
-          status: progressMap[q.id]?.status ?? q.status,
-        }));
+        const merged = mergeQuestWithProgress(ALL_QUESTS, progressMap);
 
         // Merge predefined active quests with user-created DB quests
         const predefinedActive = merged.filter((q) => q.status === "active");

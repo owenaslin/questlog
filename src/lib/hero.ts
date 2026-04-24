@@ -29,40 +29,7 @@ export async function getHeroPinnedQuests(userId: string): Promise<PinnedQuest[]
   return data as PinnedQuest[];
 }
 
-export async function getHeroBadgeIds(userId: string): Promise<string[]> {
-  const supabase = getSupabaseClient();
-  const { data, error } = await supabase
-    .from("user_badges")
-    .select("badge_id")
-    .eq("user_id", userId);
-
-  if (error || !data) return [];
-  return data.map((r) => r.badge_id as string);
-}
-
-export async function getHeroCompletedCount(userId: string): Promise<number> {
-  const supabase = getSupabaseClient();
-  const { count } = await supabase
-    .from("user_quests")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .eq("status", "completed");
-
-  return count ?? 0;
-}
-
-export async function getHeroLongestStreak(userId: string): Promise<number> {
-  const supabase = getSupabaseClient();
-  const { data } = await supabase
-    .from("user_streaks")
-    .select("longest_streak")
-    .eq("user_id", userId)
-    .single();
-
-  return data?.longest_streak ?? 0;
-}
-
-/** Consolidated dashboard query - replaces 4 separate queries with 1 RPC call */
+/** Consolidated dashboard query — replaces the old individual badge/count/streak queries */
 export interface HeroDashboard {
   pinnedQuests: PinnedQuest[];
   badgeIds: string[];

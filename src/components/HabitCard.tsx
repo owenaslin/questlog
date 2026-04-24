@@ -16,38 +16,12 @@ interface HabitCardProps {
   habit: HabitWithStatus;
   onUpdate?: () => void;
   variant?: "default" | "compact" | "minimal";
-  showHeatmap?: boolean;
-}
-
-// Mini heatmap component
-function MiniHeatmap({ completions }: { completions: { date: string; completed: boolean }[] }) {
-  // Show last 14 days
-  const days = completions.slice(-14);
-  
-  return (
-    <div className="flex gap-[2px] items-end">
-      {days.map((day, i) => (
-        <div
-          key={i}
-          className={`
-            w-2 h-2 rounded-[1px] transition-colors
-            ${day.completed 
-              ? "bg-tavern-gold" 
-              : "bg-tavern-oak/50"
-            }
-          `}
-          title={`${day.date}: ${day.completed ? "Done" : "Not done"}`}
-        />
-      ))}
-    </div>
-  );
 }
 
 export default function HabitCard({
   habit,
   onUpdate,
   variant = "default",
-  showHeatmap = false,
 }: HabitCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
@@ -142,14 +116,14 @@ export default function HabitCard({
     <motion.div
       layout
       initial={{ opacity: 0, y: 10 }}
-      animate={{ 
-        opacity: 1, 
+      animate={{
+        opacity: 1,
         y: 0,
         scale: justCompleted ? [1, 1.02, 1] : 1,
       }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={`
-        relative p-4 rounded-lg border-2 transition-all
+        group relative p-4 rounded-lg border-2 transition-all
         ${habit.is_completed_today
           ? "border-tavern-gold/50 bg-tavern-gold/5"
           : "border-tavern-oak bg-tavern-smoke/50 hover:border-tavern-gold/30"
@@ -202,13 +176,6 @@ export default function HabitCard({
           </div>
         )}
       </div>
-
-      {/* Optional heatmap */}
-      {showHeatmap && (
-        <div className="mt-3 pt-3 border-t border-tavern-oak/30">
-          <MiniHeatmap completions={[]} />
-        </div>
-      )}
 
       {/* Edit link */}
       <Link
