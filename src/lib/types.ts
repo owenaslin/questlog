@@ -1,5 +1,3 @@
-import { BASE_MAIN_QUEST_XP, BASE_SIDE_QUEST_XP } from "@/lib/constants";
-
 export type QuestType = "main" | "side";
 export type QuestSource = "predefined" | "user" | "ai";
 export type QuestStatus = "available" | "active" | "completed";
@@ -11,8 +9,6 @@ export const QUEST_CATEGORIES = [
 export type QuestCategory = typeof QUEST_CATEGORIES[number];
 export type BadgeRarity = "common" | "rare" | "epic" | "legendary";
 export type QuestlineType = "linear" | "skill_tree";
-export type QuestDifficulty = "beginner" | "intermediate" | "advanced";
-
 export interface Quest {
   id: string;
   title: string;
@@ -26,16 +22,6 @@ export interface Quest {
   location: string | null;
   status: QuestStatus;
   user_id: string | null;
-  created_at: string;
-}
-
-export interface UserProfile {
-  id: string;
-  email: string;
-  display_name: string;
-  avatar_url: string | null;
-  xp_total: number;
-  level: number;
   created_at: string;
 }
 
@@ -115,7 +101,7 @@ export interface Questline {
   description: string;
   type: QuestlineType;
   category: string;
-  difficulty: QuestDifficulty;
+  difficulty: "beginner" | "intermediate" | "advanced";
   total_xp: number;
   badge_reward?: Badge;
   steps: QuestlineStep[];
@@ -135,11 +121,6 @@ export interface Category {
   icon: string;
   color: string;
   quest_count: number;
-}
-
-export function calculateXP(type: QuestType, difficulty: number): number {
-  const base = type === "main" ? BASE_MAIN_QUEST_XP : BASE_SIDE_QUEST_XP;
-  return difficulty * base;
 }
 
 export function calculateLevel(xp: number): number {
@@ -216,13 +197,3 @@ export interface HabitWithStatus extends Habit {
   completions_this_week: number;
 }
 
-export interface HabitCompletionHistory {
-  date: string;
-  completed: boolean;
-}
-
-export interface HabitCalendarData {
-  habit: Habit;
-  streak: HabitStreak | null;
-  history: HabitCompletionHistory[]; // Last 30 days
-}

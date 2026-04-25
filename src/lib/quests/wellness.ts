@@ -1,7 +1,7 @@
 import { Quest } from "@/lib/types";
 import { generateStableId } from "@/lib/seed-quests";
 
-export const WELLNESS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
+const WELLNESS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
   // Side Quests
   {
     title: "10-Minute Meditation",

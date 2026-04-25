@@ -1,7 +1,7 @@
 import { Quest } from "@/lib/types";
 import { generateStableId } from "@/lib/seed-quests";
 
-export const CREATIVE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
+const CREATIVE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
   // Side Quests
   {
     title: "Sketch Daily Object",
