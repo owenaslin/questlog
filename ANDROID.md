@@ -122,6 +122,16 @@ Check browser console in Android Studio:
 3. Upload AAB (Android App Bundle)
 4. Complete store listing
 
+## Supabase CORS Configuration
+
+For Capacitor to communicate with Supabase, add these origins to your Supabase project:
+
+1. Go to **Supabase Dashboard → Project Settings → API**
+2. Under "CORS Origins", add:
+   - `http://localhost` (for development)
+   - `capacitor://localhost` (for production builds)
+   - `https://*.vercel.app` (for web preview)
+
 ## Resources
 
 - [Capacitor Documentation](https://capacitorjs.com/docs)
