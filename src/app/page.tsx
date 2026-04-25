@@ -25,7 +25,6 @@ export default function HomePage() {
   const [tonightQuests, setTonightQuests] = useState<Quest[]>([]);
   const [pickedId,      setPickedId]      = useState<string | null>(null);
   const [dataLoading,   setDataLoading]   = useState(true);
-  const [isRerolled,    setIsRerolled]    = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -199,7 +198,6 @@ export default function HomePage() {
                   const newQuests = getRandomQuests(currentIds);
                   setTonightQuests(newQuests);
                   setPickedId(newQuests[1]?.id ?? newQuests[0]?.id ?? null);
-                  setIsRerolled(true);
                 }}
                 className="tavrn-button !bg-tavern-oak !text-tavern-parchment"
               >

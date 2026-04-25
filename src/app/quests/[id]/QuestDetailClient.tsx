@@ -223,7 +223,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       {/* Close button */}
       <button
         type="button"
-        onClick={() => router.push("/board")}
+        onClick={() => router.push("/board")} // always /board — router.back() would exit the app on cold URL load
         className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-tavern-parchment hover:text-tavern-gold text-xl transition-colors z-10"
         aria-label="Close"
       >

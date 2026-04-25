@@ -27,6 +27,12 @@ const COLOR_OPTIONS = [
   "#566c86", // Gray
 ];
 
+const XP_TIERS = {
+  small:  { xp: 25,  label: "Small",  description: "Quick habit (5-10 min)" },
+  medium: { xp: 50,  label: "Medium", description: "Regular habit (15-30 min)" },
+  large:  { xp: 100, label: "Large",  description: "Substantial habit (30+ min)" },
+} as const;
+
 export default function NewHabitPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,14 +51,8 @@ export default function NewHabitPage() {
     color: "#e8b864",
     recurrence_type: "daily" as HabitRecurrenceType,
     recurrence_data: {} as HabitRecurrenceData,
-    xp_tier: "small" as "small" | "medium" | "large",
+    xp_tier: "small" as keyof typeof XP_TIERS,
   });
-
-  const XP_TIERS = {
-    small: { xp: 25, label: "Small", description: "Quick habit (5-10 min)" },
-    medium: { xp: 50, label: "Medium", description: "Regular habit (15-30 min)" },
-    large: { xp: 100, label: "Large", description: "Substantial habit (30+ min)" },
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
