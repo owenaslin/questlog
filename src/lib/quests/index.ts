@@ -78,3 +78,28 @@ export function getDailyQuests(excludeCompletedIds: string[] = []): Quest[] {
   return shuffled.slice(0, 3);
 }
 
+/**
+ * Returns random quests for "Draw Again" re-roll, excluding currently
+ * displayed quests to ensure variety.
+ */
+export function getRandomQuests(excludeIds: string[] = []): Quest[] {
+  const timestamp = Date.now();
+  const rand = (i: number) => {
+    const x = Math.sin(i + timestamp) * 10000;
+    return x - Math.floor(x);
+  };
+
+  const excluded = new Set(excludeIds);
+  const eligible = ALL_QUESTS.filter((q) => !excluded.has(q.id));
+  const shuffled = [...eligible]
+    .map((q, i) => ({ q, sort: rand(i) }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ q }) => q);
+
+  // Same layout logic: side · main · side
+  const mains = shuffled.filter((q) => q.type === "main").slice(0, 1);
+  const sides = shuffled.filter((q) => q.type === "side").slice(0, 2);
+  if (mains.length && sides.length >= 2) return [sides[0], mains[0], sides[1]];
+  return shuffled.slice(0, 3);
+}
+
