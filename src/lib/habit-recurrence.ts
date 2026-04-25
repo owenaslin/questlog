@@ -42,54 +42,6 @@ export function isHabitScheduledForDate(
 }
 
 /**
- * Get the next scheduled date for a habit
- */
-export function getNextScheduledDate(habit: Habit, fromDate: Date = new Date()): Date {
-  const nextDate = new Date(fromDate);
-  nextDate.setHours(0, 0, 0, 0);
-  
-  // Start from tomorrow
-  nextDate.setDate(nextDate.getDate() + 1);
-
-  // Maximum 365 days ahead to prevent infinite loops
-  for (let i = 0; i < 365; i++) {
-    if (isHabitScheduledForDate(habit, nextDate)) {
-      return nextDate;
-    }
-    nextDate.setDate(nextDate.getDate() + 1);
-  }
-
-  // Fallback: return a year from now (shouldn't happen with valid recurrence)
-  return nextDate;
-}
-
-/**
- * Check if a habit was due yesterday and missed
- * Used for streak break detection
- */
-export function wasHabitMissedYesterday(habit: Habit, lastCompletedDate: string | null): boolean {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  yesterday.setHours(0, 0, 0, 0);
-
-  // Check if habit was scheduled for yesterday
-  if (!isHabitScheduledForDate(habit, yesterday)) {
-    return false; // Not scheduled, can't be missed
-  }
-
-  // If completed yesterday, not missed
-  if (lastCompletedDate) {
-    const lastCompleted = new Date(lastCompletedDate);
-    lastCompleted.setHours(0, 0, 0, 0);
-    if (lastCompleted.getTime() === yesterday.getTime()) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
  * Get a human-readable description of the recurrence pattern
  */
 export function getRecurrenceDescription(habit: Habit): string {
@@ -165,21 +117,6 @@ export function getLastNDays(n: number): string[] {
   }
 
   return dates;
-}
-
-/**
- * Check if a date string is today
- */
-export function isToday(dateString: string): boolean {
-  return dateString === getTodayString();
-}
-
-/**
- * Check if a date string is from this week
- */
-export function isThisWeek(dateString: string): boolean {
-  const weekStart = getWeekStartString();
-  return dateString >= weekStart;
 }
 
 /**

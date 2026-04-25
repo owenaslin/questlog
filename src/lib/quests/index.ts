@@ -20,20 +20,6 @@ import { CULTURE_QUESTS_WITH_IDS } from "./culture";
 import { PRODUCTIVITY_QUESTS_WITH_IDS } from "./productivity";
 
 export { CATEGORIES, getCategoryByKey, getCategoryColor } from "./categories";
-export { FITNESS_QUESTS_WITH_IDS as FITNESS_QUESTS } from "./fitness";
-export { CREATIVE_QUESTS_WITH_IDS as CREATIVE_QUESTS } from "./creative";
-export { TECH_QUESTS_WITH_IDS as TECH_QUESTS } from "./tech";
-export { EDUCATION_QUESTS_WITH_IDS as EDUCATION_QUESTS } from "./education";
-export { SOCIAL_QUESTS_WITH_IDS as SOCIAL_QUESTS } from "./social";
-export { OUTDOORS_QUESTS_WITH_IDS as OUTDOORS_QUESTS } from "./outdoors";
-export { WELLNESS_QUESTS_WITH_IDS as WELLNESS_QUESTS } from "./wellness";
-export { FOOD_QUESTS_WITH_IDS as FOOD_QUESTS } from "./food";
-export { CAREER_QUESTS_WITH_IDS as CAREER_QUESTS } from "./career";
-export { LIFESTYLE_QUESTS_WITH_IDS as LIFESTYLE_QUESTS } from "./lifestyle";
-export { BUSINESS_QUESTS_WITH_IDS as BUSINESS_QUESTS } from "./business";
-export { COMMUNITY_QUESTS_WITH_IDS as COMMUNITY_QUESTS } from "./community";
-export { CULTURE_QUESTS_WITH_IDS as CULTURE_QUESTS } from "./culture";
-export { PRODUCTIVITY_QUESTS_WITH_IDS as PRODUCTIVITY_QUESTS } from "./productivity";
 
 // Combined quest library
 export const ALL_QUESTS: Quest[] = [
@@ -53,11 +39,6 @@ export const ALL_QUESTS: Quest[] = [
   ...PRODUCTIVITY_QUESTS_WITH_IDS,
 ];
 
-// Get quests by category
-export function getQuestsByCategory(category: string): Quest[] {
-  return ALL_QUESTS.filter((q) => q.category.toLowerCase() === category.toLowerCase());
-}
-
 // Get main quests only
 export function getMainQuests(): Quest[] {
   return ALL_QUESTS.filter((q) => q.type === "main");
@@ -66,16 +47,6 @@ export function getMainQuests(): Quest[] {
 // Get side quests only
 export function getSideQuests(): Quest[] {
   return ALL_QUESTS.filter((q) => q.type === "side");
-}
-
-// Get quests by difficulty
-export function getQuestsByDifficulty(difficulty: number): Quest[] {
-  return ALL_QUESTS.filter((q) => q.difficulty === difficulty);
-}
-
-// Get random quest (returns undefined if ALL_QUESTS is empty)
-export function getRandomQuest(): Quest | undefined {
-  return ALL_QUESTS[Math.floor(Math.random() * ALL_QUESTS.length)];
 }
 
 /**
@@ -107,15 +78,3 @@ export function getDailyQuests(excludeCompletedIds: string[] = []): Quest[] {
   return shuffled.slice(0, 3);
 }
 
-// Quest counts (computed from actual data to prevent drift)
-export const QUEST_COUNTS = {
-  total: ALL_QUESTS.length,
-  main: getMainQuests().length,
-  side: getSideQuests().length,
-  byCategory: Object.fromEntries(
-    CATEGORIES.map((cat) => [
-      cat.key,
-      ALL_QUESTS.filter((q) => q.category.toLowerCase() === cat.key.toLowerCase()).length,
-    ])
-  ) as Record<string, number>,
-};

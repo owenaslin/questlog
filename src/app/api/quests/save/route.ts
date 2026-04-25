@@ -9,7 +9,7 @@ import { QUEST_CATEGORIES } from "@/lib/types";
 // "main" to access the higher ceiling. We intentionally omit the minimum floor
 // so that a legitimate low-XP side quest is never inflated by a type mismatch.
 // A full fix would require a server-side DB lookup of the original quest.
-const XP_MAX_BY_TYPE = { side: 250, main: 1000 } as const;
+const XP_MAX_BY_TYPE = { side: 2500, main: 8000 } as const;
 
 function clampXP(xp: number, type: "main" | "side"): number {
   return Math.min(XP_MAX_BY_TYPE[type], Math.max(1, Math.round(xp)));
@@ -40,16 +40,22 @@ async function checkSaveRateLimit(userId: string): Promise<boolean> {
 // ── Zod schema ────────────────────────────────────────────────────────────────
 
 const bodySchema = z.object({
-  title:           z.string().min(1).max(80),
-  description:     z.string().min(1).max(500),
-  type:            z.enum(["main", "side"]),
-  source:          z.enum(["ai", "user"]),
-  difficulty:      z.number().int().min(1).max(5),
-  duration_label:  z.string().min(1).max(60),
-  category:        z.enum(QUEST_CATEGORIES),
-  xp_reward:       z.number().int().positive(),
-  location:        z.string().max(100).nullable().optional(),
-  evaluation_note: z.string().optional().default(""),
+  title:            z.string().min(1).max(80),
+  description:      z.string().min(1).max(500),
+  type:             z.enum(["main", "side"]),
+  source:           z.enum(["ai", "user"]),
+  difficulty:       z.number().int().min(1).max(5),
+  duration_label:   z.string().min(1).max(60),
+  duration_minutes: z.number().int().positive().optional().nullable(),
+  steps:            z.array(z.object({
+    id:       z.string(),
+    title:    z.string(),
+    optional: z.boolean().optional(),
+  })).optional().default([]),
+  category:         z.enum(QUEST_CATEGORIES),
+  xp_reward:        z.number().int().positive(),
+  location:         z.string().max(100).nullable().optional(),
+  evaluation_note:  z.string().optional().default(""),
 });
 
 class AppError extends Error {
@@ -115,17 +121,19 @@ export async function POST(req: NextRequest) {
     const { data: savedQuest, error: questErr } = await db
       .from("quests")
       .insert({
-        title:           quest.title,
-        description:     quest.description,
-        type:            quest.type,
-        source:          quest.source,
-        difficulty:      quest.difficulty,
-        xp_reward:       safeXP,
-        duration_label:  quest.duration_label,
-        category:        quest.category,
-        location:        quest.location ?? null,
-        user_id:         userId,
-        status:          "available",
+        title:            quest.title,
+        description:      quest.description,
+        type:             quest.type,
+        source:           quest.source,
+        difficulty:       quest.difficulty,
+        xp_reward:        safeXP,
+        duration_label:   quest.duration_label,
+        duration_minutes: quest.duration_minutes ?? null,
+        steps:            quest.steps ?? [],
+        category:         quest.category,
+        location:         quest.location ?? null,
+        user_id:          userId,
+        status:           "available",
       })
       .select("id")
       .single();

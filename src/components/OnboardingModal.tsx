@@ -98,7 +98,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
           style={{ borderColor: "#5c3a1a", background: "#2a1a0a" }}
         >
           <span className="font-pixel text-tavern-gold text-[9px] tracking-wider">
-            {step === "welcome"    ? "Welcome to Tavrn"         :
+            {step === "welcome"    ? "Welcome to Tarvn"         :
              step === "categories" ? "Choose Your Interests"     :
              step === "difficulty" ? "Pick Your Challenge Level" :
              step === "quest"      ? "Your First Quest"          :

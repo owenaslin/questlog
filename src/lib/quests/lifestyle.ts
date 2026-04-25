@@ -1,7 +1,8 @@
 import { Quest } from "@/lib/types";
 import { generateStableId } from "@/lib/seed-quests";
+import { durationLabelToMinutes, calcQuestXP } from "@/lib/xp";
 
-export const LIFESTYLE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
+const LIFESTYLE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
   // Side Quests
   {
     title: "Declutter a Room",

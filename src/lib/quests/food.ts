@@ -1,7 +1,8 @@
 import { Quest } from "@/lib/types";
 import { generateStableId } from "@/lib/seed-quests";
+import { durationLabelToMinutes, calcQuestXP } from "@/lib/xp";
 
-export const FOOD_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
+const FOOD_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
   // Side Quests
   {
     title: "Cook a New Recipe",

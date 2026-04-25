@@ -25,8 +25,3 @@ export const rarityBgClasses: Record<Badge["rarity"], string> = {
   epic: "bg-retro-purple",
   legendary: "bg-gradient-to-br from-retro-yellow to-retro-orange",
 };
-
-// Format requirement for display
-export function formatRequirement(badge: Badge): string {
-  return getRequirementHint(badge);
-}

@@ -30,7 +30,7 @@ export default async function BoardQuestDetailPage({ params }: PageProps) {
   const { data } = await supabase
     .from("quests")
     .select(
-      "id,title,description,type,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
+      "id,title,description,type,source,difficulty,xp_reward,duration_label,duration_minutes,steps,category,location,user_id,created_at,status"
     )
     .eq("id", id)
     .single();
