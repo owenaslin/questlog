@@ -5,17 +5,18 @@ const config: CapacitorConfig = {
   appName: 'Quest Board',
   webDir: 'dist',
   server: {
-    androidScheme: 'https',
+    androidScheme: 'http',  // Use http for local dev to avoid CORS issues
   },
-  plugins: {
-    SplashScreen: {
-      launchShowDuration: 2000,
-      launchAutoHide: true,
-      backgroundColor: '#1a1a2e',
-      androidSplashResourceName: 'splash',
-      androidScaleType: 'CENTER_CROP',
-    },
-  },
+  // Splash screen config removed - add drawable/splash.png to enable
+  // plugins: {
+  //   SplashScreen: {
+  //     launchShowDuration: 2000,
+  //     launchAutoHide: true,
+  //     backgroundColor: '#1a1a2e',
+  //     androidSplashResourceName: 'splash',
+  //     androidScaleType: 'CENTER_CROP',
+  //   },
+  // },
   android: {
     buildOptions: {
       keystorePath: undefined,
