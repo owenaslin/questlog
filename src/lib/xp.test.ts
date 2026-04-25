@@ -42,6 +42,7 @@ describe('XP Calculation', () => {
     });
 
     it('uses default modifier for invalid difficulty', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(calcSideQuestXP(60, 10 as any)).toBe(300);
     });
   });
