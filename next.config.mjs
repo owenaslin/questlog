@@ -1,3 +1,5 @@
+import bundleAnalyzer from '@next/bundle-analyzer';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Static export for Capacitor (set to 'server' for Vercel deployment)
@@ -5,7 +7,7 @@ const nextConfig = {
   distDir: process.env.CAPACITOR_BUILD ? 'dist' : '.next',
 
   images: {
-    unoptimized: true,
+    unoptimized: Boolean(process.env.CAPACITOR_BUILD),
   },
 
   async headers() {

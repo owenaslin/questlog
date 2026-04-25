@@ -9,7 +9,7 @@ import {
   type ProfileProgressSummary,
   type UserStreak,
 } from "@/lib/quest-progress";
-import { getDailyQuests, ALL_QUESTS } from "@/lib/quests";
+import { getDailyQuests, ALL_QUESTS, getRandomQuests } from "@/lib/quests";
 import type { Quest } from "@/lib/types";
 import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
@@ -25,6 +25,7 @@ export default function HomePage() {
   const [tonightQuests, setTonightQuests] = useState<Quest[]>([]);
   const [pickedId,      setPickedId]      = useState<string | null>(null);
   const [dataLoading,   setDataLoading]   = useState(true);
+  const [isRerolled,    setIsRerolled]    = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -191,9 +192,19 @@ export default function HomePage() {
               }
             </div>
             <div className="flex gap-2">
-              <Link href="/board" className="tavrn-button !bg-tavern-oak !text-tavern-parchment">
+              <button
+                type="button"
+                onClick={() => {
+                  const currentIds = tonightQuests.map(q => q.id);
+                  const newQuests = getRandomQuests(currentIds);
+                  setTonightQuests(newQuests);
+                  setPickedId(newQuests[1]?.id ?? newQuests[0]?.id ?? null);
+                  setIsRerolled(true);
+                }}
+                className="tavrn-button !bg-tavern-oak !text-tavern-parchment"
+              >
                 Draw Again
-              </Link>
+              </button>
               <Link
                 href={pickedQuest ? `/board/${pickedQuest.id}` : "/board"}
                 className="tavrn-button"
