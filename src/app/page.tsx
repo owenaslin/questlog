@@ -9,7 +9,7 @@ import {
   type ProfileProgressSummary,
   type UserStreak,
 } from "@/lib/quest-progress";
-import { getDailyQuests, ALL_QUESTS } from "@/lib/quests";
+import { getDailyQuests, ALL_QUESTS, getRandomQuests } from "@/lib/quests";
 import type { Quest } from "@/lib/types";
 import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
@@ -191,9 +191,18 @@ export default function HomePage() {
               }
             </div>
             <div className="flex gap-2">
-              <Link href="/board" className="tavrn-button !bg-tavern-oak !text-tavern-parchment">
+              <button
+                type="button"
+                onClick={() => {
+                  const currentIds = tonightQuests.map(q => q.id);
+                  const newQuests = getRandomQuests(currentIds);
+                  setTonightQuests(newQuests);
+                  setPickedId(newQuests[1]?.id ?? newQuests[0]?.id ?? null);
+                }}
+                className="tavrn-button !bg-tavern-oak !text-tavern-parchment"
+              >
                 Draw Again
-              </Link>
+              </button>
               <Link
                 href={pickedQuest ? `/board/${pickedQuest.id}` : "/board"}
                 className="tavrn-button"
@@ -269,7 +278,7 @@ export default function HomePage() {
           ) : (
             /* Guest placeholder */
             <div className="space-y-3">
-              <p className="font-pixel text-[8px] text-tavern-parchment">Your saga awaits</p>
+              <p className="font-pixel text-[8px] text-tavern-parchment">Your questline awaits</p>
               <p className="text-[11px] text-[#bda780]">sign in to track your quests</p>
             </div>
           )}

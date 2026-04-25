@@ -26,6 +26,8 @@ import {
   WeeklyRecap as WeeklyRecapType,
 } from "@/lib/quest-progress";
 import { Quest } from "@/lib/types";
+import { BadgeShowcase } from "@/components/BadgeGrid";
+import { BADGES } from "@/lib/badges";
 
 export default function JournalPage() {
   const router = useRouter();
@@ -48,6 +50,7 @@ export default function JournalPage() {
   const [weeklyRecap, setWeeklyRecap]       = useState<WeeklyRecapType | null>(null);
   const [isLoading, setIsLoading]           = useState(true);
   const [saga, setSaga]                     = useState<ReturnType<typeof generatePersonalSaga> | null>(null);
+  const [earnedBadgeIds, setEarnedBadgeIds] = useState<string[]>([]);
 
   /* ── Load progress ───────────────────────────────────────────────── */
   useEffect(() => {
@@ -72,6 +75,7 @@ export default function JournalPage() {
         if (summary)    setProfileSummary(summary);
         if (streakData) setStreak(streakData);
         if (weeklyData) setWeeklyRecap(weeklyData);
+        setEarnedBadgeIds(snapshot?.badgeIds || []);
 
         const merged = mergeQuestWithProgress(ALL_QUESTS, progressMap);
 
@@ -154,7 +158,7 @@ export default function JournalPage() {
       <div className="flex items-center gap-3 mb-6">
         <Image src="/tavern/scroll.svg" alt="" width={28} height={24} />
         <div>
-          <h1 className="tavrn-wordmark text-3xl leading-none">My Saga</h1>
+          <h1 className="tavrn-wordmark text-3xl leading-none">My Questline</h1>
           <p className="font-pixel text-tavern-smoke-light text-[7px] mt-0.5">
             {heroName}&apos;s adventure log
           </p>
@@ -203,7 +207,7 @@ export default function JournalPage() {
         <WeeklyRecap recap={weeklyRecap} isLoading={isLoading} />
       </div>
 
-      {/* ── Personal Saga ─────────────────────────────────────────── */}
+      {/* ── Personal Questline ─────────────────────────────────────────── */}
       {saga && (
         <div className="mb-8">
           <PersonalSaga saga={saga} heroName={heroName} />
@@ -340,6 +344,15 @@ export default function JournalPage() {
         )}
       </div>
 
+      {/* ── Trophy Wall ─────────────────────────────────────────── */}
+      <div className="mb-6">
+        <BadgeShowcase
+          badges={BADGES}
+          earnedBadgeIds={earnedBadgeIds}
+          maxDisplay={6}
+        />
+      </div>
+
       {/* ── Stats row ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {[
@@ -365,7 +378,7 @@ export default function JournalPage() {
         </Link>
         <span className="font-pixel text-tavern-smoke-light text-[8px]">·</span>
         <Link href="/sagas" className="font-pixel text-tavern-gold text-[8px] hover:text-tavern-candle">
-          📜 Sagas
+          📜 Questlines
         </Link>
       </div>
       </div>

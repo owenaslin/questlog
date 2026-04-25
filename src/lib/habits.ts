@@ -37,9 +37,17 @@ export async function createHabit(input: CreateHabitInput): Promise<{
 }> {
   const supabase = getSupabaseClient();
 
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+
+  if (!userId) {
+    return { success: false, error: "Not authenticated" };
+  }
+
   const { data, error } = await supabase
     .from("habits")
     .insert({
+      user_id: userId,
       title: input.title,
       description: input.description || null,
       icon: input.icon || "✓",
