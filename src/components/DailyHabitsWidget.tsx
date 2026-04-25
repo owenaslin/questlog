@@ -2,13 +2,89 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import { HabitWithStatus } from "@/lib/types";
 import { getHabitsForToday, completeHabit, uncompleteHabit } from "@/lib/habits";
 import HabitCheck from "./HabitCheck";
 
 interface DailyHabitsWidgetProps {
   maxDisplay?: number;
+}
+
+function HabitListItem({
+  habit,
+  index,
+  isLoading,
+  xpAmount,
+  onToggle,
+}: {
+  habit: HabitWithStatus;
+  index: number;
+  isLoading: boolean;
+  xpAmount?: number;
+  onToggle: () => void;
+}) {
+  return (
+    <div
+      style={{
+        opacity: 0,
+        animation: `fadeInSlide 0.3s ease-out forwards`,
+        animationDelay: `${index * 50}ms`,
+      }}
+      className={`
+        relative flex items-center gap-3 p-2 rounded-lg border transition-all
+        ${habit.is_completed_today
+          ? "border-tavern-gold/30 bg-tavern-gold/5"
+          : "border-tavern-oak/50 bg-tavern-smoke/30 hover:border-tavern-gold/30"
+        }
+      `}
+    >
+      {/* Icon */}
+      <div
+        className="w-8 h-8 rounded flex items-center justify-center text-lg flex-shrink-0"
+        style={{ backgroundColor: habit.color }}
+      >
+        {habit.icon}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <p
+          className={`text-sm truncate ${
+            habit.is_completed_today ? "line-through opacity-60" : ""
+          }`}
+        >
+          {habit.title}
+        </p>
+        {habit.streak && habit.streak.current_streak > 0 && (
+          <p className="text-[10px] text-tavern-gold">
+            {habit.streak.current_streak} day streak 🔥
+          </p>
+        )}
+      </div>
+
+      {/* XP badge */}
+      {xpAmount && (
+        <span
+          style={{
+            opacity: xpAmount ? 1 : 0,
+            transition: "opacity 0.3s ease-out",
+          }}
+          className="absolute right-14 text-xs text-retro-lime font-pixel"
+        >
+          +{xpAmount} XP
+        </span>
+      )}
+
+      {/* Checkbox */}
+      <HabitCheck
+        checked={habit.is_completed_today}
+        onChange={onToggle}
+        disabled={isLoading}
+        size="md"
+        color={habit.color}
+      />
+    </div>
+  );
 }
 
 export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetProps) {
@@ -21,6 +97,13 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
   const [loadingHabitId, setLoadingHabitId] = useState<string | null>(null);
   const [xpAnimations, setXpAnimations] = useState<{ id: string; amount: number }[]>([]);
   const mountedRef = useRef(true);
+
+  const allCompleted = summary.completed === summary.totalScheduled && summary.totalScheduled > 0;
+
+  const progressPercent =
+    summary.totalScheduled > 0
+      ? (summary.completed / summary.totalScheduled) * 100
+      : 0;
 
   useEffect(() => {
     mountedRef.current = true;
@@ -73,11 +156,6 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
     setLoadingHabitId(null);
   };
 
-  const progressPercent =
-    summary.totalScheduled > 0
-      ? (summary.completed / summary.totalScheduled) * 100
-      : 0;
-
   const displayedHabits = habits.slice(0, maxDisplay);
   const hasMore = habits.length > maxDisplay;
 
@@ -114,23 +192,22 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
     );
   }
 
-  // All caught up state
-  const allCompleted = summary.completed === summary.totalScheduled && summary.totalScheduled > 0;
-
   return (
     <div className="tavrn-panel p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <p className="tavrn-kicker">Daily Habits</p>
-        {allCompleted && (
-          <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="text-xs text-tavern-gold"
-          >
-            ✨ All done!
-          </motion.span>
-        )}
+        <span
+          style={{
+            transform: allCompleted ? "scale(1)" : "scale(0)",
+            opacity: allCompleted ? 1 : 0,
+            transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            display: "inline-block",
+          }}
+          className="text-xs text-tavern-gold"
+        >
+          ✨ All done!
+        </span>
       </div>
 
       {/* Progress bar */}
@@ -143,11 +220,12 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
             <span>{Math.round(progressPercent)}%</span>
           </div>
           <div className="h-2 bg-tavern-oak/30 rounded-full overflow-hidden">
-            <motion.div
+            <div
               className="h-full bg-tavern-gold rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercent}%` }}
-              transition={{ type: "spring", stiffness: 100 }}
+              style={{
+                width: `${progressPercent}%`,
+                transition: "width 0.3s ease-out",
+              }}
             />
           </div>
         </div>
@@ -155,71 +233,16 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
 
       {/* Habits list */}
       <div className="space-y-2">
-        <AnimatePresence mode="popLayout">
-          {displayedHabits.map((habit) => (
-            <motion.div
-              key={habit.id}
-              layout
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              className={`
-                relative flex items-center gap-3 p-2 rounded-lg border transition-all
-                ${habit.is_completed_today
-                  ? "border-tavern-gold/30 bg-tavern-gold/5"
-                  : "border-tavern-oak/50 bg-tavern-smoke/30 hover:border-tavern-gold/30"
-                }
-              `}
-            >
-              {/* Icon */}
-              <div
-                className="w-8 h-8 rounded flex items-center justify-center text-lg flex-shrink-0"
-                style={{ backgroundColor: habit.color }}
-              >
-                {habit.icon}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <p
-                  className={`text-sm truncate ${
-                    habit.is_completed_today ? "line-through opacity-60" : ""
-                  }`}
-                >
-                  {habit.title}
-                </p>
-                {habit.streak && habit.streak.current_streak > 0 && (
-                  <p className="text-[10px] text-tavern-gold">
-                    {habit.streak.current_streak} day streak 🔥
-                  </p>
-                )}
-              </div>
-
-              {/* XP badge */}
-              <AnimatePresence>
-                {xpAnimations.find((a) => a.id === habit.id) && (
-                  <motion.span
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: -5 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="absolute right-14 text-xs text-retro-lime font-pixel"
-                  >
-                    +{habit.xp_reward} XP
-                  </motion.span>
-                )}
-              </AnimatePresence>
-
-              {/* Checkbox */}
-              <HabitCheck
-                checked={habit.is_completed_today}
-                onChange={() => handleToggle(habit)}
-                disabled={loadingHabitId === habit.id}
-                size="md"
-                color={habit.color}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+        {displayedHabits.map((habit, index) => (
+          <HabitListItem
+            key={habit.id}
+            habit={habit}
+            index={index}
+            isLoading={loadingHabitId === habit.id}
+            xpAmount={xpAnimations.find((a) => a.id === habit.id)?.amount}
+            onToggle={() => handleToggle(habit)}
+          />
+        ))}
       </div>
 
       {/* Footer links */}

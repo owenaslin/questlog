@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 
 interface NavItem {
   href: string;
@@ -54,11 +53,7 @@ export default function MobileBottomNav() {
                 {item.label}
               </span>
               {active && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute -top-1 w-8 h-1 bg-tavern-gold"
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
+                <div className="absolute -top-1 w-8 h-1 bg-tavern-gold transition-all" />
               )}
             </Link>
           );

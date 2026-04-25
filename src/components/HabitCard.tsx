@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useSpring, animated } from "@react-spring/web";
 import {
   Habit,
   HabitStreak,
@@ -112,16 +112,23 @@ export default function HabitCard({
   }
 
   // Default variant
+  const cardSpring = useSpring({
+    opacity: 1,
+    y: 0,
+    config: { tension: 300, friction: 30 },
+  });
+
+  const pulseSpring = useSpring({
+    transform: justCompleted ? "scale(1.02)" : "scale(1)",
+    config: { duration: 300 },
+  });
+
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        scale: justCompleted ? [1, 1.02, 1] : 1,
+    <animated.div
+      style={{
+        ...cardSpring,
+        transform: pulseSpring.transform,
       }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={`
         group relative p-4 rounded-lg border-2 transition-all
         ${habit.is_completed_today
@@ -186,6 +193,6 @@ export default function HabitCard({
           Edit
         </span>
       </Link>
-    </motion.div>
+    </animated.div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 
 interface LivingFlameProps {
   streakDays: number;
@@ -125,39 +124,23 @@ export default function LivingFlame({ streakDays, size = "md" }: LivingFlameProp
       }}
     >
       {/* Glow background */}
-      <motion.div
-        className="absolute rounded-full"
+      <div
+        className="absolute rounded-full animate-pulse"
         style={{
           background: `radial-gradient(circle, ${state.glowColor} 0%, transparent 70%)`,
           width: "120%",
           height: "120%",
-        }}
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.5, 0.8, 0.5],
-        }}
-        transition={{
-          duration: state.animationSpeed,
-          repeat: Infinity,
-          ease: "easeInOut",
+          animation: `pulse ${state.animationSpeed}s infinite`,
         }}
       />
 
       {/* Main flame body */}
-      <motion.div
+      <div
         className="relative"
         style={{
           width: classes.flame.split(" ")[0].replace("w-", ""),
           height: classes.flame.split(" ")[1].replace("h-", ""),
-        }}
-        animate={{
-          scaleY: [1, 1.1, 0.95, 1],
-          scaleX: [1, 0.95, 1.05, 1],
-        }}
-        transition={{
-          duration: state.animationSpeed * 0.5,
-          repeat: Infinity,
-          ease: "easeInOut",
+          animation: `flame-flicker ${state.animationSpeed * 0.5}s infinite ease-in-out`,
         }}
       >
         {/* Flame SVG */}
@@ -167,75 +150,18 @@ export default function LivingFlame({ streakDays, size = "md" }: LivingFlameProp
           className="w-full h-full"
           style={{ filter: `drop-shadow(0 0 8px ${state.color})` }}
         >
-          <motion.path
+          <path
             d="M12 2C12 2 6 8 6 16C6 22 8 26 12 30C16 26 18 22 18 16C18 8 12 2 12 2Z"
             fill={state.color}
-            animate={{
-              d: [
-                "M12 2C12 2 6 8 6 16C6 22 8 26 12 30C16 26 18 22 18 16C18 8 12 2 12 2Z",
-                "M12 2C12 2 5 9 5 16C5 21 8 25 12 29C16 25 19 21 19 16C19 9 12 2 12 2Z",
-                "M12 2C12 2 7 7 7 16C7 23 9 27 12 30C15 27 17 23 17 16C17 7 12 2 12 2Z",
-                "M12 2C12 2 6 8 6 16C6 22 8 26 12 30C16 26 18 22 18 16C18 8 12 2 12 2Z",
-              ],
-            }}
-            transition={{
-              duration: state.animationSpeed * 0.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
           />
           {/* Inner core */}
-          <motion.path
+          <path
             d="M12 8C12 8 9 12 9 17C9 21 10 24 12 26C14 24 15 21 15 17C15 12 12 8 12 8Z"
             fill={streakDays >= 30 ? "#ffffff" : "#fef3c7"}
             opacity={0.8}
-            animate={{
-              d: [
-                "M12 8C12 8 9 12 9 17C9 21 10 24 12 26C14 24 15 21 15 17C15 12 12 8 12 8Z",
-                "M12 8C12 8 8 13 8 17C8 20 10 23 12 25C14 23 16 20 16 17C16 13 12 8 12 8Z",
-                "M12 8C12 8 10 11 10 17C10 22 11 25 12 27C13 25 14 22 14 17C14 11 12 8 12 8Z",
-                "M12 8C12 8 9 12 9 17C9 21 10 24 12 26C14 24 15 21 15 17C15 12 12 8 12 8Z",
-              ],
-            }}
-            transition={{
-              duration: state.animationSpeed * 0.4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
           />
         </svg>
-      </motion.div>
-
-      {/* Floating particles — rendered from useEffect state to avoid SSR mismatch */}
-      {particles.length > 0 && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {particles.map((p, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                width: p.width,
-                height: p.height,
-                backgroundColor: state.color,
-                left: p.left,
-                bottom: "20%",
-              }}
-              animate={{
-                y: p.animY,
-                x: p.animX,
-                opacity: [0, 1, 0],
-                scale: [0.5, 1, 0],
-              }}
-              transition={{
-                duration: p.duration,
-                repeat: Infinity,
-                delay: p.delay,
-                ease: "easeOut",
-              }}
-            />
-          ))}
-        </div>
-      )}
+      </div>
 
       {/* Flame name label (only for lg size) */}
       {size === "lg" && (

@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useSpring, animated } from "@react-spring/web";
 
 interface FloatingActionButtonProps {
   href: string;
@@ -17,17 +17,27 @@ export default function FloatingActionButton({
   label,
   variant = "primary",
 }: FloatingActionButtonProps) {
+  const [isPressed, setIsPressed] = useState(false);
   const bgColor =
     variant === "primary"
       ? "bg-tavern-gold text-tavern-smoke"
       : "bg-retro-blue text-retro-white";
 
+  const springs = useSpring({
+    transform: isPressed ? "scale(0.95)" : "scale(1)",
+    opacity: 1,
+    config: { tension: 300, friction: 10 },
+  });
+
   return (
-    <motion.div
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      whileTap={{ scale: 0.95 }}
+    <animated.div
+      style={springs}
       className="md:hidden fixed bottom-24 right-4 z-40"
+      onMouseDown={() => setIsPressed(true)}
+      onMouseUp={() => setIsPressed(false)}
+      onMouseLeave={() => setIsPressed(false)}
+      onTouchStart={() => setIsPressed(true)}
+      onTouchEnd={() => setIsPressed(false)}
     >
       <Link
         href={href}
@@ -37,6 +47,6 @@ export default function FloatingActionButton({
         <span className="text-lg">{icon}</span>
         <span className="font-pixel text-[10px] whitespace-nowrap">{label}</span>
       </Link>
-    </motion.div>
+    </animated.div>
   );
 }

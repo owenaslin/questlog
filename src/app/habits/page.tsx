@@ -2,12 +2,81 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { useSpring, animated, useTrail, config } from "@react-spring/web";
 import { HabitWithStatus } from "@/lib/types";
 import { getUserHabits, toggleHabitActive, updateHabitOrder } from "@/lib/habits";
 import { getRecurrenceDescription } from "@/lib/habit-recurrence";
 import HabitCard from "@/components/HabitCard";
 import { getSupabaseClient } from "@/lib/supabase";
+
+function HabitCardWithReorder({
+  habit,
+  index,
+  total,
+  isReorderMode,
+  onMove,
+  onUpdate,
+  onToggleActive,
+}: {
+  habit: HabitWithStatus;
+  index: number;
+  total: number;
+  isReorderMode: boolean;
+  onMove: (habitId: string, direction: "up" | "down") => void;
+  onUpdate: () => void;
+  onToggleActive: (habit: HabitWithStatus) => void;
+}) {
+  const cardSpring = useSpring({
+    opacity: 1,
+    scale: 1,
+    config: config.default,
+  });
+
+  return (
+    <animated.div style={cardSpring}>
+      <div className="relative">
+        <HabitCard
+          habit={habit}
+          onUpdate={onUpdate}
+          variant="default"
+        />
+
+        {isReorderMode && total > 1 && (
+          <div className="mt-2 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => onMove(habit.id, "up")}
+              disabled={index === 0}
+              className="text-[9px] px-2 py-1 rounded bg-tavern-oak/50 text-tavern-parchment-dim hover:bg-tavern-oak disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              onClick={() => onMove(habit.id, "down")}
+              disabled={index === total - 1}
+              className="text-[9px] px-2 py-1 rounded bg-tavern-oak/50 text-tavern-parchment-dim hover:bg-tavern-oak disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ↓
+            </button>
+          </div>
+        )}
+
+        {!isReorderMode && (
+          <div className="mt-2 flex justify-end">
+            <button
+              type="button"
+              onClick={() => onToggleActive(habit)}
+              className="text-[9px] text-tavern-parchment-dim hover:text-tavern-gold transition-colors"
+            >
+              {habit.is_active ? "Pause" : "Resume"}
+            </button>
+          </div>
+        )}
+      </div>
+    </animated.div>
+  );
+}
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<HabitWithStatus[]>([]);
@@ -67,6 +136,13 @@ export default function HabitsPage() {
     return true;
   });
 
+  // Animate list items with useTrail
+  const habitAnimations = useTrail(filteredHabits.length, {
+    from: { opacity: 0, scale: 0.9 },
+    to: { opacity: 1, scale: 1 },
+    config: config.default,
+  });
+
   const handleReorder = async (newOrder: HabitWithStatus[]) => {
     // Guard: only reorder when showing all habits. Reordering a filtered
     // subset and writing it back to state would silently drop the hidden habits.
@@ -77,6 +153,19 @@ export default function HabitsPage() {
       sort_order: index,
     }));
     await updateHabitOrder(orderUpdates);
+  };
+
+  const moveHabit = (habitId: string, direction: "up" | "down") => {
+    if (filter !== "all") return;
+    const idx = habits.findIndex((h) => h.id === habitId);
+    if (idx === -1) return;
+    if (direction === "up" && idx === 0) return;
+    if (direction === "down" && idx === habits.length - 1) return;
+
+    const newOrder = [...habits];
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    [newOrder[idx], newOrder[swapIdx]] = [newOrder[swapIdx], newOrder[idx]];
+    handleReorder(newOrder);
   };
 
   if (isAuthenticated === false) {
@@ -208,50 +297,21 @@ export default function HabitsPage() {
           )}
         </div>
       ) : (
-        <Reorder.Group
-          axis="y"
-          values={filteredHabits}
-          onReorder={handleReorder}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredHabits.map((habit) => (
-              <Reorder.Item
-                key={habit.id}
-                value={habit}
-                dragListener={isReorderMode && filter === "all"}
-                dragControls={undefined}
-                className={isReorderMode ? "cursor-move" : ""}
-              >
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                >
-                  <HabitCard
-                    habit={habit}
-                    onUpdate={loadHabits}
-                    variant="default"
-                  />
-                  
-                  {/* Pause/Resume button for active/paused view */}
-                  {!isReorderMode && (
-                    <div className="mt-2 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleToggleActive(habit)}
-                        className="text-[9px] text-tavern-parchment-dim hover:text-tavern-gold transition-colors"
-                      >
-                        {habit.is_active ? "Pause" : "Resume"}
-                      </button>
-                    </div>
-                  )}
-                </motion.div>
-              </Reorder.Item>
-            ))}
-          </AnimatePresence>
-        </Reorder.Group>
+        <div className="space-y-4">
+          {habitAnimations.map((style, index) => (
+            <animated.div key={filteredHabits[index].id} style={style}>
+              <HabitCardWithReorder
+                habit={filteredHabits[index]}
+                index={index}
+                total={filteredHabits.length}
+                isReorderMode={isReorderMode && filter === "all"}
+                onMove={moveHabit}
+                onUpdate={loadHabits}
+                onToggleActive={handleToggleActive}
+              />
+            </animated.div>
+          ))}
+        </div>
       )}
 
       {/* Info section */}

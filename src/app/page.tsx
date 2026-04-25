@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabase";
 import {
@@ -14,7 +14,8 @@ import type { Quest } from "@/lib/types";
 import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
 import DailyHabitsWidget from "@/components/DailyHabitsWidget";
-import OnboardingModal from "@/components/OnboardingModal";
+
+const OnboardingModal = lazy(() => import("@/components/OnboardingModal"));
 
 export default function HomePage() {
   const [heroName,      setHeroName]      = useState<string | null>(null);
@@ -303,13 +304,15 @@ export default function HomePage() {
 
       {/* First-time user onboarding — only shown to brand-new accounts */}
       {showOnboarding && heroName && (
-        <OnboardingModal
-          heroName={heroName}
-          onDismiss={() => {
-            localStorage.setItem("tavrn_onboarding_done", "1");
-            setShowOnboarding(false);
-          }}
-        />
+        <Suspense fallback={null}>
+          <OnboardingModal
+            heroName={heroName}
+            onDismiss={() => {
+              localStorage.setItem("tavrn_onboarding_done", "1");
+              setShowOnboarding(false);
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );
