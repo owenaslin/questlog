@@ -269,7 +269,7 @@ export default function HomePage() {
           ) : (
             /* Guest placeholder */
             <div className="space-y-3">
-              <p className="font-pixel text-[8px] text-tavern-parchment">Your saga awaits</p>
+              <p className="font-pixel text-[8px] text-tavern-parchment">Your questline awaits</p>
               <p className="text-[11px] text-[#bda780]">sign in to track your quests</p>
             </div>
           )}
