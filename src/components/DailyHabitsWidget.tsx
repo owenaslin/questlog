@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { useSpring, animated, useTrail, config } from "@react-spring/web";
 import { HabitWithStatus } from "@/lib/types";
 import { getHabitsForToday, completeHabit, uncompleteHabit } from "@/lib/habits";
 import HabitCheck from "./HabitCheck";
@@ -13,28 +12,23 @@ interface DailyHabitsWidgetProps {
 
 function HabitListItem({
   habit,
-  style,
+  index,
   isLoading,
   xpAmount,
   onToggle,
 }: {
   habit: HabitWithStatus;
-  style: any;
+  index: number;
   isLoading: boolean;
   xpAmount?: number;
   onToggle: () => void;
 }) {
-  const xpSpring = useSpring({
-    opacity: xpAmount ? 1 : 0,
-    y: xpAmount ? -5 : 10,
-    config: { duration: 400 },
-  });
-
   return (
-    <animated.div
+    <div
       style={{
-        ...style,
-        transform: style.x.to((x: any) => `translateX(${x}px)`),
+        opacity: 0,
+        animation: `fadeInSlide 0.3s ease-out forwards`,
+        animationDelay: `${index * 50}ms`,
       }}
       className={`
         relative flex items-center gap-3 p-2 rounded-lg border transition-all
@@ -70,12 +64,15 @@ function HabitListItem({
 
       {/* XP badge */}
       {xpAmount && (
-        <animated.span
-          style={xpSpring}
+        <span
+          style={{
+            opacity: xpAmount ? 1 : 0,
+            transition: "opacity 0.3s ease-out",
+          }}
           className="absolute right-14 text-xs text-retro-lime font-pixel"
         >
           +{xpAmount} XP
-        </animated.span>
+        </span>
       )}
 
       {/* Checkbox */}
@@ -86,7 +83,7 @@ function HabitListItem({
         size="md"
         color={habit.color}
       />
-    </animated.div>
+    </div>
   );
 }
 
@@ -102,21 +99,11 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
   const mountedRef = useRef(true);
 
   const allCompleted = summary.completed === summary.totalScheduled && summary.totalScheduled > 0;
-  const allDoneSpring = useSpring({
-    transform: allCompleted ? "scale(1)" : "scale(0)",
-    opacity: allCompleted ? 1 : 0,
-    config: { tension: 300, friction: 10 },
-  });
 
   const progressPercent =
     summary.totalScheduled > 0
       ? (summary.completed / summary.totalScheduled) * 100
       : 0;
-
-  const progressSpring = useSpring({
-    width: `${progressPercent}%`,
-    config: { tension: 100, friction: 30 },
-  });
 
   useEffect(() => {
     mountedRef.current = true;
@@ -172,13 +159,6 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
   const displayedHabits = habits.slice(0, maxDisplay);
   const hasMore = habits.length > maxDisplay;
 
-  // Animate list items with useTrail
-  const habitAnimations = useTrail(displayedHabits.length, {
-    from: { opacity: 0, x: -10 },
-    to: { opacity: 1, x: 0 },
-    config: config.default,
-  });
-
   if (summary.loading) {
     return (
       <div className="tavrn-panel p-4 animate-pulse">
@@ -217,12 +197,17 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <p className="tavrn-kicker">Daily Habits</p>
-        <animated.span
-          style={allDoneSpring}
+        <span
+          style={{
+            transform: allCompleted ? "scale(1)" : "scale(0)",
+            opacity: allCompleted ? 1 : 0,
+            transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            display: "inline-block",
+          }}
           className="text-xs text-tavern-gold"
         >
           ✨ All done!
-        </animated.span>
+        </span>
       </div>
 
       {/* Progress bar */}
@@ -235,9 +220,12 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
             <span>{Math.round(progressPercent)}%</span>
           </div>
           <div className="h-2 bg-tavern-oak/30 rounded-full overflow-hidden">
-            <animated.div
+            <div
               className="h-full bg-tavern-gold rounded-full"
-              style={progressSpring}
+              style={{
+                width: `${progressPercent}%`,
+                transition: "width 0.3s ease-out",
+              }}
             />
           </div>
         </div>
@@ -249,7 +237,7 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
           <HabitListItem
             key={habit.id}
             habit={habit}
-            style={habitAnimations[index]}
+            index={index}
             isLoading={loadingHabitId === habit.id}
             xpAmount={xpAnimations.find((a) => a.id === habit.id)?.amount}
             onToggle={() => handleToggle(habit)}
