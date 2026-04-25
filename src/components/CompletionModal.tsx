@@ -49,7 +49,10 @@ export default function CompletionModal({
   }, []);
 
   const handleShare = () => {
-    const heroUrl = heroHandle
+    const triumphUrl = heroHandle
+      ? `https://tarvn.xyz/api/og/triumph/${quest.id}?user=${heroHandle}`
+      : `https://tarvn.xyz/hero/${heroHandle ?? ""}`;
+    const heroPageUrl = heroHandle
       ? `https://tarvn.xyz/hero/${heroHandle}`
       : `https://tarvn.xyz`;
     const shareText = `Just earned +${xpEarned} XP completing "${quest.title}" on tavrn! My legend grows. 🍺`;
@@ -57,10 +60,10 @@ export default function CompletionModal({
       navigator.share({
         title: `I completed "${quest.title}" on tavrn!`,
         text: shareText,
-        url: heroUrl,
+        url: heroPageUrl,
       }).catch(() => {/* dismissed */});
     } else {
-      navigator.clipboard?.writeText(`${shareText} ${heroUrl}`);
+      navigator.clipboard?.writeText(`${shareText} ${heroPageUrl}`);
     }
   };
 
