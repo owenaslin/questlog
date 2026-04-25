@@ -66,10 +66,52 @@ export async function updateHabit(
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
 
+  // Validate and sanitize updates
+  const sanitizedUpdates: Partial<UpdateHabitInput> = {};
+
+  if (updates.title !== undefined) {
+    if (updates.title.length > 200) {
+      return { success: false, error: "Title must be 200 characters or less" };
+    }
+    sanitizedUpdates.title = updates.title.trim();
+  }
+
+  if (updates.description !== undefined) {
+    sanitizedUpdates.description = updates.description.slice(0, 1000);
+  }
+
+  if (updates.icon !== undefined) {
+    sanitizedUpdates.icon = updates.icon.slice(0, 10); // Emoji limit
+  }
+
+  if (updates.color !== undefined) {
+    // Validate hex color format
+    if (!/^#[0-9A-Fa-f]{6}$/.test(updates.color)) {
+      return { success: false, error: "Invalid color format" };
+    }
+    sanitizedUpdates.color = updates.color;
+  }
+
+  if (updates.xp_reward !== undefined) {
+    sanitizedUpdates.xp_reward = Math.min(300, Math.max(5, updates.xp_reward));
+  }
+
+  if (updates.recurrence_type !== undefined) {
+    sanitizedUpdates.recurrence_type = updates.recurrence_type;
+  }
+
+  if (updates.recurrence_data !== undefined) {
+    sanitizedUpdates.recurrence_data = updates.recurrence_data;
+  }
+
+  if (updates.is_active !== undefined) {
+    sanitizedUpdates.is_active = updates.is_active;
+  }
+
   const { error } = await supabase
     .from("habits")
     .update({
-      ...updates,
+      ...sanitizedUpdates,
       updated_at: new Date().toISOString(),
     })
     .eq("id", habitId);
