@@ -51,7 +51,6 @@ const aiResponseSchema = z.object({
   difficulty:      z.number().int().min(1).max(5),
   duration_label:  z.string().min(1).max(60),
   category:        z.enum(QUEST_CATEGORIES),
-  xp_reward:       z.number().int().positive().optional(), // now computed server-side
   steps: z.array(z.object({
     id:       z.string(),
     title:    z.string().max(200),

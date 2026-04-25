@@ -73,6 +73,7 @@ export const DURATION_MINUTES_MAP: Record<string, number> = {
   "7 days":     840,
   "1 week":     840,
   "1-2 weeks": 1050,
+  "weekend":   720,    // 2 days × 6 hrs active
   "2-4 weeks": 3600,   // short main quest range — effort-hours
   // ── Main quests (effort hours × 60) ──────────────────────────
   "30 days":   2400,
@@ -92,6 +93,8 @@ export const DURATION_MINUTES_MAP: Record<string, number> = {
   "6 months":  14400,
   "6-12 months":21600,
   "12 months": 28800,
+  "1 quarter":   7200,  // 3 months business term
+  "2 quarters": 14400,  // 6 months
 };
 
 /**
@@ -104,13 +107,15 @@ export function durationLabelToMinutes(label: string): number {
     return DURATION_MINUTES_MAP[label];
   }
   // Heuristic fallback: parse numeric prefix
-  const match = label.match(/^(\d+(?:\.\d+)?)/);
+  const lower = label.toLowerCase();
+  const match = lower.match(/^(\d+(?:\.\d+)?)/);
   if (!match) return 120; // default 2 hours
   const n = parseFloat(match[1]);
-  if (label.includes("month")) return Math.round(n * 2400);
-  if (label.includes("week"))  return Math.round(n * 840);
-  if (label.includes("day"))   return Math.round(n * 360);
-  if (label.includes("hour"))  return Math.round(n * 60);
-  if (label.includes("min"))   return Math.round(n);
+  if (lower.includes("month")) return Math.round(n * 2400);
+  if (lower.includes("quarter")) return Math.round(n * 7200); // 3 months
+  if (lower.includes("week"))  return Math.round(n * 840);
+  if (lower.includes("day"))   return Math.round(n * 360);
+  if (lower.includes("hour"))  return Math.round(n * 60);
+  if (lower.includes("min"))   return Math.round(n);
   return 120;
 }

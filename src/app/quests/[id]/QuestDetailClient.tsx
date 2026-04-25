@@ -42,8 +42,7 @@ function useQuestStepChecks(questId: string, stepIds: string[]) {
     });
   };
 
-  const allRequired = stepIds.every((id) => checked[id]);
-  return { checked, toggle, allRequired };
+  return { checked, toggle };
 }
 
 const difficultyLabels = ["", "Easy", "Medium", "Hard", "Very Hard", "Legendary"];
