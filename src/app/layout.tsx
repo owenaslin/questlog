@@ -80,7 +80,7 @@ export default function RootLayout({
         <WeatherLayer />
         <ViewModeProvider>
           <Navbar />
-          <main className="max-w-6xl mx-auto px-4 py-8 w-full">{children}</main>
+          <main id="main-content" className="max-w-6xl mx-auto px-4 py-8 w-full">{children}</main>
           <MobileBottomNav />
           <Analytics />
           <SpeedInsights />

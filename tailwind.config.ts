@@ -149,7 +149,34 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Custom plugin for screen reader utilities
+    function({ addUtilities }: { addUtilities: Function }) {
+      addUtilities({
+        '.sr-only': {
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: '0',
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: '0',
+        },
+        '.not-sr-only': {
+          position: 'static',
+          width: 'auto',
+          height: 'auto',
+          padding: '0',
+          margin: '0',
+          overflow: 'visible',
+          clip: 'auto',
+          whiteSpace: 'normal',
+        },
+      });
+    },
+  ],
 };
 
 export default config;

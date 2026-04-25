@@ -1,5 +1,7 @@
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const baseConfig = {
   // Static export for Capacitor (set to 'server' for Vercel deployment)
   output: process.env.CAPACITOR_BUILD ? 'export' : undefined,
   distDir: process.env.CAPACITOR_BUILD ? 'dist' : '.next',
@@ -53,4 +55,9 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+const withAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+  openAnalyzer: true,
+});
+
+export default withAnalyzer(baseConfig);
