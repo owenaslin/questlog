@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Static export for Capacitor (set to 'server' for Vercel deployment)
+  output: process.env.CAPACITOR_BUILD ? 'export' : undefined,
+  distDir: process.env.CAPACITOR_BUILD ? 'dist' : '.next',
+
   images: {
     unoptimized: true,
   },
