@@ -49,7 +49,7 @@ const bodySchema = z.object({
   duration_minutes: z.number().int().positive().optional().nullable(),
   steps:            z.array(z.object({
     id:       z.string(),
-    title:    z.string(),
+    title:    z.string().max(200).transform((s) => s.replace(/[<>]/g, "").trim()),
     optional: z.boolean().optional(),
   })).optional().default([]),
   category:         z.enum(QUEST_CATEGORIES),
