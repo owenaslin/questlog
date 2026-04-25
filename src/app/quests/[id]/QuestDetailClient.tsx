@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import PixelButton from "@/components/PixelButton";
@@ -47,6 +47,9 @@ function useQuestStepChecks(questId: string, stepIds: string[]) {
 
 const difficultyLabels = ["", "Easy", "Medium", "Hard", "Very Hard", "Legendary"];
 
+// Module-level constant to avoid recreating array on each render
+const DIFFICULTY_STARS = [0, 1, 2, 3, 4];
+
 export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -71,6 +74,12 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const { checked: stepChecked, toggle: toggleStep } = useQuestStepChecks(
     quest.id,
     steps.map((s) => s.id)
+  );
+
+  // Memoize completed count to avoid filtering on every render
+  const completedStepsCount = useMemo(
+    () => steps.filter((s) => stepChecked[s.id]).length,
+    [steps, stepChecked]
   );
 
   useEffect(() => {
@@ -254,7 +263,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
               </span>
               <div className="flex-1 h-px bg-retro-darkgray" />
               <span className="font-pixel text-retro-gray text-[7px]">
-                {steps.filter((s) => stepChecked[s.id]).length}/{steps.length}
+                {completedStepsCount}/{steps.length}
               </span>
             </div>
             <ul className="space-y-2">
@@ -305,7 +314,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
           <div className="bg-retro-black p-3 text-center">
             <div className="font-pixel text-retro-gray text-[7px] mb-1 uppercase">Difficulty</div>
             <div className="flex justify-center gap-1 mb-1">
-              {Array.from({ length: 5 }).map((_, i) => (
+              {DIFFICULTY_STARS.map((i) => (
                 <span key={i} className={`text-xs ${i < quest.difficulty ? "text-retro-yellow" : "text-retro-darkgray"}`}>
                   ★
                 </span>

@@ -14,6 +14,11 @@ function roundTo(value: number, step: number): number {
   return Math.round(value / step) * step;
 }
 
+/** Clamp value between min and max (inclusive) */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
 export function calcSideQuestXP(duration_minutes: number, difficulty: number): number {
   const raw = duration_minutes * 5 * (DIFF_MOD[difficulty] ?? 1.0);
   return Math.max(25, Math.min(2500, roundTo(raw, 25)));

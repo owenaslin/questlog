@@ -5,7 +5,7 @@ import { z } from "zod";
 import { kv } from "@vercel/kv";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
-import { durationLabelToMinutes, calcQuestXP } from "@/lib/xp";
+import { durationLabelToMinutes, calcQuestXP, clamp } from "@/lib/xp";
 
 const XP_CAPS = {
   side: { min: 25,  max: 2500  },
@@ -70,11 +70,6 @@ class AppError extends Error {
 
 function sanitize(s: string) {
   return s.replace(/[<>]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
-}
-
-function clampXP(xp: number, type: "main" | "side"): number {
-  const { min, max } = XP_CAPS[type];
-  return Math.max(min, Math.min(max, xp));
 }
 
 async function checkRateLimit(
@@ -286,7 +281,7 @@ export async function POST(req: NextRequest) {
       duration_label:  data.duration_label,
       duration_minutes,
       category:        data.category,
-      xp_reward:       clampXP(xp_reward, input.questType),
+      xp_reward:       clamp(xp_reward, XP_CAPS[input.questType].min, XP_CAPS[input.questType].max),
       steps:           data.steps,
       location:        input.mode === "ai" ? (input.location || null) : null,
       evaluation_note: data.evaluation_note,
