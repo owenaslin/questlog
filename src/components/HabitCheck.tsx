@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useSpring, animated, config } from "@react-spring/web";
 
 interface HabitCheckProps {
   checked: boolean;
@@ -32,11 +32,23 @@ export default function HabitCheck({
     lg: "text-sm",
   };
 
+  const checkmark = useSpring({
+    transform: checked ? "scale(1)" : "scale(0)",
+    opacity: checked ? 1 : 0,
+    config: { tension: 500, friction: 30 },
+  });
+
+  const ripple = useSpring({
+    transform: isAnimating && checked ? "scale(2)" : "scale(0.5)",
+    opacity: isAnimating && checked ? 0 : 1,
+    config: { duration: 400 },
+  });
+
   const handleClick = () => {
     if (disabled) return;
     setIsAnimating(true);
     onChange(!checked);
-    setTimeout(() => setIsAnimating(false), 300);
+    setTimeout(() => setIsAnimating(false), 400);
   };
 
   return (
@@ -48,8 +60,8 @@ export default function HabitCheck({
         relative flex items-center justify-center rounded
         border-2 transition-all duration-150
         ${sizeClasses[size]}
-        ${checked 
-          ? "border-transparent" 
+        ${checked
+          ? "border-transparent"
           : "border-tavern-oak bg-tavern-smoke hover:border-tavern-gold/50"
         }
         ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -60,28 +72,22 @@ export default function HabitCheck({
       aria-checked={checked}
       role="checkbox"
     >
-      <AnimatePresence mode="wait">
-        {checked && (
-          <motion.span
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className={`${iconSizes[size]} text-tavern-smoke font-bold`}
-          >
-            ✓
-          </motion.span>
-        )}
-      </AnimatePresence>
+      {checked && (
+        <animated.span
+          style={checkmark}
+          className={`${iconSizes[size]} text-tavern-smoke font-bold`}
+        >
+          ✓
+        </animated.span>
+      )}
 
-      {/* Ripple/celebration effect on check */}
       {isAnimating && checked && (
-        <motion.div
-          initial={{ scale: 0.5, opacity: 1 }}
-          animate={{ scale: 2, opacity: 0 }}
-          transition={{ duration: 0.4 }}
+        <animated.div
+          style={{
+            ...ripple,
+            backgroundColor: color,
+          }}
           className="absolute inset-0 rounded"
-          style={{ backgroundColor: color, opacity: 0.3 }}
         />
       )}
     </button>

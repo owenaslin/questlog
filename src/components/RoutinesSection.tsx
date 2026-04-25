@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import { HabitWithStatus } from "@/lib/types";
 import { getHabitsForToday, completeHabit, uncompleteHabit } from "@/lib/habits";
 import HabitCheck from "./HabitCheck";
@@ -111,47 +110,31 @@ export default function RoutinesSection() {
             ({completedCount}/{totalCount})
           </span>
           {allCompleted && (
-            <motion.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="text-xs"
-            >
+            <span className="text-xs">
               ✨
-            </motion.span>
+            </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[9px] text-tavern-parchment-dim">
             {hoursUntilReset}h to reset
           </span>
-          <motion.span
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-            className="text-tavern-gold"
-          >
+          <span className={`text-tavern-gold transition-transform duration-200 inline-block ${isExpanded ? "rotate-180" : ""}`}>
             ▼
-          </motion.span>
+          </span>
         </div>
       </button>
 
       {/* Expandable content */}
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
+      {isExpanded && (
+        <div className="overflow-hidden"
+        >
             <div className="pt-3 mt-3 border-t border-tavern-oak/30">
               {/* Progress bar */}
               <div className="h-1.5 bg-tavern-oak/30 rounded-full overflow-hidden mb-3">
-                <motion.div
-                  className="h-full bg-tavern-gold rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(completedCount / totalCount) * 100}%` }}
-                  transition={{ type: "spring", stiffness: 100 }}
+                <div
+                  className="h-full bg-tavern-gold rounded-full transition-all duration-300"
+                  style={{ width: `${(completedCount / totalCount) * 100}%` }}
                 />
               </div>
 
@@ -212,9 +195,8 @@ export default function RoutinesSection() {
                 </Link>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }

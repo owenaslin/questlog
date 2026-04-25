@@ -1,13 +1,45 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { useSpring, animated } from "@react-spring/web";
 import type { PersonalSaga } from "@/lib/saga-generator";
 import { getSagaArchetype } from "@/lib/saga-generator";
 
 interface PersonalSagaProps {
   saga: PersonalSaga;
   heroName: string;
+}
+
+function ChapterItem({ chapter, index }: { chapter: any; index: number }) {
+  const spring = useSpring({
+    opacity: 1,
+    x: 0,
+    delay: index * 150,
+    config: { duration: 600 },
+  });
+
+  return (
+    <animated.div
+      style={{
+        opacity: spring.opacity,
+        transform: spring.x.to((x) => `translateX(${x}px)`),
+      }}
+      className="relative pl-4 border-l-2 border-tavern-oak"
+    >
+      <div className="absolute -left-[5px] top-0 w-2 h-2 bg-tavern-gold rounded-full" />
+      <h4 className="font-pixel text-tavern-gold text-[9px] mb-1">
+        Chapter {index + 1}: {chapter.title}
+      </h4>
+      <p className="font-pixel text-tavern-parchment text-[7px] leading-relaxed opacity-90">
+        {chapter.description}
+      </p>
+      {chapter.date && (
+        <p className="font-pixel text-tavern-smoke-light text-[6px] mt-1 opacity-60">
+          {new Date(chapter.date).toLocaleDateString()}
+        </p>
+      )}
+    </animated.div>
+  );
 }
 
 export default function PersonalSaga({ saga, heroName }: PersonalSagaProps) {
@@ -82,26 +114,7 @@ export default function PersonalSaga({ saga, heroName }: PersonalSagaProps) {
       {/* Chapters */}
       <div className="space-y-4 mb-6">
         {saga.chapters.map((chapter, index) => (
-          <motion.div
-            key={chapter.type}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.15 }}
-            className="relative pl-4 border-l-2 border-tavern-oak"
-          >
-            <div className="absolute -left-[5px] top-0 w-2 h-2 bg-tavern-gold rounded-full" />
-            <h4 className="font-pixel text-tavern-gold text-[9px] mb-1">
-              Chapter {index + 1}: {chapter.title}
-            </h4>
-            <p className="font-pixel text-tavern-parchment text-[7px] leading-relaxed opacity-90">
-              {chapter.description}
-            </p>
-            {chapter.date && (
-              <p className="font-pixel text-tavern-smoke-light text-[6px] mt-1 opacity-60">
-                {new Date(chapter.date).toLocaleDateString()}
-              </p>
-            )}
-          </motion.div>
+          <ChapterItem key={chapter.type} chapter={chapter} index={index} />
         ))}
       </div>
 
