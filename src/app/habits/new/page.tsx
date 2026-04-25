@@ -224,7 +224,7 @@ export default function NewHabitPage() {
           <input
             type="range"
             min={5}
-            max={25}
+            max={300}
             step={5}
             value={formData.xp_reward}
             onChange={(e) =>
@@ -234,8 +234,8 @@ export default function NewHabitPage() {
           />
           <div className="flex justify-between text-[10px] text-tavern-parchment-dim mt-1">
             <span>5 XP</span>
-            <span>15 XP</span>
-            <span>25 XP</span>
+            <span>150 XP</span>
+            <span>300 XP</span>
           </div>
         </div>
 

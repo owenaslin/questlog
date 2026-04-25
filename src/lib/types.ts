@@ -2,6 +2,12 @@ export type QuestType = "main" | "side";
 export type QuestSource = "predefined" | "user" | "ai";
 export type QuestStatus = "available" | "active" | "completed";
 
+export interface QuestStep {
+  id: string;        // stable ID for localStorage keying
+  title: string;     // e.g., "Stretch for 5 minutes"
+  optional?: boolean;
+}
+
 export const QUEST_CATEGORIES = [
   "Fitness", "Education", "Creative", "Tech", "Food", "Outdoors",
   "Social", "Wellness", "Community", "Career", "Business", "Culture", "Productivity",
@@ -18,6 +24,8 @@ export interface Quest {
   difficulty: number; // 1-5
   xp_reward: number;
   duration_label: string;
+  duration_minutes?: number | null;   // null for legacy/uncalculated rows
+  steps?: QuestStep[];                 // undefined = no steps defined
   category: string;
   location: string | null;
   status: QuestStatus;

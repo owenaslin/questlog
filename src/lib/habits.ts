@@ -46,7 +46,7 @@ export async function createHabit(input: CreateHabitInput): Promise<{
       color: input.color || "#e8b864",
       recurrence_type: input.recurrence_type,
       recurrence_data: input.recurrence_data,
-      xp_reward: Math.min(25, Math.max(5, input.xp_reward || 10)),
+      xp_reward: Math.min(300, Math.max(5, input.xp_reward || 10)),
       is_active: true,
       sort_order: 0,
     })

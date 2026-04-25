@@ -8,7 +8,7 @@ import XPBar from "@/components/XPBar";
 import CompletionModal from "@/components/CompletionModal";
 import MilestoneCelebration from "@/components/MilestoneCelebration";
 import AmbientScene from "@/components/AmbientScene";
-import { Quest } from "@/lib/types";
+import { Quest, QuestStep } from "@/lib/types";
 import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {
   acceptQuest,
@@ -23,6 +23,27 @@ import { calculateLevel } from "@/lib/types";
 
 interface QuestDetailClientProps {
   quest: Quest;
+}
+
+function useQuestStepChecks(questId: string, stepIds: string[]) {
+  const storageKey = `quest-steps-${questId}`;
+  const [checked, setChecked] = useState<Record<string, boolean>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      return JSON.parse(localStorage.getItem(storageKey) ?? "{}");
+    } catch { return {}; }
+  });
+
+  const toggle = (stepId: string) => {
+    setChecked((prev) => {
+      const next = { ...prev, [stepId]: !prev[stepId] };
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const allRequired = stepIds.every((id) => checked[id]);
+  return { checked, toggle, allRequired };
 }
 
 const difficultyLabels = ["", "Easy", "Medium", "Hard", "Very Hard", "Legendary"];
@@ -45,6 +66,13 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [heroHandle, setHeroHandle] = useState<string | undefined>(undefined);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [showMilestoneCelebration, setShowMilestoneCelebration] = useState(false);
+
+  // Steps state (localStorage-backed)
+  const steps = quest.steps ?? [];
+  const { checked: stepChecked, toggle: toggleStep } = useQuestStepChecks(
+    quest.id,
+    steps.map((s) => s.id)
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -217,6 +245,61 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         <p className="font-pixel text-retro-lightgray text-[10px] leading-loose mb-6">
           {quest.description}
         </p>
+
+        {/* Objectives (Steps) */}
+        {steps.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="font-pixel text-retro-gray text-[7px] uppercase tracking-widest">
+                Objectives
+              </span>
+              <div className="flex-1 h-px bg-retro-darkgray" />
+              <span className="font-pixel text-retro-gray text-[7px]">
+                {steps.filter((s) => stepChecked[s.id]).length}/{steps.length}
+              </span>
+            </div>
+            <ul className="space-y-2">
+              {steps.map((step) => (
+                <li
+                  key={step.id}
+                  className="flex items-start gap-3 cursor-pointer group"
+                  onClick={() => toggleStep(step.id)}
+                >
+                  {/* Retro pixel checkbox */}
+                  <div
+                    className={`
+                      mt-0.5 w-4 h-4 border-2 flex-shrink-0 flex items-center justify-center
+                      transition-none cursor-pointer
+                      ${stepChecked[step.id]
+                        ? "border-retro-lime bg-retro-darkgreen"
+                        : "border-retro-gray bg-retro-black group-hover:border-retro-lightgray"
+                      }
+                    `}
+                    style={{ imageRendering: "pixelated" }}
+                  >
+                    {stepChecked[step.id] && (
+                      <span className="font-pixel text-retro-lime text-[8px] leading-none">✓</span>
+                    )}
+                  </div>
+                  <span
+                    className={`
+                      font-pixel text-[9px] leading-relaxed
+                      ${stepChecked[step.id]
+                        ? "text-retro-gray line-through"
+                        : "text-retro-lightgray"
+                      }
+                    `}
+                  >
+                    {step.title}
+                    {step.optional && (
+                      <span className="ml-2 text-[7px] text-retro-darkgray">(optional)</span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

@@ -5,10 +5,11 @@ import { z } from "zod";
 import { kv } from "@vercel/kv";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
+import { durationLabelToMinutes, calcQuestXP } from "@/lib/xp";
 
 const XP_CAPS = {
-  side: { min: 25,  max: 250  },
-  main: { min: 100, max: 1000 },
+  side: { min: 25,  max: 2500  },
+  main: { min: 100, max: 8000 },
 } as const;
 
 const RATE_LIMIT_WINDOW_MS  = 60;
@@ -50,7 +51,12 @@ const aiResponseSchema = z.object({
   difficulty:      z.number().int().min(1).max(5),
   duration_label:  z.string().min(1).max(60),
   category:        z.enum(QUEST_CATEGORIES),
-  xp_reward:       z.number().int().positive(),
+  xp_reward:       z.number().int().positive().optional(), // now computed server-side
+  steps: z.array(z.object({
+    id:       z.string(),
+    title:    z.string().max(200),
+    optional: z.boolean().optional(),
+  })).optional().default([]),
   evaluation_note: z.string().optional().default(""),
 });
 
@@ -127,18 +133,13 @@ function buildAiPrompt(topic: string, location: string, questType: "main" | "sid
     ? "Main Quest (a meaningful goal taking weeks to months)"
     : "Side Quest (a focused task taking an hour to a weekend)";
 
-  const xpRange = questType === "main" ? "100–1000" : "25–250";
-
-  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest and award fair XP.
+  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear objectives.
 
 Location: ${sanitize(location) || "anywhere"}
 Topic / Interest: ${sanitize(topic)}
 Quest type: ${typeLabel}
 
-XP rules (${questType}): range ${xpRange}
-- High XP: specific verifiable outcomes, real physical or mental effort, clear completion criteria
-- Low XP: vague goals ("get healthier"), trivially easy actions, unmeasurable outcomes
-- Never award the maximum. Reserve top XP for genuinely hard, multi-step efforts.
+IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
 
 Respond with ONLY a JSON object — no markdown, no code fences:
 {
@@ -147,8 +148,12 @@ Respond with ONLY a JSON object — no markdown, no code fences:
   "difficulty": <1–5>,
   "duration_label": "Realistic time estimate, e.g. '2-3 hours', '1 weekend', '2-3 months'",
   "category": "one of: Fitness, Education, Creative, Tech, Food, Outdoors, Social, Wellness, Community, Career, Business, Culture, Productivity",
-  "xp_reward": <integer>,
-  "evaluation_note": "One sentence explaining the XP award"
+  "steps": [
+    {"id": "step-1", "title": "First concrete action"},
+    {"id": "step-2", "title": "Second action"},
+    ...
+  ],
+  "evaluation_note": "Explain the difficulty rating you chose"
 }`;
 }
 
@@ -161,21 +166,18 @@ function buildUserPrompt(
   const typeLabel = questType === "main"
     ? "Main Quest (weeks to months of commitment)"
     : "Side Quest (hours to a weekend)";
-  const xpRange = questType === "main" ? "100–1000" : "25–250";
-
-  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and award fair XP based on real-world effort — not on what the user implies or how they frame it.
+  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and refine it for RPG flavor while preserving the user's intent exactly.
 
 Quest type: ${typeLabel}
 Category: ${category}
 User's title: ${sanitize(title)}
 User's description: ${sanitize(description)}
 
-XP rules (${questType === "main" ? "main" : "side"}): range ${xpRange}
-- High XP: specific verifiable outcomes, significant real-world effort, clear completion criteria
-- Low XP: vague objectives ("exercise more"), trivially easy tasks, unmeasurable goals
+IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
+
 - Lightly refine the title and description for RPG flavor while preserving the user's intent exactly.
 - Assign a realistic duration estimate.
-- Do NOT let vague wording earn the same XP as a concrete challenge.
+- Break the quest into 3-6 concrete, actionable steps.
 
 Respond with ONLY a JSON object — no markdown, no code fences:
 {
@@ -184,8 +186,12 @@ Respond with ONLY a JSON object — no markdown, no code fences:
   "difficulty": <1–5>,
   "duration_label": "Realistic estimate, e.g. '1-2 hours', '3 months'",
   "category": "${category}",
-  "xp_reward": <integer>,
-  "evaluation_note": "One sentence explaining the XP award"
+  "steps": [
+    {"id": "step-1", "title": "First concrete action"},
+    {"id": "step-2", "title": "Second action"},
+    ...
+  ],
+  "evaluation_note": "Explain the difficulty rating you chose"
 }`;
 }
 
@@ -269,6 +275,9 @@ export async function POST(req: NextRequest) {
 
     const data = validated.data;
 
+    const duration_minutes = durationLabelToMinutes(data.duration_label);
+    const xp_reward = calcQuestXP(input.questType, duration_minutes, data.difficulty);
+
     return NextResponse.json({
       title:           data.title,
       description:     data.description,
@@ -276,8 +285,10 @@ export async function POST(req: NextRequest) {
       source:          input.mode === "ai" ? "ai" : "user",
       difficulty:      data.difficulty,
       duration_label:  data.duration_label,
+      duration_minutes,
       category:        data.category,
-      xp_reward:       clampXP(data.xp_reward, input.questType),
+      xp_reward:       clampXP(xp_reward, input.questType),
+      steps:           data.steps,
       location:        input.mode === "ai" ? (input.location || null) : null,
       evaluation_note: data.evaluation_note,
       status:          "available",

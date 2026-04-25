@@ -4,8 +4,17 @@
 
 // XP and Leveling
 export const XP_PER_LEVEL = 500;
-export const BASE_MAIN_QUEST_XP = 200;
-export const BASE_SIDE_QUEST_XP = 50;
+
+// Legacy base values (kept for reference / backward compat display)
+// New quests use the time-proportional formula in src/lib/xp.ts
+export const BASE_MAIN_QUEST_XP = 200;   // keep, may still be referenced
+export const BASE_SIDE_QUEST_XP = 50;    // keep, may still be referenced
+
+// XP formula caps (enforced in xp.ts and in API routes)
+export const MAX_SIDE_QUEST_XP = 2500;
+export const MAX_MAIN_QUEST_XP = 8000;
+export const MAX_HABIT_XP = 300;
+export const MIN_HABIT_XP = 5;
 
 // Difficulty levels
 export const MIN_DIFFICULTY = 1;
