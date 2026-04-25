@@ -218,15 +218,17 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto relative">
       <AmbientScene scene="quest-alcove" />
-      {/* Back button */}
-      <Link
-        href="/board"
-        className="font-pixel text-tavern-parchment text-[8px] hover:text-tavern-gold mb-6 inline-block"
+      {/* Close button */}
+      <button
+        type="button"
+        onClick={() => router.push("/board")}
+        className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-tavern-parchment hover:text-tavern-gold text-xl transition-colors"
+        aria-label="Close"
       >
-        ← Back to The Board
-      </Link>
+        ✕
+      </button>
 
       {/* Quest Card */}
       <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel-lg p-8">

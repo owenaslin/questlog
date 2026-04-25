@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Merriweather:wght@400;700&family=Press+Start+2P&display=swap");
 
 :root {
   --color-bg: #161210;
   --color-text: #efd9a8;
-  --fell: "IM Fell English SC", serif;
+  --fell: "Merriweather", serif;
   --pixel: "Press Start 2P", cursive;
   --body: "Inter", sans-serif;
   --mono: "JetBrains Mono", monospace;

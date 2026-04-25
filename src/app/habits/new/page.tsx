@@ -45,8 +45,14 @@ export default function NewHabitPage() {
     color: "#e8b864",
     recurrence_type: "daily" as HabitRecurrenceType,
     recurrence_data: {} as HabitRecurrenceData,
-    xp_reward: 10,
+    xp_tier: "small" as "small" | "medium" | "large",
   });
+
+  const XP_TIERS = {
+    small: { xp: 25, label: "Small", description: "Quick habit (5-10 min)" },
+    medium: { xp: 50, label: "Medium", description: "Regular habit (15-30 min)" },
+    large: { xp: 100, label: "Large", description: "Substantial habit (30+ min)" },
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +82,7 @@ export default function NewHabitPage() {
       color: formData.color,
       recurrence_type: formData.recurrence_type,
       recurrence_data: formData.recurrence_data,
-      xp_reward: formData.xp_reward,
+      xp_reward: XP_TIERS[formData.xp_tier].xp,
     });
 
     if (result.success) {
@@ -216,26 +222,34 @@ export default function NewHabitPage() {
           onChange={handleRecurrenceChange}
         />
 
-        {/* XP Reward */}
+        {/* XP Tier */}
         <div>
           <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
-            XP Reward: {formData.xp_reward}
+            Habit Size
           </label>
-          <input
-            type="range"
-            min={5}
-            max={300}
-            step={5}
-            value={formData.xp_reward}
-            onChange={(e) =>
-              setFormData({ ...formData, xp_reward: Number(e.target.value) })
-            }
-            className="w-full h-2 bg-tavern-oak rounded-lg appearance-none cursor-pointer"
-          />
-          <div className="flex justify-between text-[10px] text-tavern-parchment-dim mt-1">
-            <span>5 XP</span>
-            <span>150 XP</span>
-            <span>300 XP</span>
+          <div className="grid grid-cols-3 gap-2">
+            {(Object.keys(XP_TIERS) as Array<keyof typeof XP_TIERS>).map((tier) => (
+              <button
+                key={tier}
+                type="button"
+                onClick={() => setFormData({ ...formData, xp_tier: tier })}
+                className={`p-3 rounded-lg border-2 text-left transition-all ${
+                  formData.xp_tier === tier
+                    ? "border-tavern-gold bg-tavern-gold/10"
+                    : "border-tavern-oak hover:border-tavern-gold/50"
+                }`}
+              >
+                <div className="font-pixel text-[10px] text-tavern-gold">
+                  {XP_TIERS[tier].label}
+                </div>
+                <div className="font-pixel text-[8px] text-tavern-parchment-dim mt-1">
+                  {XP_TIERS[tier].xp} XP
+                </div>
+                <div className="text-[9px] text-tavern-parchment-dim/70 mt-0.5">
+                  {XP_TIERS[tier].description}
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -256,7 +270,7 @@ export default function NewHabitPage() {
                 {formData.title || "Your habit name"}
               </p>
               <p className="text-[10px] text-tavern-parchment-dim">
-                {formData.recurrence_type} • +{formData.xp_reward} XP
+                {formData.recurrence_type} • +{XP_TIERS[formData.xp_tier].xp} XP
               </p>
             </div>
           </div>

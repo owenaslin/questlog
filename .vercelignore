@@ -1,0 +1,5 @@
+# Exclude webpack's persistent cache from Vercel's build cache layer.
+# Vercel saves the entire .next/cache dir by default; webpack's subfolder
+# alone can be 100+ MB and is usually rebuilt from scratch on source changes
+# anyway — so we pay the storage cost for minimal build-time benefit.
+.next/cache/webpack
