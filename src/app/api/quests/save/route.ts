@@ -4,6 +4,8 @@ import { z } from "zod";
 import { kv } from "@vercel/kv";
 import { QUEST_CATEGORIES } from "@/lib/types";
 
+export const preferredRegion = 'pdx1';
+
 // ── XP cap (defence in depth) ─────────────────────────────────────────────────
 // quest.type is client-supplied so we cannot fully prevent a user from claiming
 // "main" to access the higher ceiling. We intentionally omit the minimum floor

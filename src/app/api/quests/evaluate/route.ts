@@ -7,6 +7,8 @@ import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
 import { durationLabelToMinutes, calcQuestXP, clamp } from "@/lib/xp";
 
+export const preferredRegion = 'pdx1';
+
 const XP_CAPS = {
   side: { min: 25,  max: 2500  },
   main: { min: 100, max: 8000 },
