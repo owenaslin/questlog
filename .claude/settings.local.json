@@ -36,7 +36,8 @@
       "Bash(npx vercel *)",
       "Bash(git pull *)",
       "Bash(git init *)",
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Bash(git cherry-pick --continue -m ' *)"
     ]
   }
 }
