@@ -13,15 +13,14 @@ import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {
   acceptQuest,
   abandonQuest,
+  abandonAndAccept,
   completeQuest,
   getCompletedCategoryCounts,
   getUserDashboardSnapshot,
   updateStreakOnCompletion,
-  markQuestStep,
-  unmarkQuestStep,
-  getQuestStepProgress,
   getSuggestedNextQuests,
 } from "@/lib/quest-progress";
+import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
 import { getOwnHeroProfile } from "@/lib/hero";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { calculateLevel } from "@/lib/types";
@@ -54,9 +53,12 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
 
   // Server-synced steps
   const steps = quest.steps ?? [];
-  const [stepChecked, setStepChecked] = useState<Set<string>>(new Set());
-  const [stepLoading, setStepLoading] = useState<string | null>(null);
-  const [stepsHydrated, setStepsHydrated] = useState(false);
+  const {
+    completedStepIds: stepChecked,
+    loadingStepId: stepLoading,
+    hydrated: stepsHydrated,
+    toggleStep,
+  } = useQuestStepProgress(quest.id);
 
   // Abandon confirmation
   const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
@@ -68,10 +70,9 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   useEffect(() => {
     let mounted = true;
     const hydrateStatus = async () => {
-      const [snapshot, heroProfile, stepProgress] = await Promise.all([
+      const [snapshot, heroProfile] = await Promise.all([
         getUserDashboardSnapshot(),
         getOwnHeroProfile(),
-        getQuestStepProgress(quest.id),
       ]);
 
       if (!mounted) return;
@@ -81,42 +82,11 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       if (progress?.status) setStatus(progress.status);
       if (summary) setProfileXpTotal(summary.xp_total);
       if (heroProfile?.handle) setHeroHandle(heroProfile.handle);
-      setStepChecked(stepProgress);
-      setStepsHydrated(true);
     };
 
     hydrateStatus();
     return () => { mounted = false; };
   }, [quest.id]);
-
-  const toggleStep = async (stepId: string) => {
-    if (stepLoading) return;
-    setStepLoading(stepId);
-    const isChecked = stepChecked.has(stepId);
-
-    // Optimistic update
-    setStepChecked((prev) => {
-      const next = new Set(prev);
-      if (isChecked) next.delete(stepId);
-      else next.add(stepId);
-      return next;
-    });
-
-    const result = isChecked
-      ? await unmarkQuestStep(quest.id, stepId)
-      : await markQuestStep(quest.id, stepId);
-
-    if (!result.success) {
-      // Rollback
-      setStepChecked((prev) => {
-        const next = new Set(prev);
-        if (isChecked) next.add(stepId);
-        else next.delete(stepId);
-        return next;
-      });
-    }
-    setStepLoading(null);
-  };
 
   const handleAccept = async () => {
     setIsWorking(true);
@@ -156,8 +126,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
     setStatus("active");
 
     try {
-      await abandonQuest(conflictQuest.questId);
-      const result = await acceptQuest(quest.id, quest.type, quest.category);
+      const result = await abandonAndAccept(conflictQuest.questId, quest.id, quest.type, quest.category);
       if (!result.success) {
         setStatus(previousStatus);
         setActionError(result.error || "Could not accept quest.");

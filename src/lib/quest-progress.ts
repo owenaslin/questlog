@@ -192,6 +192,17 @@ export async function abandonQuest(questId: string): Promise<{ success: boolean;
   return { success: true };
 }
 
+export async function abandonAndAccept(
+  abandonQuestId: string,
+  newQuestId: string,
+  newQuestType?: Quest["type"],
+  newQuestCategory?: string
+): Promise<{ success: boolean; error?: string; conflict?: { questId: string; title: string } }> {
+  const abandonResult = await abandonQuest(abandonQuestId);
+  if (!abandonResult.success) return abandonResult;
+  return acceptQuest(newQuestId, newQuestType, newQuestCategory);
+}
+
 export async function markQuestStep(questId: string, stepId: string): Promise<{ success: boolean; error?: string }> {
   const userId = await getCurrentUserId();
   if (!userId) return { success: false, error: "Please log in." };

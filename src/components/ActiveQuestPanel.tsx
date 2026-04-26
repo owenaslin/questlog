@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React from "react";
 import Link from "next/link";
 import { Quest } from "@/lib/types";
-import { getQuestStepProgress, markQuestStep, unmarkQuestStep } from "@/lib/quest-progress";
+import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
 
 interface ActiveQuestPanelProps {
   quest: Quest;
@@ -11,52 +11,7 @@ interface ActiveQuestPanelProps {
 
 export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
   const steps = quest.steps ?? [];
-  const [completedStepIds, setCompletedStepIds] = useState<Set<string>>(new Set());
-  const [loadingStepId, setLoadingStepId] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
-  const mountedRef = useRef(true);
-
-  const loadSteps = useCallback(async () => {
-    const progress = await getQuestStepProgress(quest.id);
-    if (!mountedRef.current) return;
-    setCompletedStepIds(progress);
-    setHydrated(true);
-  }, [quest.id]);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    loadSteps();
-    return () => { mountedRef.current = false; };
-  }, [loadSteps]);
-
-  const toggleStep = async (stepId: string) => {
-    if (loadingStepId) return;
-    setLoadingStepId(stepId);
-
-    const isChecked = completedStepIds.has(stepId);
-    // Optimistic update
-    setCompletedStepIds((prev) => {
-      const next = new Set(prev);
-      if (isChecked) next.delete(stepId);
-      else next.add(stepId);
-      return next;
-    });
-
-    const result = isChecked
-      ? await unmarkQuestStep(quest.id, stepId)
-      : await markQuestStep(quest.id, stepId);
-
-    if (!result.success) {
-      // Rollback
-      setCompletedStepIds((prev) => {
-        const next = new Set(prev);
-        if (isChecked) next.add(stepId);
-        else next.delete(stepId);
-        return next;
-      });
-    }
-    setLoadingStepId(null);
-  };
+  const { completedStepIds, loadingStepId, hydrated, toggleStep } = useQuestStepProgress(quest.id);
 
   const completedCount = completedStepIds.size;
   const totalSteps = steps.length;

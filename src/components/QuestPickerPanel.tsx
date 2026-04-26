@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Quest } from "@/lib/types";
-import { acceptQuest, abandonQuest } from "@/lib/quest-progress";
+import { acceptQuest, abandonAndAccept } from "@/lib/quest-progress";
 
 interface QuestPickerPanelProps {
   quests: Quest[];
@@ -46,14 +46,7 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
     if (!conflictQuest || !pendingAccept) return;
     setAcceptingId(pendingAccept.id);
 
-    const abandonResult = await abandonQuest(conflictQuest.questId);
-    if (!abandonResult.success) {
-      setError(abandonResult.error || "Could not abandon quest.");
-      setAcceptingId(null);
-      return;
-    }
-
-    const result = await acceptQuest(pendingAccept.id, pendingAccept.type, pendingAccept.category);
+    const result = await abandonAndAccept(conflictQuest.questId, pendingAccept.id, pendingAccept.type, pendingAccept.category);
 
     setConflictQuest(null);
     setPendingAccept(null);
@@ -62,7 +55,7 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
       onAccepted?.(pendingAccept);
       router.refresh();
     } else {
-      setError(result.error || "Could not accept quest.");
+      setError(result.error || "Could not switch quest.");
     }
     setAcceptingId(null);
   };

@@ -17,7 +17,7 @@ import {
   getUserQuestProgressMap,
   mergeQuestWithProgress,
   acceptQuest,
-  abandonQuest,
+  abandonAndAccept,
 } from "@/lib/quest-progress";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 
@@ -61,12 +61,7 @@ function QuickAcceptButton({
     if (!activeMainQuestId) return;
     setLoading(true);
     setShowConflict(false);
-    const abandonResult = await abandonQuest(activeMainQuestId);
-    if (!abandonResult.success) {
-      setLoading(false);
-      return;
-    }
-    const result = await acceptQuest(quest.id, quest.type, quest.category);
+    const result = await abandonAndAccept(activeMainQuestId, quest.id, quest.type, quest.category);
     setLoading(false);
     if (result.success) onAccepted(quest.id);
   };
