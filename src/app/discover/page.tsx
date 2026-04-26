@@ -1,6 +1,6 @@
 /**
  * Discovery Page
- * 
+ *
  * The main interface for the Tarvn Local Discovery Engine.
  * Allows users to discover location-based quests powered by AI.
  */
@@ -9,6 +9,8 @@ import { Metadata } from 'next';
 import DiscoveryForge from '@/components/DiscoveryForge';
 import { getSupabaseClient, getSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Discover Local Quests | QuestLog',
