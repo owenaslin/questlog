@@ -117,11 +117,11 @@ export default function HabitsPage() {
     if (result.success) await loadHabits();
   };
 
-  const filteredHabits = habits.filter((h) => {
+  const filteredHabits = useMemo(() => habits.filter((h) => {
     if (filter === "active") return h.is_active;
     if (filter === "paused") return !h.is_active;
     return true;
-  });
+  }), [habits, filter]);
 
   const habitAnimations = useTrail(filteredHabits.length, {
     from: { opacity: 0, scale: 0.9 },

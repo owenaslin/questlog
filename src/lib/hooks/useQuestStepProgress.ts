@@ -6,6 +6,8 @@ export function useQuestStepProgress(questId: string) {
   const [loadingStepId, setLoadingStepId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const mountedRef = useRef(true);
+  // Ref mirrors loadingStepId so toggleStep doesn't need it as a dep (avoids identity churn)
+  const loadingStepIdRef = useRef<string | null>(null);
 
   const loadSteps = useCallback(async () => {
     const progress = await getQuestStepProgress(questId);
@@ -21,17 +23,23 @@ export function useQuestStepProgress(questId: string) {
   }, [loadSteps]);
 
   const toggleStep = useCallback(async (stepId: string) => {
-    if (loadingStepId !== null) return;
+    if (loadingStepIdRef.current !== null) return;
+    loadingStepIdRef.current = stepId;
     setLoadingStepId(stepId);
-    const wasChecked = completedStepIds.has(stepId);
+
+    let wasChecked = false;
     setCompletedStepIds((prev) => {
+      wasChecked = prev.has(stepId);
       const next = new Set(prev);
       if (wasChecked) next.delete(stepId); else next.add(stepId);
       return next;
     });
+
+    // wasChecked is captured synchronously inside the setState updater above
     const result = wasChecked
       ? await unmarkQuestStep(questId, stepId)
       : await markQuestStep(questId, stepId);
+
     if (!result.success) {
       setCompletedStepIds((prev) => {
         const next = new Set(prev);
@@ -39,8 +47,10 @@ export function useQuestStepProgress(questId: string) {
         return next;
       });
     }
+
+    loadingStepIdRef.current = null;
     if (mountedRef.current) setLoadingStepId(null);
-  }, [questId, completedStepIds, loadingStepId]);
+  }, [questId]); // stable — completedStepIds read inside updater, loading guarded via ref
 
   return { completedStepIds, loadingStepId, hydrated, toggleStep };
 }
