@@ -56,7 +56,7 @@ function HabitListItem({
           {habit.title}
         </p>
         {habit.streak && habit.streak.current_streak > 0 && (
-          <p className="text-[10px] text-tavern-gold">
+          <p className="mobile-caption text-tavern-gold">
             {habit.streak.current_streak} day streak 🔥
           </p>
         )}
@@ -69,7 +69,7 @@ function HabitListItem({
             opacity: xpAmount ? 1 : 0,
             transition: "opacity 0.3s ease-out",
           }}
-          className="absolute right-14 text-xs text-retro-lime font-pixel"
+          className="absolute right-14 text-xs text-tavern-lime font-pixel"
         >
           +{xpAmount} XP
         </span>
@@ -183,7 +183,7 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
           </p>
           <Link
             href="/habits/new"
-            className="tavrn-button text-[9px] inline-block"
+            className="tavrn-button mobile-caption inline-block"
           >
             Create Your First Habit
           </Link>
@@ -259,7 +259,7 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
         )}
         <Link
           href="/habits"
-          className="tavrn-button text-[8px] !py-1.5 !px-2.5"
+          className="tavrn-button mobile-label !py-1.5 !px-2.5"
         >
           Manage
         </Link>

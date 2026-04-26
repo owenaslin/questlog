@@ -21,19 +21,19 @@ export default function StreakDisplay({
       container: "px-2 py-1 gap-1",
       icon: "text-sm",
       number: "text-sm",
-      label: "text-[6px]",
+      label: "mobile-label",
     },
     md: {
       container: "px-3 py-2 gap-2",
       icon: "text-lg",
       number: "text-base",
-      label: "text-[8px]",
+      label: "mobile-caption",
     },
     lg: {
       container: "px-4 py-3 gap-3",
       icon: "text-2xl",
       number: "text-lg",
-      label: "text-[9px]",
+      label: "mobile-caption",
     },
   };
 
