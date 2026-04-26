@@ -10,7 +10,6 @@ const config: Config = {
     extend: {
       fontFamily: {
         pixel: ['"Press Start 2P"', "cursive"],
-        fell: ['"IM Fell English SC"', "Georgia", "serif"],
       },
       colors: {
         retro: {
@@ -32,34 +31,18 @@ const config: Config = {
           darkgray: "#333c57",
         },
         tavern: {
-          /* COZY-DARK tavern palette */
-          cream: "#2a1d14",
-          "cream-2": "#3a2a1d",
-          "cream-3": "#4a3625",
-          smoke: "#1f1611",
-          "smoke-2": "#2f221a",
-          oak: "#3a2a1d",
-          "oak-2": "#4a3625",
-          "oak-3": "#6b4a2b",
-          parchment: "#f3e0b3",
-          "parchment-2": "#d8bd84",
-          "parchment-dim": "rgba(243,224,179,0.72)",
-          "parchment-faint": "rgba(243,224,179,0.45)",
           gold: "#e8b864",
-          "gold-2": "#c49a3c",
-          ember: "#d27349",
-          lime: "#a7c46c",
-          cyan: "#6fa8a8",
-          ink: "#f3e0b3",
-          "ink-dim": "rgba(243,224,179,0.62)",
-          stroke: "#1a110b",
-          "stroke-soft": "rgba(26,17,11,0.7)",
-          /* Legacy aliases for compatibility */
           "gold-dark": "#c49a3c",
+          ember: "#c44a36",
           "ember-dark": "#8b2a1a",
-          "parchment-dark": "#d8bd84",
+          oak: "#8b5a2b",
+          "oak-dark": "#5c3a1a",
+          parchment: "#e8d4a0",
+          "parchment-dark": "#c4a85a",
+          "parchment-dim": "#a08c6a",
           candle: "#f5d76e",
-          "smoke-light": "#2f221a",
+          smoke: "#4a3f35",
+          "smoke-light": "#6b5a4e",
         },
       },
       boxShadow: {
