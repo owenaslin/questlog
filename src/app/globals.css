@@ -85,7 +85,10 @@ h6 {
   background: var(--gold);
 }
 
-/* Scanlines disabled — cozy mode keeps surfaces clean */
+/* Scanlines disabled — cozy mode prioritizes readability
+   Originally a retro CRT grid overlay effect. Disabled as part of the mobile
+   readability series (PR #66-71) to keep surfaces clean and text readable on
+   small screens. This is intentional design direction for the 2026 refresh. */
 .scan::before {
   display: none;
 }
@@ -100,6 +103,11 @@ h6 {
   border: 4px solid var(--stroke);
   box-shadow: 4px 4px 0px 0px var(--shadow-d);
 }
+
+/* ── Foundation (PR #66) & Quest Cards (PR #67) utilities ──────────────────
+   Design system components for the mobile readability series. See PR descriptions
+   for which utilities are used in each PR.
+─────────────────────────────────────────────────────────────────────────────── */
 
 /* ── Paper texture — bright parchment cards on dark interior ───────────── */
 .paper {
@@ -312,6 +320,11 @@ h6 {
 .bar.lime > i { background: var(--lime); }
 .bar.ember > i { background: var(--ember); }
 
+/* ── Decorative & component utilities (PR #68-71) ─────────────────────────────
+   These utilities are added as part of the mobile readability series foundation.
+   Used in: Quest Forge (#68), Habits (#69), Profile (#70), Navbar (#71).
+─────────────────────────────────────────────────────────────────────────────── */
+
 /* Soft divider */
 .divider-deco {
   display: flex;
@@ -355,11 +368,11 @@ h6 {
 .btn-pxl.oak { background: var(--cream-3); color: var(--ink); }
 .btn-pxl.ghost { background: transparent; color: var(--ink); border-color: rgba(243, 224, 179, 0.4); box-shadow: none; }
 
-/* Row reset */
+/* Flexbox layout helpers */
 .row { display: flex; align-items: center; }
 .col { display: flex; flex-direction: column; }
 
-/* Pixel divot corners */
+/* Pixel design detail utilities — for future component styling */
 .pxl-notch {
   position: relative;
 }
@@ -862,9 +875,9 @@ a, button {
 .bg-retro-white { background-color: #f6e7c0 !important; }
 .bg-retro-yellow { background-color: #e8b864 !important; }
 .bg-retro-orange { background-color: #c98a52 !important; }
-.bg-retro-red { background-color: #d27349 !important; }
+.bg-retro-red { background-color: #c44a36 !important; }
 .bg-retro-green { background-color: #4e8a4a !important; }
-.bg-retro-lime { background-color: #a7c46c !important; }
+.bg-retro-lime { background-color: #a7f070 !important; }
 .bg-retro-darkpurple { background-color: #3a1a3a !important; }
 
 .text-retro-white { color: #f6e7c0 !important; }
@@ -872,10 +885,10 @@ a, button {
 .text-retro-gray { color: #9d8366 !important; }
 .text-retro-yellow { color: #e8b864 !important; }
 .text-retro-orange { color: #d99a63 !important; }
-.text-retro-red { color: #d27349 !important; }
+.text-retro-red { color: #e06a56 !important; }
 .text-retro-green { color: #74b46f !important; }
-.text-retro-lime { color: #a7c46c !important; }
-.text-retro-cyan { color: #6fa8a8 !important; }
+.text-retro-lime { color: #a7f070 !important; }
+.text-retro-cyan { color: #9fd6d3 !important; }
 .text-retro-blue { color: #7ea0df !important; }
 
 .border-retro-black { border-color: #3a2a1d !important; }
@@ -883,5 +896,5 @@ a, button {
 .border-retro-gray { border-color: #7c6650 !important; }
 .border-retro-lightgray { border-color: #b89d77 !important; }
 .border-retro-yellow { border-color: #e8b864 !important; }
-.border-retro-red { border-color: #d27349 !important; }
+.border-retro-red { border-color: #c44a36 !important; }
 .border-retro-blue { border-color: #7ea0df !important; }
