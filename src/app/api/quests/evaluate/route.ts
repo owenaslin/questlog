@@ -149,7 +149,7 @@ Respond with ONLY a JSON object — no markdown, no code fences:
     {"id": "step-2", "title": "Second action"},
     ...
   ],
-  "evaluation_note": "Briefly explain the difficulty rating. Keep it high-level and general (under 60 words), focusing on the overall scope rather than specific steps or details. For example: 'This is challenging because it requires learning multiple new skills' instead of 'Go to the library, find X book on shelf Y'."
+  "evaluation_note": "Briefly explain the difficulty rating. Keep it high-level and general (under 75 words), focusing on the overall scope rather than specific steps or details. For example: 'This is challenging because it requires learning multiple new skills' instead of 'Go to the library, find X book on shelf Y'."
 }`;
 }
 
@@ -187,7 +187,7 @@ Respond with ONLY a JSON object — no markdown, no code fences:
     {"id": "step-2", "title": "Second action"},
     ...
   ],
-  "evaluation_note": "Briefly explain the difficulty rating. Keep it high-level and general (under 60 words), focusing on the overall scope rather than specific steps or details. For example: 'This is challenging because it requires learning multiple new skills' instead of 'Go to the library, find X book on shelf Y'."
+  "evaluation_note": "Briefly explain the difficulty rating. Keep it high-level and general (under 75 words), focusing on the overall scope rather than specific steps or details. For example: 'This is challenging because it requires learning multiple new skills' instead of 'Go to the library, find X book on shelf Y'."
 }`;
 }
 
