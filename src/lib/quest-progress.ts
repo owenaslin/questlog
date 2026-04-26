@@ -11,6 +11,14 @@ export interface UserQuestProgressRow {
   updated_at: string;
 }
 
+export interface UserQuestStepProgressRow {
+  quest_id: string;
+  step_id: string;
+  completed_at: string;
+  xp_awarded: number;
+  created_at: string;
+}
+
 export interface ProfileProgressSummary {
   xp_total: number;
   level: number;
@@ -119,6 +127,78 @@ export async function getUserQuestProgressMap(): Promise<Record<string, UserQues
     acc[row.quest_id] = row as UserQuestProgressRow;
     return acc;
   }, {});
+}
+
+export async function getUserQuestStepProgress(
+  questId: string
+): Promise<Record<string, UserQuestStepProgressRow>> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return {};
+  }
+
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("user_quest_steps")
+    .select("quest_id,step_id,completed_at,xp_awarded,created_at")
+    .eq("user_id", userId)
+    .eq("quest_id", questId);
+
+  if (error || !data) {
+    return {};
+  }
+
+  return data.reduce<Record<string, UserQuestStepProgressRow>>((acc, row) => {
+    const step = row as UserQuestStepProgressRow;
+    acc[step.step_id] = step;
+    return acc;
+  }, {});
+}
+
+export async function completeQuestStep(
+  questId: string,
+  stepId: string,
+  stepXp: number,
+  questType?: Quest["type"],
+  questCategory?: string
+): Promise<{
+  success: boolean;
+  alreadyCompleted?: boolean;
+  nextXp?: number;
+  nextLevel?: number;
+  error?: string;
+}> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return { success: false, error: "Please log in to complete quest steps." };
+  }
+
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase.rpc("complete_quest_step_atomic", {
+    p_user_id: userId,
+    p_quest_id: questId,
+    p_step_id: stepId,
+    p_step_xp: stepXp,
+    p_quest_type: questType ?? null,
+    p_quest_category: questCategory ?? null,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  const rpcResult = Array.isArray(data) ? data[0] : data;
+  const alreadyCompleted = Boolean(rpcResult?.already_completed);
+
+  if (alreadyCompleted) {
+    return { success: true, alreadyCompleted: true };
+  }
+
+  const nextXp = typeof rpcResult?.next_xp === "number" ? rpcResult.next_xp : undefined;
+  const nextLevel = typeof rpcResult?.next_level === "number" ? rpcResult.next_level : undefined;
+
+  return { success: true, nextXp, nextLevel };
 }
 
 export function mergeQuestWithProgress(

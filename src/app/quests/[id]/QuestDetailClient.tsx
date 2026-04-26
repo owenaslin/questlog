@@ -12,9 +12,11 @@ import { Quest, QuestStep } from "@/lib/types";
 import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {
   acceptQuest,
+  completeQuestStep,
   completeQuest,
   getCompletedCategoryCounts,
   getUserDashboardSnapshot,
+  getUserQuestStepProgress,
   updateStreakOnCompletion,
 } from "@/lib/quest-progress";
 import { getOwnHeroProfile } from "@/lib/hero";
@@ -23,26 +25,6 @@ import { calculateLevel } from "@/lib/types";
 
 interface QuestDetailClientProps {
   quest: Quest;
-}
-
-function useQuestStepChecks(questId: string, stepIds: string[]) {
-  const storageKey = `quest-steps-${questId}`;
-  const [checked, setChecked] = useState<Record<string, boolean>>(() => {
-    if (typeof window === "undefined") return {};
-    try {
-      return JSON.parse(localStorage.getItem(storageKey) ?? "{}");
-    } catch { return {}; }
-  });
-
-  const toggle = (stepId: string) => {
-    setChecked((prev) => {
-      const next = { ...prev, [stepId]: !prev[stepId] };
-      localStorage.setItem(storageKey, JSON.stringify(next));
-      return next;
-    });
-  };
-
-  return { checked, toggle };
 }
 
 const difficultyLabels = ["", "Easy", "Medium", "Hard", "Very Hard", "Legendary"];
@@ -68,19 +50,83 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [heroHandle, setHeroHandle] = useState<string | undefined>(undefined);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [showMilestoneCelebration, setShowMilestoneCelebration] = useState(false);
+  const [stepChecked, setStepChecked] = useState<Record<string, boolean>>({});
+  const [savingSteps, setSavingSteps] = useState<Record<string, boolean>>({});
 
-  // Steps state (localStorage-backed)
   const steps = quest.steps ?? [];
-  const { checked: stepChecked, toggle: toggleStep } = useQuestStepChecks(
-    quest.id,
-    steps.map((s) => s.id)
+  const requiredSteps = useMemo(
+    () => steps.filter((step) => !step.optional),
+    [steps]
   );
+
+  const stepXpById = useMemo(() => {
+    const rewards: Record<string, number> = {};
+    const requiredCount = requiredSteps.length;
+
+    if (requiredCount === 0) {
+      for (const step of steps) {
+        rewards[step.id] = 0;
+      }
+      return rewards;
+    }
+
+    const base = Math.floor(quest.xp_reward / requiredCount);
+    let remainder = quest.xp_reward % requiredCount;
+
+    for (const step of steps) {
+      if (step.optional) {
+        rewards[step.id] = 0;
+        continue;
+      }
+      const bonus = remainder > 0 ? 1 : 0;
+      if (remainder > 0) remainder -= 1;
+      rewards[step.id] = base + bonus;
+    }
+
+    return rewards;
+  }, [quest.xp_reward, requiredSteps, steps]);
 
   // Memoize completed count to avoid filtering on every render
   const completedStepsCount = useMemo(
     () => steps.filter((s) => stepChecked[s.id]).length,
     [steps, stepChecked]
   );
+
+  const completedRequiredStepXp = useMemo(
+    () => requiredSteps.reduce((sum, step) => sum + (stepChecked[step.id] ? (stepXpById[step.id] ?? 0) : 0), 0),
+    [requiredSteps, stepChecked, stepXpById]
+  );
+
+  const allRequiredStepsComplete = useMemo(
+    () => requiredSteps.every((step) => stepChecked[step.id]),
+    [requiredSteps, stepChecked]
+  );
+
+  const storageKey = useMemo(() => `quest-steps-${quest.id}`, [quest.id]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const stored = JSON.parse(localStorage.getItem(storageKey) ?? "{}") as Record<string, boolean>;
+      const normalized = steps.reduce<Record<string, boolean>>((acc, step) => {
+        acc[step.id] = Boolean(stored[step.id]);
+        return acc;
+      }, {});
+      setStepChecked(normalized);
+    } catch {
+      const empty = steps.reduce<Record<string, boolean>>((acc, step) => {
+        acc[step.id] = false;
+        return acc;
+      }, {});
+      setStepChecked(empty);
+    }
+  }, [storageKey, steps]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(storageKey, JSON.stringify(stepChecked));
+  }, [storageKey, stepChecked]);
 
   useEffect(() => {
     let mounted = true;
@@ -89,6 +135,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         getUserDashboardSnapshot(),
         getOwnHeroProfile(),
       ]);
+      const stepProgressMap = steps.length ? await getUserQuestStepProgress(quest.id) : {};
 
       if (!mounted) return;
       const progressMap = snapshot?.progressMap ?? {};
@@ -97,11 +144,59 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       if (progress?.status) setStatus(progress.status);
       if (summary) setProfileXpTotal(summary.xp_total);
       if (heroProfile?.handle) setHeroHandle(heroProfile.handle);
+      if (steps.length) {
+        setStepChecked((prev) => {
+          const next = steps.reduce<Record<string, boolean>>((acc, step) => {
+            acc[step.id] = Boolean(stepProgressMap[step.id]);
+            return acc;
+          }, {});
+
+          const hasAnyRemote = Object.keys(stepProgressMap).length > 0;
+          if (!hasAnyRemote) {
+            return prev;
+          }
+
+          return next;
+        });
+      }
     };
 
     hydrateStatus();
     return () => { mounted = false; };
-  }, [quest.id]);
+  }, [quest.id, steps]);
+
+  const handleStepComplete = async (step: QuestStep) => {
+    if (stepChecked[step.id] || savingSteps[step.id]) {
+      return;
+    }
+
+    setActionError(null);
+    setSavingSteps((prev) => ({ ...prev, [step.id]: true }));
+    setStepChecked((prev) => ({ ...prev, [step.id]: true }));
+
+    try {
+      const stepXp = stepXpById[step.id] ?? 0;
+      const result = await completeQuestStep(quest.id, step.id, stepXp, quest.type, quest.category);
+
+      if (!result.success) {
+        setStepChecked((prev) => ({ ...prev, [step.id]: false }));
+        if (result.error?.toLowerCase().includes("log in")) {
+          router.push(buildAuthUrl("login", pathname || `/quests/${quest.id}`));
+        }
+        setActionError(result.error || "Could not complete step.");
+        return;
+      }
+
+      if (result.nextXp !== undefined) {
+        setProfileXpTotal(result.nextXp);
+      }
+    } catch (err) {
+      setStepChecked((prev) => ({ ...prev, [step.id]: false }));
+      setActionError(err instanceof Error ? err.message : "Could not complete step.");
+    } finally {
+      setSavingSteps((prev) => ({ ...prev, [step.id]: false }));
+    }
+  };
 
   const handleAccept = async () => {
     setIsWorking(true);
@@ -140,7 +235,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       const beforeSummary = beforeSnapshot?.profileSummary ?? null;
       const beforeLevel = beforeSummary?.level || calculateLevel(beforeSummary?.xp_total || 0);
 
-      const result = await completeQuest(quest.id, quest.xp_reward, quest.type, quest.category);
+      const remainingQuestXp = Math.max(0, quest.xp_reward - completedRequiredStepXp);
+      const result = await completeQuest(quest.id, remainingQuestXp, quest.type, quest.category);
       if (!result.success) {
         setStatus(previousStatus);
         if (result.error?.toLowerCase().includes("log in")) {
@@ -159,8 +255,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         return;
       }
 
-      setXpEarned(quest.xp_reward);
-      setShowXpAnimation(true);
+      setXpEarned(remainingQuestXp);
+      setShowXpAnimation(remainingQuestXp > 0);
 
       // Update streak tracking
       const streakResult = await updateStreakOnCompletion();
@@ -207,7 +303,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
           setShowCompletionModal(true);
         }
         setShowXpAnimation(false);
-      }, 1000);
+      }, remainingQuestXp > 0 ? 1000 : 250);
     } catch (err) {
       setStatus(previousStatus);
       setActionError(err instanceof Error ? err.message : "An unexpected error occurred.");
@@ -272,8 +368,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
               {steps.map((step) => (
                 <li
                   key={step.id}
-                  className="flex items-start gap-3 cursor-pointer group"
-                  onClick={() => toggleStep(step.id)}
+                  className={`flex items-start gap-3 group ${stepChecked[step.id] ? "cursor-default" : "cursor-pointer"}`}
+                  onClick={() => handleStepComplete(step)}
                 >
                   {/* Retro pixel checkbox */}
                   <div
@@ -303,6 +399,12 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                     {step.title}
                     {step.optional && (
                       <span className="ml-2 text-[7px] text-retro-darkgray">(optional)</span>
+                    )}
+                    {!stepChecked[step.id] && (stepXpById[step.id] ?? 0) > 0 && (
+                      <span className="ml-2 text-[7px] text-retro-lime">+{stepXpById[step.id]} XP</span>
+                    )}
+                    {savingSteps[step.id] && (
+                      <span className="ml-2 text-[7px] text-retro-cyan">Saving...</span>
                     )}
                   </span>
                 </li>
@@ -383,7 +485,17 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
               <div className="font-pixel text-retro-orange text-[10px] bg-retro-black px-4 py-2 animate-pulse">
                 ▶ Quest In Progress
               </div>
-              <PixelButton variant="primary" size="lg" onClick={handleComplete} disabled={isWorking}>
+              {requiredSteps.length > 0 && !allRequiredStepsComplete && (
+                <p className="font-pixel text-retro-lightgray text-[8px] text-center">
+                  Complete all required objectives first.
+                </p>
+              )}
+              <PixelButton
+                variant="primary"
+                size="lg"
+                onClick={handleComplete}
+                disabled={isWorking || (requiredSteps.length > 0 && !allRequiredStepsComplete)}
+              >
                 {isWorking ? (
                   <span className="flex items-center gap-2">
                     <span className="animate-spin">⟳</span> Completing...
