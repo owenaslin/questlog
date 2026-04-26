@@ -7,6 +7,7 @@ import { Quest } from "@/lib/types";
 import { Milestone, getMilestoneColor } from "@/lib/milestones";
 import PixelButton from "./PixelButton";
 import XPBar from "./XPBar";
+import { QUESTLINES } from "@/lib/questlines";
 
 interface CompletionModalProps {
   quest: Quest;
@@ -18,6 +19,20 @@ interface CompletionModalProps {
   heroHandle?: string;
   milestones?: Milestone[];
   onClose: () => void;
+}
+
+function findNextQuestlineQuest(questId: string): Quest | null {
+  for (const questline of QUESTLINES) {
+    const stepIndex = questline.steps.findIndex((step) => step.quest_id === questId);
+    if (stepIndex !== -1 && stepIndex < questline.steps.length - 1) {
+      const nextStep = questline.steps[stepIndex + 1];
+      // Defensively check that the next step has valid quest data
+      if (nextStep?.quest_id && nextStep?.quest) {
+        return nextStep.quest;
+      }
+    }
+  }
+  return null;
 }
 
 /* Deterministic positions for XP particles — avoids hydration mismatch */
@@ -40,6 +55,7 @@ export default function CompletionModal({
   const [showContent, setShowContent] = useState(false);
   const [showMugs, setShowMugs] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [nextQuestlineQuest] = useState<Quest | null>(() => findNextQuestlineQuest(quest.id));
 
   useEffect(() => {
     const t1 = setTimeout(() => setShowParticles(true), 100);
@@ -245,12 +261,20 @@ export default function CompletionModal({
 
           {/* ── Actions ── */}
           <div className="flex flex-col gap-3">
-            {/* Primary: find next quest */}
-            <Link href="/board" className="block">
-              <PixelButton variant="success" size="lg" className="w-full">
-                ⚔ Find Next Quest
-              </PixelButton>
-            </Link>
+            {/* Primary: continue questline or find next quest */}
+            {nextQuestlineQuest ? (
+              <Link href={`/quests/${nextQuestlineQuest.id}`} className="block">
+                <PixelButton variant="success" size="lg" className="w-full">
+                  ⚔ Continue Questline
+                </PixelButton>
+              </Link>
+            ) : (
+              <Link href="/board" className="block">
+                <PixelButton variant="success" size="lg" className="w-full">
+                  ⚔ Find Next Quest
+                </PixelButton>
+              </Link>
+            )}
 
             {/* Secondary row: pin + share */}
             <div className="grid grid-cols-2 gap-2">
