@@ -42,9 +42,12 @@ export async function getLatestFlashModel(apiKey: string): Promise<string> {
   }
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=100`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models?pageSize=100`;
     // AbortSignal.timeout requires Node ≥ 17 (Next.js 13+ ships Node 18+, so this is safe).
-    const res  = await fetch(url, { signal: AbortSignal.timeout(5_000) });
+    const res  = await fetch(url, {
+      signal: AbortSignal.timeout(5_000),
+      headers: { 'x-goog-api-key': apiKey },
+    });
 
     if (!res.ok) {
       console.warn(`[gemini] listModels returned ${res.status} — using fallback`);
