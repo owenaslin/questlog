@@ -368,6 +368,21 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      <div className="mt-8 bg-retro-darkgray border-4 border-retro-black p-4 flex items-center justify-between">
+        <div>
+          <p className="font-pixel text-retro-yellow text-[9px]">⚙ Account Settings</p>
+          <p className="font-pixel text-retro-gray text-[7px] mt-1">
+            Update your profile, habit week start, theme, and notifications.
+          </p>
+        </div>
+        <Link
+          href="/settings"
+          className="font-pixel text-[8px] px-3 py-2 bg-retro-blue text-retro-white hover:bg-retro-lightblue"
+        >
+          Open Settings
+        </Link>
+      </div>
     </div>
   );
 }

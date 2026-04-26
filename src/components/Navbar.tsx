@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/", label: "Tonight" },
   { href: "/board", label: "The Board" },
   { href: "/profile", label: "My Saga" },
+  { href: "/settings", label: "Settings" },
   { href: "/habits", label: "Habits" },
   { href: "/sagas", label: "Questlines" },
   { href: "/trophies", label: "Trophies" },

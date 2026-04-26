@@ -83,7 +83,7 @@ CREATE TABLE public.habits (
   icon TEXT NOT NULL DEFAULT '✓',
   color TEXT NOT NULL DEFAULT '#e8b864',
   -- Recurrence pattern
-  recurrence_type TEXT NOT NULL CHECK (recurrence_type IN ('daily', 'weekdays', 'interval', 'weekly', 'times_per_week')),
+  recurrence_type TEXT NOT NULL CHECK (recurrence_type IN ('daily', 'weekdays', 'interval', 'weekly')),
   recurrence_data JSONB NOT NULL DEFAULT '{}',
   -- XP reward (smaller than quests, 5-25)
   xp_reward INTEGER NOT NULL DEFAULT 10 CHECK (xp_reward >= 5 AND xp_reward <= 25),

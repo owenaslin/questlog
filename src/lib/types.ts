@@ -151,7 +151,7 @@ export function xpForNextLevel(currentXP: number): {
 // HABITS SYSTEM TYPES
 // ============================================
 
-export type HabitRecurrenceType = "daily" | "weekdays" | "interval" | "weekly" | "times_per_week";
+export type HabitRecurrenceType = "daily" | "weekdays" | "interval" | "weekly";
 
 export interface HabitRecurrenceData {
   // For 'weekdays': array of day indices (0=Sun, 1=Mon, etc.)
@@ -160,10 +160,6 @@ export interface HabitRecurrenceData {
   intervalDays?: number;
   // For 'weekly': day of week (0-6)
   dayOfWeek?: number;
-  // For 'times_per_week': target completions per week (1-7)
-  timesPerWeek?: number;
-  // For 'times_per_week': day the week starts (0=Sun, 1=Mon, etc.)
-  weekStartDay?: number;
 }
 
 export interface Habit {
@@ -207,5 +203,22 @@ export interface HabitWithStatus extends Habit {
   streak: HabitStreak | null;
   is_completed_today: boolean;
   completions_this_week: number;
+}
+
+export type ThemeMode = "light" | "dark" | "system";
+
+export interface NotificationPreferences {
+  habit_reminders: boolean;
+  quest_alerts: boolean;
+  weekly_recap: boolean;
+}
+
+export interface UserSettings {
+  user_id: string;
+  week_start_day: number;
+  theme_mode: ThemeMode;
+  notification_preferences: NotificationPreferences;
+  created_at: string;
+  updated_at: string;
 }
 

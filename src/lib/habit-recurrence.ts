@@ -5,8 +5,7 @@ import { Habit, HabitRecurrenceType, HabitRecurrenceData } from "@/lib/types";
  */
 export function isHabitScheduledForDate(
   habit: Habit,
-  date: Date = new Date(),
-  completionsThisWeek: number = 0
+  date: Date = new Date()
 ): boolean {
   const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
 
@@ -35,11 +34,6 @@ export function isHabitScheduledForDate(
         (targetMidnight.getTime() - createdMidnight.getTime()) / (1000 * 60 * 60 * 24)
       );
       return daysSinceCreated >= 0 && daysSinceCreated % intervalDays === 0;
-    }
-
-    case "times_per_week": {
-      const timesPerWeek = habit.recurrence_data.timesPerWeek ?? 3;
-      return completionsThisWeek < timesPerWeek;
     }
 
     default:
@@ -80,11 +74,6 @@ export function getRecurrenceDescription(habit: Habit): string {
       return `Every ${intervalDays} days`;
     }
 
-    case "times_per_week": {
-      const timesPerWeek = habit.recurrence_data.timesPerWeek ?? 3;
-      return `${timesPerWeek} times per week`;
-    }
-
     default:
       return "Daily";
   }
@@ -107,11 +96,14 @@ export function getTodayString(): string {
 }
 
 /**
- * Get start of week (Sunday) date string in local time.
+ * Get start-of-week date string in local time.
+ * weekStartDay uses JS day index (0=Sun ... 6=Sat).
  */
-export function getWeekStartString(date: Date = new Date()): string {
+export function getWeekStartString(date: Date = new Date(), weekStartDay: number = 0): string {
   const d = new Date(date);
-  d.setDate(d.getDate() - d.getDay()); // rewind to Sunday
+  const normalizedWeekStart = Math.max(0, Math.min(6, Math.round(weekStartDay)));
+  const diff = (d.getDay() - normalizedWeekStart + 7) % 7;
+  d.setDate(d.getDate() - diff);
   return localDateString(d);
 }
 
@@ -159,15 +151,6 @@ export function validateRecurrenceData(
       }
       return { valid: true };
 
-    case "times_per_week":
-      if (!data.timesPerWeek || data.timesPerWeek < 1 || data.timesPerWeek > 7) {
-        return { valid: false, error: "Times per week must be between 1 and 7" };
-      }
-      if (data.weekStartDay !== undefined && (data.weekStartDay < 0 || data.weekStartDay > 6)) {
-        return { valid: false, error: "Invalid week start day" };
-      }
-      return { valid: true };
-
     case "daily":
     default:
       return { valid: true };
@@ -183,8 +166,6 @@ export function buildRecurrenceData(
     days?: number[];
     intervalDays?: number;
     dayOfWeek?: number;
-    timesPerWeek?: number;
-    weekStartDay?: number;
   }
 ): HabitRecurrenceData {
   switch (type) {
@@ -194,11 +175,6 @@ export function buildRecurrenceData(
       return { intervalDays: options.intervalDays || 1 };
     case "weekly":
       return { dayOfWeek: options.dayOfWeek ?? 1 };
-    case "times_per_week":
-      return {
-        timesPerWeek: options.timesPerWeek ?? 3,
-        weekStartDay: options.weekStartDay ?? 1,
-      };
     case "daily":
     default:
       return {};
