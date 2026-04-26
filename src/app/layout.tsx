@@ -76,7 +76,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png" />
       </head>
-      <body className="scanlines candlelight-vignette tavrn-shell pb-20 md:pb-0">
+      <body className="scan candlelight-vignette tavrn-shell pb-20 md:pb-0">
         <WeatherLayer />
         <ViewModeProvider>
           <Navbar />

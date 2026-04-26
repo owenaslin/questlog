@@ -38,7 +38,7 @@ function findNextQuestlineQuest(questId: string): Quest | null {
 /* Deterministic positions for XP particles — avoids hydration mismatch */
 const PARTICLE_POSITIONS = [12, 28, 44, 60, 76, 20, 36, 52, 68, 84, 8, 40, 56, 72, 88];
 const PARTICLE_DELAYS    = [0, 0.2, 0.4, 0.1, 0.3, 0.5, 0.15, 0.35, 0.25, 0.45, 0.05, 0.55, 0.1, 0.4, 0.2];
-const CONFETTI_COLORS    = ["bg-tavern-gold", "bg-tavern-ember", "bg-retro-lime", "bg-retro-cyan", "bg-retro-yellow"];
+const CONFETTI_COLORS    = ["bg-tavern-gold", "bg-tavern-ember", "bg-tavern-lime", "bg-tavern-cyan", "bg-tavern-gold-2"];
 
 export default function CompletionModal({
   quest,

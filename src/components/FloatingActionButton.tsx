@@ -21,7 +21,7 @@ export default function FloatingActionButton({
   const bgColor =
     variant === "primary"
       ? "bg-tavern-gold text-tavern-smoke"
-      : "bg-retro-blue text-retro-white";
+      : "bg-tavern-cyan text-tavern-cream";
 
   const springs = useSpring({
     transform: isPressed ? "scale(0.95)" : "scale(1)",
