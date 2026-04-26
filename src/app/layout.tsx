@@ -5,6 +5,8 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import ViewModeProvider from "@/components/ViewModeProvider";
 import WeatherLayer from "@/components/WeatherLayer";
 import ThemeModeSync from "@/components/ThemeModeSync";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import InstallPrompt from "@/components/InstallPrompt";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -80,10 +82,12 @@ export default function RootLayout({
       <body className="scan candlelight-vignette tavrn-shell pb-20 md:pb-0">
         <WeatherLayer />
         <ThemeModeSync />
+        <ServiceWorkerRegistration />
         <ViewModeProvider>
           <Navbar />
           <main className="max-w-6xl mx-auto px-4 py-8 w-full">{children}</main>
           <MobileBottomNav />
+          <InstallPrompt />
           <Analytics />
           <SpeedInsights />
         </ViewModeProvider>
