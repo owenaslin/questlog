@@ -13,7 +13,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/", label: "Tonight", icon: "🍺", exact: true },
-  { href: "/board", label: "Board", icon: "�" },
+  { href: "/board", label: "Board", icon: "🗺️" },
   { href: "/profile", label: "Saga", icon: "🧙" },
   { href: "/sagas", label: "Sagas", icon: "📜" },
   { href: "/trophies", label: "Loot", icon: "🏅" },
