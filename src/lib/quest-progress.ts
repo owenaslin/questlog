@@ -11,6 +11,14 @@ export interface UserQuestProgressRow {
   updated_at: string;
 }
 
+export interface UserQuestStepProgressRow {
+  quest_id: string;
+  step_id: string;
+  completed_at: string;
+  xp_awarded: number;
+  created_at: string;
+}
+
 export interface ProfileProgressSummary {
   xp_total: number;
   level: number;
@@ -121,6 +129,105 @@ export async function getUserQuestProgressMap(): Promise<Record<string, UserQues
   }, {});
 }
 
+export async function getUserQuestStepProgress(
+  questId: string
+): Promise<Record<string, UserQuestStepProgressRow>> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return {};
+  }
+
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("user_quest_steps")
+    .select("quest_id,step_id,completed_at,xp_awarded,created_at")
+    .eq("user_id", userId)
+    .eq("quest_id", questId);
+
+  if (error || !data) {
+    return {};
+  }
+
+  return data.reduce<Record<string, UserQuestStepProgressRow>>((acc, row) => {
+    const step = row as UserQuestStepProgressRow;
+    acc[step.step_id] = step;
+    return acc;
+  }, {});
+}
+
+export async function completeQuestStep(
+  questId: string,
+  stepId: string,
+  questType?: Quest["type"],
+  questCategory?: string
+): Promise<{
+  success: boolean;
+  alreadyCompleted?: boolean;
+  appliedXp?: number;
+  nextXp?: number;
+  nextLevel?: number;
+  error?: string;
+}> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return { success: false, error: "Please log in to complete quest steps." };
+  }
+
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase.rpc("complete_quest_step_atomic", {
+    p_user_id: userId,
+    p_quest_id: questId,
+    p_step_id: stepId,
+    p_quest_type: questType ?? null,
+    p_quest_category: questCategory ?? null,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  const rpcResult = Array.isArray(data) ? data[0] : data;
+  const alreadyCompleted = Boolean(rpcResult?.already_completed);
+  const appliedXp = typeof rpcResult?.applied_xp === "number" ? rpcResult.applied_xp : 0;
+
+  if (alreadyCompleted) {
+    return { success: true, alreadyCompleted: true, appliedXp };
+  }
+
+  if (questCategory && appliedXp > 0) {
+    const { error: weeklyError } = await supabase.rpc("update_weekly_xp_only", {
+      p_user_id: userId,
+      p_xp: appliedXp,
+      p_category: questCategory,
+    });
+
+    if (weeklyError) {
+      console.error("Failed to update weekly activity for step completion:", weeklyError.message);
+    }
+  }
+
+  const nextXp = typeof rpcResult?.next_xp === "number" ? rpcResult.next_xp : undefined;
+  const nextLevel = typeof rpcResult?.next_level === "number" ? rpcResult.next_level : undefined;
+
+  return { success: true, appliedXp, nextXp, nextLevel };
+}
+
+export async function hasPersistedQuestSteps(questId: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("quests")
+    .select("steps")
+    .eq("id", questId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return false;
+  }
+
+  return Array.isArray(data.steps) && data.steps.length > 0;
+}
+
 export function mergeQuestWithProgress(
   quests: Quest[],
   progressMap: Record<string, UserQuestProgressRow>
@@ -213,7 +320,22 @@ export async function completeQuest(
     return { success: true, alreadyCompleted: true };
   }
 
-  if (questCategory) {
+  let shouldUpdateWeekly = Boolean(questCategory);
+
+  if (shouldUpdateWeekly) {
+    const { data: questMeta } = await supabase
+      .from("quests")
+      .select("steps")
+      .eq("id", questId)
+      .maybeSingle();
+
+    const steps = questMeta?.steps;
+    if (Array.isArray(steps) && steps.length > 0) {
+      shouldUpdateWeekly = false;
+    }
+  }
+
+  if (shouldUpdateWeekly && questCategory) {
     const { error: weeklyError } = await supabase.rpc("update_weekly_activity", {
       p_user_id: userId,
       p_xp: xpReward,
