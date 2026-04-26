@@ -229,6 +229,7 @@ export default function Navbar() {
               href={link.href}
               onClick={() => setIsMenuOpen(false)}
               className={linkClasses(link.href)}
+              aria-current={isActivePath(link.href) ? "page" : undefined}
             >
               {link.label}
             </Link>
