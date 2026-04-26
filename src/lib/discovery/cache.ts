@@ -25,9 +25,17 @@ const CACHE_TTL = {
 // KEY BUILDERS
 // ============================================
 
-function buildRegionalKey(city: string, intent: DiscoveryIntent, category?: string): string {
+function buildRegionalKey(
+  city: string,
+  intent: DiscoveryIntent,
+  category?: string,
+  region?: string,
+  country?: string
+): string {
   const normalizedCity = city.toLowerCase().replace(/\s+/g, '_');
-  const parts = ['discovery', 'regional', normalizedCity, intent];
+  const normalizedRegion = region?.toLowerCase().replace(/\s+/g, '_') || 'unknown';
+  const normalizedCountry = country?.toLowerCase().replace(/\s+/g, '_') || 'unknown';
+  const parts = ['discovery', 'regional', normalizedCountry, normalizedRegion, normalizedCity, intent];
   if (category) parts.push(category);
   return parts.join(':');
 }
@@ -53,10 +61,12 @@ function buildSuggestionKey(userId: string, city: string): string {
 export async function getRegionalPlaces(
   city: string,
   intent: DiscoveryIntent,
-  category?: string
+  category?: string,
+  region?: string,
+  country?: string
 ): Promise<ProviderPlace[] | null> {
   try {
-    const key = buildRegionalKey(city, intent, category);
+    const key = buildRegionalKey(city, intent, category, region, country);
     const cached = await kv.get<ProviderPlace[]>(key);
     return cached;
   } catch (err) {
@@ -69,10 +79,12 @@ export async function setRegionalPlaces(
   city: string,
   intent: DiscoveryIntent,
   places: ProviderPlace[],
-  category?: string
+  category?: string,
+  region?: string,
+  country?: string
 ): Promise<void> {
   try {
-    const key = buildRegionalKey(city, intent, category);
+    const key = buildRegionalKey(city, intent, category, region, country);
     await kv.set(key, places, { ex: CACHE_TTL.regional });
   } catch (err) {
     console.warn('[discovery:cache] Regional store failed:', err);
@@ -83,9 +95,11 @@ export async function setRegionalPlaces(
 export async function getRegionalPlacesStaleWhileRevalidate(
   city: string,
   intent: DiscoveryIntent,
-  category?: string
+  category?: string,
+  region?: string,
+  country?: string
 ): Promise<{ data: ProviderPlace[] | null; stale: boolean }> {
-  const key = buildRegionalKey(city, intent, category);
+  const key = buildRegionalKey(city, intent, category, region, country);
   
   try {
     // Try to get value and TTL

@@ -59,6 +59,7 @@ registerProvider('openstreetmap', openStreetMapProvider);
 const DAILY_DISCOVERY_LIMIT = 5;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute between requests
 const RATE_LIMIT_MAX_REQUESTS = 3; // Max 3 requests per minute
+const ALLOW_RATE_LIMIT_BYPASS = process.env.ALLOW_RATE_LIMIT_BYPASS === 'true'; // Explicit bypass flag
 
 // ============================================
 // SCHEMA VALIDATION
@@ -142,8 +143,9 @@ async function checkRateLimit(userId: string): Promise<{
     };
   } catch (err) {
     console.warn('[discover] Rate limit check failed:', err);
-    // Fail open in development
-    if (process.env.NODE_ENV === 'development') {
+    // Only fail open if explicitly configured
+    if (ALLOW_RATE_LIMIT_BYPASS) {
+      console.warn('[discover] Rate limit bypass enabled (ALLOW_RATE_LIMIT_BYPASS=true)');
       return { allowed: true, remaining: 999 };
     }
     return { allowed: false, remaining: 0 };
@@ -164,8 +166,9 @@ async function checkDailyLimit(userId: string): Promise<{ allowed: boolean; rema
     return { allowed: true, remaining: DAILY_DISCOVERY_LIMIT - count - 1 };
   } catch (err) {
     console.warn('[discover] Daily limit check failed:', err);
-    // Fail open in development
-    if (process.env.NODE_ENV === 'development') {
+    // Only fail open if explicitly configured
+    if (ALLOW_RATE_LIMIT_BYPASS) {
+      console.warn('[discover] Rate limit bypass enabled (ALLOW_RATE_LIMIT_BYPASS=true)');
       return { allowed: true, remaining: 999 };
     }
     return { allowed: false, remaining: 0 };
@@ -176,30 +179,32 @@ async function checkDailyLimit(userId: string): Promise<{ allowed: boolean; rema
 // USER PREFERENCES
 // ============================================
 
-async function getUserPreferences(userId: string) {
+async function getUserPreferences(userId: string, token: string) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
                       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
+
   if (!supabaseUrl || !supabaseKey) {
     return null;
   }
-  
+
+  // Use authenticated client with user's token (RLS enforces access control)
   const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false },
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: { Authorization: `Bearer ${token}` } },
   });
-  
+
   const { data, error } = await supabase
     .from('profiles')
     .select('location_city, location_lat, location_lng, discovery_radius_km, privacy_level, discovery_preferences')
     .eq('id', userId)
     .single();
-  
+
   if (error || !data) {
     console.warn('[discover] Failed to fetch user preferences:', error);
     return null;
   }
-  
+
   return data;
 }
 
@@ -277,10 +282,14 @@ async function generateQuestWithAI(
 
 function generateFallbackQuest(
   level: 1 | 2 | 3,
-  city: string
+  city: string,
+  coordinates?: { lat: number; lng: number }
 ): NarrativeQuest {
   const template = getFallbackTemplate(level);
-  
+
+  // Use provided coordinates or default to reasonable fallback values
+  const fallbackCoords = coordinates || { lat: 40.7128, lng: -74.0060 }; // NYC as last resort
+
   return {
     title: template.title,
     description: template.description,
@@ -300,7 +309,7 @@ function generateFallbackQuest(
       place_id: 'fallback_generic',
       place_name: city,
       place_address: city,
-      place_coords: { lat: 0, lng: 0 },
+      place_coords: fallbackCoords,
       provider_source: 'fallback_generic',
       neighborhood_context: city,
       discovery_reasoning: 'No local places found; generated generic exploration quest',
@@ -379,9 +388,18 @@ export async function POST(request: NextRequest) {
     }
     
     const { intent, theme, coords, city: providedCity, exclude_recent } = parseResult.data;
-    
+
+    // Get the user's auth token for RLS-protected queries
+    const token = getBearerToken(request);
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'Authentication token missing', remaining_daily: dailyLimit.remaining },
+        { status: 401 }
+      );
+    }
+
     // 5. Get user preferences
-    const userPrefs = await getUserPreferences(userId);
+    const userPrefs = await getUserPreferences(userId, token);
     
     // Determine location
     let city = providedCity;
@@ -462,9 +480,9 @@ export async function POST(request: NextRequest) {
     
     // 10. Generate quest with AI (or fallback)
     let quest: NarrativeQuest;
-    
+
     if (usedFallback && fallbackLevel >= 2) {
-      quest = generateFallbackQuest(fallbackLevel, city);
+      quest = generateFallbackQuest(fallbackLevel, city, coordinates);
     } else {
       const generated = await generateQuestWithAI(
         places,
@@ -472,10 +490,10 @@ export async function POST(request: NextRequest) {
         intent,
         theme
       );
-      
+
       if (!generated) {
         // AI failed, use fallback
-        quest = generateFallbackQuest(1, city);
+        quest = generateFallbackQuest(1, city, coordinates);
         usedFallback = true;
       } else {
         quest = generated;
