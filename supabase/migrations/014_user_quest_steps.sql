@@ -37,13 +37,13 @@ CREATE OR REPLACE FUNCTION public.complete_quest_step_atomic(
   p_user_id UUID,
   p_quest_id UUID,
   p_step_id TEXT,
-  p_step_xp INTEGER,
   p_quest_type TEXT DEFAULT NULL,
   p_quest_category TEXT DEFAULT NULL
 )
 RETURNS TABLE(
   applied BOOLEAN,
   already_completed BOOLEAN,
+  applied_xp INTEGER,
   next_xp INTEGER,
   next_level INTEGER
 )
@@ -53,6 +53,13 @@ SET search_path = public
 AS $$
 DECLARE
   v_inserted_step_id UUID;
+  v_existing_step_xp INTEGER;
+  v_calculated_step_xp INTEGER := 0;
+  v_quest_xp INTEGER;
+  v_steps JSONB;
+  v_required_count INTEGER;
+  v_required_index INTEGER;
+  v_remainder INTEGER;
   v_next_xp INTEGER;
   v_next_level INTEGER;
 BEGIN
@@ -60,12 +67,57 @@ BEGIN
     RAISE EXCEPTION 'Not authorized to complete quest step for this user.' USING ERRCODE = '42501';
   END IF;
 
-  IF p_step_xp < 0 THEN
-    RAISE EXCEPTION 'Step XP reward must be non-negative.' USING ERRCODE = '22023';
-  END IF;
-
   IF p_step_id IS NULL OR btrim(p_step_id) = '' THEN
     RAISE EXCEPTION 'Step id is required.' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT q.xp_reward, q.steps
+  INTO v_quest_xp, v_steps
+  FROM public.quests q
+  WHERE q.id = p_quest_id;
+
+  IF v_quest_xp IS NULL THEN
+    RAISE EXCEPTION 'Quest steps can only be persisted for quests stored in database.' USING ERRCODE = '22023';
+  END IF;
+
+  IF v_steps IS NULL OR jsonb_typeof(v_steps) <> 'array' OR jsonb_array_length(v_steps) = 0 THEN
+    RAISE EXCEPTION 'Quest has no persisted step definitions.' USING ERRCODE = '22023';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM jsonb_array_elements(v_steps) AS s(step)
+    WHERE s.step ->> 'id' = p_step_id
+  ) THEN
+    RAISE EXCEPTION 'Step does not belong to this quest.' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT COUNT(*)
+  INTO v_required_count
+  FROM jsonb_array_elements(v_steps) AS s(step)
+  WHERE COALESCE((s.step ->> 'optional')::BOOLEAN, false) = false;
+
+  IF v_required_count < 1 THEN
+    v_calculated_step_xp := 0;
+  ELSE
+    SELECT req.required_index
+    INTO v_required_index
+    FROM (
+      SELECT
+        s.step ->> 'id' AS step_id,
+        ROW_NUMBER() OVER (ORDER BY s.ord) AS required_index
+      FROM jsonb_array_elements(v_steps) WITH ORDINALITY AS s(step, ord)
+      WHERE COALESCE((s.step ->> 'optional')::BOOLEAN, false) = false
+    ) AS req
+    WHERE req.step_id = p_step_id;
+
+    IF v_required_index IS NULL THEN
+      v_calculated_step_xp := 0;
+    ELSE
+      v_remainder := MOD(v_quest_xp, v_required_count);
+      v_calculated_step_xp := FLOOR(v_quest_xp::NUMERIC / v_required_count)::INTEGER
+        + CASE WHEN v_required_index <= v_remainder THEN 1 ELSE 0 END;
+    END IF;
   END IF;
 
   INSERT INTO public.user_quests (
@@ -103,32 +155,39 @@ BEGIN
     p_user_id,
     p_quest_id,
     p_step_id,
-    p_step_xp
+    v_calculated_step_xp
   )
   ON CONFLICT (user_id, quest_id, step_id)
   DO NOTHING
   RETURNING id INTO v_inserted_step_id;
 
   IF v_inserted_step_id IS NULL THEN
-    RETURN QUERY SELECT false, true, NULL::INTEGER, NULL::INTEGER;
+    SELECT uqs.xp_awarded
+    INTO v_existing_step_xp
+    FROM public.user_quest_steps uqs
+    WHERE uqs.user_id = p_user_id
+      AND uqs.quest_id = p_quest_id
+      AND uqs.step_id = p_step_id;
+
+    RETURN QUERY SELECT false, true, COALESCE(v_existing_step_xp, 0), NULL::INTEGER, NULL::INTEGER;
     RETURN;
   END IF;
 
   UPDATE public.profiles
   SET
-    xp_total = COALESCE(xp_total, 0) + p_step_xp,
-    level = FLOOR((COALESCE(xp_total, 0) + p_step_xp) / 500) + 1
+    xp_total = COALESCE(xp_total, 0) + v_calculated_step_xp,
+    level = FLOOR((COALESCE(xp_total, 0) + v_calculated_step_xp) / 500) + 1
   WHERE id = p_user_id
   RETURNING xp_total, level INTO v_next_xp, v_next_level;
 
   IF v_next_xp IS NULL THEN
-    RETURN QUERY SELECT false, false, NULL::INTEGER, NULL::INTEGER;
+    RETURN QUERY SELECT false, false, v_calculated_step_xp, NULL::INTEGER, NULL::INTEGER;
     RETURN;
   END IF;
 
-  RETURN QUERY SELECT true, false, v_next_xp, v_next_level;
+  RETURN QUERY SELECT true, false, v_calculated_step_xp, v_next_xp, v_next_level;
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.complete_quest_step_atomic(UUID, UUID, TEXT, INTEGER, TEXT, TEXT)
+GRANT EXECUTE ON FUNCTION public.complete_quest_step_atomic(UUID, UUID, TEXT, TEXT, TEXT)
 TO authenticated;

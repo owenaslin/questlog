@@ -158,12 +158,12 @@ export async function getUserQuestStepProgress(
 export async function completeQuestStep(
   questId: string,
   stepId: string,
-  stepXp: number,
   questType?: Quest["type"],
   questCategory?: string
 ): Promise<{
   success: boolean;
   alreadyCompleted?: boolean;
+  appliedXp?: number;
   nextXp?: number;
   nextLevel?: number;
   error?: string;
@@ -179,7 +179,6 @@ export async function completeQuestStep(
     p_user_id: userId,
     p_quest_id: questId,
     p_step_id: stepId,
-    p_step_xp: stepXp,
     p_quest_type: questType ?? null,
     p_quest_category: questCategory ?? null,
   });
@@ -190,15 +189,28 @@ export async function completeQuestStep(
 
   const rpcResult = Array.isArray(data) ? data[0] : data;
   const alreadyCompleted = Boolean(rpcResult?.already_completed);
+  const appliedXp = typeof rpcResult?.applied_xp === "number" ? rpcResult.applied_xp : 0;
 
   if (alreadyCompleted) {
-    return { success: true, alreadyCompleted: true };
+    return { success: true, alreadyCompleted: true, appliedXp };
+  }
+
+  if (questCategory && appliedXp > 0) {
+    const { error: weeklyError } = await supabase.rpc("update_weekly_activity", {
+      p_user_id: userId,
+      p_xp: appliedXp,
+      p_category: questCategory,
+    });
+
+    if (weeklyError) {
+      console.error("Failed to update weekly activity for step completion:", weeklyError.message);
+    }
   }
 
   const nextXp = typeof rpcResult?.next_xp === "number" ? rpcResult.next_xp : undefined;
   const nextLevel = typeof rpcResult?.next_level === "number" ? rpcResult.next_level : undefined;
 
-  return { success: true, nextXp, nextLevel };
+  return { success: true, appliedXp, nextXp, nextLevel };
 }
 
 export function mergeQuestWithProgress(
@@ -293,7 +305,22 @@ export async function completeQuest(
     return { success: true, alreadyCompleted: true };
   }
 
-  if (questCategory) {
+  let shouldUpdateWeekly = Boolean(questCategory);
+
+  if (shouldUpdateWeekly) {
+    const { data: questMeta } = await supabase
+      .from("quests")
+      .select("steps")
+      .eq("id", questId)
+      .maybeSingle();
+
+    const steps = questMeta?.steps;
+    if (Array.isArray(steps) && steps.length > 0) {
+      shouldUpdateWeekly = false;
+    }
+  }
+
+  if (shouldUpdateWeekly && questCategory) {
     const { error: weeklyError } = await supabase.rpc("update_weekly_activity", {
       p_user_id: userId,
       p_xp: xpReward,

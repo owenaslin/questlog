@@ -175,8 +175,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
     setStepChecked((prev) => ({ ...prev, [step.id]: true }));
 
     try {
-      const stepXp = stepXpById[step.id] ?? 0;
-      const result = await completeQuestStep(quest.id, step.id, stepXp, quest.type, quest.category);
+      const result = await completeQuestStep(quest.id, step.id, quest.type, quest.category);
 
       if (!result.success) {
         setStepChecked((prev) => ({ ...prev, [step.id]: false }));
