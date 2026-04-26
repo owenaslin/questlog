@@ -136,11 +136,11 @@ export default function ProfilePage() {
     return (
       <div className="max-w-2xl mx-auto tavrn-panel p-4 md:p-6">
         <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6 text-center">
-          <p className="font-pixel text-retro-red text-[9px] mb-4">{authCheckError}</p>
+          <p className="mobile-body text-retro-red mb-4">{authCheckError}</p>
           <button
             type="button"
             onClick={() => router.replace(buildAuthUrl("login", pathname || "/profile"))}
-            className="font-pixel text-[8px] px-4 py-2 bg-retro-blue text-retro-white"
+            className="mobile-label px-4 py-2 bg-retro-blue text-retro-white"
           >
             Go to Login
           </button>
@@ -163,15 +163,15 @@ export default function ProfilePage() {
             <h1 className="font-pixel text-retro-yellow text-sm mb-1">
               {user.display_name}
             </h1>
-            <p className="font-pixel text-retro-gray text-[8px] mb-3">
+            <p className="mobile-caption text-retro-gray mb-3">
               {user.email}
             </p>
 
             <div className="flex items-center gap-4 mb-2">
-              <span className="font-pixel text-retro-cyan text-[10px]">
+              <span className="mobile-caption text-retro-cyan">
                 Level {level}
               </span>
-              <span className="font-pixel text-retro-lime text-[10px]">
+              <span className="mobile-caption text-retro-lime">
                 {user.xp_total} XP Total
               </span>
             </div>
@@ -197,7 +197,7 @@ export default function ProfilePage() {
           ) : (
             <div className="flex items-center gap-2 text-retro-gray">
               <span className="text-lg">🔥</span>
-              <span className="font-pixel text-[8px]">Complete a quest to start your streak!</span>
+              <span className="mobile-caption">Complete a quest to start your streak!</span>
             </div>
           )}
         </div>
@@ -212,7 +212,7 @@ export default function ProfilePage() {
           </h2>
           <Link
             href="/badges"
-            className="font-pixel text-retro-cyan text-[8px] hover:text-retro-lightblue"
+            className="mobile-caption text-retro-cyan hover:text-retro-lightblue"
           >
             View All →
           </Link>
@@ -231,7 +231,7 @@ export default function ProfilePage() {
       <div className="flex flex-col gap-3 mb-8">
         {activeQuests.length === 0 && !isLoadingProgress && (
           <div className="bg-retro-darkgray border-4 border-retro-black p-4 text-center">
-            <p className="font-pixel text-retro-lightgray text-[8px]">
+            <p className="mobile-caption text-retro-lightgray">
               No active quests yet. Accept one from the quest board.
             </p>
           </div>
@@ -243,11 +243,11 @@ export default function ProfilePage() {
             className="bg-retro-darkgray border-4 border-retro-black p-4"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="font-pixel text-retro-yellow text-[10px]">
+              <span className="mobile-caption text-retro-yellow">
                 {quest.title}
               </span>
               <span
-                className={`font-pixel text-[8px] px-2 py-1 ${
+                className={`mobile-caption px-2 py-1 ${
                   quest.type === "main"
                     ? "bg-retro-red text-retro-white"
                     : "bg-retro-blue text-retro-white"
@@ -257,10 +257,10 @@ export default function ProfilePage() {
               </span>
             </div>
             <div className="flex justify-between mt-1">
-              <span className="font-pixel text-retro-gray text-[7px]">
+              <span className="mobile-label text-retro-gray">
                 In progress
               </span>
-              <span className="font-pixel text-retro-lime text-[7px]">
+              <span className="mobile-label text-retro-lime">
                 +{quest.xp_reward} XP
               </span>
             </div>
@@ -275,7 +275,7 @@ export default function ProfilePage() {
       <div className="flex flex-col gap-2">
         {completedQuests.length === 0 && !isLoadingProgress && (
           <div className="bg-retro-darkgray border-4 border-retro-black p-4 text-center">
-            <p className="font-pixel text-retro-lightgray text-[8px]">
+            <p className="mobile-caption text-retro-lightgray">
               Complete your first quest to see history here.
             </p>
           </div>
@@ -287,16 +287,16 @@ export default function ProfilePage() {
             className="bg-retro-darkgray border-4 border-retro-black p-3 flex items-center justify-between opacity-80"
           >
             <div className="flex items-center gap-3">
-              <span className="font-pixel text-retro-green text-[10px]">
+              <span className="mobile-caption text-retro-green">
                 ✓
               </span>
-              <span className="font-pixel text-retro-lightgray text-[9px]">
+              <span className="mobile-caption text-retro-lightgray">
                 {quest.title}
               </span>
             </div>
             <div className="flex items-center gap-3">
               <span
-                className={`font-pixel text-[7px] px-2 py-1 ${
+                className={`mobile-label px-2 py-1 ${
                   quest.type === "main"
                     ? "bg-retro-red text-retro-white"
                     : "bg-retro-blue text-retro-white"
@@ -304,7 +304,7 @@ export default function ProfilePage() {
               >
                 {quest.type === "main" ? "Main" : "Side"}
               </span>
-              <span className="font-pixel text-retro-lime text-[8px]">
+              <span className="mobile-caption text-retro-lime">
                 +{quest.xp_reward} XP
               </span>
             </div>
@@ -318,22 +318,22 @@ export default function ProfilePage() {
           📅 Recent Activity
         </h2>
         {completedQuests.length === 0 && !isLoadingProgress ? (
-          <p className="font-pixel text-retro-gray text-[8px]">
+          <p className="mobile-caption text-retro-gray">
             No recent activity. Start your first quest!
           </p>
         ) : (
           <div className="flex flex-col gap-2">
             {completedQuests.slice(0, 5).map((quest) => (
-              <div key={quest.id} className="flex items-center gap-3 text-[8px]">
-                <span className="font-pixel text-retro-green">✓</span>
-                <span className="font-pixel text-retro-lightgray flex-1">
+              <div key={quest.id} className="flex items-center gap-3 mobile-caption">
+                <span className="text-retro-green">✓</span>
+                <span className="text-retro-lightgray flex-1">
                   Completed "{quest.title}"
                 </span>
-                <span className="font-pixel text-retro-lime">+{quest.xp_reward} XP</span>
+                <span className="text-retro-lime">+{quest.xp_reward} XP</span>
               </div>
             ))}
             {completedQuests.length > 5 && (
-              <p className="font-pixel text-retro-gray text-[7px] mt-2">
+              <p className="mobile-label text-retro-gray mt-2">
                 + {completedQuests.length - 5} more quests completed
               </p>
             )}
@@ -347,7 +347,7 @@ export default function ProfilePage() {
           <div className="font-pixel text-retro-yellow text-lg">
             {profileSummary?.completedCount ?? completedQuests.length}
           </div>
-          <div className="font-pixel text-retro-gray text-[7px] mt-1">
+          <div className="mobile-label text-retro-gray mt-1">
             Completed
           </div>
         </div>
@@ -355,7 +355,7 @@ export default function ProfilePage() {
           <div className="font-pixel text-retro-orange text-lg">
             {profileSummary?.activeCount ?? activeQuests.length}
           </div>
-          <div className="font-pixel text-retro-gray text-[7px] mt-1">
+          <div className="mobile-label text-retro-gray mt-1">
             Active
           </div>
         </div>
@@ -363,7 +363,7 @@ export default function ProfilePage() {
           <div className="font-pixel text-retro-lime text-lg">
             {user.xp_total}
           </div>
-          <div className="font-pixel text-retro-gray text-[7px] mt-1">
+          <div className="mobile-label text-retro-gray mt-1">
             Total XP
           </div>
         </div>

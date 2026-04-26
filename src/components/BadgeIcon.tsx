@@ -13,10 +13,10 @@ interface BadgeIconProps {
 }
 
 const sizeStyles = {
-  sm: { container: "w-12 h-12", icon: "text-xl", label: "text-[6px]" },
-  md: { container: "w-16 h-16", icon: "text-2xl", label: "text-[7px]" },
-  lg: { container: "w-20 h-20", icon: "text-3xl", label: "text-[8px]" },
-  xl: { container: "w-24 h-24", icon: "text-4xl", label: "text-[9px]" },
+  sm: { container: "w-12 h-12", icon: "text-xl", label: "mobile-label" },
+  md: { container: "w-16 h-16", icon: "text-2xl", label: "mobile-label" },
+  lg: { container: "w-20 h-20", icon: "text-3xl", label: "mobile-caption" },
+  xl: { container: "w-24 h-24", icon: "text-4xl", label: "mobile-caption" },
 };
 
 export default function BadgeIcon({
@@ -74,7 +74,7 @@ export default function BadgeIcon({
 
       {/* Badge Name (only on larger sizes) */}
       {(size === "lg" || size === "xl") && (
-        <span className="font-pixel text-retro-lightgray text-[8px] text-center max-w-[80px] leading-tight">
+        <span className="mobile-caption text-retro-lightgray text-center max-w-[80px] leading-tight">
           {isLocked ? "???" : badge.name}
         </span>
       )}
@@ -90,7 +90,7 @@ export function BadgeRarityBadge({ rarity }: { rarity: Badge["rarity"] }) {
   return (
     <span
       className={`
-        font-pixel text-[8px] px-2 py-1 uppercase tracking-wider
+        mobile-caption px-2 py-1 uppercase tracking-wider
         ${colors.bg} ${colors.text}
         border-2 ${colors.border}
       `}
