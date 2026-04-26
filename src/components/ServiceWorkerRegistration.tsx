@@ -20,7 +20,9 @@ export default function ServiceWorkerRegistration() {
           next.addEventListener("statechange", () => {
             if (next.state === "installed" && navigator.serviceWorker.controller) {
               // New SW is waiting — a refresh toast can be wired here later.
-              console.log("[SW] Update available — reload to apply.");
+              if (process.env.NODE_ENV === "development") {
+                console.log("[SW] Update available — reload to apply.");
+              }
             }
           });
         });

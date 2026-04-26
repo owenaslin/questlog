@@ -111,7 +111,7 @@ async function cacheFirst(request, cacheName) {
     }
     return response;
   } catch {
-    return new Response("Network error", { status: 408 });
+    return new Response("Network error", { status: 503 });
   }
 }
 

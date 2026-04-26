@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const DISMISSED_KEY = "tavrn_install_prompt_dismissed";
 // Show the prompt 45 s after the browser fires beforeinstallprompt.
@@ -16,6 +16,7 @@ export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     // Already running as a standalone installed PWA — don't show.
@@ -28,12 +29,14 @@ export default function InstallPrompt() {
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      const timer = setTimeout(() => setVisible(true), DELAY_MS);
-      return () => clearTimeout(timer);
+      timerRef.current = setTimeout(() => setVisible(true), DELAY_MS);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
   const handleInstall = async () => {
@@ -47,6 +50,10 @@ export default function InstallPrompt() {
     setDeferredPrompt(null);
   };
 
+  const handleLater = () => {
+    setVisible(false);
+  };
+
   const handleDismiss = () => {
     localStorage.setItem(DISMISSED_KEY, "true");
     setVisible(false);
@@ -57,9 +64,9 @@ export default function InstallPrompt() {
   return (
     <div
       className="fixed bottom-24 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-sm z-50"
-      role="dialog"
+      role="status"
+      aria-live="polite"
       aria-label="Install tavrn"
-      aria-modal="false"
     >
       <div
         className="border-4 border-tavern-oak-dark"
@@ -110,7 +117,7 @@ export default function InstallPrompt() {
               </button>
               <button
                 type="button"
-                onClick={handleDismiss}
+                onClick={handleLater}
                 className="font-pixel text-[8px] px-4 py-2 border-2 border-tavern-oak text-tavern-parchment hover:border-tavern-gold transition-none"
               >
                 Later
