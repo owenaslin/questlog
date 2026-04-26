@@ -22,3 +22,14 @@ export function getSupabaseClient(): SupabaseClient {
   }
   return supabaseClient;
 }
+
+export function getSupabaseServerClient(): SupabaseClient {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceRoleKey) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY environment variable is not configured");
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false },
+  });
+}

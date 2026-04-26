@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
 import { ALL_QUESTS } from "@/lib/quests";
 import { Quest } from "@/lib/types";
+import { getSupabaseServerClient } from "@/lib/supabase";
 import QuestDetailClient from "./QuestDetailClient";
 
 // Allow unknown IDs (user-created quests) to render dynamically
@@ -23,16 +23,7 @@ export default async function QuestDetailPage({ params }: PageProps) {
   if (predefined) return <QuestDetailClient quest={predefined} />;
 
   // Fallback — user/AI-created quests stored in DB (use service role key for server-side access)
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceRoleKey) {
-    throw new Error("SUPABASE_SERVICE_ROLE_KEY environment variable is not configured");
-  }
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    serviceRoleKey,
-    { auth: { persistSession: false } }
-  );
+  const supabase = getSupabaseServerClient();
 
   const { data } = await supabase
     .from("quests")

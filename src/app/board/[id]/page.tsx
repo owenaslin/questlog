@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
 import { ALL_QUESTS } from "@/lib/quests";
 import { Quest } from "@/lib/types";
+import { getSupabaseServerClient } from "@/lib/supabase";
 import QuestDetailClient from "@/app/quests/[id]/QuestDetailClient";
 
 export const dynamicParams = true;
@@ -20,16 +20,7 @@ export default async function BoardQuestDetailPage({ params }: PageProps) {
   const predefined = ALL_QUESTS.find((q) => q.id === id);
   if (predefined) return <QuestDetailClient quest={predefined} />;
 
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceRoleKey) {
-    throw new Error("SUPABASE_SERVICE_ROLE_KEY environment variable is not configured");
-  }
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    serviceRoleKey,
-    { auth: { persistSession: false } }
-  );
+  const supabase = getSupabaseServerClient();
 
   const { data } = await supabase
     .from("quests")
