@@ -173,13 +173,22 @@ export async function abandonQuest(questId: string): Promise<{ success: boolean;
   if (!userId) return { success: false, error: "Please log in." };
 
   const supabase = getSupabaseClient();
-  const { error } = await supabase
-    .from("user_quests")
-    .update({ status: "available", accepted_at: null })
-    .eq("user_id", userId)
-    .eq("quest_id", questId);
+  const [{ error: updateError }, { error: stepsError }] = await Promise.all([
+    supabase
+      .from("user_quests")
+      .update({ status: "available", accepted_at: null })
+      .eq("user_id", userId)
+      .eq("quest_id", questId)
+      .eq("status", "active"),
+    supabase
+      .from("user_quest_steps")
+      .delete()
+      .eq("user_id", userId)
+      .eq("quest_id", questId),
+  ]);
 
-  if (error) return { success: false, error: error.message };
+  if (updateError) return { success: false, error: updateError.message };
+  if (stepsError) return { success: false, error: stepsError.message };
   return { success: true };
 }
 
@@ -246,8 +255,8 @@ export async function getSuggestedNextQuests(completedQuestId: string): Promise<
   const sameCategory = candidates.filter((q) => q.category === category);
   const pool = sameCategory.length >= 2 ? sameCategory : candidates;
 
-  // Deterministic shuffle seeded on completedQuestId length (avoids hydration mismatch)
-  const seed = completedQuestId.length;
+  // Deterministic shuffle seeded on completedQuestId content
+  const seed = completedQuestId.split('').reduce((acc, ch) => acc * 31 + ch.charCodeAt(0), 0);
   const shuffled = [...pool].sort((a, b) => (a.id.charCodeAt(seed % a.id.length) - b.id.charCodeAt(seed % b.id.length)));
   return shuffled.slice(0, 2);
 }

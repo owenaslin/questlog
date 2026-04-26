@@ -33,95 +33,108 @@ export default function HomePage() {
   const [dataLoading,    setDataLoading]    = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  const loadData = async (mounted: { current: boolean }) => {
-    const supabase = getSupabaseClient();
-    const { data } = await supabase.auth.getSession();
-    const session = data.session;
-
-    if (!mounted.current) return;
-
-    if (session) {
-      const meta = session.user.user_metadata;
-      setHeroName(meta?.display_name || meta?.name || "Adventurer");
-    }
-    setAuthChecked(true);
-
-    if (!session) {
-      const quests = getDailyQuests();
-      setTonightQuests(quests);
-      setPickedId(quests[1]?.id ?? quests[0]?.id ?? null);
-      setDataLoading(false);
-      return;
-    }
-
-    try {
-      const [snapshot, customActive] = await Promise.all([
-        getUserDashboardSnapshot(),
-        getUserCreatedActiveQuests(),
-      ]);
-
-      if (!mounted.current) return;
-
-      const profileData = snapshot?.profileSummary ?? null;
-      const streakData = snapshot?.streak ?? null;
-      const progressMap = snapshot?.progressMap ?? {};
-
-      setProfile(profileData);
-      setStreak(streakData);
-
-      if (
-        profileData &&
-        profileData.completedCount === 0 &&
-        profileData.activeCount === 0 &&
-        !localStorage.getItem("tavrn_onboarding_done")
-      ) {
-        setShowOnboarding(true);
-      }
-
-      const completedIds = Object.entries(progressMap)
-        .filter(([, p]) => p.status === "completed")
-        .map(([id]) => id);
-
-      const activeEntries = Object.entries(progressMap).filter(([, p]) => p.status === "active");
-      const activeIdSet = new Set(activeEntries.map(([id]) => id));
-
-      const activePredefined = ALL_QUESTS.filter((q) => activeIdSet.has(q.id));
-      const allActiveQuests: Quest[] = [
-        ...activePredefined.map((q) => ({ ...q, status: "active" as const })),
-        ...customActive,
-      ];
-
-      const mainQuest = allActiveQuests.find((q) => q.type === "main") ?? null;
-      const sideQuests = allActiveQuests.filter((q) => q.type === "side");
-
-      setActiveMainQuest(mainQuest);
-      setActiveSideQuests(sideQuests);
-
-      // Picker quests: exclude completed + currently active
-      const allActiveIds = new Set(allActiveQuests.map((q) => q.id));
-      const pickerPool = getDailyQuests([...completedIds, ...Array.from(allActiveIds)]);
-      setPickerQuests(pickerPool);
-    } catch (err) {
-      console.error("[home] data fetch failed:", err);
-      if (!mounted.current) return;
-      setPickerQuests(getDailyQuests());
-    } finally {
-      if (mounted.current) setDataLoading(false);
-    }
-  };
-
   useEffect(() => {
     const mounted = { current: true };
-    loadData(mounted);
+
+    (async () => {
+      const supabase = getSupabaseClient();
+      const { data } = await supabase.auth.getSession();
+      const session = data.session;
+
+      if (!mounted.current) return;
+
+      if (session) {
+        const meta = session.user.user_metadata;
+        setHeroName(meta?.display_name || meta?.name || "Adventurer");
+      }
+      setAuthChecked(true);
+
+      if (!session) {
+        const quests = getDailyQuests();
+        setTonightQuests(quests);
+        setPickedId(quests[1]?.id ?? quests[0]?.id ?? null);
+        setDataLoading(false);
+        return;
+      }
+
+      try {
+        const [snapshot, customActive] = await Promise.all([
+          getUserDashboardSnapshot(),
+          getUserCreatedActiveQuests(),
+        ]);
+
+        if (!mounted.current) return;
+
+        const profileData = snapshot?.profileSummary ?? null;
+        const streakData = snapshot?.streak ?? null;
+        const progressMap = snapshot?.progressMap ?? {};
+
+        setProfile(profileData);
+        setStreak(streakData);
+
+        if (
+          profileData &&
+          profileData.completedCount === 0 &&
+          profileData.activeCount === 0 &&
+          !localStorage.getItem("tavrn_onboarding_done")
+        ) {
+          setShowOnboarding(true);
+        }
+
+        const completedIds = Object.entries(progressMap)
+          .filter(([, p]) => p.status === "completed")
+          .map(([id]) => id);
+
+        const activeEntries = Object.entries(progressMap).filter(([, p]) => p.status === "active");
+        const activeIdSet = new Set(activeEntries.map(([id]) => id));
+
+        const activePredefined = ALL_QUESTS.filter((q) => activeIdSet.has(q.id));
+        const allActiveQuests: Quest[] = [
+          ...activePredefined.map((q) => ({ ...q, status: "active" as const })),
+          ...customActive,
+        ];
+
+        const mainQuest = allActiveQuests.find((q) => q.type === "main") ?? null;
+        const sideQuests = allActiveQuests.filter((q) => q.type === "side");
+
+        setActiveMainQuest(mainQuest);
+        setActiveSideQuests(sideQuests);
+
+        // Picker quests: exclude completed + currently active
+        const allActiveIds = new Set(allActiveQuests.map((q) => q.id));
+        const pickerPool = getDailyQuests([...completedIds, ...Array.from(allActiveIds)]);
+        setPickerQuests(pickerPool);
+      } catch (err) {
+        console.error("[home] data fetch failed:", err);
+        if (!mounted.current) return;
+        setPickerQuests(getDailyQuests());
+      } finally {
+        if (mounted.current) setDataLoading(false);
+      }
+    })();
+
     return () => { mounted.current = false; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isLoggedIn = authChecked && heroName !== null;
   const hasActiveMain = !!activeMainQuest;
 
+  // ── Auth skeleton — shown while we don't know yet if user is logged in ───
+  if (!authChecked) {
+    return (
+      <div className="tavrn-panel p-5 md:p-7 animate-pulse space-y-4">
+        <div className="h-8 w-32 bg-tavern-oak/50 rounded" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-32 bg-tavern-oak/30 rounded" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   // ── Guest view ────────────────────────────────────────────────────────────
-  if (!authChecked || (!isLoggedIn && authChecked)) {
+  if (!isLoggedIn) {
     const pickedQuest = tonightQuests.find((q) => q.id === pickedId) ?? tonightQuests[0] ?? null;
 
     return (

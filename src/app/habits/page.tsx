@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useSpring, animated, useTrail, config } from "@react-spring/web";
 import { HabitWithStatus } from "@/lib/types";
@@ -75,7 +75,6 @@ export default function HabitsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [filter, setFilter] = useState<"all" | "active" | "paused">("active");
   const [isReorderMode, setIsReorderMode] = useState(false);
-  const [stats, setStats] = useState({ total: 0, active: 0, paused: 0, completedToday: 0 });
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -88,14 +87,18 @@ export default function HabitsPage() {
     const allHabits = await getUserHabits({ activeOnly: false });
     if (!mountedRef.current) return;
     setHabits(allHabits);
-    setStats({
-      total: allHabits.length,
-      active: allHabits.filter((h) => h.is_active).length,
-      paused: allHabits.filter((h) => !h.is_active).length,
-      completedToday: allHabits.filter((h) => h.is_completed_today).length,
-    });
     setIsLoading(false);
   }, []);
+
+  const stats = useMemo(() => ({
+    total: habits.length,
+    active: habits.filter((h) => h.is_active).length,
+    paused: habits.filter((h) => !h.is_active).length,
+    completedToday: habits.filter((h) => h.is_completed_today).length,
+  }), [habits]);
+
+  const dueToday = useMemo(() => habits.filter((h) => h.is_active && !h.is_completed_today), [habits]);
+  const completedToday = useMemo(() => habits.filter((h) => h.is_active && h.is_completed_today), [habits]);
 
   useEffect(() => {
     let mounted = true;
@@ -120,10 +123,6 @@ export default function HabitsPage() {
     return true;
   });
 
-  // Habits due today (active, not yet completed)
-  const dueToday = habits.filter((h) => h.is_active && !h.is_completed_today);
-  const completedToday = habits.filter((h) => h.is_active && h.is_completed_today);
-
   const habitAnimations = useTrail(filteredHabits.length, {
     from: { opacity: 0, scale: 0.9 },
     to: { opacity: 1, scale: 1 },
@@ -131,6 +130,7 @@ export default function HabitsPage() {
   });
 
   const handleReorder = async (newOrder: HabitWithStatus[]) => {
+    // Reordering only persists when filter === "all"; filtered views show a subset
     if (filter !== "all") return;
     setHabits(newOrder);
     const orderUpdates = newOrder.map((h, index) => ({ id: h.id, sort_order: index }));

@@ -456,6 +456,23 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 ▶ Quest In Progress
               </div>
 
+              {/* Desktop Complete button — hidden on mobile (sticky version handles that) */}
+              {!showAbandonConfirm && !conflictQuest && (
+                <div className="hidden md:flex w-full justify-center">
+                  <PixelButton
+                    variant="primary"
+                    size="lg"
+                    onClick={handleComplete}
+                    disabled={isWorking}
+                    className={allStepsDone ? "animate-pulse" : ""}
+                  >
+                    {isWorking ? (
+                      <span className="flex items-center gap-2"><span className="animate-spin">⟳</span> Completing...</span>
+                    ) : allStepsDone ? "✓ All done — Complete Quest!" : "✓ Complete Quest"}
+                  </PixelButton>
+                </div>
+              )}
+
               {/* Abandon Quest (secondary) */}
               {showAbandonConfirm ? (
                 <div className="w-full text-center space-y-2">
@@ -523,22 +540,6 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         </div>
       )}
 
-      {/* Desktop complete button (inline, already rendered in the action area) */}
-      {status === "active" && !showAbandonConfirm && !conflictQuest && (
-        <div className="hidden md:flex justify-center mt-4">
-          <PixelButton
-            variant="primary"
-            size="lg"
-            onClick={handleComplete}
-            disabled={isWorking}
-            className={allStepsDone ? "animate-pulse" : ""}
-          >
-            {isWorking ? (
-              <span className="flex items-center gap-2"><span className="animate-spin">⟳</span> Completing...</span>
-            ) : allStepsDone ? "✓ All done — Complete Quest!" : "✓ Complete Quest"}
-          </PixelButton>
-        </div>
-      )}
 
       {showMilestoneCelebration && milestones.length > 0 && (
         <MilestoneCelebration
