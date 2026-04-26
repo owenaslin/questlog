@@ -13,7 +13,8 @@ const navLinks = [
   { href: "/", label: "Tonight" },
   { href: "/board", label: "The Board" },
   { href: "/profile", label: "My Saga" },
-  { href: "/sagas", label: "Sagas" },
+  { href: "/habits", label: "Habits" },
+  { href: "/sagas", label: "Questlines" },
   { href: "/trophies", label: "Trophies" },
 ];
 
@@ -83,7 +84,7 @@ export default function Navbar() {
   };
 
   const linkClasses = (href: string) =>
-    `font-pixel text-[8px] px-3 py-2 uppercase tracking-wider transition-none ${
+    `font-pixel text-[9px] px-3 py-2 uppercase tracking-wider whitespace-nowrap transition-none ${
       isActivePath(href)
         ? "bg-tavern-oak text-tavern-gold border-b-2 border-tavern-gold nav-active-glow"
         : "text-tavern-parchment hover:text-tavern-gold hover:bg-tavern-smoke-light"
@@ -123,7 +124,7 @@ export default function Navbar() {
         {/* ── Desktop nav ────────────────────────── */}
         <div className="hidden md:flex gap-1 items-center flex-1">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={linkClasses(link.href)}>
+            <Link key={link.href} href={link.href} className={linkClasses(link.href)} aria-current={isActivePath(link.href) ? "page" : undefined}>
               {link.label}
             </Link>
           ))}
@@ -228,6 +229,7 @@ export default function Navbar() {
               href={link.href}
               onClick={() => setIsMenuOpen(false)}
               className={linkClasses(link.href)}
+              aria-current={isActivePath(link.href) ? "page" : undefined}
             >
               {link.label}
             </Link>
@@ -245,14 +247,14 @@ export default function Navbar() {
           )}
 
           {isLoadingAuth ? (
-            <span className="font-pixel text-tavern-smoke-light text-[8px] px-3 py-2">
+            <span className="font-pixel text-tavern-smoke-light text-[9px] px-3 py-2">
               Checking your bounty...
             </span>
           ) : isAuthenticated ? (
             <button
               type="button"
               onClick={handleSignOut}
-              className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-tavern-ember text-retro-white text-left"
+              className="font-pixel text-[9px] px-3 py-3 uppercase tracking-wider bg-tavern-ember text-retro-white text-left"
             >
               Leave the Tavern
             </button>
@@ -261,14 +263,14 @@ export default function Navbar() {
               <Link
                 href={loginUrl}
                 onClick={() => setIsMenuOpen(false)}
-                className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-retro-blue text-retro-white"
+                className="font-pixel text-[9px] px-3 py-3 uppercase tracking-wider bg-retro-blue text-retro-white"
               >
                 Enter the Tavern
               </Link>
               <Link
                 href={signupUrl}
                 onClick={() => setIsMenuOpen(false)}
-                className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-tavern-gold text-tavern-smoke"
+                className="font-pixel text-[9px] px-3 py-3 uppercase tracking-wider bg-tavern-gold text-tavern-smoke"
               >
                 Begin Your Legend
               </Link>

@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Merriweather:wght@400;700&family=Press+Start+2P&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&display=swap");
 
 :root {
   --color-bg: #161210;
   --color-text: #efd9a8;
-  --fell: "Merriweather", serif;
+  --wordmark: "Cinzel", serif;
   --pixel: "Press Start 2P", cursive;
   --body: "Inter", sans-serif;
   --mono: "JetBrains Mono", monospace;
@@ -104,21 +104,21 @@ h6 {
 
 .tavrn-kicker {
   font-family: var(--pixel);
-  font-size: 9px;
+  font-size: 10px;
   color: var(--gold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .tavrn-wordmark {
-  font-family: var(--fell);
+  font-family: var(--wordmark);
   color: var(--gold);
   letter-spacing: 0.05em;
 }
 
 .tavrn-button {
   font-family: var(--pixel);
-  font-size: 9px;
+  font-size: 10px;
   background: var(--gold);
   color: #1a1008;
   border: 2px solid #0a0807;

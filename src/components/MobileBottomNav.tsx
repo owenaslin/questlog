@@ -13,9 +13,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/", label: "Tonight", icon: "🍺", exact: true },
-  { href: "/board", label: "Board", icon: "�" },
+  { href: "/board", label: "Board", icon: "📋" },
   { href: "/profile", label: "Saga", icon: "🧙" },
-  { href: "/sagas", label: "Sagas", icon: "📜" },
+  { href: "/habits", label: "Habits", icon: "⚡" },
   { href: "/trophies", label: "Loot", icon: "🏅" },
 ];
 
@@ -49,7 +49,7 @@ export default function MobileBottomNav() {
               aria-current={active ? "page" : undefined}
             >
               <span className="text-xl leading-none mb-1">{item.icon}</span>
-              <span className="font-pixel text-[8px] uppercase tracking-wider">
+              <span className="font-pixel text-[9px] uppercase tracking-wider">
                 {item.label}
               </span>
               {active && (
