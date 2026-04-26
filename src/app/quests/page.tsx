@@ -16,8 +16,119 @@ import {
   getCurrentUserId,
   getUserQuestProgressMap,
   mergeQuestWithProgress,
+  acceptQuest,
+  abandonAndAccept,
 } from "@/lib/quest-progress";
 import { buildAuthUrl } from "@/lib/auth-redirect";
+
+function QuickAcceptButton({
+  quest,
+  activeMainQuestId,
+  onAccepted,
+  inline = false,
+}: {
+  quest: Quest;
+  activeMainQuestId: string | null;
+  onAccepted: (questId: string) => void;
+  inline?: boolean;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [showConflict, setShowConflict] = useState(false);
+
+  if (quest.status !== "available") return null;
+
+  const isMainBlocked = quest.type === "main" && activeMainQuestId !== null;
+
+  const handleAccept = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (loading) return;
+
+    if (isMainBlocked) {
+      setShowConflict(true);
+      return;
+    }
+
+    setLoading(true);
+    const result = await acceptQuest(quest.id, quest.type, quest.category);
+    setLoading(false);
+    if (result.success) onAccepted(quest.id);
+  };
+
+  const handleAbandonAndAccept = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!activeMainQuestId) return;
+    setLoading(true);
+    setShowConflict(false);
+    const result = await abandonAndAccept(activeMainQuestId, quest.id, quest.type, quest.category);
+    setLoading(false);
+    if (result.success) onAccepted(quest.id);
+  };
+
+  if (showConflict) {
+    const conflictContent = (
+      <div onClick={(e) => e.preventDefault()}>
+        <p className="font-pixel text-[7px] text-tavern-ember mb-2 leading-snug">
+          Abandon your current main quest and start this one?
+        </p>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={handleAbandonAndAccept}
+            disabled={loading}
+            className="font-pixel text-[7px] px-2 py-1 bg-tavern-ember text-white disabled:opacity-50"
+          >
+            Abandon &amp; Accept
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowConflict(false); }}
+            className="font-pixel text-[7px] px-2 py-1 bg-tavern-oak text-tavern-parchment"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+
+    return inline ? (
+      <div className="mt-2 p-2 border border-tavern-ember bg-black/60">{conflictContent}</div>
+    ) : (
+      <div className="absolute bottom-0 left-0 right-0 z-10 bg-black/90 border-t-2 border-tavern-ember p-2">
+        {conflictContent}
+      </div>
+    );
+  }
+
+  const btnClass = `font-pixel text-[7px] px-2 py-1 border transition-none disabled:opacity-50 ${
+    isMainBlocked
+      ? "border-tavern-oak/50 text-tavern-parchment-dim cursor-not-allowed bg-black/40"
+      : "border-tavern-gold bg-black/80 text-tavern-gold hover:bg-tavern-gold hover:text-black"
+  }`;
+
+  return inline ? (
+    <button
+      type="button"
+      onClick={handleAccept}
+      disabled={loading}
+      title={isMainBlocked ? "Finish your current main quest first" : undefined}
+      className={btnClass}
+    >
+      {loading ? "…" : isMainBlocked ? "🔒 Blocked" : "⚡ Accept"}
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={handleAccept}
+      disabled={loading}
+      title={isMainBlocked ? "Finish your current main quest first" : `Accept "${quest.title}"`}
+      className={`absolute bottom-2 right-2 z-10 ${btnClass}`}
+    >
+      {loading ? "…" : isMainBlocked ? "🔒" : "⚡ Accept"}
+    </button>
+  );
+}
 
 const allQuests: Quest[] = ALL_QUESTS;
 
@@ -100,6 +211,17 @@ export default function QuestsPage() {
     () => questsWithProgress.filter((q) => q.status === "active"),
     [questsWithProgress]
   );
+
+  const activeMainQuestId = useMemo(
+    () => questsWithProgress.find((q) => q.status === "active" && q.type === "main")?.id ?? null,
+    [questsWithProgress]
+  );
+
+  const handleQuickAccepted = useCallback((questId: string) => {
+    setQuestsWithProgress((prev) =>
+      prev.map((q) => q.id === questId ? { ...q, status: "active" as const } : q)
+    );
+  }, []);
   const availableSideQuests = useMemo(
     () => questsWithProgress.filter((q) => q.status === "available" && q.type === "side"),
     [questsWithProgress]
@@ -387,13 +509,21 @@ export default function QuestsPage() {
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <Link
                         href={`/quests/${selectedQuest.id}`}
                         className="font-pixel text-[8px] px-4 py-2 bg-retro-blue text-retro-white border-b-4 border-retro-darkblue hover:bg-retro-lightblue"
                       >
-                        Open Quest Details
+                        Open Details
                       </Link>
+                      {isAuthenticated && selectedQuest.status === "available" && (
+                        <QuickAcceptButton
+                          quest={selectedQuest}
+                          activeMainQuestId={activeMainQuestId}
+                          onAccepted={handleQuickAccepted}
+                          inline
+                        />
+                      )}
                     </div>
                   </>
                 ) : (
@@ -447,7 +577,16 @@ export default function QuestsPage() {
         ) : filteredQuests.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
             {filteredQuests.map((quest) => (
-              <QuestCard key={quest.id} quest={quest} />
+              <div key={quest.id} className="relative">
+                <QuestCard quest={quest} />
+                {isAuthenticated && (
+                  <QuickAcceptButton
+                    quest={quest}
+                    activeMainQuestId={activeMainQuestId}
+                    onAccepted={handleQuickAccepted}
+                  />
+                )}
+              </div>
             ))}
           </div>
         ) : (

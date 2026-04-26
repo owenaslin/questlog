@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Quest } from "@/lib/types";
 import { Milestone, getMilestoneColor } from "@/lib/milestones";
 import PixelButton from "./PixelButton";
 import XPBar from "./XPBar";
 import { QUESTLINES } from "@/lib/questlines";
+import { acceptQuest } from "@/lib/quest-progress";
 
 interface CompletionModalProps {
   quest: Quest;
@@ -18,6 +20,7 @@ interface CompletionModalProps {
   isNewLongest?: boolean;
   heroHandle?: string;
   milestones?: Milestone[];
+  suggestedQuests?: Quest[];
   onClose: () => void;
 }
 
@@ -46,12 +49,15 @@ export default function CompletionModal({
   isNewLongest,
   heroHandle,
   milestones = [],
+  suggestedQuests = [],
   onClose,
 }: CompletionModalProps) {
+  const router = useRouter();
   const [showParticles, setShowParticles] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [showMugs, setShowMugs] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [nextQuestlineQuest] = useState<Quest | null>(() => findNextQuestlineQuest(quest.id));
 
   useEffect(() => {
@@ -62,9 +68,6 @@ export default function CompletionModal({
   }, []);
 
   const handleShare = () => {
-    const triumphUrl = heroHandle
-      ? `https://tarvn.xyz/api/og/triumph/${quest.id}?user=${heroHandle}`
-      : `https://tarvn.xyz/hero/${heroHandle ?? ""}`;
     const heroPageUrl = heroHandle
       ? `https://tarvn.xyz/hero/${heroHandle}`
       : `https://tarvn.xyz`;
@@ -256,19 +259,79 @@ export default function CompletionModal({
             </div>
           )}
 
+          {/* ── What's Next? ── */}
+          {(nextQuestlineQuest || suggestedQuests.length > 0) && (
+            <div
+              className="mb-5 p-3"
+              style={{ border: "2px solid #3a2a10", background: "#110e06" }}
+            >
+              <p className="font-pixel text-tavern-smoke-light text-[7px] uppercase tracking-widest mb-3">
+                What&apos;s Next?
+              </p>
+              <div className="space-y-2">
+                {nextQuestlineQuest && (
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-pixel text-[8px] text-tavern-gold leading-snug truncate">
+                        {nextQuestlineQuest.title}
+                      </p>
+                      <p className="text-[10px] text-[#bda780]">Questline · +{nextQuestlineQuest.xp_reward} XP</p>
+                    </div>
+                    <Link
+                      href={`/quests/${nextQuestlineQuest.id}`}
+                      onClick={onClose}
+                      className="tavrn-button !text-[8px] !py-1 !px-2 flex-shrink-0"
+                    >
+                      Continue →
+                    </Link>
+                  </div>
+                )}
+                {!nextQuestlineQuest && suggestedQuests.map((sq) => {
+                  const isAccepting = acceptingId === sq.id;
+                  return (
+                    <div key={sq.id} className="flex items-center justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-pixel text-[8px] text-tavern-parchment leading-snug truncate">{sq.title}</p>
+                        <p className="text-[10px] text-[#bda780]">
+                          {sq.type === "main" ? "Main" : "Side"} · +{sq.xp_reward} XP
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={!!acceptingId}
+                        onClick={async () => {
+                          setAcceptingId(sq.id);
+                          const result = await acceptQuest(sq.id, sq.type, sq.category);
+                          setAcceptingId(null);
+                          if (result.success) {
+                            onClose();
+                            router.push("/");
+                          }
+                        }}
+                        className="tavrn-button !text-[8px] !py-1 !px-2 flex-shrink-0 disabled:opacity-50"
+                      >
+                        {isAccepting ? "…" : "Accept"}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* ── Actions ── */}
           <div className="flex flex-col gap-3">
-            {/* Primary: continue questline or find next quest */}
+            {/* Primary: browse board */}
             {nextQuestlineQuest ? (
-              <Link href={`/quests/${nextQuestlineQuest.id}`} className="block">
+              <Link href={`/quests/${nextQuestlineQuest.id}`} className="block" onClick={onClose}>
                 <PixelButton variant="success" size="lg" className="w-full">
                   ⚔ Continue Questline
                 </PixelButton>
               </Link>
             ) : (
-              <Link href="/board" className="block">
+              <Link href="/board" className="block" onClick={onClose}>
                 <PixelButton variant="success" size="lg" className="w-full">
-                  ⚔ Find Next Quest
+                  ⚔ Browse Quest Board
                 </PixelButton>
               </Link>
             )}
