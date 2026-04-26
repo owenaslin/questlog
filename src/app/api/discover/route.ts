@@ -380,7 +380,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           success: false, 
-          message: `Validation error: ${parseResult.error.issues.map(i => i.message).join(', ')}`,
+          message: `Validation error: ${parseResult.error.issues.map((i: { message: string }) => i.message).join(', ')}`,
           remaining_daily: dailyLimit.remaining 
         },
         { status: 400 }
