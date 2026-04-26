@@ -23,9 +23,14 @@ export default async function QuestDetailPage({ params }: PageProps) {
   if (predefined) return <QuestDetailClient quest={predefined} />;
 
   // Fallback — user/AI-created quests stored in DB (use service role key for server-side access)
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceRoleKey) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY environment variable is not configured");
+  }
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
+    serviceRoleKey,
     { auth: { persistSession: false } }
   );
 
