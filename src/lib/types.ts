@@ -209,3 +209,20 @@ export interface HabitWithStatus extends Habit {
   completions_this_week: number;
 }
 
+export type ThemeMode = "light" | "dark" | "system";
+
+export interface NotificationPreferences {
+  habit_reminders: boolean;
+  quest_alerts: boolean;
+  weekly_recap: boolean;
+}
+
+export interface UserSettings {
+  user_id: string;
+  week_start_day: number;
+  theme_mode: ThemeMode;
+  notification_preferences: NotificationPreferences;
+  created_at: string;
+  updated_at: string;
+}
+

@@ -11,6 +11,7 @@ import {
   getWeekStartString,
   isHabitScheduledForDate,
 } from "@/lib/habit-recurrence";
+import { getUserSettings } from "@/lib/settings";
 
 // ============================================
 // HABIT CRUD OPERATIONS
@@ -145,7 +146,8 @@ export async function getUserHabits(options?: {
 }): Promise<HabitWithStatus[]> {
   const supabase = getSupabaseClient();
   const today = getTodayString();
-  const weekStart = getWeekStartString();
+  const { settings } = await getUserSettings();
+  const weekStart = getWeekStartString(new Date(), settings?.week_start_day ?? 0);
   const { data, error } = await supabase.rpc("get_user_habits_snapshot", {
     p_today: today,
     p_week_start: weekStart,
@@ -200,7 +202,7 @@ export async function getHabitsForToday(): Promise<HabitWithStatus[]> {
   const habits = await getUserHabits({ activeOnly: true });
   const today = new Date();
 
-  return habits.filter((h) => isHabitScheduledForDate(h, today));
+  return habits.filter((h) => isHabitScheduledForDate(h, today, h.completions_this_week));
 }
 
 // ============================================

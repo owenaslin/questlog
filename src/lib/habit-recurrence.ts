@@ -107,11 +107,14 @@ export function getTodayString(): string {
 }
 
 /**
- * Get start of week (Sunday) date string in local time.
+ * Get start-of-week date string in local time.
+ * weekStartDay uses JS day index (0=Sun ... 6=Sat).
  */
-export function getWeekStartString(date: Date = new Date()): string {
+export function getWeekStartString(date: Date = new Date(), weekStartDay: number = 0): string {
   const d = new Date(date);
-  d.setDate(d.getDate() - d.getDay()); // rewind to Sunday
+  const normalizedWeekStart = Math.max(0, Math.min(6, Math.round(weekStartDay)));
+  const diff = (d.getDay() - normalizedWeekStart + 7) % 7;
+  d.setDate(d.getDate() - diff);
   return localDateString(d);
 }
 
