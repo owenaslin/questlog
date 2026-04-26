@@ -22,11 +22,10 @@ export default async function QuestDetailPage({ params }: PageProps) {
   const predefined = ALL_QUESTS.find((q) => q.id === id);
   if (predefined) return <QuestDetailClient quest={predefined} />;
 
-  // Fallback — user/AI-created quests stored in DB (accessible via anon + RLS)
+  // Fallback — user/AI-created quests stored in DB (use service role key for server-side access)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
     { auth: { persistSession: false } }
   );
 
