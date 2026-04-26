@@ -191,7 +191,7 @@ async function getUserPreferences(userId: string) {
   
   const { data, error } = await supabase
     .from('profiles')
-    .select('location_city, location_coords, discovery_radius_km, privacy_level, discovery_preferences')
+    .select('location_city, location_lat, location_lng, discovery_radius_km, privacy_level, discovery_preferences')
     .eq('id', userId)
     .single();
   
@@ -391,15 +391,16 @@ export async function POST(request: NextRequest) {
     
     if (userPrefs) {
       city = city || userPrefs.location_city || 'Your City';
-      if (!coordinates && userPrefs.location_coords) {
-        // Parse POINT from database
-        const pointMatch = userPrefs.location_coords.match(/\(([^,]+),([^)]+)\)/);
-        if (pointMatch) {
-          coordinates = {
-            lat: parseFloat(pointMatch[2]),
-            lng: parseFloat(pointMatch[1]),
-          };
-        }
+      // Use separate lat/lng columns with validation
+      if (!coordinates && 
+          typeof userPrefs.location_lat === 'number' && 
+          typeof userPrefs.location_lng === 'number' &&
+          !isNaN(userPrefs.location_lat) && 
+          !isNaN(userPrefs.location_lng)) {
+        coordinates = {
+          lat: userPrefs.location_lat,
+          lng: userPrefs.location_lng,
+        };
       }
       privacyLevel = userPrefs.privacy_level || 'approximate';
       radiusKm = userPrefs.discovery_radius_km || 20;

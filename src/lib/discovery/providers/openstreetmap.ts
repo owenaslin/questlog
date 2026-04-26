@@ -297,6 +297,87 @@ export const openStreetMapProvider: DiscoveryProvider = {
 };
 
 /**
+ * Build Overpass API query for production use
+ * 
+ * @example
+ * const query = buildOverpassQuery(45.52, -122.68, 5000, ['leisure=park', 'tourism=viewpoint']);
+ * const response = await fetch('https://overpass-api.de/api/interpreter', {
+ *   method: 'POST',
+ *   body: query
+ * });
+ */
+export function buildOverpassQuery(
+  lat: number,
+  lng: number,
+  radiusMeters: number,
+  tags: string[]
+): string {
+  // Convert tags to Overpass filter format
+  const tagFilters = tags.map(tag => {
+    const [key, value] = tag.split('=');
+    return value && value !== '*' 
+      ? `["${key}"="${value}"]`
+      : `["${key}"]`;
+  }).join('');
+  
+  return `
+[out:json][timeout:25];
+(
+  node${tagFilters}(around:${radiusMeters},${lat},${lng});
+  way${tagFilters}(around:${radiusMeters},${lat},${lng});
+);
+out body;
+>;
+out skel qt;
+  `.trim();
+}
+
+/**
+ * Fetch places from Overpass API (for production)
+ */
+export async function fetchFromOverpass(
+  lat: number,
+  lng: number,
+  radiusMeters: number,
+  tags: string[]
+): Promise<ProviderPlace[]> {
+  const query = buildOverpassQuery(lat, lng, radiusMeters, tags);
+  
+  const response = await fetch('https://overpass-api.de/api/interpreter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `data=${encodeURIComponent(query)}`,
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Overpass API error: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  // Transform OSM elements to ProviderPlace format
+  return data.elements
+    .filter((el: { tags?: Record<string, string> }) => el.tags?.name)
+    .map((el: { id: number; lat?: number; lon?: number; tags: Record<string, string>; center?: { lat: number; lon: number } }) => ({
+      id: `osm_${el.id}`,
+      source: 'openstreetmap' as ProviderSource,
+      name: el.tags.name,
+      description: el.tags.description || '',
+      address: '', // Would need reverse geocoding
+      coordinates: {
+        lat: el.lat || el.center?.lat || lat,
+        lng: el.lon || el.center?.lon || lng,
+      },
+      categories: Object.keys(el.tags)
+        .filter(k => ['leisure', 'tourism', 'sport', 'amenity'].includes(k))
+        .map(k => el.tags[k]),
+      tags: Object.entries(el.tags).map(([k, v]) => `${k}=${v}`),
+      is_open_now: undefined, // Would need opening_hours parsing
+      metadata: { osm_tags: Object.entries(el.tags).map(([k, v]) => `${k}=${v}`) },
+    }));
+}
+
+/**
  * Notes for Production Implementation:
  * 
  * 1. OVERPASS API QUERY EXAMPLE:

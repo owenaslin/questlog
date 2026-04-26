@@ -5,7 +5,8 @@
 
 -- Add location fields to profiles table
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS location_city VARCHAR(100);
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS location_coords POINT; -- lat, lng
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS location_lat DECIMAL(10,8); -- -90 to 90
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS location_lng DECIMAL(11,8); -- -180 to 180
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS discovery_radius_km INTEGER DEFAULT 20 CHECK (discovery_radius_km >= 1 AND discovery_radius_km <= 100);
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS privacy_level VARCHAR(20) DEFAULT 'approximate' CHECK (privacy_level IN ('exact', 'approximate', 'city-only'));
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS last_discovery_at TIMESTAMPTZ;
@@ -19,11 +20,13 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS discovery_preferences JSONB
   "max_discovery_cost_daily": 5
 }'::jsonb;
 
--- Index for proximity queries (if using PostGIS, this would be a GEOGRAPHY index)
-CREATE INDEX IF NOT EXISTS idx_profiles_location_coords ON public.profiles USING GIST (location_coords);
+-- Indexes for location queries
 CREATE INDEX IF NOT EXISTS idx_profiles_location_city ON public.profiles (location_city);
+CREATE INDEX IF NOT EXISTS idx_profiles_location_lat ON public.profiles (location_lat);
+CREATE INDEX IF NOT EXISTS idx_profiles_location_lng ON public.profiles (location_lng);
 
 -- Quest discoveries table - tracks AI-generated location quests
+-- Note: Using DECIMAL for coords instead of POINT for broader compatibility
 CREATE TABLE IF NOT EXISTS public.quest_discoveries (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
@@ -31,9 +34,10 @@ CREATE TABLE IF NOT EXISTS public.quest_discoveries (
   -- Source information
   provider_source VARCHAR(50) NOT NULL, -- 'google_places', 'alltrails', 'eventbrite', 'mock', etc.
   provider_place_id TEXT,
-  -- Location data (normalized for privacy)
+  -- Location data (normalized for privacy, using separate cols for compatibility)
   discovery_location_city VARCHAR(100) NOT NULL,
-  discovery_location_coords POINT,
+  discovery_location_lat DECIMAL(10,8),
+  discovery_location_lng DECIMAL(11,8),
   -- AI-generated narrative context
   narrative_context JSONB NOT NULL DEFAULT '{}',
   -- Caching metadata
@@ -51,6 +55,8 @@ CREATE INDEX IF NOT EXISTS idx_quest_discoveries_user_id ON public.quest_discove
 CREATE INDEX IF NOT EXISTS idx_quest_discoveries_expires_at ON public.quest_discoveries(expires_at);
 CREATE INDEX IF NOT EXISTS idx_quest_discoveries_location ON public.quest_discoveries (discovery_location_city);
 CREATE INDEX IF NOT EXISTS idx_quest_discoveries_user_location ON public.quest_discoveries (user_id, discovery_location_city);
+CREATE INDEX IF NOT EXISTS idx_quest_discoveries_lat ON public.quest_discoveries (discovery_location_lat);
+CREATE INDEX IF NOT EXISTS idx_quest_discoveries_lng ON public.quest_discoveries (discovery_location_lng);
 
 -- RLS Policies for quest_discoveries
 ALTER TABLE public.quest_discoveries ENABLE ROW LEVEL SECURITY;

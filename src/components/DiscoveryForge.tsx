@@ -95,8 +95,10 @@ export default function DiscoveryForge({
         exclude_recent: true,
       };
       
-      // Get auth token from local storage or context
-      const token = localStorage.getItem('supabase.auth.token');
+      // Get auth token from local storage or context (SSR-safe)
+      const token = typeof window !== 'undefined' 
+        ? localStorage.getItem('supabase.auth.token') 
+        : null;
       
       const response = await fetch('/api/discover', {
         method: 'POST',
