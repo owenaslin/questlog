@@ -7,7 +7,7 @@
 :root {
   --color-bg: #161210;
   --color-text: #efd9a8;
-  --fell: "Cinzel", serif;
+  --display: "Cinzel", serif;
   --pixel: "Press Start 2P", cursive;
   --body: "Inter", sans-serif;
   --mono: "JetBrains Mono", monospace;
@@ -111,7 +111,7 @@ h6 {
 }
 
 .tavrn-wordmark {
-  font-family: var(--fell);
+  font-family: var(--display);
   color: var(--gold);
   letter-spacing: 0.05em;
 }

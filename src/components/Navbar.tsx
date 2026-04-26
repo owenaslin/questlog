@@ -84,7 +84,7 @@ export default function Navbar() {
   };
 
   const linkClasses = (href: string) =>
-    `font-pixel text-[9px] px-3 py-2 uppercase tracking-wider transition-none ${
+    `font-pixel text-[9px] px-3 py-2 uppercase tracking-wider whitespace-nowrap transition-none ${
       isActivePath(href)
         ? "bg-tavern-oak text-tavern-gold border-b-2 border-tavern-gold nav-active-glow"
         : "text-tavern-parchment hover:text-tavern-gold hover:bg-tavern-smoke-light"
@@ -124,7 +124,7 @@ export default function Navbar() {
         {/* ── Desktop nav ────────────────────────── */}
         <div className="hidden md:flex gap-1 items-center flex-1">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={linkClasses(link.href)}>
+            <Link key={link.href} href={link.href} className={linkClasses(link.href)} aria-current={isActivePath(link.href) ? "page" : undefined}>
               {link.label}
             </Link>
           ))}
