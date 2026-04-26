@@ -33,6 +33,42 @@ DROP POLICY IF EXISTS "Users can update own quest step progress" ON public.user_
 CREATE POLICY "Users can update own quest step progress" ON public.user_quest_steps
   FOR UPDATE USING (auth.uid() = user_id);
 
+CREATE OR REPLACE FUNCTION public.update_weekly_xp_only(
+  p_user_id UUID,
+  p_xp INTEGER,
+  p_category TEXT
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_week_start DATE := date_trunc('week', CURRENT_DATE)::DATE;
+BEGIN
+  IF auth.uid() IS NULL OR auth.uid() <> p_user_id THEN
+    RAISE EXCEPTION 'Not authorized to update weekly activity for this user.' USING ERRCODE = '42501';
+  END IF;
+
+  UPDATE public.weekly_activity
+  SET
+    xp_earned = xp_earned + p_xp,
+    categories = CASE
+      WHEN categories @> to_jsonb(p_category) THEN categories
+      ELSE categories || to_jsonb(p_category)
+    END
+  WHERE user_id = p_user_id AND week_start = v_week_start;
+
+  IF NOT FOUND THEN
+    INSERT INTO public.weekly_activity (user_id, week_start, quests_completed, xp_earned, categories)
+    VALUES (p_user_id, v_week_start, 0, p_xp, to_jsonb(ARRAY[p_category]));
+  END IF;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.update_weekly_xp_only(UUID, INTEGER, TEXT)
+TO authenticated;
+
 CREATE OR REPLACE FUNCTION public.complete_quest_step_atomic(
   p_user_id UUID,
   p_quest_id UUID,

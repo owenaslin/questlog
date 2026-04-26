@@ -14,6 +14,7 @@ import {
   acceptQuest,
   completeQuestStep,
   completeQuest,
+  hasPersistedQuestSteps,
   getCompletedCategoryCounts,
   getUserDashboardSnapshot,
   getUserQuestStepProgress,
@@ -52,6 +53,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [showMilestoneCelebration, setShowMilestoneCelebration] = useState(false);
   const [stepChecked, setStepChecked] = useState<Record<string, boolean>>({});
   const [savingSteps, setSavingSteps] = useState<Record<string, boolean>>({});
+  const [persistedStepsAvailable, setPersistedStepsAvailable] = useState(false);
 
   const steps = quest.steps ?? [];
   const requiredSteps = useMemo(
@@ -102,6 +104,13 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
     [requiredSteps, stepChecked]
   );
 
+  const hasSavingSteps = useMemo(
+    () => Object.values(savingSteps).some(Boolean),
+    [savingSteps]
+  );
+
+  const shouldGateOnRequiredSteps = requiredSteps.length > 0 && persistedStepsAvailable;
+
   const storageKey = useMemo(() => `quest-steps-${quest.id}`, [quest.id]);
 
   useEffect(() => {
@@ -144,6 +153,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       if (progress?.status) setStatus(progress.status);
       if (summary) setProfileXpTotal(summary.xp_total);
       if (heroProfile?.handle) setHeroHandle(heroProfile.handle);
+      setPersistedStepsAvailable(await hasPersistedQuestSteps(quest.id));
       if (steps.length) {
         setStepChecked((prev) => {
           const next = steps.reduce<Record<string, boolean>>((acc, step) => {
@@ -484,7 +494,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
               <div className="font-pixel text-retro-orange text-[10px] bg-retro-black px-4 py-2 animate-pulse">
                 ▶ Quest In Progress
               </div>
-              {requiredSteps.length > 0 && !allRequiredStepsComplete && (
+              {shouldGateOnRequiredSteps && !allRequiredStepsComplete && (
                 <p className="font-pixel text-retro-lightgray text-[8px] text-center">
                   Complete all required objectives first.
                 </p>
@@ -493,7 +503,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 variant="primary"
                 size="lg"
                 onClick={handleComplete}
-                disabled={isWorking || (requiredSteps.length > 0 && !allRequiredStepsComplete)}
+                disabled={isWorking || hasSavingSteps || (shouldGateOnRequiredSteps && !allRequiredStepsComplete)}
               >
                 {isWorking ? (
                   <span className="flex items-center gap-2">

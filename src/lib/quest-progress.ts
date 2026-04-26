@@ -196,7 +196,7 @@ export async function completeQuestStep(
   }
 
   if (questCategory && appliedXp > 0) {
-    const { error: weeklyError } = await supabase.rpc("update_weekly_activity", {
+    const { error: weeklyError } = await supabase.rpc("update_weekly_xp_only", {
       p_user_id: userId,
       p_xp: appliedXp,
       p_category: questCategory,
@@ -211,6 +211,21 @@ export async function completeQuestStep(
   const nextLevel = typeof rpcResult?.next_level === "number" ? rpcResult.next_level : undefined;
 
   return { success: true, appliedXp, nextXp, nextLevel };
+}
+
+export async function hasPersistedQuestSteps(questId: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("quests")
+    .select("steps")
+    .eq("id", questId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return false;
+  }
+
+  return Array.isArray(data.steps) && data.steps.length > 0;
 }
 
 export function mergeQuestWithProgress(
