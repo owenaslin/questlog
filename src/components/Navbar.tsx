@@ -83,10 +83,10 @@ export default function Navbar() {
   };
 
   const linkClasses = (href: string) =>
-    `font-pixel text-[8px] px-3 py-2 uppercase tracking-wider transition-none ${
+    `mobile-label px-3 py-2 uppercase tracking-wider transition-none ${
       isActivePath(href)
         ? "bg-tavern-oak text-tavern-gold border-b-2 border-tavern-gold nav-active-glow"
-        : "text-tavern-parchment hover:text-tavern-gold hover:bg-tavern-smoke-light"
+        : "text-tavern-parchment hover:text-tavern-gold hover:bg-tavern-smoke-2"
     }`;
 
   /* XP bar width (0–100%) based on progress within current level (500 XP/level) */
@@ -95,8 +95,7 @@ export default function Navbar() {
     : 0;
 
   return (
-    <nav className="sticky top-0 z-50"
-         style={{ background: "linear-gradient(180deg, #2a1f14 0%, #1a1510 100%)" }}>
+    <nav className="sticky top-0 z-50 bg-tavern-cream">
       {/* Oak beam top accent */}
       <div className="oak-beam w-full" />
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
@@ -113,7 +112,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="md:hidden font-pixel text-[10px] px-4 py-3 min-h-[48px] min-w-[48px] bg-tavern-smoke text-tavern-parchment border-2 border-tavern-oak active:bg-tavern-oak transition-none touch-target"
+          className="md:hidden mobile-caption px-4 py-3 min-h-[48px] min-w-[48px] bg-tavern-smoke text-tavern-parchment border-2 border-tavern-oak active:bg-tavern-oak transition-none touch-target"
           aria-label="Toggle navigation"
           aria-expanded={isMenuOpen}
         >
@@ -132,26 +131,26 @@ export default function Navbar() {
         {/* ── Hero pill (authed) / auth buttons ─── */}
         <div className="hidden md:flex items-center gap-2">
           <div className="flex items-center gap-2 bg-tavern-smoke border-2 border-tavern-oak px-2 py-1">
-            <span className="font-pixel text-[6px] text-tavern-smoke-light uppercase tracking-wider">
+            <span className="mobile-label text-tavern-ink-dim uppercase tracking-wider">
               View
             </span>
             <select
               aria-label="View mode"
               value={viewMode}
               onChange={(e) => setViewMode(e.target.value as "auto" | "desktop" | "compact")}
-              className="font-pixel text-[7px] bg-tavern-smoke text-tavern-parchment border-0 p-0"
+              className="mobile-caption bg-tavern-smoke text-tavern-ink border-0 p-0"
             >
               <option value="auto">Auto</option>
               <option value="desktop">Desktop</option>
               <option value="compact">Compact</option>
             </select>
-            <span className={`font-pixel text-[6px] ${isDesktopActive ? "text-retro-lime" : "text-retro-lightblue"}`}>
+            <span className={`mobile-label ${isDesktopActive ? "text-tavern-lime" : "text-tavern-cyan"}`}>
               {isDesktopActive ? "DESK" : "COMP"}
             </span>
           </div>
 
           {isLoadingAuth ? (
-            <span className="font-pixel text-tavern-smoke-light text-[8px] px-3 py-2 animate-flicker">...</span>
+            <span className="mobile-caption text-tavern-parchment-dim px-3 py-2 animate-flicker">...</span>
           ) : isAuthenticated ? (
             <>
               {/* Hero pill */}
@@ -162,12 +161,12 @@ export default function Navbar() {
                 <span className="text-base leading-none">🧙</span>
                 <div className="flex flex-col gap-0.5">
                   {heroLevel !== null && (
-                    <span className="font-pixel text-tavern-gold text-[7px]">
+                    <span className="mobile-caption text-tavern-gold">
                       LVL {heroLevel}
                     </span>
                   )}
                   {heroXp !== null && (
-                    <div className="w-16 h-1 bg-tavern-smoke-light relative">
+                    <div className="w-16 h-1 bg-tavern-cream-2 relative">
                       <div
                         className="h-full bg-tavern-gold absolute left-0 top-0 transition-none"
                         style={{ width: `${xpPct}%` }}
@@ -180,7 +179,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-tavern-ember text-retro-white hover:bg-tavern-ember-dark transition-none"
+                className="mobile-label px-3 py-2 uppercase tracking-wider bg-tavern-ember text-white hover:bg-tavern-ember-dark transition-none"
               >
                 Leave
               </button>
@@ -189,13 +188,13 @@ export default function Navbar() {
             <>
               <Link
                 href={loginUrl}
-                className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-retro-blue text-retro-white hover:bg-retro-lightblue transition-none"
+                className="mobile-label px-3 py-2 uppercase tracking-wider bg-tavern-cream-3 text-tavern-ink hover:bg-tavern-oak-3 transition-none"
               >
                 Enter
               </Link>
               <Link
                 href={signupUrl}
-                className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-tavern-gold text-tavern-smoke hover:bg-tavern-candle transition-none"
+                className="mobile-label px-3 py-2 uppercase tracking-wider bg-tavern-gold text-tavern-cream hover:bg-tavern-gold-2 transition-none"
               >
                 Join
               </Link>
@@ -206,15 +205,14 @@ export default function Navbar() {
 
       {/* ── Mobile menu ──────────────────────────── */}
       {isMenuOpen && (
-        <div className="md:hidden border-t-4 border-tavern-oak-dark px-4 py-3 flex flex-col gap-2"
-             style={{ background: "#1a1510" }}>
+        <div className="md:hidden border-t-4 border-tavern-oak-2 px-4 py-3 flex flex-col gap-2 bg-tavern-cream">
           <div className="bg-tavern-smoke border-2 border-tavern-oak p-2">
-            <label className="font-pixel text-[7px] text-tavern-smoke-light block mb-1 uppercase">View Mode</label>
+            <label className="mobile-caption text-tavern-parchment-dim block mb-1 uppercase">View Mode</label>
             <select
               aria-label="View mode"
               value={viewMode}
               onChange={(e) => setViewMode(e.target.value as "auto" | "desktop" | "compact")}
-              className="w-full font-pixel text-[8px]"
+              className="w-full mobile-caption"
             >
               <option value="auto">Auto</option>
               <option value="desktop">Desktop</option>
@@ -245,14 +243,14 @@ export default function Navbar() {
           )}
 
           {isLoadingAuth ? (
-            <span className="font-pixel text-tavern-smoke-light text-[8px] px-3 py-2">
+            <span className="mobile-caption text-tavern-parchment-dim px-3 py-2">
               Checking your bounty...
             </span>
           ) : isAuthenticated ? (
             <button
               type="button"
               onClick={handleSignOut}
-              className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-tavern-ember text-retro-white text-left"
+              className="mobile-label px-3 py-3 uppercase tracking-wider bg-tavern-ember text-white text-left"
             >
               Leave the Tavern
             </button>
@@ -261,14 +259,14 @@ export default function Navbar() {
               <Link
                 href={loginUrl}
                 onClick={() => setIsMenuOpen(false)}
-                className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-retro-blue text-retro-white"
+                className="mobile-label px-3 py-3 uppercase tracking-wider bg-tavern-cream-3 text-tavern-ink"
               >
                 Enter the Tavern
               </Link>
               <Link
                 href={signupUrl}
                 onClick={() => setIsMenuOpen(false)}
-                className="font-pixel text-[8px] px-3 py-3 uppercase tracking-wider bg-tavern-gold text-tavern-smoke"
+                className="mobile-label px-3 py-3 uppercase tracking-wider bg-tavern-gold text-tavern-cream"
               >
                 Begin Your Legend
               </Link>
