@@ -9,7 +9,7 @@ import {
   HabitWithStatus,
 } from "@/lib/types";
 import { completeHabit, uncompleteHabit } from "@/lib/habits";
-import { getRecurrenceDescription, isHabitScheduledForDate } from "@/lib/habit-recurrence";
+import { getRecurrenceDescription } from "@/lib/habit-recurrence";
 import HabitCheck from "./HabitCheck";
 
 interface HabitCardProps {
@@ -98,7 +98,10 @@ export default function HabitCard({
             {habit.title}
           </p>
           <p className="text-[10px] text-tavern-parchment-dim">
-            {getRecurrenceDescription(habit)} · +{habit.xp_reward} XP
+            {habit.recurrence_type === "times_per_week"
+              ? `${habit.completions_this_week}/${habit.recurrence_data.timesPerWeek ?? 3} this week · +${habit.xp_reward} XP`
+              : `${getRecurrenceDescription(habit)} · +${habit.xp_reward} XP`
+            }
           </p>
         </div>
         {streakCount > 0 && (
@@ -170,9 +173,21 @@ export default function HabitCard({
       {/* Stats row */}
       <div className="flex items-center justify-between text-xs text-tavern-parchment-dim">
         <div className="flex items-center gap-3">
-          <span>{getRecurrenceDescription(habit)}</span>
-          <span>·</span>
-          <span>+{habit.xp_reward} XP</span>
+          {habit.recurrence_type === "times_per_week" ? (
+            <>
+              <span>
+                {habit.completions_this_week}/{habit.recurrence_data.timesPerWeek ?? 3} this week
+              </span>
+              <span>·</span>
+              <span>+{habit.xp_reward} XP</span>
+            </>
+          ) : (
+            <>
+              <span>{getRecurrenceDescription(habit)}</span>
+              <span>·</span>
+              <span>+{habit.xp_reward} XP</span>
+            </>
+          )}
         </div>
         
         {streakCount > 0 && (

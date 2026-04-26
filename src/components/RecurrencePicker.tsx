@@ -24,6 +24,7 @@ const RECURRENCE_OPTIONS: { type: HabitRecurrenceType; label: string; descriptio
   { type: "weekdays", label: "Weekdays", description: "Selected days of the week" },
   { type: "weekly", label: "Weekly", description: "Same day each week" },
   { type: "interval", label: "Custom", description: "Every X days" },
+  { type: "times_per_week", label: "Times per week", description: "Set target completions per week" },
 ];
 
 const DAY_NAMES = ["S", "M", "T", "W", "T", "F", "S"];
@@ -63,6 +64,21 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
     const validation = validateRecurrenceData("interval", newData);
     setLocalError(validation.error);
     onChange({ type: "interval", data: newData });
+  };
+
+  const handleTimesPerWeekChange = (timesPerWeek: number) => {
+    const clamped = Math.min(7, Math.max(1, timesPerWeek));
+    const currentWeekStart = value.data.weekStartDay ?? 1;
+    const newData = { timesPerWeek: clamped, weekStartDay: currentWeekStart };
+    const validation = validateRecurrenceData("times_per_week", newData);
+    setLocalError(validation.error);
+    onChange({ type: "times_per_week", data: newData });
+  };
+
+  const handleWeekStartDayChange = (weekStartDay: number) => {
+    const currentTimes = value.data.timesPerWeek ?? 3;
+    const newData = { timesPerWeek: currentTimes, weekStartDay };
+    onChange({ type: "times_per_week", data: newData });
   };
 
   const renderTypeSelector = () => (
@@ -169,6 +185,54 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
     );
   };
 
+  const renderTimesPerWeekSelector = () => {
+    const timesPerWeek = value.data.timesPerWeek ?? 3;
+    const weekStartDay = value.data.weekStartDay ?? 1;
+    
+    return (
+      <div className="mt-4 space-y-3">
+        <div>
+          <p className="font-pixel text-[8px] text-tavern-parchment mb-2">
+            Target: {timesPerWeek} time{timesPerWeek !== 1 ? "s" : ""} per week
+          </p>
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              min={1}
+              max={7}
+              value={timesPerWeek}
+              onChange={(e) => handleTimesPerWeekChange(Number(e.target.value))}
+              className="flex-1 h-2 bg-tavern-oak rounded-lg appearance-none cursor-pointer"
+            />
+            <input
+              type="number"
+              min={1}
+              max={7}
+              value={timesPerWeek}
+              onChange={(e) => handleTimesPerWeekChange(Number(e.target.value))}
+              className="w-16 bg-tavern-smoke border-2 border-tavern-oak rounded p-1 text-center text-tavern-parchment font-pixel text-xs"
+            />
+          </div>
+        </div>
+        
+        <div>
+          <p className="font-pixel text-[8px] text-tavern-parchment mb-2">Week starts on:</p>
+          <select
+            value={weekStartDay}
+            onChange={(e) => handleWeekStartDayChange(Number(e.target.value))}
+            className="w-full bg-tavern-smoke border-2 border-tavern-oak rounded p-2 text-tavern-parchment text-sm"
+          >
+            {DAY_FULL_NAMES.map((day, index) => (
+              <option key={index} value={index}>
+                {day}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  };
+
   const renderTypeSpecificOptions = () => {
     switch (value.type) {
       case "weekdays":
@@ -177,6 +241,8 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
         return renderWeeklySelector();
       case "interval":
         return renderIntervalSelector();
+      case "times_per_week":
+        return renderTimesPerWeekSelector();
       default:
         return null;
     }
