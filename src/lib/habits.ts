@@ -202,7 +202,7 @@ export async function getHabitsForToday(): Promise<HabitWithStatus[]> {
   const habits = await getUserHabits({ activeOnly: true });
   const today = new Date();
 
-  return habits.filter((h) => isHabitScheduledForDate(h, today, h.completions_this_week));
+  return habits.filter((h) => isHabitScheduledForDate(h, today));
 }
 
 // ============================================
