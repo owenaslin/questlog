@@ -43,17 +43,17 @@ export default function QuestlineCard({ questline, onStart }: QuestlineCardProps
             {/* Type Badge */}
             <span
               className={`
-                font-pixel text-[7px] px-2 py-1 uppercase tracking-wider
-                ${questline.type === "linear" 
-                  ? "bg-retro-blue text-retro-white" 
+                mobile-caption px-2 py-1 uppercase tracking-wider
+                ${questline.type === "linear"
+                  ? "bg-retro-blue text-retro-white"
                   : "bg-retro-purple text-retro-white"}
               `}
             >
               {questline.type === "linear" ? "📋 Linear" : "🌳 Skill Tree"}
             </span>
-            
+
             {/* Difficulty */}
-            <span className="font-pixel text-[7px] px-2 py-1 bg-retro-darkgray text-retro-lightgray uppercase ml-2">
+            <span className="mobile-caption px-2 py-1 bg-retro-darkgray text-retro-lightgray uppercase ml-2">
               {questline.difficulty}
             </span>
             
@@ -66,23 +66,23 @@ export default function QuestlineCard({ questline, onStart }: QuestlineCardProps
         {/* Completion Badge */}
         {isCompleted && (
           <div className="bg-retro-yellow border-2 border-retro-black px-2 py-1">
-            <span className="font-pixel text-retro-black text-[8px]">✓ COMPLETE</span>
+            <span className="mobile-caption text-retro-black">✓ COMPLETE</span>
           </div>
         )}
       </div>
 
       {/* Description */}
-      <p className="font-pixel text-retro-lightgray text-[9px] leading-relaxed">
+      <p className="mobile-body text-retro-lightgray leading-relaxed">
         {questline.description}
       </p>
 
       {/* Progress Bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="font-pixel text-retro-gray text-[8px]">
+          <span className="mobile-caption text-retro-gray">
             Progress
           </span>
-          <span className="font-pixel text-retro-cyan text-[8px]">
+          <span className="mobile-caption text-retro-cyan">
             {completedSteps}/{totalSteps} Steps
           </span>
         </div>
@@ -99,20 +99,20 @@ export default function QuestlineCard({ questline, onStart }: QuestlineCardProps
       {/* Stats */}
       <div className="flex items-center justify-between py-2 border-t-2 border-b-2 border-retro-black">
         <div className="text-center">
-          <span className="font-pixel text-retro-gray text-[7px] block">Category</span>
-          <span className="font-pixel text-retro-lightgray text-[8px]">
+          <span className="mobile-label text-retro-gray block">Category</span>
+          <span className="mobile-caption text-retro-lightgray">
             {questline.category}
           </span>
         </div>
         <div className="text-center">
-          <span className="font-pixel text-retro-gray text-[7px] block">Total XP</span>
-          <span className="font-pixel text-retro-lime text-[8px]">
+          <span className="mobile-label text-retro-gray block">Total XP</span>
+          <span className="mobile-caption text-retro-lime">
             +{questline.total_xp}
           </span>
         </div>
         <div className="text-center">
-          <span className="font-pixel text-retro-gray text-[7px] block">Reward</span>
-          <span className="font-pixel text-retro-yellow text-[8px]">
+          <span className="mobile-label text-retro-gray block">Reward</span>
+          <span className="mobile-caption text-retro-yellow">
             {questline.badge_reward ? "🏅 Badge" : "None"}
           </span>
         </div>
