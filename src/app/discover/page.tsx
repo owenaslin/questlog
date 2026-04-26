@@ -1,14 +1,16 @@
 /**
  * Discovery Page
- * 
+ *
  * The main interface for the Tarvn Local Discovery Engine.
  * Allows users to discover location-based quests powered by AI.
  */
 
 import { Metadata } from 'next';
 import DiscoveryForge from '@/components/DiscoveryForge';
-import { getSupabaseClient } from '@/lib/supabase';
+import { getSupabaseClient, getSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Discover Local Quests | QuestLog',
@@ -16,16 +18,17 @@ export const metadata: Metadata = {
 };
 
 export default async function DiscoverPage() {
-  // Check authentication server-side
-  const supabase = getSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
+  // Check authentication with anon client
+  const anonClient = getSupabaseClient();
+  const { data: { user } } = await anonClient.auth.getUser();
+
   if (!user) {
     redirect('/auth?redirect=/discover');
   }
-  
-  // Get user location preferences
-  const { data: profile } = await supabase
+
+  // Get user location preferences with service role for secure server-side access
+  const serverClient = getSupabaseServerClient();
+  const { data: profile } = await serverClient
     .from('profiles')
     .select('location_city, location_coords, discovery_radius_km, privacy_level')
     .eq('id', user.id)
