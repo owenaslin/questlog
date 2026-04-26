@@ -68,9 +68,6 @@ export default function CompletionModal({
   }, []);
 
   const handleShare = () => {
-    const triumphUrl = heroHandle
-      ? `https://tarvn.xyz/api/og/triumph/${quest.id}?user=${heroHandle}`
-      : `https://tarvn.xyz/hero/${heroHandle ?? ""}`;
     const heroPageUrl = heroHandle
       ? `https://tarvn.xyz/hero/${heroHandle}`
       : `https://tarvn.xyz`;

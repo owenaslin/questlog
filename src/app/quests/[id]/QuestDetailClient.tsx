@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import PixelButton from "@/components/PixelButton";
@@ -62,7 +62,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
   const [conflictQuest, setConflictQuest] = useState<{ questId: string; title: string } | null>(null);
 
-  const completedStepsCount = useMemo(() => stepChecked.size, [stepChecked]);
+  const completedStepsCount = stepChecked.size;
   const allStepsDone = steps.length > 0 && completedStepsCount >= steps.length;
 
   useEffect(() => {
@@ -342,35 +342,38 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 const done = stepChecked.has(step.id);
                 const loading = stepLoading === step.id;
                 return (
-                  <li
-                    key={step.id}
-                    className="flex items-start gap-3 cursor-pointer group"
-                    onClick={() => toggleStep(step.id)}
-                  >
-                    <div
-                      className={`
-                        mt-0.5 w-4 h-4 border-2 flex-shrink-0 flex items-center justify-center
-                        transition-none cursor-pointer
-                        ${done
-                          ? "border-retro-lime bg-retro-darkgreen"
-                          : "border-retro-gray bg-retro-black group-hover:border-retro-lightgray"
-                        }
-                        ${loading ? "opacity-50" : ""}
-                      `}
-                      style={{ imageRendering: "pixelated" }}
+                  <li key={step.id}>
+                    <button
+                      type="button"
+                      onClick={() => toggleStep(step.id)}
+                      disabled={!!stepLoading}
+                      className="flex items-start gap-3 w-full text-left group disabled:cursor-wait"
                     >
-                      {done && <span className="font-pixel text-retro-lime text-[8px] leading-none">✓</span>}
-                    </div>
-                    <span
-                      className={`font-pixel text-[9px] leading-relaxed ${
-                        done ? "text-retro-gray line-through" : "text-retro-lightgray"
-                      }`}
-                    >
-                      {step.title}
-                      {step.optional && (
-                        <span className="ml-2 text-[7px] text-retro-darkgray">(optional)</span>
-                      )}
-                    </span>
+                      <div
+                        className={`
+                          mt-0.5 w-4 h-4 border-2 flex-shrink-0 flex items-center justify-center
+                          transition-none
+                          ${done
+                            ? "border-retro-lime bg-retro-darkgreen"
+                            : "border-retro-gray bg-retro-black group-hover:border-retro-lightgray"
+                          }
+                          ${loading ? "opacity-50" : ""}
+                        `}
+                        style={{ imageRendering: "pixelated" }}
+                      >
+                        {done && <span className="font-pixel text-retro-lime text-[8px] leading-none">✓</span>}
+                      </div>
+                      <span
+                        className={`font-pixel text-[9px] leading-relaxed ${
+                          done ? "text-retro-gray line-through" : "text-retro-lightgray"
+                        }`}
+                      >
+                        {step.title}
+                        {step.optional && (
+                          <span className="ml-2 text-[7px] text-retro-darkgray">(optional)</span>
+                        )}
+                      </span>
+                    </button>
                   </li>
                 );
               })}

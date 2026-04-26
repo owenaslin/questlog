@@ -61,7 +61,11 @@ function QuickAcceptButton({
     if (!activeMainQuestId) return;
     setLoading(true);
     setShowConflict(false);
-    await abandonQuest(activeMainQuestId);
+    const abandonResult = await abandonQuest(activeMainQuestId);
+    if (!abandonResult.success) {
+      setLoading(false);
+      return;
+    }
     const result = await acceptQuest(quest.id, quest.type, quest.category);
     setLoading(false);
     if (result.success) onAccepted(quest.id);

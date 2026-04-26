@@ -46,7 +46,13 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
     if (!conflictQuest || !pendingAccept) return;
     setAcceptingId(pendingAccept.id);
 
-    await abandonQuest(conflictQuest.questId);
+    const abandonResult = await abandonQuest(conflictQuest.questId);
+    if (!abandonResult.success) {
+      setError(abandonResult.error || "Could not abandon quest.");
+      setAcceptingId(null);
+      return;
+    }
+
     const result = await acceptQuest(pendingAccept.id, pendingAccept.type, pendingAccept.category);
 
     setConflictQuest(null);

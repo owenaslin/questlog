@@ -255,8 +255,8 @@ export async function getSuggestedNextQuests(completedQuestId: string): Promise<
   const sameCategory = candidates.filter((q) => q.category === category);
   const pool = sameCategory.length >= 2 ? sameCategory : candidates;
 
-  // Deterministic shuffle seeded on completedQuestId content
-  const seed = completedQuestId.split('').reduce((acc, ch) => acc * 31 + ch.charCodeAt(0), 0);
+  // Deterministic shuffle seeded on completedQuestId content (modulo keeps within safe integer range)
+  const seed = completedQuestId.split('').reduce((acc, ch) => (acc * 31 + ch.charCodeAt(0)) % 1_000_003, 0);
   const shuffled = [...pool].sort((a, b) => (a.id.charCodeAt(seed % a.id.length) - b.id.charCodeAt(seed % b.id.length)));
   return shuffled.slice(0, 2);
 }

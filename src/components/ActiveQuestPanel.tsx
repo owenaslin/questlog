@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { Quest } from "@/lib/types";
 import { getQuestStepProgress, markQuestStep, unmarkQuestStep } from "@/lib/quest-progress";
@@ -14,15 +14,19 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
   const [completedStepIds, setCompletedStepIds] = useState<Set<string>>(new Set());
   const [loadingStepId, setLoadingStepId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const mountedRef = useRef(true);
 
   const loadSteps = useCallback(async () => {
     const progress = await getQuestStepProgress(quest.id);
+    if (!mountedRef.current) return;
     setCompletedStepIds(progress);
     setHydrated(true);
   }, [quest.id]);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadSteps();
+    return () => { mountedRef.current = false; };
   }, [loadSteps]);
 
   const toggleStep = async (stepId: string) => {
@@ -102,27 +106,30 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
             const done = completedStepIds.has(step.id);
             const loading = loadingStepId === step.id;
             return (
-              <li
-                key={step.id}
-                onClick={() => toggleStep(step.id)}
-                className="flex items-center gap-2 cursor-pointer group"
-              >
-                <div
-                  className={`w-3.5 h-3.5 border-2 flex-shrink-0 flex items-center justify-center transition-none ${
-                    done
-                      ? "border-retro-lime bg-retro-darkgreen"
-                      : "border-tavern-oak group-hover:border-tavern-parchment"
-                  } ${loading ? "opacity-50" : ""}`}
+              <li key={step.id}>
+                <button
+                  type="button"
+                  onClick={() => toggleStep(step.id)}
+                  disabled={!!loadingStepId}
+                  className="flex items-center gap-2 w-full text-left group disabled:cursor-wait"
                 >
-                  {done && <span className="font-pixel text-[7px] text-retro-lime leading-none">✓</span>}
-                </div>
-                <span
-                  className={`text-[11px] leading-tight ${
-                    done ? "line-through text-[#7a6a50]" : "text-[#cdb68f] group-hover:text-tavern-parchment"
-                  }`}
-                >
-                  {step.title}
-                </span>
+                  <div
+                    className={`w-3.5 h-3.5 border-2 flex-shrink-0 flex items-center justify-center transition-none ${
+                      done
+                        ? "border-retro-lime bg-retro-darkgreen"
+                        : "border-tavern-oak group-hover:border-tavern-parchment"
+                    } ${loading ? "opacity-50" : ""}`}
+                  >
+                    {done && <span className="font-pixel text-[7px] text-retro-lime leading-none">✓</span>}
+                  </div>
+                  <span
+                    className={`text-[11px] leading-tight ${
+                      done ? "line-through text-[#7a6a50]" : "text-[#cdb68f] group-hover:text-tavern-parchment"
+                    }`}
+                  >
+                    {step.title}
+                  </span>
+                </button>
               </li>
             );
           })}
