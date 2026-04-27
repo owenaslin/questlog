@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
     const parseResult = requestSchema.safeParse(body);
     if (!parseResult.success) {
       throw new AppError(
-        `Validation error: ${parseResult.error.issues.map((i) => i.message).join(", ")}`,
+        `Validation error: ${parseResult.error.issues.map((i: { message: string }) => i.message).join(", ")}`,
         400
       );
     }
@@ -265,7 +265,7 @@ Respond with ONLY a JSON object (no markdown, no code fences) with these exact f
     const validateResult = responseSchema.safeParse(questData);
     if (!validateResult.success) {
       throw new AppError(
-        `AI response validation failed: ${validateResult.error.issues.map((i) => i.message).join(", ")}`,
+        `AI response validation failed: ${validateResult.error.issues.map((i: { message: string }) => i.message).join(", ")}`,
         502
       );
     }

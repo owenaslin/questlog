@@ -22,19 +22,5 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["games", "productivity", "lifestyle"],
-  "screenshots": [
-    {
-      "src": "/screenshots/quest-board.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshots/quest-detail.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ]
+  "categories": ["games", "productivity", "lifestyle"]
 }

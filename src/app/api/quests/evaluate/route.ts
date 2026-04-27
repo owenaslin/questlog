@@ -224,7 +224,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
-      throw new AppError(`Validation error: ${parsed.error.issues.map((i) => i.message).join(", ")}`, 400);
+      throw new AppError(`Validation error: ${parsed.error.issues.map((i: { message: string }) => i.message).join(", ")}`, 400);
     }
     const input = parsed.data;
 
@@ -266,7 +266,7 @@ export async function POST(req: NextRequest) {
 
     const validated = aiResponseSchema.safeParse(questData);
     if (!validated.success) {
-      throw new AppError(`AI response invalid: ${validated.error.issues.map((i) => i.message).join(", ")}`, 502);
+      throw new AppError(`AI response invalid: ${validated.error.issues.map((i: { message: string }) => i.message).join(", ")}`, 502);
     }
 
     const data = validated.data;
@@ -283,7 +283,7 @@ export async function POST(req: NextRequest) {
       duration_label:  data.duration_label,
       duration_minutes,
       category:        data.category,
-      xp_reward:       clamp(xp_reward, XP_CAPS[input.questType].min, XP_CAPS[input.questType].max),
+      xp_reward:       clamp(xp_reward, XP_CAPS[input.questType as keyof typeof XP_CAPS].min, XP_CAPS[input.questType as keyof typeof XP_CAPS].max),
       steps:           data.steps,
       location:        input.mode === "ai" ? (input.location || null) : null,
       evaluation_note: data.evaluation_note,
