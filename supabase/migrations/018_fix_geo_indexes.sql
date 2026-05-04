@@ -19,14 +19,29 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS location_geo geography(POINT, 4326);
 
-UPDATE public.profiles
-SET location_geo = ST_SetSRID(
-  ST_MakePoint(location_lng::double precision, location_lat::double precision),
-  4326
-)::geography
-WHERE location_geo IS NULL
-  AND location_lat IS NOT NULL
-  AND location_lng IS NOT NULL;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name   = 'profiles'
+      AND column_name  = 'location_lat'
+  ) AND EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name   = 'profiles'
+      AND column_name  = 'location_lng'
+  ) THEN
+    UPDATE public.profiles
+    SET location_geo = ST_SetSRID(
+      ST_MakePoint(location_lng::double precision, location_lat::double precision),
+      4326
+    )::geography
+    WHERE location_geo IS NULL
+      AND location_lat IS NOT NULL
+      AND location_lng IS NOT NULL;
+  END IF;
+END $$;
 
 -- Single GiST index replaces idx_profiles_location_lat + lng
 CREATE INDEX IF NOT EXISTS idx_profiles_location_geo
@@ -40,17 +55,32 @@ DROP INDEX IF EXISTS idx_profiles_location_lng;
 ALTER TABLE public.quest_discoveries
   ADD COLUMN IF NOT EXISTS discovery_geo geography(POINT, 4326);
 
-UPDATE public.quest_discoveries
-SET discovery_geo = ST_SetSRID(
-  ST_MakePoint(
-    discovery_location_lng::double precision,
-    discovery_location_lat::double precision
-  ),
-  4326
-)::geography
-WHERE discovery_geo IS NULL
-  AND discovery_location_lat IS NOT NULL
-  AND discovery_location_lng IS NOT NULL;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name   = 'quest_discoveries'
+      AND column_name  = 'discovery_location_lat'
+  ) AND EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name   = 'quest_discoveries'
+      AND column_name  = 'discovery_location_lng'
+  ) THEN
+    UPDATE public.quest_discoveries
+    SET discovery_geo = ST_SetSRID(
+      ST_MakePoint(
+        discovery_location_lng::double precision,
+        discovery_location_lat::double precision
+      ),
+      4326
+    )::geography
+    WHERE discovery_geo IS NULL
+      AND discovery_location_lat IS NOT NULL
+      AND discovery_location_lng IS NOT NULL;
+  END IF;
+END $$;
 
 -- Single GiST index replaces idx_quest_discoveries_lat + lng
 CREATE INDEX IF NOT EXISTS idx_quest_discoveries_geo
