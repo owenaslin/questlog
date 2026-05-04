@@ -79,9 +79,7 @@ export default function ProfilePage() {
         const badgeIds = snapshot?.badgeIds ?? [];
 
         if (streakData) setStreak(streakData);
-        if (weeklyData) {
-          setWeeklyRecap(weeklyData);
-        }
+        setWeeklyRecap(weeklyData);
         setDailyAdventureStats(dailyStats);
         setDailyAdventureHistory(dailyHistory);
         setEarnedBadgeIds(badgeIds);

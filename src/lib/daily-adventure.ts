@@ -19,6 +19,12 @@ function promptForDate(date: string): string {
   return REFLECTION_PROMPTS[seed % REFLECTION_PROMPTS.length];
 }
 
+function addDaysToDateString(date: string, days: number): string {
+  const parsed = new Date(`${date}T00:00:00`);
+  parsed.setDate(parsed.getDate() + days);
+  return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`;
+}
+
 function normalizeDailyAdventure(row: Record<string, unknown>): DailyAdventure {
   return {
     id: String(row.id),
@@ -296,10 +302,13 @@ export async function getDailyAdventureStats(): Promise<DailyAdventureStats | nu
   const totalCompleted = data.filter((row) => Boolean(row.completed_at)).length;
   const reflectionsWritten = data.filter((row) => typeof row.reflection_answer === "string" && row.reflection_answer.trim().length > 0).length;
   let currentCompletionStreak = 0;
+  let expectedDate = getTodayString();
 
   for (const row of data) {
+    if (row.adventure_date !== expectedDate) break;
     if (!row.completed_at) break;
     currentCompletionStreak += 1;
+    expectedDate = addDaysToDateString(expectedDate, -1);
   }
 
   return {

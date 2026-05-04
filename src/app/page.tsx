@@ -181,14 +181,9 @@ export default function HomePage() {
       return;
     }
 
+    const refreshedStats = await getDailyAdventureStats();
     setDailyLoadout((prev) => prev ? { ...prev, adventure: completeResult.adventure! } : prev);
-    setDailyStats((prev) => prev ? {
-      ...prev,
-      totalCompleted: prev.totalCompleted + 1,
-      completionRate: prev.totalStarted > 0 ? Math.round(((prev.totalCompleted + 1) / prev.totalStarted) * 100) : 100,
-      currentCompletionStreak: prev.currentCompletionStreak + 1,
-      reflectionsWritten: reflectionText.trim() ? Math.max(prev.reflectionsWritten, prev.reflectionsWritten + (dailyLoadout?.adventure.reflection_answer ? 0 : 1)) : prev.reflectionsWritten,
-    } : prev);
+    setDailyStats(refreshedStats);
     setDailyActionMessage("Today's adventure is complete. Rest well, hero.");
   };
 
