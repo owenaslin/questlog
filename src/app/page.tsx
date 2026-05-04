@@ -22,7 +22,7 @@ import { getDailyQuests, ALL_QUESTS, getRandomQuests } from "@/lib/quests";
 import type { Quest } from "@/lib/types";
 import XPBar from "@/components/XPBar";
 import StreakDisplay from "@/components/StreakDisplay";
-import DailyHabitsWidget from "@/components/DailyHabitsWidget";
+const DailyHabitsWidget = lazy(() => import("@/components/DailyHabitsWidget"));
 import ActiveQuestPanel from "@/components/ActiveQuestPanel";
 import QuestPickerPanel from "@/components/QuestPickerPanel";
 
@@ -547,7 +547,9 @@ export default function HomePage() {
           )}
 
           {/* Daily Habits Widget — inline completion */}
-          <DailyHabitsWidget maxDisplay={8} />
+          <Suspense fallback={<div className="tavrn-panel p-4 h-32 animate-pulse" />}>
+            <DailyHabitsWidget maxDisplay={8} />
+          </Suspense>
 
           {/* Quick links */}
           <div className="tavrn-panel p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
