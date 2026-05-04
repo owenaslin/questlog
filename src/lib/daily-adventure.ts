@@ -19,6 +19,12 @@ function promptForDate(date: string): string {
   return REFLECTION_PROMPTS[seed % REFLECTION_PROMPTS.length];
 }
 
+function addDaysToDateString(date: string, days: number): string {
+  const parsed = new Date(`${date}T00:00:00`);
+  parsed.setDate(parsed.getDate() + days);
+  return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`;
+}
+
 function normalizeDailyAdventure(row: Record<string, unknown>): DailyAdventure {
   return {
     id: String(row.id),
@@ -35,12 +41,32 @@ function normalizeDailyAdventure(row: Record<string, unknown>): DailyAdventure {
   };
 }
 
+async function getCurrentUserId(): Promise<string | null> {
+  const supabase = getSupabaseClient();
+  const { data: authData } = await supabase.auth.getUser();
+  return authData.user?.id ?? null;
+}
+
 export interface DailyAdventureLoadout {
   adventure: DailyAdventure;
   mainQuest: Quest | null;
   sideQuest: Quest | null;
   activeSideQuests: Quest[];
   completedQuestIds: string[];
+}
+
+export interface DailyAdventureHistoryItem {
+  adventure: DailyAdventure;
+  mainQuest: Quest | null;
+  sideQuest: Quest | null;
+}
+
+export interface DailyAdventureStats {
+  totalStarted: number;
+  totalCompleted: number;
+  completionRate: number;
+  currentCompletionStreak: number;
+  reflectionsWritten: number;
 }
 
 export async function resolveQuestById(questId: string | null): Promise<Quest | null> {
@@ -81,8 +107,7 @@ async function createDailyAdventure(userId: string, mainQuestId: string | null, 
 
 export async function getOrCreateTodayAdventure(): Promise<DailyAdventureLoadout | null> {
   const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) return null;
 
   const today = getTodayString();
@@ -147,8 +172,7 @@ export async function getOrCreateTodayAdventure(): Promise<DailyAdventureLoadout
 
 export async function rerollTodaySideQuest(): Promise<{ success: boolean; loadout?: DailyAdventureLoadout; error?: string }> {
   const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) return { success: false, error: "Please log in." };
 
   const loadout = await getOrCreateTodayAdventure();
@@ -192,8 +216,7 @@ export async function rerollTodaySideQuest(): Promise<{ success: boolean; loadou
 
 export async function saveTodayReflection(answer: string): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) return { success: false, error: "Please log in." };
 
   const today = getTodayString();
@@ -210,4 +233,89 @@ export async function saveTodayReflection(answer: string): Promise<{ success: bo
   if (error) return { success: false, error: error.message };
   if (!updated) return { success: false, error: "No adventure found for today." };
   return { success: true };
+}
+
+export async function completeTodayAdventure(): Promise<{ success: boolean; adventure?: DailyAdventure; error?: string }> {
+  const supabase = getSupabaseClient();
+  const userId = await getCurrentUserId();
+  if (!userId) return { success: false, error: "Please log in." };
+
+  const today = getTodayString();
+
+  const { data: updated, error } = await supabase
+    .from("daily_adventures")
+    .update({ completed_at: new Date().toISOString() })
+    .eq("user_id", userId)
+    .eq("adventure_date", today)
+    .is("completed_at", null)
+    .select("*")
+    .maybeSingle();
+
+  if (error) return { success: false, error: error.message };
+  if (!updated) return { success: false, error: "Today's adventure is already complete or could not be found." };
+
+  return {
+    success: true,
+    adventure: normalizeDailyAdventure(updated as Record<string, unknown>),
+  };
+}
+
+export async function getDailyAdventureHistory(limit: number = 7): Promise<DailyAdventureHistoryItem[]> {
+  const supabase = getSupabaseClient();
+  const userId = await getCurrentUserId();
+  if (!userId) return [];
+
+  const { data, error } = await supabase
+    .from("daily_adventures")
+    .select("*")
+    .eq("user_id", userId)
+    .order("adventure_date", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+
+  const adventures = data.map((row) => normalizeDailyAdventure(row as Record<string, unknown>));
+
+  return Promise.all(
+    adventures.map(async (adventure) => ({
+      adventure,
+      mainQuest: await resolveQuestById(adventure.main_quest_id),
+      sideQuest: await resolveQuestById(adventure.side_quest_id),
+    }))
+  );
+}
+
+export async function getDailyAdventureStats(): Promise<DailyAdventureStats | null> {
+  const supabase = getSupabaseClient();
+  const userId = await getCurrentUserId();
+  if (!userId) return null;
+
+  const { data, error } = await supabase
+    .from("daily_adventures")
+    .select("adventure_date,completed_at,reflection_answer")
+    .eq("user_id", userId)
+    .order("adventure_date", { ascending: false });
+
+  if (error || !data) return null;
+
+  const totalStarted = data.length;
+  const totalCompleted = data.filter((row) => Boolean(row.completed_at)).length;
+  const reflectionsWritten = data.filter((row) => typeof row.reflection_answer === "string" && row.reflection_answer.trim().length > 0).length;
+  let currentCompletionStreak = 0;
+  let expectedDate = getTodayString();
+
+  for (const row of data) {
+    if (row.adventure_date !== expectedDate) break;
+    if (!row.completed_at) break;
+    currentCompletionStreak += 1;
+    expectedDate = addDaysToDateString(expectedDate, -1);
+  }
+
+  return {
+    totalStarted,
+    totalCompleted,
+    completionRate: totalStarted > 0 ? Math.round((totalCompleted / totalStarted) * 100) : 0,
+    currentCompletionStreak,
+    reflectionsWritten,
+  };
 }
