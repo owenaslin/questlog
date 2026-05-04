@@ -14,6 +14,15 @@ function formatAdventureDate(date: string): string {
   return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+function StatCard({ label, value, className }: { label: string; value: React.ReactNode; className: string }) {
+  return (
+    <div className="bg-retro-black p-3 text-center">
+      <span className="font-pixel text-retro-gray text-[7px] block mb-1">{label}</span>
+      <span className={`font-pixel text-lg ${className}`}>{value}</span>
+    </div>
+  );
+}
+
 export default function DailyAdventureRecap({ stats, history, isLoading }: DailyAdventureRecapProps) {
   if (isLoading) {
     return (
@@ -42,22 +51,10 @@ export default function DailyAdventureRecap({ stats, history, isLoading }: Daily
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div className="bg-retro-black p-3 text-center">
-              <span className="font-pixel text-retro-gray text-[7px] block mb-1">Started</span>
-              <span className="font-pixel text-retro-yellow text-lg">{stats.totalStarted}</span>
-            </div>
-            <div className="bg-retro-black p-3 text-center">
-              <span className="font-pixel text-retro-gray text-[7px] block mb-1">Complete</span>
-              <span className="font-pixel text-retro-lime text-lg">{stats.totalCompleted}</span>
-            </div>
-            <div className="bg-retro-black p-3 text-center">
-              <span className="font-pixel text-retro-gray text-[7px] block mb-1">Rate</span>
-              <span className="font-pixel text-retro-cyan text-lg">{stats.completionRate}%</span>
-            </div>
-            <div className="bg-retro-black p-3 text-center">
-              <span className="font-pixel text-retro-gray text-[7px] block mb-1">Notes</span>
-              <span className="font-pixel text-tavern-gold text-lg">{stats.reflectionsWritten}</span>
-            </div>
+            <StatCard label="Started" value={stats.totalStarted} className="text-retro-yellow" />
+            <StatCard label="Complete" value={stats.totalCompleted} className="text-retro-lime" />
+            <StatCard label="Rate" value={`${stats.completionRate}%`} className="text-retro-cyan" />
+            <StatCard label="Notes" value={stats.reflectionsWritten} className="text-tavern-gold" />
           </div>
 
           <div className="space-y-2">

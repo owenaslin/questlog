@@ -6,7 +6,6 @@ import { getSupabaseClient } from "@/lib/supabase";
 import {
   acceptQuest,
   getUserDashboardSnapshot,
-  getUserCreatedActiveQuests,
   type ProfileProgressSummary,
   type UserStreak,
 } from "@/lib/quest-progress";
@@ -72,9 +71,8 @@ export default function HomePage() {
       }
 
       try {
-        const [snapshot, customActive, todayAdventure, adventureStats] = await Promise.all([
+        const [snapshot, todayAdventure, adventureStats] = await Promise.all([
           getUserDashboardSnapshot(),
-          getUserCreatedActiveQuests(),
           getOrCreateTodayAdventure(),
           getDailyAdventureStats(),
         ]);
@@ -101,25 +99,15 @@ export default function HomePage() {
           .filter(([, p]) => p.status === "completed")
           .map(([id]) => id);
 
-        const activeEntries = Object.entries(progressMap).filter(([, p]) => p.status === "active");
-        const activeIdSet = new Set(activeEntries.map(([id]) => id));
-
-        const activePredefined = ALL_QUESTS.filter((q) => activeIdSet.has(q.id));
-        const allActiveQuests: Quest[] = [
-          ...activePredefined.map((q) => ({ ...q, status: "active" as const })),
-          ...customActive,
+        const allActiveQuests = [
+          ...(todayAdventure?.mainQuest ? [todayAdventure.mainQuest] : []),
+          ...(todayAdventure?.activeSideQuests ?? []),
         ];
 
-        const mainQuest = allActiveQuests.find((q) => q.type === "main") ?? null;
-        const sideQuests = allActiveQuests.filter((q) => q.type === "side");
-
-        setActiveMainQuest(mainQuest);
-        setActiveSideQuests(sideQuests);
-
-        // Picker quests: exclude completed + currently active
         const allActiveIds = new Set(allActiveQuests.map((q) => q.id));
-        const pickerPool = getDailyQuests([...completedIds, ...Array.from(allActiveIds)]);
-        setPickerQuests(pickerPool);
+        setActiveMainQuest(todayAdventure?.mainQuest ?? null);
+        setActiveSideQuests(todayAdventure?.activeSideQuests ?? []);
+        setPickerQuests(getDailyQuests([...completedIds, ...Array.from(allActiveIds)]));
         setDailyLoadout(todayAdventure);
         setDailyStats(adventureStats);
         setReflectionText(todayAdventure?.adventure.reflection_answer ?? "");

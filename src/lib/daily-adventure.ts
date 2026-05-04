@@ -41,6 +41,12 @@ function normalizeDailyAdventure(row: Record<string, unknown>): DailyAdventure {
   };
 }
 
+async function getCurrentUserId(): Promise<string | null> {
+  const supabase = getSupabaseClient();
+  const { data: authData } = await supabase.auth.getUser();
+  return authData.user?.id ?? null;
+}
+
 export interface DailyAdventureLoadout {
   adventure: DailyAdventure;
   mainQuest: Quest | null;
@@ -101,8 +107,7 @@ async function createDailyAdventure(userId: string, mainQuestId: string | null, 
 
 export async function getOrCreateTodayAdventure(): Promise<DailyAdventureLoadout | null> {
   const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) return null;
 
   const today = getTodayString();
@@ -167,8 +172,7 @@ export async function getOrCreateTodayAdventure(): Promise<DailyAdventureLoadout
 
 export async function rerollTodaySideQuest(): Promise<{ success: boolean; loadout?: DailyAdventureLoadout; error?: string }> {
   const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) return { success: false, error: "Please log in." };
 
   const loadout = await getOrCreateTodayAdventure();
@@ -212,8 +216,7 @@ export async function rerollTodaySideQuest(): Promise<{ success: boolean; loadou
 
 export async function saveTodayReflection(answer: string): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) return { success: false, error: "Please log in." };
 
   const today = getTodayString();
@@ -234,8 +237,7 @@ export async function saveTodayReflection(answer: string): Promise<{ success: bo
 
 export async function completeTodayAdventure(): Promise<{ success: boolean; adventure?: DailyAdventure; error?: string }> {
   const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) return { success: false, error: "Please log in." };
 
   const today = getTodayString();
@@ -260,8 +262,7 @@ export async function completeTodayAdventure(): Promise<{ success: boolean; adve
 
 export async function getDailyAdventureHistory(limit: number = 7): Promise<DailyAdventureHistoryItem[]> {
   const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) return [];
 
   const { data, error } = await supabase
@@ -286,8 +287,7 @@ export async function getDailyAdventureHistory(limit: number = 7): Promise<Daily
 
 export async function getDailyAdventureStats(): Promise<DailyAdventureStats | null> {
   const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) return null;
 
   const { data, error } = await supabase
