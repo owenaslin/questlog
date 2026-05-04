@@ -4,11 +4,18 @@ import { useEffect, useState, lazy, Suspense } from "react";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabase";
 import {
+  acceptQuest,
   getUserDashboardSnapshot,
   getUserCreatedActiveQuests,
   type ProfileProgressSummary,
   type UserStreak,
 } from "@/lib/quest-progress";
+import {
+  getOrCreateTodayAdventure,
+  rerollTodaySideQuest,
+  saveTodayReflection,
+  type DailyAdventureLoadout,
+} from "@/lib/daily-adventure";
 import { getDailyQuests, ALL_QUESTS, getRandomQuests } from "@/lib/quests";
 import type { Quest } from "@/lib/types";
 import XPBar from "@/components/XPBar";
@@ -27,6 +34,9 @@ export default function HomePage() {
   const [activeMainQuest,setActiveMainQuest]= useState<Quest | null>(null);
   const [activeSideQuests,setActiveSideQuests]= useState<Quest[]>([]);
   const [pickerQuests,   setPickerQuests]   = useState<Quest[]>([]);
+  const [dailyLoadout,   setDailyLoadout]   = useState<DailyAdventureLoadout | null>(null);
+  const [reflectionText, setReflectionText] = useState("");
+  const [dailyActionMessage, setDailyActionMessage] = useState<string | null>(null);
   // Guest "Tonight's Hand" state
   const [tonightQuests,  setTonightQuests]  = useState<Quest[]>([]);
   const [pickedId,       setPickedId]       = useState<string | null>(null);
@@ -58,9 +68,10 @@ export default function HomePage() {
       }
 
       try {
-        const [snapshot, customActive] = await Promise.all([
+        const [snapshot, customActive, todayAdventure] = await Promise.all([
           getUserDashboardSnapshot(),
           getUserCreatedActiveQuests(),
+          getOrCreateTodayAdventure(),
         ]);
 
         if (!mounted.current) return;
@@ -104,6 +115,8 @@ export default function HomePage() {
         const allActiveIds = new Set(allActiveQuests.map((q) => q.id));
         const pickerPool = getDailyQuests([...completedIds, ...Array.from(allActiveIds)]);
         setPickerQuests(pickerPool);
+        setDailyLoadout(todayAdventure);
+        setReflectionText(todayAdventure?.adventure.reflection_answer ?? "");
       } catch (err) {
         console.error("[home] data fetch failed:", err);
         if (!mounted.current) return;
@@ -117,7 +130,36 @@ export default function HomePage() {
   }, []);
 
   const isLoggedIn = authChecked && heroName !== null;
-  const hasActiveMain = !!activeMainQuest;
+
+  const handleRerollSideQuest = async () => {
+    setDailyActionMessage(null);
+    const result = await rerollTodaySideQuest();
+    if (!result.success) {
+      setDailyActionMessage(result.error || "Could not reroll today's side quest.");
+      return;
+    }
+    setDailyLoadout(result.loadout ?? null);
+    setDailyActionMessage("A fresh side quest has been drawn.");
+  };
+
+  const handleAcceptDailySideQuest = async () => {
+    if (!dailyLoadout?.sideQuest) return;
+    setDailyActionMessage(null);
+    const quest = dailyLoadout.sideQuest;
+    const result = await acceptQuest(quest.id, quest.type, quest.category);
+    if (!result.success) {
+      setDailyActionMessage(result.error || "Could not accept today's side quest.");
+      return;
+    }
+    setActiveSideQuests((prev) => prev.some((q) => q.id === quest.id) ? prev : [...prev, { ...quest, status: "active" }]);
+    setDailyActionMessage("Side quest accepted.");
+  };
+
+  const handleSaveReflection = async () => {
+    setDailyActionMessage(null);
+    const result = await saveTodayReflection(reflectionText);
+    setDailyActionMessage(result.success ? "Reflection saved." : result.error || "Could not save reflection.");
+  };
 
   // ── Auth skeleton — shown while we don't know yet if user is logged in ───
   if (!authChecked) {
@@ -234,17 +276,17 @@ export default function HomePage() {
           <div className="tavrn-panel p-4">
             <p className="tavrn-kicker mb-3">Hero Ledger</p>
             <p className="font-pixel text-[10px] text-tavern-gold">Adventurer</p>
-            <p className="text-[12px] text-[#cfb88f] mt-2">Level up by finishing one quest tonight.</p>
+            <p className="text-[12px] text-tavern-parchment mt-2">Level up by finishing one quest tonight.</p>
             <div className="mt-4 h-2 bg-black/40 border border-tavern-oak">
               <div className="h-full bg-tavern-gold" style={{ width: "24%" }} />
             </div>
           </div>
-          <div className="tavern-card p-4" style={{ background: "linear-gradient(180deg, #3a1a3a, #1a0820)" }}>
+          <div className="tavern-card p-4 !bg-tavern-mystic/20">
             <p className="font-pixel text-[8px] text-tavern-gold mb-2">⚡ The Quest Giver</p>
-            <p className="text-[13px] text-[#e8d4a0] leading-relaxed mb-3">
+            <p className="text-[13px] text-tavern-parchment leading-relaxed mb-3">
               Ask for a quest shaped to your current mood, location, and goals.
             </p>
-            <Link href="/generate" className="tavrn-button block text-center !bg-[#8b2a8b] !text-white">
+            <Link href="/generate" className="tavrn-button block text-center !bg-tavern-mystic !text-white">
               Ask The Giver
             </Link>
           </div>
@@ -276,7 +318,7 @@ export default function HomePage() {
                 showLongest={false}
               />
             )}
-            <Link href="/generate" className="tavrn-button !bg-[#8b2a8b] !text-white text-[8px] !py-1.5 !px-3">
+            <Link href="/generate" className="tavrn-button !bg-tavern-mystic !text-white text-[8px] !py-1.5 !px-3">
               ⚡ Quest Giver
             </Link>
           </div>
@@ -286,29 +328,123 @@ export default function HomePage() {
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-6">
         {/* ── Main column ── */}
         <div className="flex flex-col gap-5">
-          {/* Active main quest or picker */}
+          {/* Daily Adventure Board */}
           {dataLoading ? (
-            <div className="tavern-card p-5 animate-pulse space-y-3">
-              <div className="h-3 w-1/4 bg-tavern-oak/60 rounded" />
-              <div className="h-4 w-3/4 bg-tavern-oak/50 rounded" />
-              <div className="h-2 bg-tavern-oak/40 rounded" />
-              <div className="h-8 bg-tavern-oak/30 rounded mt-2" />
+            <div className="tavrn-panel p-4 md:p-5 animate-pulse">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-5 border-b border-tavern-oak/50 pb-4">
+                <div>
+                  <div className="h-3 w-32 bg-tavern-oak/60 rounded mb-2" />
+                  <div className="h-4 w-48 bg-tavern-oak/60 rounded mb-2" />
+                  <div className="h-3 w-64 bg-tavern-oak/40 rounded" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-6 w-24 bg-tavern-oak/60 rounded" />
+                  <div className="h-6 w-20 bg-tavern-oak/60 rounded" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="tavern-card p-4">
+                  <div className="h-2 w-24 bg-tavern-oak/60 rounded mb-3" />
+                  <div className="h-3 w-full bg-tavern-oak/40 rounded mb-2" />
+                  <div className="h-3 w-5/6 bg-tavern-oak/40 rounded" />
+                </div>
+                <div className="tavern-card p-4">
+                  <div className="h-2 w-24 bg-tavern-oak/60 rounded mb-3" />
+                  <div className="h-3 w-full bg-tavern-oak/40 rounded mb-2" />
+                  <div className="h-3 w-4/6 bg-tavern-oak/40 rounded" />
+                </div>
+              </div>
             </div>
-          ) : hasActiveMain ? (
-            <ActiveQuestPanel quest={activeMainQuest!} />
           ) : (
-            <QuestPickerPanel
-              quests={pickerQuests}
-              onAccepted={(quest) => {
-                if (quest.type === "main") {
-                  setActiveMainQuest({ ...quest, status: "active" });
-                } else {
-                  setActiveSideQuests((prev) => [...prev, { ...quest, status: "active" }]);
-                }
-                // Remove from picker list
-                setPickerQuests((prev) => prev.filter((q) => q.id !== quest.id));
-              }}
-            />
+            <div className="tavrn-panel p-4 md:p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-5 border-b border-tavern-oak/50 pb-4">
+                <div>
+                  <p className="tavrn-kicker mb-2">Today&apos;s Adventure</p>
+                  <h1 className="font-pixel text-[14px] text-tavern-gold leading-relaxed">Your daily quest loop</h1>
+                  <p className="text-[12px] text-tavern-parchment-dark mt-2">Focus your main quest, complete a ritual, and try one side adventure.</p>
+                </div>
+                <Link href="/settings" className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px] !py-1.5 !px-3">
+                  Tune Preferences
+                </Link>
+                <Link href="/packs" className="tavrn-button !bg-tavern-mystic !text-white text-[8px] !py-1.5 !px-3">
+                  Draw by Vibe
+                </Link>
+              </div>
+
+              {dailyActionMessage && (
+                <div className="mb-4 p-2 border border-tavern-oak bg-black/30 text-[11px] text-tavern-parchment">
+                  {dailyActionMessage}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="tavern-card p-4">
+                  <p className="font-pixel text-[8px] text-tavern-ember mb-3">⚔ Main Quest Focus</p>
+                  {activeMainQuest ? (
+                    <ActiveQuestPanel quest={activeMainQuest} />
+                  ) : (
+                    <div>
+                      <p className="text-[12px] text-tavern-parchment-dark mb-3">Choose one long-term quest to anchor your adventure.</p>
+                      <QuestPickerPanel
+                        quests={pickerQuests.filter((quest) => quest.type === "main").slice(0, 2)}
+                        onAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="tavern-card p-4">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <p className="font-pixel text-[8px] text-tavern-gold">🗡 Today&apos;s Side Quest</p>
+                    <span className="font-pixel text-[7px] text-tavern-parchment-dim">
+                      {dailyLoadout ? `${dailyLoadout.adventure.side_quest_rerolls_used}/1 reroll` : "—"}
+                    </span>
+                  </div>
+                  {dailyLoadout?.sideQuest ? (
+                    <div>
+                      <p className="font-pixel text-[10px] text-tavern-parchment leading-relaxed mb-2">{dailyLoadout.sideQuest.title}</p>
+                      <p className="text-[12px] text-tavern-parchment-dark leading-relaxed mb-3">{dailyLoadout.sideQuest.description}</p>
+                      <p className="text-[10px] text-tavern-parchment-dim mb-4">
+                        +{dailyLoadout.sideQuest.xp_reward} XP · {dailyLoadout.sideQuest.category} · {dailyLoadout.sideQuest.duration_label}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <button type="button" onClick={handleAcceptDailySideQuest} className="tavrn-button text-[8px] !py-1.5 !px-3">
+                          Accept
+                        </button>
+                        <Link href={`/quests/${dailyLoadout.sideQuest.id}`} className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px] !py-1.5 !px-3">
+                          Details
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={handleRerollSideQuest}
+                          disabled={dailyLoadout.adventure.side_quest_rerolls_used >= 1}
+                          className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px] !py-1.5 !px-3 disabled:opacity-50"
+                        >
+                          Surprise Me
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-[12px] text-tavern-parchment-dark">No side quest was drawn yet. Try browsing the quest board.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4 tavern-card p-4">
+                <p className="font-pixel text-[8px] text-tavern-gold mb-2">🕯 Reflection Prompt</p>
+                <p className="text-[12px] text-tavern-parchment-dark mb-3">{dailyLoadout?.adventure.generated_prompt ?? "What should tomorrow's quest be?"}</p>
+                <textarea
+                  value={reflectionText}
+                  onChange={(event) => setReflectionText(event.target.value)}
+                  rows={3}
+                  className="w-full bg-tavern-smoke border-2 border-tavern-oak rounded p-2 text-tavern-parchment text-sm mb-3"
+                  placeholder="Write a quick note before closing the tavern..."
+                />
+                <button type="button" onClick={handleSaveReflection} className="tavrn-button text-[8px] !py-1.5 !px-3">
+                  Save Reflection
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Active side quests */}
@@ -326,7 +462,7 @@ export default function HomePage() {
                       <p className="font-pixel text-[9px] text-tavern-parchment group-hover:text-tavern-gold leading-relaxed">
                         {quest.title}
                       </p>
-                      <p className="text-[10px] text-[#bda780]">+{quest.xp_reward} XP · {quest.category}</p>
+                      <p className="text-[10px] text-tavern-parchment-dim">+{quest.xp_reward} XP · {quest.category}</p>
                     </div>
                     <span className="font-pixel text-[8px] text-tavern-gold opacity-0 group-hover:opacity-100">→</span>
                   </Link>
@@ -338,7 +474,7 @@ export default function HomePage() {
           {/* Pick a side quest prompt (when no side quests active) */}
           {!dataLoading && activeSideQuests.length === 0 && (
             <div className="tavrn-panel p-4 flex items-center justify-between gap-4">
-              <p className="text-[12px] text-[#bda780]">No side quests in progress.</p>
+              <p className="text-[12px] text-tavern-parchment-dim">No side quests in progress.</p>
               <Link href="/board" className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px] !py-1.5 !px-3">
                 Browse Side Quests
               </Link>
@@ -352,7 +488,7 @@ export default function HomePage() {
           <DailyHabitsWidget maxDisplay={8} />
 
           {/* Quick links */}
-          <div className="tavrn-panel p-4 grid grid-cols-2 gap-2">
+          <div className="tavrn-panel p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
             <Link href="/profile" className="tavern-card p-3 text-center hover:border-tavern-gold/50 transition-none">
               <div className="text-lg mb-1">🧙</div>
               <p className="font-pixel text-[8px] text-tavern-parchment">My Saga</p>
@@ -365,9 +501,13 @@ export default function HomePage() {
               <div className="text-lg mb-1">⚡</div>
               <p className="font-pixel text-[8px] text-tavern-parchment">All Habits</p>
             </Link>
-            <Link href="/questlines" className="tavern-card p-3 text-center hover:border-tavern-gold/50 transition-none">
-              <div className="text-lg mb-1">📜</div>
-              <p className="font-pixel text-[8px] text-tavern-parchment">Questlines</p>
+            <Link href="/packs" className="tavern-card p-3 text-center hover:border-tavern-gold/50 transition-none">
+              <div className="text-lg mb-1">🎴</div>
+              <p className="font-pixel text-[8px] text-tavern-parchment">Quest Packs</p>
+            </Link>
+            <Link href="/nearby" className="tavern-card p-3 text-center hover:border-tavern-gold/50 transition-none">
+              <div className="text-lg mb-1">🗺</div>
+              <p className="font-pixel text-[8px] text-tavern-parchment">Nearby</p>
             </Link>
           </div>
         </aside>

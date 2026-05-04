@@ -43,6 +43,7 @@ const config: Config = {
           candle: "#f5d76e",
           smoke: "#4a3f35",
           "smoke-light": "#6b5a4e",
+          mystic: "#8b2a8b",
         },
       },
       boxShadow: {

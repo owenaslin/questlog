@@ -11,6 +11,7 @@ import { BADGES } from "@/lib/badges";
 import { ALL_QUESTS } from "@/lib/quests";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { useRequireAuth } from "@/lib/auth-hooks";
+import { calculateLifeAreaScores } from "@/lib/life-areas";
 import {
   getUserDashboardSnapshot,
   getWeeklyRecap,
@@ -114,6 +115,7 @@ export default function ProfilePage() {
   );
 
   const level = profileSummary?.level || 1;
+  const lifeAreaScores = useMemo(() => calculateLifeAreaScores(completedQuests), [completedQuests]);
 
   if (isCheckingAuth) {
     return (
@@ -202,6 +204,41 @@ export default function ProfilePage() {
           )}
         </div>
         <WeeklyRecap recap={weeklyRecap} isLoading={isLoadingProgress} />
+      </div>
+
+      <div className="mb-8 bg-retro-darkgray border-4 border-retro-black p-4">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="font-pixel text-retro-yellow text-xs mb-1">📊 Character Stats</h2>
+            <p className="font-pixel text-retro-gray text-[7px]">
+              Life areas shaped by your completed quests.
+            </p>
+          </div>
+          <Link href="/settings" className="font-pixel text-retro-cyan text-[8px] hover:text-retro-lightblue">
+            Tune Draws →
+          </Link>
+        </div>
+
+        <div className="space-y-3">
+          {lifeAreaScores.map((area) => (
+            <div key={area.key}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-pixel text-[8px] text-tavern-parchment">
+                  {area.icon} {area.name}
+                </span>
+                <span className="font-pixel text-[7px] text-retro-gray">
+                  {area.questCount} quests · {area.xpTotal} XP
+                </span>
+              </div>
+              <div className="h-2 bg-retro-black border border-retro-gray">
+                <div
+                  className="h-full bg-tavern-gold"
+                  style={{ width: `${area.percentage}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Badge Showcase */}

@@ -1,5 +1,12 @@
 import { getSupabaseClient } from "@/lib/supabase";
-import { NotificationPreferences, ThemeMode, UserSettings } from "@/lib/types";
+import {
+  DiscoveryPreference,
+  EnergyLevel,
+  NotificationPreferences,
+  RecommendationPreferences,
+  ThemeMode,
+  UserSettings,
+} from "@/lib/types";
 
 const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   habit_reminders: true,
@@ -11,6 +18,11 @@ export const DEFAULT_USER_SETTINGS = {
   week_start_day: 0,
   theme_mode: "system" as ThemeMode,
   notification_preferences: DEFAULT_NOTIFICATION_PREFERENCES,
+  default_available_time_minutes: 30 as RecommendationPreferences["default_available_time_minutes"],
+  default_energy_level: "normal" as EnergyLevel,
+  preferred_categories: [] as string[],
+  discovery_preferences: [] as DiscoveryPreference[],
+  home_location_label: null as string | null,
 };
 
 function normalizeNotificationPreferences(value: unknown): NotificationPreferences {
@@ -27,11 +39,31 @@ function normalizeNotificationPreferences(value: unknown): NotificationPreferenc
 }
 
 function normalizeSettingsRow(row: Record<string, unknown>): UserSettings {
+  const availableTime = Number(row.default_available_time_minutes ?? 30);
+  const normalizedAvailableTime: RecommendationPreferences["default_available_time_minutes"] =
+    availableTime === 15 || availableTime === 30 || availableTime === 60 || availableTime === 240
+      ? availableTime
+      : 30;
+  const energy = row.default_energy_level === "low" || row.default_energy_level === "high"
+    ? row.default_energy_level
+    : "normal";
+
   return {
     user_id: String(row.user_id),
     week_start_day: Number(row.week_start_day ?? 0),
     theme_mode: (row.theme_mode as ThemeMode) ?? "system",
     notification_preferences: normalizeNotificationPreferences(row.notification_preferences),
+    default_available_time_minutes: normalizedAvailableTime,
+    default_energy_level: energy,
+    preferred_categories: Array.isArray(row.preferred_categories) ? row.preferred_categories.map(String) : [],
+    discovery_preferences: Array.isArray(row.discovery_preferences)
+      ? row.discovery_preferences.filter((value): value is DiscoveryPreference =>
+          value === "at_home" || value === "nearby" || value === "outdoors" || value === "social" || value === "online"
+        )
+      : [],
+    home_location_label: typeof row.home_location_label === "string" && row.home_location_label.trim()
+      ? row.home_location_label.trim()
+      : null,
     created_at: String(row.created_at ?? ""),
     updated_at: String(row.updated_at ?? ""),
   };
@@ -72,6 +104,11 @@ export interface UpdateUserSettingsInput {
   week_start_day?: number;
   theme_mode?: ThemeMode;
   notification_preferences?: Partial<NotificationPreferences>;
+  default_available_time_minutes?: RecommendationPreferences["default_available_time_minutes"];
+  default_energy_level?: EnergyLevel;
+  preferred_categories?: string[];
+  discovery_preferences?: DiscoveryPreference[];
+  home_location_label?: string | null;
 }
 
 export async function upsertUserSettings(
@@ -105,6 +142,26 @@ export async function upsertUserSettings(
       ...existingPrefs,
       ...input.notification_preferences,
     };
+  }
+
+  if (input.default_available_time_minutes !== undefined) {
+    payload.default_available_time_minutes = input.default_available_time_minutes;
+  }
+
+  if (input.default_energy_level !== undefined) {
+    payload.default_energy_level = input.default_energy_level;
+  }
+
+  if (input.preferred_categories) {
+    payload.preferred_categories = input.preferred_categories;
+  }
+
+  if (input.discovery_preferences) {
+    payload.discovery_preferences = input.discovery_preferences;
+  }
+
+  if (input.home_location_label !== undefined) {
+    payload.home_location_label = input.home_location_label?.trim() || null;
   }
 
   const { data, error } = await supabase

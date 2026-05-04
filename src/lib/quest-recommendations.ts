@@ -1,4 +1,4 @@
-import { Quest, QuestType } from "@/lib/types";
+import { Quest, QuestType, RecommendationPreferences } from "@/lib/types";
 import { ALL_QUESTS } from "@/lib/quests";
 
 // O(1) quest lookup by ID — avoids repeated O(n) ALL_QUESTS.find() calls.
@@ -25,6 +25,11 @@ export interface QuestRecommendation {
   reason: string;
   confidence: number; // 0-1
   type: "continue_questline" | "category_balance" | "difficulty_progression" | "quick_win" | "daily_streak";
+}
+
+export interface RecommendedSideQuestOptions {
+  preferences?: Partial<RecommendationPreferences> | null;
+  excludeQuestIds?: string[];
 }
 
 export interface RecommendationContext {
@@ -319,4 +324,54 @@ export async function getLowEnergySuggestion(): Promise<Quest | null> {
   ).sort((a, b) => a.xp_reward - b.xp_reward);
 
   return candidates[0] || null;
+}
+
+export function getRecommendedSideQuest(options: RecommendedSideQuestOptions = {}): QuestRecommendation | null {
+  const excluded = new Set(options.excludeQuestIds ?? []);
+  const preferences = options.preferences;
+  const availableTime = preferences?.default_available_time_minutes ?? 30;
+  const preferredCategories = new Set(preferences?.preferred_categories ?? []);
+  const discoveryPreferences = new Set(preferences?.discovery_preferences ?? []);
+  const energyLevel = preferences?.default_energy_level ?? "normal";
+
+  const candidates = ALL_QUESTS.filter(
+    (quest) =>
+      quest.type === "side" &&
+      !excluded.has(quest.id) &&
+      (quest.duration_minutes ?? 9999) <= availableTime * 1.5
+  );
+
+  const pool = candidates.length > 0
+    ? candidates
+    : ALL_QUESTS.filter((quest) => quest.type === "side" && !excluded.has(quest.id));
+
+  if (!pool.length) return null;
+
+  const scored = pool.map((quest) => {
+    let score = 50;
+
+    if (preferredCategories.has(quest.category)) score += 25;
+    if (energyLevel === "low" && quest.difficulty <= 2) score += 20;
+    if (energyLevel === "high" && quest.difficulty >= 3) score += 15;
+    if (energyLevel === "normal" && quest.difficulty >= 2 && quest.difficulty <= 3) score += 10;
+    if ((quest.duration_minutes ?? 9999) <= availableTime) score += 15;
+    if (discoveryPreferences.has("outdoors") && quest.category === "Outdoors") score += 15;
+    if (discoveryPreferences.has("social") && quest.category === "Social") score += 15;
+    if (discoveryPreferences.has("online") && (quest.category === "Tech" || quest.category === "Education")) score += 10;
+    if (discoveryPreferences.has("at_home") && quest.location === null) score += 10;
+
+    return { quest, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score || a.quest.difficulty - b.quest.difficulty);
+  const best = scored[0];
+
+  return {
+    quest: best.quest,
+    reason: preferredCategories.has(best.quest.category)
+      ? `Matches your ${best.quest.category} preference`
+      : "Good fit for today's time and energy",
+    confidence: Math.min(0.95, Math.max(0.5, best.score / 100)),
+    type: "quick_win",
+  };
 }
