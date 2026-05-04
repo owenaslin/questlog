@@ -8,7 +8,14 @@ import {
   upsertUserSettings,
   updateProfileSettings,
 } from "@/lib/settings";
-import { NotificationPreferences, ThemeMode, UserSettings } from "@/lib/types";
+import {
+  DiscoveryPreference,
+  EnergyLevel,
+  NotificationPreferences,
+  RecommendationPreferences,
+  ThemeMode,
+  UserSettings,
+} from "@/lib/types";
 
 interface ProfileSettingsState {
   display_name: string;
@@ -58,6 +65,11 @@ export function useUserSettings() {
     week_start_day?: number;
     theme_mode?: ThemeMode;
     notification_preferences?: Partial<NotificationPreferences>;
+    default_available_time_minutes?: RecommendationPreferences["default_available_time_minutes"];
+    default_energy_level?: EnergyLevel;
+    preferred_categories?: string[];
+    discovery_preferences?: DiscoveryPreference[];
+    home_location_label?: string | null;
     display_name?: string;
     avatar_url?: string | null;
   }) => {
@@ -70,6 +82,11 @@ export function useUserSettings() {
           week_start_day: input.week_start_day,
           theme_mode: input.theme_mode,
           notification_preferences: input.notification_preferences,
+          default_available_time_minutes: input.default_available_time_minutes,
+          default_energy_level: input.default_energy_level,
+          preferred_categories: input.preferred_categories,
+          discovery_preferences: input.discovery_preferences,
+          home_location_label: input.home_location_label,
         }),
         updateProfileSettings({
           display_name: input.display_name,
@@ -120,6 +137,13 @@ export function useUserSettings() {
   const weekStartDay = settings?.week_start_day ?? DEFAULT_USER_SETTINGS.week_start_day;
   const themeMode = settings?.theme_mode ?? DEFAULT_USER_SETTINGS.theme_mode;
   const notificationPreferences = settings?.notification_preferences ?? DEFAULT_USER_SETTINGS.notification_preferences;
+  const recommendationPreferences: RecommendationPreferences = {
+    default_available_time_minutes: settings?.default_available_time_minutes ?? DEFAULT_USER_SETTINGS.default_available_time_minutes,
+    default_energy_level: settings?.default_energy_level ?? DEFAULT_USER_SETTINGS.default_energy_level,
+    preferred_categories: settings?.preferred_categories ?? DEFAULT_USER_SETTINGS.preferred_categories,
+    discovery_preferences: settings?.discovery_preferences ?? DEFAULT_USER_SETTINGS.discovery_preferences,
+    home_location_label: settings?.home_location_label ?? DEFAULT_USER_SETTINGS.home_location_label,
+  };
 
   return useMemo(() => ({
     settings,
@@ -130,6 +154,7 @@ export function useUserSettings() {
     weekStartDay,
     themeMode,
     notificationPreferences,
+    recommendationPreferences,
     reload: load,
     saveSettings,
   }), [
@@ -141,6 +166,7 @@ export function useUserSettings() {
     weekStartDay,
     themeMode,
     notificationPreferences,
+    recommendationPreferences,
     load,
     saveSettings,
   ]);

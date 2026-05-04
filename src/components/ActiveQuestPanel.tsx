@@ -16,6 +16,7 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
   const completedCount = completedStepIds.size;
   const totalSteps = steps.length;
   const progressPct = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
+  const nextStep = hydrated ? steps.find((step) => !completedStepIds.has(step.id)) ?? null : null;
 
   const difficultyStars = "★".repeat(quest.difficulty) + "☆".repeat(5 - quest.difficulty);
 
@@ -37,6 +38,19 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
         <span className="text-[11px] text-[#bda780]">{quest.category}</span>
         <span className="text-[11px] text-[#bda780]">{quest.duration_label}</span>
       </div>
+
+      {quest.type === "main" && (
+        <div className="mb-3 p-3 border border-tavern-oak/60 bg-black/20">
+          <p className="font-pixel text-[7px] text-tavern-gold mb-2">Today&apos;s Action</p>
+          {steps.length === 0 ? (
+            <p className="text-[11px] text-[#cdb68f] leading-relaxed">Open the quest and choose the smallest next step.</p>
+          ) : nextStep ? (
+            <p className="text-[12px] text-tavern-parchment leading-relaxed">{nextStep.title}</p>
+          ) : (
+            <p className="text-[12px] text-retro-lime leading-relaxed">All steps are checked. Finish the quest when you&apos;re ready.</p>
+          )}
+        </div>
+      )}
 
       {/* Step progress bar */}
       {totalSteps > 0 && (

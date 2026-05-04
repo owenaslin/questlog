@@ -2,6 +2,7 @@
 
 import React from "react";
 import { WeeklyRecap as WeeklyRecapType } from "@/lib/quest-progress";
+import { LIFE_AREAS } from "@/lib/life-areas";
 
 interface WeeklyRecapProps {
   recap: WeeklyRecapType | null;
@@ -18,6 +19,13 @@ export default function WeeklyRecap({ recap, isLoading }: WeeklyRecapProps) {
   }
 
   const hasActivity = recap && (recap.quests_completed > 0 || recap.xp_earned > 0);
+  const categoryCounts = (recap?.categories ?? []).reduce<Record<string, number>>((acc, category) => {
+    acc[category] = (acc[category] || 0) + 1;
+    return acc;
+  }, {});
+  const bestCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const neglectedArea = LIFE_AREAS.find((area) => !area.categories.some((category) => recap?.categories.includes(category))) ?? null;
+  const suggestedFocus = neglectedArea?.categories[0] ?? "one small quest";
 
   // Format week label
   const getWeekLabel = (weekStart: string) => {
@@ -74,7 +82,7 @@ export default function WeeklyRecap({ recap, isLoading }: WeeklyRecapProps) {
 
           {/* Categories */}
           {recap.categories.length > 0 && (
-            <div>
+            <div className="mb-4">
               <span className="font-pixel text-retro-gray text-[7px] block mb-2">
                 Categories Explored
               </span>
@@ -90,6 +98,26 @@ export default function WeeklyRecap({ recap, isLoading }: WeeklyRecapProps) {
               </div>
             </div>
           )}
+
+          <div className="bg-retro-black p-3 mb-3">
+            <span className="font-pixel text-retro-gray text-[7px] block mb-2">
+              Weekly Insight
+            </span>
+            <p className="font-pixel text-retro-lightgray text-[8px] leading-relaxed">
+              {bestCategory
+                ? `Most of your momentum was in ${bestCategory}. Next week, try ${suggestedFocus} to keep your character balanced.`
+                : `Try ${suggestedFocus} next week to start building a balanced character.`}
+            </p>
+          </div>
+
+          <div className="border-t border-retro-black pt-3">
+            <span className="font-pixel text-retro-gray text-[7px] block mb-1">
+              Reflection
+            </span>
+            <p className="font-pixel text-retro-cyan text-[8px] leading-relaxed">
+              What gave you the most energy this week?
+            </p>
+          </div>
         </>
       )}
     </div>

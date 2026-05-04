@@ -5,8 +5,9 @@ import Link from "next/link";
 import type { MouseEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useRequireAuth } from "@/lib/auth-hooks";
-import { ThemeMode } from "@/lib/types";
+import { DiscoveryPreference, EnergyLevel, ThemeMode } from "@/lib/types";
 import { useUserSettings } from "@/lib/hooks/useUserSettings";
+import { CATEGORIES } from "@/lib/quests";
 
 const WEEKDAY_OPTIONS = [
   { value: 0, label: "Sunday" },
@@ -25,6 +26,24 @@ const THEME_OPTIONS: Array<{ value: ThemeMode; label: string; hint: string }> = 
 ];
 
 const AVATAR_OPTIONS = ["🧙", "⚔", "🗡", "🏹", "🎵", "🛡", "🌿", "✨"];
+const TIME_OPTIONS = [
+  { value: 15, label: "15 min" },
+  { value: 30, label: "30 min" },
+  { value: 60, label: "1 hour" },
+  { value: 240, label: "Half day" },
+] as const;
+const ENERGY_OPTIONS: Array<{ value: EnergyLevel; label: string; hint: string }> = [
+  { value: "low", label: "Low", hint: "Gentle, low-friction quests" },
+  { value: "normal", label: "Normal", hint: "Balanced daily adventures" },
+  { value: "high", label: "High", hint: "Bigger challenges and outings" },
+];
+const DISCOVERY_OPTIONS: Array<{ value: DiscoveryPreference; label: string }> = [
+  { value: "at_home", label: "At home" },
+  { value: "nearby", label: "Nearby" },
+  { value: "outdoors", label: "Outdoors" },
+  { value: "social", label: "Social" },
+  { value: "online", label: "Online" },
+];
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -42,6 +61,7 @@ export default function SettingsPage() {
     weekStartDay,
     themeMode,
     notificationPreferences,
+    recommendationPreferences,
     saveSettings,
   } = useUserSettings();
 
@@ -52,6 +72,11 @@ export default function SettingsPage() {
   const [habitReminders, setHabitReminders] = useState(true);
   const [questAlerts, setQuestAlerts] = useState(true);
   const [weeklyRecap, setWeeklyRecap] = useState(true);
+  const [availableTime, setAvailableTime] = useState<15 | 30 | 60 | 240>(30);
+  const [energyLevel, setEnergyLevel] = useState<EnergyLevel>("normal");
+  const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
+  const [discoveryPreferences, setDiscoveryPreferences] = useState<DiscoveryPreference[]>([]);
+  const [homeLocationLabel, setHomeLocationLabel] = useState("");
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
@@ -77,6 +102,14 @@ export default function SettingsPage() {
   }, [notificationPreferences]);
 
   useEffect(() => {
+    setAvailableTime(recommendationPreferences.default_available_time_minutes);
+    setEnergyLevel(recommendationPreferences.default_energy_level);
+    setPreferredCategories(recommendationPreferences.preferred_categories);
+    setDiscoveryPreferences(recommendationPreferences.discovery_preferences);
+    setHomeLocationLabel(recommendationPreferences.home_location_label ?? "");
+  }, [recommendationPreferences]);
+
+  useEffect(() => {
     if (typeof document !== "undefined") {
       document.documentElement.setAttribute("data-theme-mode", selectedThemeMode);
     }
@@ -90,18 +123,33 @@ export default function SettingsPage() {
       selectedThemeMode !== themeMode ||
       habitReminders !== notificationPreferences.habit_reminders ||
       questAlerts !== notificationPreferences.quest_alerts ||
-      weeklyRecap !== notificationPreferences.weekly_recap
+      weeklyRecap !== notificationPreferences.weekly_recap ||
+      availableTime !== recommendationPreferences.default_available_time_minutes ||
+      energyLevel !== recommendationPreferences.default_energy_level ||
+      preferredCategories.join("|") !== recommendationPreferences.preferred_categories.join("|") ||
+      discoveryPreferences.join("|") !== recommendationPreferences.discovery_preferences.join("|") ||
+      homeLocationLabel.trim() !== (recommendationPreferences.home_location_label ?? "")
     );
   }, [
     avatar,
+    availableTime,
+    discoveryPreferences,
     displayName,
+    energyLevel,
     habitReminders,
+    homeLocationLabel,
     notificationPreferences.habit_reminders,
     notificationPreferences.quest_alerts,
     notificationPreferences.weekly_recap,
+    preferredCategories,
     profile?.avatar_url,
     profile?.display_name,
     questAlerts,
+    recommendationPreferences.default_available_time_minutes,
+    recommendationPreferences.default_energy_level,
+    recommendationPreferences.discovery_preferences,
+    recommendationPreferences.home_location_label,
+    recommendationPreferences.preferred_categories,
     selectedThemeMode,
     selectedWeekStartDay,
     themeMode,
@@ -154,6 +202,11 @@ export default function SettingsPage() {
         quest_alerts: questAlerts,
         weekly_recap: weeklyRecap,
       },
+      default_available_time_minutes: availableTime,
+      default_energy_level: energyLevel,
+      preferred_categories: preferredCategories,
+      discovery_preferences: discoveryPreferences,
+      home_location_label: homeLocationLabel,
     });
 
     if (result.success) {
@@ -169,6 +222,22 @@ export default function SettingsPage() {
     }
 
     setSaveMessage(result.error || "Could not save settings.");
+  };
+
+  const togglePreferredCategory = (category: string) => {
+    setPreferredCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((item) => item !== category)
+        : [...prev, category]
+    );
+  };
+
+  const toggleDiscoveryPreference = (preference: DiscoveryPreference) => {
+    setDiscoveryPreferences((prev) =>
+      prev.includes(preference)
+        ? prev.filter((item) => item !== preference)
+        : [...prev, preference]
+    );
   };
 
   if (isCheckingAuth || isLoading) {
@@ -297,6 +366,113 @@ export default function SettingsPage() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4">
+          <h2 className="font-pixel text-retro-yellow text-xs mb-3">🧭 Quest Recommendations</h2>
+          <p className="text-[12px] text-retro-gray mb-4">
+            Tune Today&apos;s Adventure so the tavern draws quests that match your time, energy, and preferred kind of discovery.
+          </p>
+
+          <div className="mb-4">
+            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Default time available</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {TIME_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setAvailableTime(option.value)}
+                  className={`border-2 p-2 font-pixel text-[8px] ${
+                    availableTime === option.value
+                      ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
+                      : "border-retro-black bg-retro-darkpurple text-retro-lightgray"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Default energy</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {ENERGY_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setEnergyLevel(option.value)}
+                  className={`text-left border-2 p-3 ${
+                    energyLevel === option.value
+                      ? "border-tavern-gold bg-tavern-oak"
+                      : "border-retro-black bg-retro-darkpurple"
+                  }`}
+                >
+                  <p className="font-pixel text-[8px] text-tavern-parchment">{option.label}</p>
+                  <p className="text-[11px] text-retro-gray mt-1">{option.hint}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Preferred categories</p>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((category) => {
+                const selected = preferredCategories.includes(category.name);
+                return (
+                  <button
+                    key={category.key}
+                    type="button"
+                    onClick={() => togglePreferredCategory(category.name)}
+                    className={`border-2 px-3 py-2 text-[11px] ${
+                      selected
+                        ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
+                        : "border-retro-black bg-retro-darkpurple text-retro-lightgray"
+                    }`}
+                  >
+                    {category.icon} {category.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Discovery style</p>
+            <div className="flex flex-wrap gap-2">
+              {DISCOVERY_OPTIONS.map((option) => {
+                const selected = discoveryPreferences.includes(option.value);
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => toggleDiscoveryPreference(option.value)}
+                    className={`border-2 px-3 py-2 font-pixel text-[8px] ${
+                      selected
+                        ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
+                        : "border-retro-black bg-retro-darkpurple text-retro-lightgray"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <label className="font-pixel text-[8px] text-retro-lightgray block mb-2">Home area label</label>
+          <input
+            type="text"
+            value={homeLocationLabel}
+            onChange={(e) => setHomeLocationLabel(e.target.value)}
+            maxLength={80}
+            placeholder="Neighborhood, city, or favorite area"
+            className="w-full bg-tavern-smoke border-2 border-tavern-oak rounded p-2 text-tavern-parchment"
+          />
+          <p className="font-pixel text-[7px] text-retro-gray mt-2">
+            Used for future nearby quest ideas. Precise location is not required.
+          </p>
         </section>
 
         <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4">

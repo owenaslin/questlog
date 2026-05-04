@@ -213,11 +213,41 @@ export interface NotificationPreferences {
   weekly_recap: boolean;
 }
 
+export type EnergyLevel = "low" | "normal" | "high";
+export type DiscoveryPreference = "at_home" | "nearby" | "outdoors" | "social" | "online";
+
+export interface RecommendationPreferences {
+  default_available_time_minutes: 15 | 30 | 60 | 240;
+  default_energy_level: EnergyLevel;
+  preferred_categories: string[];
+  discovery_preferences: DiscoveryPreference[];
+  home_location_label: string | null;
+}
+
 export interface UserSettings {
   user_id: string;
   week_start_day: number;
   theme_mode: ThemeMode;
   notification_preferences: NotificationPreferences;
+  default_available_time_minutes: RecommendationPreferences["default_available_time_minutes"];
+  default_energy_level: EnergyLevel;
+  preferred_categories: string[];
+  discovery_preferences: DiscoveryPreference[];
+  home_location_label: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DailyAdventure {
+  id: string;
+  user_id: string;
+  adventure_date: string;
+  main_quest_id: string | null;
+  side_quest_id: string | null;
+  generated_prompt: string;
+  reflection_answer: string | null;
+  side_quest_rerolls_used: number;
+  completed_at: string | null;
   created_at: string;
   updated_at: string;
 }
