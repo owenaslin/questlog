@@ -35,15 +35,15 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
 
       <div className="flex items-center gap-3 mb-3">
         <span className="font-pixel text-[8px] text-tavern-ember">{difficultyStars}</span>
-        <span className="text-[11px] text-[#bda780]">{quest.category}</span>
-        <span className="text-[11px] text-[#bda780]">{quest.duration_label}</span>
+        <span className="text-[11px] text-tavern-parchment-dim">{quest.category}</span>
+        <span className="text-[11px] text-tavern-parchment-dim">{quest.duration_label}</span>
       </div>
 
       {quest.type === "main" && (
         <div className="mb-3 p-3 border border-tavern-oak/60 bg-black/20">
           <p className="font-pixel text-[7px] text-tavern-gold mb-2">Today&apos;s Action</p>
           {steps.length === 0 ? (
-            <p className="text-[11px] text-[#cdb68f] leading-relaxed">Open the quest and choose the smallest next step.</p>
+            <p className="text-[11px] text-tavern-parchment-dark leading-relaxed">Open the quest and choose the smallest next step.</p>
           ) : nextStep ? (
             <p className="text-[12px] text-tavern-parchment leading-relaxed">{nextStep.title}</p>
           ) : (
@@ -55,7 +55,7 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
       {/* Step progress bar */}
       {totalSteps > 0 && (
         <div className="mb-3">
-          <div className="flex justify-between text-[10px] text-[#bda780] mb-1">
+          <div className="flex justify-between text-[10px] text-tavern-parchment-dim mb-1">
             <span>{completedCount}/{totalSteps} steps</span>
             <span>{progressPct}%</span>
           </div>
@@ -93,7 +93,7 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
                   </div>
                   <span
                     className={`text-[11px] leading-tight ${
-                      done ? "line-through text-[#7a6a50]" : "text-[#cdb68f] group-hover:text-tavern-parchment"
+                      done ? "line-through text-tavern-oak" : "text-tavern-parchment-dark group-hover:text-tavern-parchment"
                     }`}
                   >
                     {step.title}
@@ -103,7 +103,7 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
             );
           })}
           {steps.length > 4 && (
-            <li className="text-[10px] text-[#7a6a50]">
+            <li className="text-[10px] text-tavern-oak">
               +{steps.length - 4} more — <Link href={`/quests/${quest.id}`} className="underline hover:text-tavern-gold">view all</Link>
             </li>
           )}

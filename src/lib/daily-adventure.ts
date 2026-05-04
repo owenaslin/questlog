@@ -40,6 +40,7 @@ export interface DailyAdventureLoadout {
   mainQuest: Quest | null;
   sideQuest: Quest | null;
   activeSideQuests: Quest[];
+  completedQuestIds: string[];
 }
 
 export async function resolveQuestById(questId: string | null): Promise<Quest | null> {
@@ -112,6 +113,10 @@ export async function getOrCreateTodayAdventure(): Promise<DailyAdventureLoadout
     .eq("adventure_date", today)
     .maybeSingle();
 
+  const completedIds = Object.entries(progressMap)
+    .filter(([, progress]) => progress.status === "completed")
+    .map(([id]) => id);
+
   if (existing) {
     const adventure = normalizeDailyAdventure(existing as Record<string, unknown>);
     return {
@@ -119,12 +124,10 @@ export async function getOrCreateTodayAdventure(): Promise<DailyAdventureLoadout
       mainQuest,
       sideQuest: await resolveQuestById(adventure.side_quest_id),
       activeSideQuests,
+      completedQuestIds: completedIds,
     };
   }
 
-  const completedIds = Object.entries(progressMap)
-    .filter(([, progress]) => progress.status === "completed")
-    .map(([id]) => id);
   const recommendation = getRecommendedSideQuest({
     preferences: settingsResult.settings ?? undefined,
     excludeQuestIds: [...completedIds, ...Array.from(activeIdSet)],
@@ -138,6 +141,7 @@ export async function getOrCreateTodayAdventure(): Promise<DailyAdventureLoadout
     mainQuest,
     sideQuest: recommendation?.quest ?? null,
     activeSideQuests,
+    completedQuestIds: completedIds,
   };
 }
 
@@ -154,7 +158,10 @@ export async function rerollTodaySideQuest(): Promise<{ success: boolean; loadou
   }
 
   // Use data already fetched by getOrCreateTodayAdventure
-  const excluded = loadout.activeSideQuests.map((q) => q.id);
+  const excluded = [
+    ...loadout.activeSideQuests.map((q) => q.id),
+    ...loadout.completedQuestIds,
+  ];
   if (loadout.adventure.side_quest_id) excluded.push(loadout.adventure.side_quest_id);
   const recommendation = getRecommendedSideQuest({
     excludeQuestIds: excluded,

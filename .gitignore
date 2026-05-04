@@ -35,4 +35,7 @@ yarn-error.log*
 next-env.d.ts
 
 # claude code local settings
-.claude/settings.local.json
+.claude/
+
+# other project (not part of this repo)
+quest-board/
