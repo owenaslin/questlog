@@ -220,7 +220,10 @@ export async function completeHabit(habitId: string): Promise<{
 
   const { data: userData } = await supabase.auth.getUser();
   const userId = userData?.user?.id;
-  if (!userId) return { success: false, error: "Not authenticated" };
+  if (!userId) {
+    console.error("completeHabit: no authenticated user");
+    return { success: false, error: "Not authenticated" };
+  }
 
   // Get habit to determine XP
   const { data: habit, error: habitError } = await supabase
@@ -292,7 +295,8 @@ export async function uncompleteHabit(habitId: string): Promise<{
 
   // Deduct XP from profile (fallback if trigger not yet applied to live DB)
   if (existing?.xp_awarded) {
-    const userId = (await supabase.auth.getSession()).data.session?.user.id;
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
     if (userId) {
       const { data: profile } = await supabase
         .from("profiles")
