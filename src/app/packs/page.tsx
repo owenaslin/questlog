@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import QuestCard from "@/components/QuestCard";
 import { drawQuestsByMood, ENERGY_OPTIONS, QUEST_PACKS, QuestVibe, TIME_OPTIONS } from "@/lib/quest-packs";
+import { getUserSettings } from "@/lib/settings";
 
 const VIBE_OPTIONS: Array<{ value: QuestVibe; label: string; icon: string }> = [
   { value: "productive", label: "Productive", icon: "⚡" },
@@ -19,10 +20,19 @@ export default function QuestPacksPage() {
   const [availableTimeMinutes, setAvailableTimeMinutes] = useState<15 | 30 | 60 | 240>(30);
   const [energyLevel, setEnergyLevel] = useState<"low" | "normal" | "high">("normal");
   const [vibe, setVibe] = useState<QuestVibe>("adventurous");
+  const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    getUserSettings().then(({ settings }) => {
+      if (settings?.preferred_categories?.length) {
+        setPreferredCategories(settings.preferred_categories);
+      }
+    });
+  }, []);
 
   const drawnQuests = useMemo(() => {
-    return drawQuestsByMood({ availableTimeMinutes, energyLevel, vibe });
-  }, [availableTimeMinutes, energyLevel, vibe]);
+    return drawQuestsByMood({ availableTimeMinutes, energyLevel, vibe, preferredCategories });
+  }, [availableTimeMinutes, energyLevel, vibe, preferredCategories]);
 
   return (
     <div className="max-w-5xl mx-auto tavrn-panel p-4 md:p-6">

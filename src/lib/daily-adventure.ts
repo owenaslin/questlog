@@ -192,12 +192,15 @@ export async function saveTodayReflection(answer: string): Promise<{ success: bo
   const today = getTodayString();
 
   // Direct single-row update with defense-in-depth user_id filter
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("daily_adventures")
     .update({ reflection_answer: answer.trim() || null })
     .eq("user_id", userId)
-    .eq("adventure_date", today);
+    .eq("adventure_date", today)
+    .select("id")
+    .maybeSingle();
 
   if (error) return { success: false, error: error.message };
+  if (!updated) return { success: false, error: "No adventure found for today." };
   return { success: true };
 }

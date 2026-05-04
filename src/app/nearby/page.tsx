@@ -19,23 +19,29 @@ export default function NearbyPage() {
     });
   }, []);
 
-  const nearbyQuests = useMemo(() => {
-    return ALL_QUESTS.filter(
-      (quest) =>
-        NEARBY_CATEGORIES.includes(quest.category) &&
-        quest.type === "side" &&
-        quest.difficulty <= 3
-    ).slice(0, 9);
-  }, []);
+  const nearbyQuests = ALL_QUESTS.filter(
+    (quest) =>
+      NEARBY_CATEGORIES.includes(quest.category) &&
+      quest.type === "side" &&
+      quest.difficulty <= 3
+  ).slice(0, 9);
 
   const suggestions = useMemo(() => {
-    const location = locationLabel ?? "your area";
+    if (locationLabel) {
+      return [
+        `Visit a local park you haven't been to in ${locationLabel}`,
+        `Find a new café and read for 30 minutes in ${locationLabel}`,
+        `Attend one free local event this week in ${locationLabel}`,
+        `Walk a different route home through ${locationLabel}`,
+        `Try a street food spot you've never visited in ${locationLabel}`,
+      ];
+    }
     return [
-      `Visit a local park you haven't been to in ${location}`,
-      `Find a new café and read for 30 minutes in ${location}`,
-      `Attend one free local event this week in ${location}`,
-      `Walk a different route home through ${location}`,
-      `Try a street food spot you've never visited in ${location}`,
+      "Visit a local park you've never been to",
+      "Find a new café and read for 30 minutes",
+      "Attend one free local event this week",
+      "Walk a different route home today",
+      "Try a street food spot you've never visited",
     ];
   }, [locationLabel]);
 

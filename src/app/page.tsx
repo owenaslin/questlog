@@ -276,17 +276,17 @@ export default function HomePage() {
           <div className="tavrn-panel p-4">
             <p className="tavrn-kicker mb-3">Hero Ledger</p>
             <p className="font-pixel text-[10px] text-tavern-gold">Adventurer</p>
-            <p className="text-[12px] text-[#cfb88f] mt-2">Level up by finishing one quest tonight.</p>
+            <p className="text-[12px] text-tavern-parchment mt-2">Level up by finishing one quest tonight.</p>
             <div className="mt-4 h-2 bg-black/40 border border-tavern-oak">
               <div className="h-full bg-tavern-gold" style={{ width: "24%" }} />
             </div>
           </div>
-          <div className="tavern-card p-4" style={{ background: "linear-gradient(180deg, #3a1a3a, #1a0820)" }}>
+          <div className="tavern-card p-4 !bg-tavern-mystic/20">
             <p className="font-pixel text-[8px] text-tavern-gold mb-2">⚡ The Quest Giver</p>
-            <p className="text-[13px] text-[#e8d4a0] leading-relaxed mb-3">
+            <p className="text-[13px] text-tavern-parchment leading-relaxed mb-3">
               Ask for a quest shaped to your current mood, location, and goals.
             </p>
-            <Link href="/generate" className="tavrn-button block text-center !bg-[#8b2a8b] !text-white">
+            <Link href="/generate" className="tavrn-button block text-center !bg-tavern-mystic !text-white">
               Ask The Giver
             </Link>
           </div>

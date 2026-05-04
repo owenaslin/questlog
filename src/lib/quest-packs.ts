@@ -141,19 +141,33 @@ export function drawQuestsByMood(input: {
   energyLevel: "low" | "normal" | "high";
   vibe: QuestVibe;
   excludeQuestIds?: string[];
+  preferredCategories?: string[];
 }): Quest[] {
   const excluded = new Set(input.excludeQuestIds ?? []);
+  const preferredCategories = new Set(input.preferredCategories ?? []);
   const matchingPacks = QUEST_PACKS.filter((pack) => pack.vibes.includes(input.vibe));
   const matchingCategories = new Set(matchingPacks.flatMap((pack) => pack.categories));
   const maxDifficulty = input.energyLevel === "low" ? 2 : input.energyLevel === "normal" ? 3 : 5;
 
-  return ALL_QUESTS.filter((quest) => {
+  const candidates = ALL_QUESTS.filter((quest) => {
     if (excluded.has(quest.id)) return false;
     if (!matchingCategories.has(quest.category)) return false;
     if (quest.difficulty > maxDifficulty) return false;
     if ((quest.duration_minutes ?? 9999) > input.availableTimeMinutes * 2) return false;
     return true;
-  })
-    .sort((a, b) => a.difficulty - b.difficulty || b.xp_reward - a.xp_reward)
-    .slice(0, 3);
+  });
+
+  // If user has preferred categories, boost quests from those categories
+  if (preferredCategories.size > 0) {
+    candidates.sort((a, b) => {
+      const aPreferred = preferredCategories.has(a.category) ? 1 : 0;
+      const bPreferred = preferredCategories.has(b.category) ? 1 : 0;
+      if (bPreferred !== aPreferred) return bPreferred - aPreferred;
+      return a.difficulty - b.difficulty || b.xp_reward - a.xp_reward;
+    });
+  } else {
+    candidates.sort((a, b) => a.difficulty - b.difficulty || b.xp_reward - a.xp_reward);
+  }
+
+  return candidates.slice(0, 3);
 }
