@@ -211,3 +211,29 @@ export async function saveTodayReflection(answer: string): Promise<{ success: bo
   if (!updated) return { success: false, error: "No adventure found for today." };
   return { success: true };
 }
+
+export async function completeTodayAdventure(): Promise<{ success: boolean; adventure?: DailyAdventure; error?: string }> {
+  const supabase = getSupabaseClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData.user?.id;
+  if (!userId) return { success: false, error: "Please log in." };
+
+  const today = getTodayString();
+
+  const { data: updated, error } = await supabase
+    .from("daily_adventures")
+    .update({ completed_at: new Date().toISOString() })
+    .eq("user_id", userId)
+    .eq("adventure_date", today)
+    .is("completed_at", null)
+    .select("*")
+    .maybeSingle();
+
+  if (error) return { success: false, error: error.message };
+  if (!updated) return { success: false, error: "Today's adventure is already complete or could not be found." };
+
+  return {
+    success: true,
+    adventure: normalizeDailyAdventure(updated as Record<string, unknown>),
+  };
+}

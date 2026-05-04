@@ -11,6 +11,7 @@ import {
   type UserStreak,
 } from "@/lib/quest-progress";
 import {
+  completeTodayAdventure,
   getOrCreateTodayAdventure,
   rerollTodaySideQuest,
   saveTodayReflection,
@@ -159,6 +160,24 @@ export default function HomePage() {
     setDailyActionMessage(null);
     const result = await saveTodayReflection(reflectionText);
     setDailyActionMessage(result.success ? "Reflection saved." : result.error || "Could not save reflection.");
+  };
+
+  const handleCompleteTodayAdventure = async () => {
+    setDailyActionMessage(null);
+    const saveResult = await saveTodayReflection(reflectionText);
+    if (!saveResult.success) {
+      setDailyActionMessage(saveResult.error || "Could not save reflection.");
+      return;
+    }
+
+    const completeResult = await completeTodayAdventure();
+    if (!completeResult.success || !completeResult.adventure) {
+      setDailyActionMessage(completeResult.error || "Could not complete today's adventure.");
+      return;
+    }
+
+    setDailyLoadout((prev) => prev ? { ...prev, adventure: completeResult.adventure! } : prev);
+    setDailyActionMessage("Today's adventure is complete. Rest well, hero.");
   };
 
   // ── Auth skeleton — shown while we don't know yet if user is logged in ───
@@ -431,7 +450,12 @@ export default function HomePage() {
               </div>
 
               <div className="mt-4 tavern-card p-4">
-                <p className="font-pixel text-[8px] text-tavern-gold mb-2">🕯 Reflection Prompt</p>
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="font-pixel text-[8px] text-tavern-gold">🕯 Reflection Prompt</p>
+                  {dailyLoadout?.adventure.completed_at && (
+                    <span className="font-pixel text-[7px] text-retro-lime">Complete</span>
+                  )}
+                </div>
                 <p className="text-[12px] text-tavern-parchment-dark mb-3">{dailyLoadout?.adventure.generated_prompt ?? "What should tomorrow's quest be?"}</p>
                 <textarea
                   value={reflectionText}
@@ -439,10 +463,26 @@ export default function HomePage() {
                   rows={3}
                   className="w-full bg-tavern-smoke border-2 border-tavern-oak rounded p-2 text-tavern-parchment text-sm mb-3"
                   placeholder="Write a quick note before closing the tavern..."
+                  disabled={!!dailyLoadout?.adventure.completed_at}
                 />
-                <button type="button" onClick={handleSaveReflection} className="tavrn-button text-[8px] !py-1.5 !px-3">
-                  Save Reflection
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveReflection}
+                    disabled={!!dailyLoadout?.adventure.completed_at}
+                    className="tavrn-button text-[8px] !py-1.5 !px-3 disabled:opacity-50"
+                  >
+                    Save Reflection
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCompleteTodayAdventure}
+                    disabled={!!dailyLoadout?.adventure.completed_at}
+                    className="tavrn-button !bg-tavern-mystic !text-white text-[8px] !py-1.5 !px-3 disabled:opacity-50"
+                  >
+                    Complete Today
+                  </button>
+                </div>
               </div>
             </div>
           )}
