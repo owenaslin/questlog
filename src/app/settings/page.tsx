@@ -8,6 +8,7 @@ import { useRequireAuth } from "@/lib/auth-hooks";
 import { DiscoveryPreference, EnergyLevel, ThemeMode } from "@/lib/types";
 import { useUserSettings } from "@/lib/hooks/useUserSettings";
 import { CATEGORIES } from "@/lib/quests";
+import { ENERGY_OPTIONS, TIME_OPTIONS } from "@/lib/quest-packs";
 
 const WEEKDAY_OPTIONS = [
   { value: 0, label: "Sunday" },
@@ -26,17 +27,7 @@ const THEME_OPTIONS: Array<{ value: ThemeMode; label: string; hint: string }> = 
 ];
 
 const AVATAR_OPTIONS = ["🧙", "⚔", "🗡", "🏹", "🎵", "🛡", "🌿", "✨"];
-const TIME_OPTIONS = [
-  { value: 15, label: "15 min" },
-  { value: 30, label: "30 min" },
-  { value: 60, label: "1 hour" },
-  { value: 240, label: "Half day" },
-] as const;
-const ENERGY_OPTIONS: Array<{ value: EnergyLevel; label: string; hint: string }> = [
-  { value: "low", label: "Low", hint: "Gentle, low-friction quests" },
-  { value: "normal", label: "Normal", hint: "Balanced daily adventures" },
-  { value: "high", label: "High", hint: "Bigger challenges and outings" },
-];
+
 const DISCOVERY_OPTIONS: Array<{ value: DiscoveryPreference; label: string }> = [
   { value: "at_home", label: "At home" },
   { value: "nearby", label: "Nearby" },

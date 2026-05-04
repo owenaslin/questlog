@@ -64,13 +64,13 @@ async function createDailyAdventure(userId: string, mainQuestId: string | null, 
   const today = getTodayString();
   const { data, error } = await supabase
     .from("daily_adventures")
-    .insert({
+    .upsert({
       user_id: userId,
       adventure_date: today,
       main_quest_id: mainQuestId,
       side_quest_id: sideQuestId,
       generated_prompt: promptForDate(today),
-    })
+    }, { onConflict: "user_id,adventure_date" })
     .select("*")
     .single();
 
@@ -125,7 +125,7 @@ export async function getOrCreateTodayAdventure(): Promise<DailyAdventureLoadout
   const completedIds = Object.entries(progressMap)
     .filter(([, progress]) => progress.status === "completed")
     .map(([id]) => id);
-  const recommendation = await getRecommendedSideQuest({
+  const recommendation = getRecommendedSideQuest({
     preferences: settingsResult.settings ?? undefined,
     excludeQuestIds: [...completedIds, ...Array.from(activeIdSet)],
   });
@@ -153,45 +153,50 @@ export async function rerollTodaySideQuest(): Promise<{ success: boolean; loadou
     return { success: false, error: "You've already used today's reroll." };
   }
 
-  const snapshot = await getUserDashboardSnapshot();
-  const progressMap = snapshot?.progressMap ?? {};
-  const excluded = Object.entries(progressMap)
-    .filter(([, progress]) => progress.status === "completed" || progress.status === "active")
-    .map(([id]) => id);
+  // Use data already fetched by getOrCreateTodayAdventure
+  const excluded = loadout.activeSideQuests.map((q) => q.id);
   if (loadout.adventure.side_quest_id) excluded.push(loadout.adventure.side_quest_id);
-
-  const settingsResult = await getUserSettings();
-  const recommendation = await getRecommendedSideQuest({
-    preferences: settingsResult.settings ?? undefined,
+  const recommendation = getRecommendedSideQuest({
     excludeQuestIds: excluded,
   });
 
   if (!recommendation) return { success: false, error: "No fresh side quest found." };
 
-  const { error } = await supabase
+  // Atomic update: only succeeds if rerolls_used < 1 (race-condition safe)
+  const { data: updated, error } = await supabase
     .from("daily_adventures")
     .update({
       side_quest_id: recommendation.quest.id,
       side_quest_rerolls_used: loadout.adventure.side_quest_rerolls_used + 1,
     })
     .eq("id", loadout.adventure.id)
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .lt("side_quest_rerolls_used", 1)
+    .select("*")
+    .single();
 
-  if (error) return { success: false, error: error.message };
+  if (error || !updated) {
+    return { success: false, error: error?.message || "Reroll already used." };
+  }
 
   const refreshed = await getOrCreateTodayAdventure();
   return refreshed ? { success: true, loadout: refreshed } : { success: false, error: "Could not reload adventure." };
 }
 
 export async function saveTodayReflection(answer: string): Promise<{ success: boolean; error?: string }> {
-  const loadout = await getOrCreateTodayAdventure();
-  if (!loadout) return { success: false, error: "Could not load today's adventure." };
-
   const supabase = getSupabaseClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData.user?.id;
+  if (!userId) return { success: false, error: "Please log in." };
+
+  const today = getTodayString();
+
+  // Direct single-row update with defense-in-depth user_id filter
   const { error } = await supabase
     .from("daily_adventures")
     .update({ reflection_answer: answer.trim() || null })
-    .eq("id", loadout.adventure.id);
+    .eq("user_id", userId)
+    .eq("adventure_date", today);
 
   if (error) return { success: false, error: error.message };
   return { success: true };

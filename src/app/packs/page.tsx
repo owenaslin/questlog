@@ -3,20 +3,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import QuestCard from "@/components/QuestCard";
-import { drawQuestsByMood, QUEST_PACKS, QuestVibe } from "@/lib/quest-packs";
-
-const TIME_OPTIONS = [
-  { value: 15, label: "15 min" },
-  { value: 30, label: "30 min" },
-  { value: 60, label: "1 hour" },
-  { value: 240, label: "Half day" },
-] as const;
-
-const ENERGY_OPTIONS = [
-  { value: "low", label: "Low" },
-  { value: "normal", label: "Normal" },
-  { value: "high", label: "High" },
-] as const;
+import { drawQuestsByMood, ENERGY_OPTIONS, QUEST_PACKS, QuestVibe, TIME_OPTIONS } from "@/lib/quest-packs";
 
 const VIBE_OPTIONS: Array<{ value: QuestVibe; label: string; icon: string }> = [
   { value: "productive", label: "Productive", icon: "⚡" },

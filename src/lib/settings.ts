@@ -148,7 +148,7 @@ export async function upsertUserSettings(
     payload.default_available_time_minutes = input.default_available_time_minutes;
   }
 
-  if (input.default_energy_level) {
+  if (input.default_energy_level !== undefined) {
     payload.default_energy_level = input.default_energy_level;
   }
 

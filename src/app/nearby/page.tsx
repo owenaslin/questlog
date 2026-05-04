@@ -5,7 +5,6 @@ import Link from "next/link";
 import QuestCard from "@/components/QuestCard";
 import { getUserSettings } from "@/lib/settings";
 import { ALL_QUESTS } from "@/lib/quests";
-import { Quest } from "@/lib/types";
 
 const NEARBY_CATEGORIES = ["Outdoors", "Social", "Community", "Culture", "Food"];
 

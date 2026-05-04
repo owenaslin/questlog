@@ -318,7 +318,7 @@ export default function HomePage() {
                 showLongest={false}
               />
             )}
-            <Link href="/generate" className="tavrn-button !bg-[#8b2a8b] !text-white text-[8px] !py-1.5 !px-3">
+            <Link href="/generate" className="tavrn-button !bg-tavern-mystic !text-white text-[8px] !py-1.5 !px-3">
               ⚡ Quest Giver
             </Link>
           </div>
@@ -329,18 +329,44 @@ export default function HomePage() {
         {/* ── Main column ── */}
         <div className="flex flex-col gap-5">
           {/* Daily Adventure Board */}
-          {!dataLoading && (
+          {dataLoading ? (
+            <div className="tavrn-panel p-4 md:p-5 animate-pulse">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-5 border-b border-tavern-oak/50 pb-4">
+                <div>
+                  <div className="h-3 w-32 bg-tavern-oak/60 rounded mb-2" />
+                  <div className="h-4 w-48 bg-tavern-oak/60 rounded mb-2" />
+                  <div className="h-3 w-64 bg-tavern-oak/40 rounded" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-6 w-24 bg-tavern-oak/60 rounded" />
+                  <div className="h-6 w-20 bg-tavern-oak/60 rounded" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="tavern-card p-4">
+                  <div className="h-2 w-24 bg-tavern-oak/60 rounded mb-3" />
+                  <div className="h-3 w-full bg-tavern-oak/40 rounded mb-2" />
+                  <div className="h-3 w-5/6 bg-tavern-oak/40 rounded" />
+                </div>
+                <div className="tavern-card p-4">
+                  <div className="h-2 w-24 bg-tavern-oak/60 rounded mb-3" />
+                  <div className="h-3 w-full bg-tavern-oak/40 rounded mb-2" />
+                  <div className="h-3 w-4/6 bg-tavern-oak/40 rounded" />
+                </div>
+              </div>
+            </div>
+          ) : (
             <div className="tavrn-panel p-4 md:p-5">
               <div className="flex flex-wrap items-start justify-between gap-3 mb-5 border-b border-tavern-oak/50 pb-4">
                 <div>
                   <p className="tavrn-kicker mb-2">Today&apos;s Adventure</p>
                   <h1 className="font-pixel text-[14px] text-tavern-gold leading-relaxed">Your daily quest loop</h1>
-                  <p className="text-[12px] text-[#cdb68f] mt-2">Focus your main quest, complete a ritual, and try one side adventure.</p>
+                  <p className="text-[12px] text-tavern-parchment-dark mt-2">Focus your main quest, complete a ritual, and try one side adventure.</p>
                 </div>
                 <Link href="/settings" className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px] !py-1.5 !px-3">
                   Tune Preferences
                 </Link>
-                <Link href="/packs" className="tavrn-button !bg-[#8b2a8b] !text-white text-[8px] !py-1.5 !px-3">
+                <Link href="/packs" className="tavrn-button !bg-tavern-mystic !text-white text-[8px] !py-1.5 !px-3">
                   Draw by Vibe
                 </Link>
               </div>
@@ -358,7 +384,7 @@ export default function HomePage() {
                     <ActiveQuestPanel quest={activeMainQuest} />
                   ) : (
                     <div>
-                      <p className="text-[12px] text-[#cdb68f] mb-3">Choose one long-term quest to anchor your adventure.</p>
+                      <p className="text-[12px] text-tavern-parchment-dark mb-3">Choose one long-term quest to anchor your adventure.</p>
                       <QuestPickerPanel
                         quests={pickerQuests.filter((quest) => quest.type === "main").slice(0, 2)}
                         onAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
@@ -370,15 +396,15 @@ export default function HomePage() {
                 <div className="tavern-card p-4">
                   <div className="flex items-center justify-between gap-3 mb-3">
                     <p className="font-pixel text-[8px] text-tavern-gold">🗡 Today&apos;s Side Quest</p>
-                    <span className="font-pixel text-[7px] text-[#bda780]">
+                    <span className="font-pixel text-[7px] text-tavern-parchment-dim">
                       {dailyLoadout ? `${dailyLoadout.adventure.side_quest_rerolls_used}/1 reroll` : "—"}
                     </span>
                   </div>
                   {dailyLoadout?.sideQuest ? (
                     <div>
                       <p className="font-pixel text-[10px] text-tavern-parchment leading-relaxed mb-2">{dailyLoadout.sideQuest.title}</p>
-                      <p className="text-[12px] text-[#cdb68f] leading-relaxed mb-3">{dailyLoadout.sideQuest.description}</p>
-                      <p className="text-[10px] text-[#bda780] mb-4">
+                      <p className="text-[12px] text-tavern-parchment-dark leading-relaxed mb-3">{dailyLoadout.sideQuest.description}</p>
+                      <p className="text-[10px] text-tavern-parchment-dim mb-4">
                         +{dailyLoadout.sideQuest.xp_reward} XP · {dailyLoadout.sideQuest.category} · {dailyLoadout.sideQuest.duration_label}
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -399,14 +425,14 @@ export default function HomePage() {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-[12px] text-[#cdb68f]">No side quest was drawn yet. Try browsing the quest board.</p>
+                    <p className="text-[12px] text-tavern-parchment-dark">No side quest was drawn yet. Try browsing the quest board.</p>
                   )}
                 </div>
               </div>
 
               <div className="mt-4 tavern-card p-4">
                 <p className="font-pixel text-[8px] text-tavern-gold mb-2">🕯 Reflection Prompt</p>
-                <p className="text-[12px] text-[#cdb68f] mb-3">{dailyLoadout?.adventure.generated_prompt ?? "What should tomorrow's quest be?"}</p>
+                <p className="text-[12px] text-tavern-parchment-dark mb-3">{dailyLoadout?.adventure.generated_prompt ?? "What should tomorrow's quest be?"}</p>
                 <textarea
                   value={reflectionText}
                   onChange={(event) => setReflectionText(event.target.value)}
@@ -436,7 +462,7 @@ export default function HomePage() {
                       <p className="font-pixel text-[9px] text-tavern-parchment group-hover:text-tavern-gold leading-relaxed">
                         {quest.title}
                       </p>
-                      <p className="text-[10px] text-[#bda780]">+{quest.xp_reward} XP · {quest.category}</p>
+                      <p className="text-[10px] text-tavern-parchment-dim">+{quest.xp_reward} XP · {quest.category}</p>
                     </div>
                     <span className="font-pixel text-[8px] text-tavern-gold opacity-0 group-hover:opacity-100">→</span>
                   </Link>
@@ -448,7 +474,7 @@ export default function HomePage() {
           {/* Pick a side quest prompt (when no side quests active) */}
           {!dataLoading && activeSideQuests.length === 0 && (
             <div className="tavrn-panel p-4 flex items-center justify-between gap-4">
-              <p className="text-[12px] text-[#bda780]">No side quests in progress.</p>
+              <p className="text-[12px] text-tavern-parchment-dim">No side quests in progress.</p>
               <Link href="/board" className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px] !py-1.5 !px-3">
                 Browse Side Quests
               </Link>

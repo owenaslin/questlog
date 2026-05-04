@@ -326,7 +326,7 @@ export async function getLowEnergySuggestion(): Promise<Quest | null> {
   return candidates[0] || null;
 }
 
-export async function getRecommendedSideQuest(options: RecommendedSideQuestOptions = {}): Promise<QuestRecommendation | null> {
+export function getRecommendedSideQuest(options: RecommendedSideQuestOptions = {}): QuestRecommendation | null {
   const excluded = new Set(options.excludeQuestIds ?? []);
   const preferences = options.preferences;
   const availableTime = preferences?.default_available_time_minutes ?? 30;

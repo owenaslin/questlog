@@ -1,7 +1,20 @@
 import { ALL_QUESTS } from "@/lib/quests";
-import { Quest } from "@/lib/types";
+import { EnergyLevel, Quest } from "@/lib/types";
 
 export type QuestVibe = "productive" | "adventurous" | "social" | "cozy" | "creative" | "healthy" | "chaotic_good";
+
+export const TIME_OPTIONS = [
+  { value: 15, label: "15 min" },
+  { value: 30, label: "30 min" },
+  { value: 60, label: "1 hour" },
+  { value: 240, label: "Half day" },
+] as const;
+
+export const ENERGY_OPTIONS: Array<{ value: EnergyLevel; label: string; hint: string }> = [
+  { value: "low", label: "Low", hint: "Gentle, low-friction quests" },
+  { value: "normal", label: "Normal", hint: "Balanced daily adventures" },
+  { value: "high", label: "High", hint: "Bigger challenges and outings" },
+];
 
 export interface QuestPack {
   id: string;

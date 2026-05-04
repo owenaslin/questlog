@@ -62,17 +62,18 @@ export const LIFE_AREAS: LifeAreaDefinition[] = [
 ];
 
 export function calculateLifeAreaScores(completedQuests: Quest[]): LifeAreaScore[] {
-  const maxXp = Math.max(1, ...LIFE_AREAS.map((area) => {
-    return completedQuests
-      .filter((quest) => area.categories.includes(quest.category) || (area.key === "adventure" && quest.type === "side"))
-      .reduce((sum, quest) => sum + quest.xp_reward, 0);
-  }));
-
-  return LIFE_AREAS.map((area) => {
-    const matchingQuests = completedQuests.filter(
-      (quest) => area.categories.includes(quest.category) || (area.key === "adventure" && quest.type === "side")
+  // Unified single-pass computation for maxXp and scores
+  const scores = LIFE_AREAS.map((area) => {
+    const matchingQuests = completedQuests.filter((quest) =>
+      area.categories.includes(quest.category)
     );
     const xpTotal = matchingQuests.reduce((sum, quest) => sum + quest.xp_reward, 0);
+    return { area, matchingQuests, xpTotal };
+  });
+
+  const maxXp = Math.max(1, ...scores.map((s) => s.xpTotal));
+
+  return scores.map(({ area, matchingQuests, xpTotal }) => {
 
     return {
       ...area,
