@@ -43,6 +43,20 @@ export interface DailyAdventureLoadout {
   completedQuestIds: string[];
 }
 
+export interface DailyAdventureHistoryItem {
+  adventure: DailyAdventure;
+  mainQuest: Quest | null;
+  sideQuest: Quest | null;
+}
+
+export interface DailyAdventureStats {
+  totalStarted: number;
+  totalCompleted: number;
+  completionRate: number;
+  currentCompletionStreak: number;
+  reflectionsWritten: number;
+}
+
 export async function resolveQuestById(questId: string | null): Promise<Quest | null> {
   if (!questId) return null;
 
@@ -235,5 +249,64 @@ export async function completeTodayAdventure(): Promise<{ success: boolean; adve
   return {
     success: true,
     adventure: normalizeDailyAdventure(updated as Record<string, unknown>),
+  };
+}
+
+export async function getDailyAdventureHistory(limit: number = 7): Promise<DailyAdventureHistoryItem[]> {
+  const supabase = getSupabaseClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData.user?.id;
+  if (!userId) return [];
+
+  const { data, error } = await supabase
+    .from("daily_adventures")
+    .select("*")
+    .eq("user_id", userId)
+    .order("adventure_date", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+
+  const adventures = data.map((row) => normalizeDailyAdventure(row as Record<string, unknown>));
+
+  return Promise.all(
+    adventures.map(async (adventure) => ({
+      adventure,
+      mainQuest: await resolveQuestById(adventure.main_quest_id),
+      sideQuest: await resolveQuestById(adventure.side_quest_id),
+    }))
+  );
+}
+
+export async function getDailyAdventureStats(): Promise<DailyAdventureStats | null> {
+  const supabase = getSupabaseClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData.user?.id;
+  if (!userId) return null;
+
+  const { data, error } = await supabase
+    .from("daily_adventures")
+    .select("adventure_date,completed_at,reflection_answer")
+    .eq("user_id", userId)
+    .order("adventure_date", { ascending: false });
+
+  if (error || !data) return null;
+
+  const totalStarted = data.length;
+  const totalCompleted = data.filter((row) => Boolean(row.completed_at)).length;
+  const reflectionsWritten = data.filter((row) => typeof row.reflection_answer === "string" && row.reflection_answer.trim().length > 0).length;
+  let currentCompletionStreak = 0;
+
+  for (const row of data) {
+    if (!row.completed_at) break;
+    currentCompletionStreak += 1;
+  }
+
+  return {
+    totalStarted,
+    totalCompleted,
+    completionRate: totalStarted > 0 ? Math.round((totalCompleted / totalStarted) * 100) : 0,
+    currentCompletionStreak,
+    reflectionsWritten,
   };
 }

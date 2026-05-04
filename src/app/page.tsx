@@ -12,9 +12,11 @@ import {
 } from "@/lib/quest-progress";
 import {
   completeTodayAdventure,
+  getDailyAdventureStats,
   getOrCreateTodayAdventure,
   rerollTodaySideQuest,
   saveTodayReflection,
+  type DailyAdventureStats,
   type DailyAdventureLoadout,
 } from "@/lib/daily-adventure";
 import { getDailyQuests, ALL_QUESTS, getRandomQuests } from "@/lib/quests";
@@ -36,6 +38,7 @@ export default function HomePage() {
   const [activeSideQuests,setActiveSideQuests]= useState<Quest[]>([]);
   const [pickerQuests,   setPickerQuests]   = useState<Quest[]>([]);
   const [dailyLoadout,   setDailyLoadout]   = useState<DailyAdventureLoadout | null>(null);
+  const [dailyStats,     setDailyStats]     = useState<DailyAdventureStats | null>(null);
   const [reflectionText, setReflectionText] = useState("");
   const [dailyActionMessage, setDailyActionMessage] = useState<string | null>(null);
   // Guest "Tonight's Hand" state
@@ -69,10 +72,11 @@ export default function HomePage() {
       }
 
       try {
-        const [snapshot, customActive, todayAdventure] = await Promise.all([
+        const [snapshot, customActive, todayAdventure, adventureStats] = await Promise.all([
           getUserDashboardSnapshot(),
           getUserCreatedActiveQuests(),
           getOrCreateTodayAdventure(),
+          getDailyAdventureStats(),
         ]);
 
         if (!mounted.current) return;
@@ -117,6 +121,7 @@ export default function HomePage() {
         const pickerPool = getDailyQuests([...completedIds, ...Array.from(allActiveIds)]);
         setPickerQuests(pickerPool);
         setDailyLoadout(todayAdventure);
+        setDailyStats(adventureStats);
         setReflectionText(todayAdventure?.adventure.reflection_answer ?? "");
       } catch (err) {
         console.error("[home] data fetch failed:", err);
@@ -177,6 +182,13 @@ export default function HomePage() {
     }
 
     setDailyLoadout((prev) => prev ? { ...prev, adventure: completeResult.adventure! } : prev);
+    setDailyStats((prev) => prev ? {
+      ...prev,
+      totalCompleted: prev.totalCompleted + 1,
+      completionRate: prev.totalStarted > 0 ? Math.round(((prev.totalCompleted + 1) / prev.totalStarted) * 100) : 100,
+      currentCompletionStreak: prev.currentCompletionStreak + 1,
+      reflectionsWritten: reflectionText.trim() ? Math.max(prev.reflectionsWritten, prev.reflectionsWritten + (dailyLoadout?.adventure.reflection_answer ? 0 : 1)) : prev.reflectionsWritten,
+    } : prev);
     setDailyActionMessage("Today's adventure is complete. Rest well, hero.");
   };
 
@@ -524,6 +536,33 @@ export default function HomePage() {
 
         {/* ── Sidebar column ── */}
         <aside className="flex flex-col gap-4">
+          {!dataLoading && dailyStats && (
+            <div className="tavrn-panel p-4">
+              <p className="tavrn-kicker mb-3">Adventure Ledger</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="tavern-card p-3 text-center">
+                  <p className="font-pixel text-[7px] text-tavern-parchment-dim mb-1">Loops</p>
+                  <p className="font-pixel text-[14px] text-tavern-gold">{dailyStats.totalCompleted}</p>
+                </div>
+                <div className="tavern-card p-3 text-center">
+                  <p className="font-pixel text-[7px] text-tavern-parchment-dim mb-1">Rate</p>
+                  <p className="font-pixel text-[14px] text-retro-cyan">{dailyStats.completionRate}%</p>
+                </div>
+                <div className="tavern-card p-3 text-center">
+                  <p className="font-pixel text-[7px] text-tavern-parchment-dim mb-1">Streak</p>
+                  <p className="font-pixel text-[14px] text-retro-lime">{dailyStats.currentCompletionStreak}</p>
+                </div>
+                <div className="tavern-card p-3 text-center">
+                  <p className="font-pixel text-[7px] text-tavern-parchment-dim mb-1">Notes</p>
+                  <p className="font-pixel text-[14px] text-tavern-parchment">{dailyStats.reflectionsWritten}</p>
+                </div>
+              </div>
+              <Link href="/profile" className="tavrn-button block text-center mt-3 !bg-tavern-oak !text-tavern-parchment text-[8px] !py-1.5">
+                View Adventure Log
+              </Link>
+            </div>
+          )}
+
           {/* Daily Habits Widget — inline completion */}
           <DailyHabitsWidget maxDisplay={8} />
 

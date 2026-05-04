@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import XPBar from "@/components/XPBar";
 import { BadgeShowcase } from "@/components/BadgeGrid";
+import DailyAdventureRecap from "@/components/DailyAdventureRecap";
 import StreakDisplay from "@/components/StreakDisplay";
 import WeeklyRecap from "@/components/WeeklyRecap";
 import { BADGES } from "@/lib/badges";
@@ -20,6 +21,12 @@ import {
   WeeklyRecap as WeeklyRecapType,
 } from "@/lib/quest-progress";
 import { Quest } from "@/lib/types";
+import {
+  getDailyAdventureHistory,
+  getDailyAdventureStats,
+  type DailyAdventureHistoryItem,
+  type DailyAdventureStats,
+} from "@/lib/daily-adventure";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -41,6 +48,8 @@ export default function ProfilePage() {
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [streak, setStreak] = useState<UserStreak | null>(null);
   const [weeklyRecap, setWeeklyRecap] = useState<WeeklyRecapType | null>(null);
+  const [dailyAdventureStats, setDailyAdventureStats] = useState<DailyAdventureStats | null>(null);
+  const [dailyAdventureHistory, setDailyAdventureHistory] = useState<DailyAdventureHistoryItem[]>([]);
   const [earnedBadgeIds, setEarnedBadgeIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -54,9 +63,11 @@ export default function ProfilePage() {
       setIsLoadingProgress(true);
 
       try {
-        const [snapshot, weeklyData] = await Promise.all([
+        const [snapshot, weeklyData, dailyStats, dailyHistory] = await Promise.all([
           getUserDashboardSnapshot(),
           getWeeklyRecap(0),
+          getDailyAdventureStats(),
+          getDailyAdventureHistory(5),
         ]);
 
         if (!isMounted) return;
@@ -71,6 +82,8 @@ export default function ProfilePage() {
         if (weeklyData) {
           setWeeklyRecap(weeklyData);
         }
+        setDailyAdventureStats(dailyStats);
+        setDailyAdventureHistory(dailyHistory);
         setEarnedBadgeIds(badgeIds);
 
         if (summary) {
@@ -204,6 +217,14 @@ export default function ProfilePage() {
           )}
         </div>
         <WeeklyRecap recap={weeklyRecap} isLoading={isLoadingProgress} />
+      </div>
+
+      <div className="mb-8">
+        <DailyAdventureRecap
+          stats={dailyAdventureStats}
+          history={dailyAdventureHistory}
+          isLoading={isLoadingProgress}
+        />
       </div>
 
       <div className="mb-8 bg-retro-darkgray border-4 border-retro-black p-4">
