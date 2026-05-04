@@ -218,6 +218,10 @@ export async function completeHabit(habitId: string): Promise<{
   const supabase = getSupabaseClient();
   const today = getTodayString();
 
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
   // Get habit to determine XP
   const { data: habit, error: habitError } = await supabase
     .from("habits")
@@ -232,6 +236,7 @@ export async function completeHabit(habitId: string): Promise<{
   // Create completion record
   const { error } = await supabase.from("habit_completions").insert({
     habit_id: habitId,
+    user_id: userId,
     xp_awarded: habit.xp_reward,
     completion_date: today,
   });
