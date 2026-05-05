@@ -140,15 +140,16 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
       }
     } else {
       const result = await completeHabit(habit.id);
-      if (result.success && result.xpAwarded) {
-        // Show XP animation
-        setXpAnimations((prev) => [
-          ...prev,
-          { id: habit.id, amount: result.xpAwarded! },
-        ]);
-        setTimeout(() => {
-          setXpAnimations((prev) => prev.filter((a) => a.id !== habit.id));
-        }, 2000);
+      if (result.success) {
+        if (result.xpAwarded) {
+          setXpAnimations((prev) => [
+            ...prev,
+            { id: habit.id, amount: result.xpAwarded! },
+          ]);
+          setTimeout(() => {
+            setXpAnimations((prev) => prev.filter((a) => a.id !== habit.id));
+          }, 2000);
+        }
         await loadData();
       }
     }

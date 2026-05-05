@@ -283,7 +283,7 @@ export async function POST(req: NextRequest) {
       duration_label:  data.duration_label,
       duration_minutes,
       category:        data.category,
-      xp_reward:       clamp(xp_reward, XP_CAPS[(input.questType as "side" | "main")].min, XP_CAPS[(input.questType as "side" | "main")].max),
+      xp_reward:       clamp(xp_reward, XP_CAPS[input.questType as keyof typeof XP_CAPS].min, XP_CAPS[input.questType as keyof typeof XP_CAPS].max),
       steps:           data.steps,
       location:        input.mode === "ai" ? (input.location || null) : null,
       evaluation_note: data.evaluation_note,

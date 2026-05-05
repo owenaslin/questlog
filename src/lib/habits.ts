@@ -218,12 +218,16 @@ export async function completeHabit(habitId: string): Promise<{
   const supabase = getSupabaseClient();
   const today = getTodayString();
 
-  // Get habit to determine XP
-  const { data: habit, error: habitError } = await supabase
-    .from("habits")
-    .select("xp_reward")
-    .eq("id", habitId)
-    .single();
+  const [{ data: userData }, { data: habit, error: habitError }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.from("habits").select("xp_reward").eq("id", habitId).single(),
+  ]);
+
+  const userId = userData?.user?.id;
+  if (!userId) {
+    console.error("[habits] no authenticated user");
+    return { success: false, error: "Not authenticated" };
+  }
 
   if (habitError || !habit) {
     return { success: false, error: habitError?.message || "Habit not found" };
@@ -232,6 +236,7 @@ export async function completeHabit(habitId: string): Promise<{
   // Create completion record
   const { error } = await supabase.from("habit_completions").insert({
     habit_id: habitId,
+    user_id: userId,
     xp_awarded: habit.xp_reward,
     completion_date: today,
   });
@@ -265,6 +270,13 @@ export async function uncompleteHabit(habitId: string): Promise<{
   const supabase = getSupabaseClient();
   const today = getTodayString();
 
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+  if (!userId) {
+    console.error("[habits] no authenticated user");
+    return { success: false, error: "Not authenticated" };
+  }
+
   // Fetch xp_awarded before deleting so we can deduct it from the profile.
   // The DB trigger `on_habit_completion_revoke_xp` handles this automatically
   // once the schema migration is applied; this client-side path is the fallback.
@@ -287,19 +299,16 @@ export async function uncompleteHabit(habitId: string): Promise<{
 
   // Deduct XP from profile (fallback if trigger not yet applied to live DB)
   if (existing?.xp_awarded) {
-    const userId = (await supabase.auth.getSession()).data.session?.user.id;
-    if (userId) {
-      const { data: profile } = await supabase
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("xp_total")
+      .eq("id", userId)
+      .single();
+    if (profile) {
+      await supabase
         .from("profiles")
-        .select("xp_total")
-        .eq("id", userId)
-        .single();
-      if (profile) {
-        await supabase
-          .from("profiles")
-          .update({ xp_total: Math.max(0, profile.xp_total - existing.xp_awarded) })
-          .eq("id", userId);
-      }
+        .update({ xp_total: Math.max(0, profile.xp_total - existing.xp_awarded) })
+        .eq("id", userId);
     }
   }
 
