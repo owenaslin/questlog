@@ -3,11 +3,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import XPBar from "@/components/XPBar";
-import { BadgeShowcase } from "@/components/BadgeGrid";
-import DailyAdventureRecap from "@/components/DailyAdventureRecap";
-import StreakDisplay from "@/components/StreakDisplay";
-import WeeklyRecap from "@/components/WeeklyRecap";
+import XPBar from "@/components/ui/XPBar";
+import { BadgeShowcase } from "@/components/badge/BadgeGrid";
+import DailyAdventureRecap from "@/components/quest/DailyAdventureRecap";
+import StreakDisplay from "@/components/ui/StreakDisplay";
+import WeeklyRecap from "@/components/quest/WeeklyRecap";
 import { BADGES } from "@/lib/badges";
 import { ALL_QUESTS } from "@/lib/quests";
 import { buildAuthUrl } from "@/lib/auth-redirect";
@@ -383,7 +383,7 @@ export default function ProfilePage() {
               <div key={quest.id} className="flex items-center gap-3 text-[8px]">
                 <span className="font-pixel text-retro-green">✓</span>
                 <span className="font-pixel text-retro-lightgray flex-1">
-                  Completed "{quest.title}"
+                  Completed &ldquo;{quest.title}&rdquo;
                 </span>
                 <span className="font-pixel text-retro-lime">+{quest.xp_reward} XP</span>
               </div>

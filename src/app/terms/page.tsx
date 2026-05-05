@@ -26,7 +26,7 @@ export default function TermsPage() {
           <section>
             <h2 className="font-pixel text-retro-cyan text-[9px] mb-2">Service Availability</h2>
             <p className="font-pixel text-retro-lightgray text-[8px] leading-loose">
-              Questlog is provided "as is" and may change over time as features are updated.
+              Questlog is provided &ldquo;as is&rdquo; and may change over time as features are updated.
             </p>
           </section>
 

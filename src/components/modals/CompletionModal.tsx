@@ -6,8 +6,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Quest } from "@/lib/types";
 import { Milestone, getMilestoneColor } from "@/lib/milestones";
-import PixelButton from "./PixelButton";
-import XPBar from "./XPBar";
+import PixelButton from "@/components/ui/PixelButton";
+import XPBar from "@/components/ui/XPBar";
 import { QUESTLINES } from "@/lib/questlines";
 import { acceptQuest } from "@/lib/quest-progress";
 

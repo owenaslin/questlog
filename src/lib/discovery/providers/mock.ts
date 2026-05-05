@@ -300,8 +300,9 @@ export const mockDiscoveryProvider: DiscoveryProvider = {
 // Additional mock providers for different data types
 export const mockEventProvider: DiscoveryProvider = {
   name: 'mock' as ProviderSource,
-  
-  async search(params: ProviderSearchParams): Promise<ProviderResult> {
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async search(_params: ProviderSearchParams): Promise<ProviderResult> {
     const startTime = Date.now();
     await new Promise(resolve => setTimeout(resolve, 30 + Math.random() * 100));
     

@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import Link from "next/link";
 import { CATEGORIES, getCategoryByKey, ALL_QUESTS } from "@/lib/quests";
 import { Category } from "@/lib/types";
-import QuestCard from "@/components/QuestCard";
+import QuestCard from "@/components/quest/QuestCard";
 
 export default function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);

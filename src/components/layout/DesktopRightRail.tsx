@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useViewMode } from "@/components/ViewModeProvider";
+import { useViewMode } from "@/components/ui/ViewModeProvider";
 
 export default function DesktopRightRail({
   title,

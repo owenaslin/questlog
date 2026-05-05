@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { HabitWithStatus } from "@/lib/types";
 import { getHabitsForToday, completeHabit, uncompleteHabit } from "@/lib/habits";
-import HabitCheck from "./HabitCheck";
+import HabitCheck from "@/components/habit/HabitCheck";
 
 export default function RoutinesSection() {
   const [habits, setHabits] = useState<HabitWithStatus[]>([]);

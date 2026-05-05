@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Questline, QuestlineStep } from "@/lib/types";
-import PixelButton from "./PixelButton";
+import PixelButton from "@/components/ui/PixelButton";
 
 interface QuestlineProgressProps {
   questline: Questline;

@@ -1,4 +1,4 @@
-import { Quest, QuestType, RecommendationPreferences } from "@/lib/types";
+import { Quest, RecommendationPreferences } from "@/lib/types";
 import { ALL_QUESTS } from "@/lib/quests";
 
 // O(1) quest lookup by ID — avoids repeated O(n) ALL_QUESTS.find() calls.

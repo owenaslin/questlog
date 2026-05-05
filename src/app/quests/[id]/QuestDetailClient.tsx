@@ -3,11 +3,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import PixelButton from "@/components/PixelButton";
-import XPBar from "@/components/XPBar";
-import CompletionModal from "@/components/CompletionModal";
-import MilestoneCelebration from "@/components/MilestoneCelebration";
-import AmbientScene from "@/components/AmbientScene";
+import PixelButton from "@/components/ui/PixelButton";
+import XPBar from "@/components/ui/XPBar";
+import CompletionModal from "@/components/modals/CompletionModal";
+import MilestoneCelebration from "@/components/modals/MilestoneCelebration";
+import AmbientScene from "@/components/ui/AmbientScene";
 import { Quest } from "@/lib/types";
 import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {

@@ -3,7 +3,6 @@
 
 import { Quest } from "@/lib/types";
 
-import { CATEGORIES } from "./categories";
 import { FITNESS_QUESTS_WITH_IDS } from "./fitness";
 import { CREATIVE_QUESTS_WITH_IDS } from "./creative";
 import { TECH_QUESTS_WITH_IDS } from "./tech";

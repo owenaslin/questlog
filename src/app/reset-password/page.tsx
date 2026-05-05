@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import PixelButton from "@/components/PixelButton";
-import PasswordStrengthMeter from "@/components/PasswordStrengthMeter";
+import PixelButton from "@/components/ui/PixelButton";
+import PasswordStrengthMeter from "@/components/ui/PasswordStrengthMeter";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl, sanitizeRedirectPath } from "@/lib/auth-redirect";
 

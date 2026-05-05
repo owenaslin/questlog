@@ -6,7 +6,7 @@
  */
 
 import { Metadata } from 'next';
-import DiscoveryForge from '@/components/DiscoveryForge';
+import DiscoveryForge from '@/components/quest/DiscoveryForge';
 import { getSupabaseClient, getSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
@@ -30,21 +30,9 @@ export default async function DiscoverPage() {
   const serverClient = getSupabaseServerClient();
   const { data: profile } = await serverClient
     .from('profiles')
-    .select('location_city, location_coords, discovery_radius_km, privacy_level')
+    .select('location_city, discovery_radius_km, privacy_level')
     .eq('id', user.id)
     .single();
-  
-  // Parse location coords if available
-  let coords = undefined;
-  if (profile?.location_coords) {
-    const pointMatch = profile.location_coords.match(/\(([^,]+),([^)]+)\)/);
-    if (pointMatch) {
-      coords = {
-        lng: parseFloat(pointMatch[1]),
-        lat: parseFloat(pointMatch[2]),
-      };
-    }
-  }
   
   return (
     <main className="min-h-screen bg-slate-950">
@@ -133,11 +121,7 @@ export default async function DiscoverPage() {
         </div>
         
         {/* Discovery Forge */}
-        <DiscoveryForge 
-          userLocation={{
-            city: profile?.location_city || undefined,
-            coords,
-          }}
+        <DiscoveryForge
           onQuestAccepted={(quest) => {
             // This will be handled client-side
             console.log('Quest accepted:', quest);

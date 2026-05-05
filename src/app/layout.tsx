@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import MobileBottomNav from "@/components/MobileBottomNav";
-import ViewModeProvider from "@/components/ViewModeProvider";
-import WeatherLayer from "@/components/WeatherLayer";
-import ThemeModeSync from "@/components/ThemeModeSync";
+import Navbar from "@/components/layout/Navbar";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import ViewModeProvider from "@/components/ui/ViewModeProvider";
+import WeatherLayer from "@/components/layout/WeatherLayer";
+import ThemeModeSync from "@/components/ui/ThemeModeSync";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 

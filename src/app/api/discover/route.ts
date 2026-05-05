@@ -20,8 +20,6 @@ import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 import type { 
-  DiscoveryRequest, 
-  DiscoveryResponse, 
   OrchestratorResult,
   NarrativeQuest,
   ProviderSearchParams,
@@ -32,8 +30,6 @@ import { mockDiscoveryProvider } from '@/lib/discovery/providers/mock';
 import { openStreetMapProvider } from '@/lib/discovery/providers/openstreetmap';
 import { 
   buildLocationContext, 
-  isValidCoordinates,
-  sanitizeCoordinates,
   isValidPrivacyLevel,
 } from '@/lib/discovery/privacy';
 import { 
@@ -44,7 +40,6 @@ import {
 import { 
   getExcludedPlaceIds,
   addRecentSuggestion,
-  getCachedQuest,
 } from '@/lib/discovery/cache';
 import { getLatestFlashModel } from '@/lib/gemini';
 
@@ -380,7 +375,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           success: false, 
-          message: `Validation error: ${parseResult.error.issues.map(i => i.message).join(', ')}`,
+          message: `Validation error: ${parseResult.error.issues.map((i: { message: string }) => i.message).join(', ')}`,
           remaining_daily: dailyLimit.remaining 
         },
         { status: 400 }
@@ -433,7 +428,6 @@ export async function POST(request: NextRequest) {
       coords: coordinates,
       city,
       privacyLevel: isValidPrivacyLevel(privacyLevel) ? privacyLevel : 'approximate',
-      userId,
     });
     
     // 7. Get excluded places (recent suggestions)

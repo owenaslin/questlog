@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HabitRecurrenceType, HabitRecurrenceData } from "@/lib/types";
 import { createHabit } from "@/lib/habits";
-import { validateRecurrenceData, buildRecurrenceData } from "@/lib/habit-recurrence";
-import RecurrencePicker from "@/components/RecurrencePicker";
+import { validateRecurrenceData } from "@/lib/habit-recurrence";
+import RecurrencePicker from "@/components/habit/RecurrencePicker";
 import { getSupabaseClient } from "@/lib/supabase";
 
 const ICON_OPTIONS = [

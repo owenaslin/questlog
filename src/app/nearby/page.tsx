@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import QuestCard from "@/components/QuestCard";
+import QuestCard from "@/components/quest/QuestCard";
 import { getUserSettings } from "@/lib/settings";
 import { ALL_QUESTS } from "@/lib/quests";
 

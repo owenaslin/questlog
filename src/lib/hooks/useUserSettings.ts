@@ -137,13 +137,13 @@ export function useUserSettings() {
   const weekStartDay = settings?.week_start_day ?? DEFAULT_USER_SETTINGS.week_start_day;
   const themeMode = settings?.theme_mode ?? DEFAULT_USER_SETTINGS.theme_mode;
   const notificationPreferences = settings?.notification_preferences ?? DEFAULT_USER_SETTINGS.notification_preferences;
-  const recommendationPreferences: RecommendationPreferences = {
+  const recommendationPreferences = useMemo<RecommendationPreferences>(() => ({
     default_available_time_minutes: settings?.default_available_time_minutes ?? DEFAULT_USER_SETTINGS.default_available_time_minutes,
     default_energy_level: settings?.default_energy_level ?? DEFAULT_USER_SETTINGS.default_energy_level,
     preferred_categories: settings?.preferred_categories ?? DEFAULT_USER_SETTINGS.preferred_categories,
     discovery_preferences: settings?.discovery_preferences ?? DEFAULT_USER_SETTINGS.discovery_preferences,
     home_location_label: settings?.home_location_label ?? DEFAULT_USER_SETTINGS.home_location_label,
-  };
+  }), [settings]);
 
   return useMemo(() => ({
     settings,

@@ -6,7 +6,3 @@ export function generateStableId(title: string): string {
   return uuidv5(title, NAMESPACE);
 }
 
-// ─── Legacy seed data removed ────────────────────────────────────────────────
-// The original SEED_QUESTS array has been superseded by the typed per-category
-// files in src/lib/quests/ and has been deleted.
-export const SEED_QUESTS: never[] = [];

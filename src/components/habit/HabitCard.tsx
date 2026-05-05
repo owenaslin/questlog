@@ -4,13 +4,11 @@ import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import { useSpring, animated } from "@react-spring/web";
 import {
-  Habit,
-  HabitStreak,
   HabitWithStatus,
 } from "@/lib/types";
 import { completeHabit, uncompleteHabit } from "@/lib/habits";
-import { getRecurrenceDescription, isHabitScheduledForDate } from "@/lib/habit-recurrence";
-import HabitCheck from "./HabitCheck";
+import { getRecurrenceDescription } from "@/lib/habit-recurrence";
+import HabitCheck from "@/components/habit/HabitCheck";
 
 interface HabitCardProps {
   habit: HabitWithStatus;
@@ -51,6 +49,17 @@ export default function HabitCard({
   // Get streak display
   const streakCount = habit.streak?.current_streak || 0;
   const isHotStreak = streakCount >= 7;
+
+  const cardSpring = useSpring({
+    opacity: 1,
+    y: 0,
+    config: { tension: 300, friction: 30 },
+  });
+
+  const pulseSpring = useSpring({
+    transform: justCompleted ? "scale(1.02)" : "scale(1)",
+    config: { duration: 300 },
+  });
 
   if (variant === "minimal") {
     return (
@@ -112,17 +121,6 @@ export default function HabitCard({
   }
 
   // Default variant
-  const cardSpring = useSpring({
-    opacity: 1,
-    y: 0,
-    config: { tension: 300, friction: 30 },
-  });
-
-  const pulseSpring = useSpring({
-    transform: justCompleted ? "scale(1.02)" : "scale(1)",
-    config: { duration: 300 },
-  });
-
   return (
     <animated.div
       style={{

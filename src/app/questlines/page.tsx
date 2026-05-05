@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import QuestlineCard from "@/components/QuestlineCard";
+import QuestlineCard from "@/components/quest/QuestlineCard";
 import { QUESTLINES, getLinearQuestlines, getSkillTrees } from "@/lib/questlines";
 import { QuestlineType } from "@/lib/types";
 

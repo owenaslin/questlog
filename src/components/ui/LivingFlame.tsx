@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 interface LivingFlameProps {
   streakDays: number;
@@ -11,7 +11,6 @@ interface FlameState {
   color: string;
   glowColor: string;
   scale: number;
-  particleCount: number;
   animationSpeed: number;
   name: string;
 }
@@ -21,7 +20,6 @@ const FLAME_STATES: Record<number, FlameState> = {
     color: "#4b5563",
     glowColor: "rgba(75, 85, 99, 0.3)",
     scale: 0.5,
-    particleCount: 0,
     animationSpeed: 0,
     name: "Ember",
   },
@@ -29,7 +27,6 @@ const FLAME_STATES: Record<number, FlameState> = {
     color: "#f97316",
     glowColor: "rgba(249, 115, 22, 0.4)",
     scale: 0.7,
-    particleCount: 3,
     animationSpeed: 3,
     name: "Flicker",
   },
@@ -37,7 +34,6 @@ const FLAME_STATES: Record<number, FlameState> = {
     color: "#fb923c",
     glowColor: "rgba(251, 146, 60, 0.5)",
     scale: 0.85,
-    particleCount: 6,
     animationSpeed: 2,
     name: "Flame",
   },
@@ -45,7 +41,6 @@ const FLAME_STATES: Record<number, FlameState> = {
     color: "#60a5fa",
     glowColor: "rgba(96, 165, 250, 0.6)",
     scale: 1,
-    particleCount: 12,
     animationSpeed: 1.5,
     name: "Inferno",
   },
@@ -53,7 +48,6 @@ const FLAME_STATES: Record<number, FlameState> = {
     color: "#fbbf24",
     glowColor: "rgba(251, 191, 36, 0.8)",
     scale: 1.2,
-    particleCount: 20,
     animationSpeed: 1,
     name: "Eternal",
   },
@@ -73,37 +67,9 @@ const sizeClasses = {
   lg: { container: "w-24 h-24", flame: "w-12 h-16" },
 };
 
-interface Particle {
-  width: number;
-  height: number;
-  left: string;
-  animY: number[];
-  animX: number[];
-  duration: number;
-  delay: number;
-}
-
 export default function LivingFlame({ streakDays, size = "md" }: LivingFlameProps) {
   const state = getFlameState(streakDays);
   const classes = sizeClasses[size];
-
-  // Particle random values are computed client-side only to avoid SSR/hydration
-  // mismatches (same pattern used by ParticleLayer.tsx in this codebase).
-  const [particles, setParticles] = useState<Particle[]>([]);
-  useEffect(() => {
-    if (state.particleCount === 0) { setParticles([]); return; }
-    setParticles(
-      Array.from({ length: state.particleCount }, (_, i) => ({
-        width:    2 + Math.random() * 3,
-        height:   2 + Math.random() * 3,
-        left:     `${20 + Math.random() * 60}%`,
-        animY:    [-10, -40 - Math.random() * 30],
-        animX:    [(i % 2 === 0 ? 1 : -1) * Math.random() * 10, 0],
-        duration: 1 + Math.random() * 2,
-        delay:    Math.random() * 2,
-      }))
-    );
-  }, [state.particleCount]);
 
   if (streakDays === 0) {
     return (

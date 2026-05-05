@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import BadgeGrid from "@/components/BadgeGrid";
+import BadgeGrid from "@/components/badge/BadgeGrid";
 import { BADGES, getBadgesByRarity } from "@/lib/badges";
 import { Badge, BadgeRarity } from "@/lib/types";
 import { getUserEarnedBadgeIds } from "@/lib/quest-progress";

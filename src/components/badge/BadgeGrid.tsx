@@ -3,7 +3,7 @@
 import React from "react";
 import { Badge } from "@/lib/types";
 import { rarityBgClasses } from "@/lib/badge-utils";
-import BadgeCard from "./BadgeCard";
+import BadgeCard from "@/components/badge/BadgeCard";
 
 interface BadgeGridProps {
   badges: Badge[];

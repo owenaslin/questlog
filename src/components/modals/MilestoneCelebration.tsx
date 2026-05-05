@@ -13,13 +13,11 @@ export default function MilestoneCelebration({
   onComplete,
 }: MilestoneCelebrationProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showParticles, setShowParticles] = useState(false);
   // Track the final auto-close timer so it can be cancelled on unmount.
   const finalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (milestones.length === 0) return;
-    setShowParticles(true);
     const timer = setTimeout(() => {
       if (currentIndex < milestones.length - 1) {
         setCurrentIndex((prev) => prev + 1);

@@ -51,7 +51,7 @@ const bodySchema = z.object({
   duration_minutes: z.number().int().positive().optional().nullable(),
   steps:            z.array(z.object({
     id:       z.string(),
-    title:    z.string().max(200).transform((s) => s.replace(/[<>]/g, "").trim()),
+    title:    z.string().max(200).transform((s: string) => s.replace(/[<>]/g, "").trim()),
     optional: z.boolean().optional(),
   })).optional().default([]),
   category:         z.enum(QUEST_CATEGORIES),
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
     const parsed = bodySchema.safeParse(body);
     if (!parsed.success) {
       throw new AppError(
-        `Invalid quest data: ${parsed.error.issues.map((i) => i.message).join(", ")}`,
+        `Invalid quest data: ${parsed.error.issues.map((i: { message: string }) => i.message).join(", ")}`,
         400
       );
     }
