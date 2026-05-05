@@ -1,5 +1,33 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, Cinzel, JetBrains_Mono, Press_Start_2P } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const pressStart2P = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-pixel",
+  display: "optional",
+});
+
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-wordmark",
+  display: "optional",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-mono",
+  display: "optional",
+});
 import Navbar from "@/components/layout/Navbar";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import ViewModeProvider from "@/components/ui/ViewModeProvider";
@@ -72,7 +100,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${pressStart2P.variable} ${cinzel.variable} ${jetbrainsMono.variable}`}>
       <head>
         {/* Apple touch icons - fallback if metadata doesn't render */}
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />

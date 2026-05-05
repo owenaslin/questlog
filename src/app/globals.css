@@ -2,15 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&display=swap");
-
 :root {
   --color-bg: #161210;
   --color-text: #efd9a8;
-  --wordmark: "Cinzel", serif;
-  --pixel: "Press Start 2P", cursive;
-  --body: "Inter", sans-serif;
-  --mono: "JetBrains Mono", monospace;
+  --wordmark: var(--font-wordmark), serif;
+  --pixel: var(--font-pixel), cursive;
+  --body: var(--font-body), sans-serif;
+  --mono: var(--font-mono), monospace;
   --smoke: #161210;
   --smoke-2: #1d1713;
   --oak: #2a1d14;
