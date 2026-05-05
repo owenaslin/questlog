@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void>;
   children: React.ReactNode;
   disabled?: boolean;
 }
-
-const THRESHOLD = 80;
-const MAX_PULL = 120;
 
 export default function PullToRefresh({
   onRefresh,

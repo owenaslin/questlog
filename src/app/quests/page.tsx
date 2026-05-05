@@ -2,14 +2,14 @@
 
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
-import QuestCard from "@/components/QuestCard";
-import QuestCardSkeleton from "@/components/QuestCardSkeleton";
-import SmartSuggestions from "@/components/SmartSuggestions";
-import DesktopRightRail from "@/components/DesktopRightRail";
-import PullToRefresh from "@/components/PullToRefresh";
-import QuestForge from "@/components/QuestForge";
-import AmbientScene from "@/components/AmbientScene";
-import { useViewMode } from "@/components/ViewModeProvider";
+import QuestCard from "@/components/quest/QuestCard";
+import QuestCardSkeleton from "@/components/ui/QuestCardSkeleton";
+import SmartSuggestions from "@/components/quest/SmartSuggestions";
+import DesktopRightRail from "@/components/layout/DesktopRightRail";
+import PullToRefresh from "@/components/ui/PullToRefresh";
+import QuestForge from "@/components/quest/QuestForge";
+import AmbientScene from "@/components/ui/AmbientScene";
+import { useViewMode } from "@/components/ui/ViewModeProvider";
 import { ALL_QUESTS, getMainQuests, getSideQuests } from "@/lib/quests";
 import { Quest, QuestSource } from "@/lib/types";
 import {

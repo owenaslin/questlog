@@ -7,7 +7,7 @@ import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { getUserDashboardSnapshot } from "@/lib/quest-progress";
 import { getOwnHeroProfile } from "@/lib/hero";
-import { useViewMode } from "@/components/ViewModeProvider";
+import { useViewMode } from "@/components/ui/ViewModeProvider";
 
 const navLinks = [
   { href: "/", label: "Tonight" },

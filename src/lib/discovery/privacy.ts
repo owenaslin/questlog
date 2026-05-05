@@ -145,7 +145,6 @@ interface BuildLocationContextParams {
   coords?: GeoCoordinates;
   city?: string;
   privacyLevel: PrivacyLevel;
-  userId: string;
 }
 
 /**
@@ -154,7 +153,7 @@ interface BuildLocationContextParams {
 export async function buildLocationContext(
   params: BuildLocationContextParams
 ): Promise<LocationContext> {
-  const { coords, city, privacyLevel, userId } = params;
+  const { coords, city, privacyLevel } = params;
   
   // If city-only privacy, discard coordinates entirely
   if (privacyLevel === 'city-only') {

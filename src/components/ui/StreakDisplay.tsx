@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import LivingFlame from "./LivingFlame";
+import LivingFlame from "@/components/ui/LivingFlame";
 
 interface StreakDisplayProps {
   currentStreak: number;

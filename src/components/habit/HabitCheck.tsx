@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useSpring, animated, config } from "@react-spring/web";
+import { useSpring, animated } from "@react-spring/web";
 
 interface HabitCheckProps {
   checked: boolean;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ParticleLayer from "./ParticleLayer";
+import ParticleLayer from "@/components/ui/ParticleLayer";
 
 type WeatherCondition = "clear" | "rain" | "snow" | "mist";
 

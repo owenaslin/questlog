@@ -9,7 +9,6 @@
 import { kv } from '@vercel/kv';
 import type { 
   CacheTier, 
-  RegionalCacheKey, 
   ProviderPlace, 
   NarrativeQuest,
   DiscoveryIntent 

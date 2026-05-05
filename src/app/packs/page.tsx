@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import QuestCard from "@/components/QuestCard";
+import QuestCard from "@/components/quest/QuestCard";
 import { drawQuestsByMood, ENERGY_OPTIONS, QUEST_PACKS, QuestVibe, TIME_OPTIONS } from "@/lib/quest-packs";
 import { getUserSettings } from "@/lib/settings";
 

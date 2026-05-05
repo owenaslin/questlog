@@ -4,14 +4,14 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import HeroPortrait from "@/components/HeroPortrait";
-import { BadgeShowcase } from "@/components/BadgeGrid";
-import XPBar from "@/components/XPBar";
-import DesktopRightRail from "@/components/DesktopRightRail";
-import AmbientScene from "@/components/AmbientScene";
-import { useViewMode } from "@/components/ViewModeProvider";
+import HeroPortrait from "@/components/ui/HeroPortrait";
+import { BadgeShowcase } from "@/components/badge/BadgeGrid";
+import XPBar from "@/components/ui/XPBar";
+import DesktopRightRail from "@/components/layout/DesktopRightRail";
+import AmbientScene from "@/components/ui/AmbientScene";
+import { useViewMode } from "@/components/ui/ViewModeProvider";
 import { BADGES } from "@/lib/badges";
-import { AVATAR_PORTRAITS, AvatarKey, HeroProfile, PinnedQuest, deriveTitle } from "@/lib/types";
+import { HeroProfile, PinnedQuest, deriveTitle } from "@/lib/types";
 import {
   getHeroByHandle,
   getHeroDashboard,
@@ -119,7 +119,6 @@ export default function HeroPageClient() {
 
   if (!hero) return null;
 
-  const portrait = AVATAR_PORTRAITS[hero.avatar_sprite as AvatarKey] ?? AVATAR_PORTRAITS.wizard;
   const displayTitle = hero.title ?? deriveTitle(null, hero.level);
 
   return (

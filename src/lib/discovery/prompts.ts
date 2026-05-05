@@ -9,7 +9,6 @@
 
 import type { 
   ProviderPlace, 
-  NarrativeQuest, 
   LocationContext,
   ChainOfThoughtPrompt,
 } from './types';

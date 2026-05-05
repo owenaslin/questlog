@@ -3,8 +3,7 @@
 import React from "react";
 import { Badge } from "@/lib/types";
 import { getRequirementHint } from "@/lib/badge-utils";
-import BadgeIcon from "./BadgeIcon";
-import { BadgeRarityBadge } from "./BadgeIcon";
+import BadgeIcon, { BadgeRarityBadge } from "@/components/ui/BadgeIcon";
 
 interface BadgeCardProps {
   badge: Badge;

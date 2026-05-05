@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import ParticleLayer from "./ParticleLayer";
+import ParticleLayer from "@/components/ui/ParticleLayer";
 
 export type SceneType =
   | "common-room"

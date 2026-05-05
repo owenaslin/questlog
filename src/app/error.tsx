@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import PixelButton from "@/components/PixelButton";
+import PixelButton from "@/components/ui/PixelButton";
 
 interface ErrorBoundaryProps {
   error: Error & { digest?: string };

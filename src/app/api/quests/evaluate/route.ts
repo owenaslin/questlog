@@ -14,8 +14,8 @@ const XP_CAPS = {
   main: { min: 100, max: 8000 },
 } as const;
 
-const RATE_LIMIT_WINDOW_MS  = 60;
-const RATE_LIMIT_MAX_REQ    = 12;
+const RATE_LIMIT_WINDOW_SECONDS  = 60;
+const RATE_LIMIT_MAX_REQ         = 12;
 const RATE_LIMIT_ALERT_THRESHOLD = 8;
 
 function logSecurityEvent(
@@ -78,7 +78,7 @@ async function checkRateLimit(
   key: string
 ): Promise<{ isLimited: boolean; recentCount: number }> {
   const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW_MS * 1000;
+  const windowStart = now - RATE_LIMIT_WINDOW_SECONDS * 1000;
   try {
     const timestamps = await kv.lrange<number>(key, 0, -1);
     const recent = timestamps.filter((ts) => ts > windowStart);
@@ -89,7 +89,7 @@ async function checkRateLimit(
       };
     }
     await kv.lpush(key, now);
-    await kv.expire(key, RATE_LIMIT_WINDOW_MS);
+    await kv.expire(key, RATE_LIMIT_WINDOW_SECONDS);
     return {
       isLimited: false,
       recentCount: recent.length,
@@ -205,7 +205,7 @@ export async function POST(req: NextRequest) {
         userId,
         recentCount: rateLimitState.recentCount,
         limit: RATE_LIMIT_MAX_REQ,
-        windowSeconds: RATE_LIMIT_WINDOW_MS,
+        windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
       });
     }
 
@@ -214,7 +214,7 @@ export async function POST(req: NextRequest) {
         userId,
         recentCount: rateLimitState.recentCount,
         limit: RATE_LIMIT_MAX_REQ,
-        windowSeconds: RATE_LIMIT_WINDOW_MS,
+        windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
       });
       throw new AppError("The Quest Giver needs a moment to recover. Please wait and try again.", 429);
     }

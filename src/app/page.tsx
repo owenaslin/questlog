@@ -18,15 +18,15 @@ import {
   type DailyAdventureStats,
   type DailyAdventureLoadout,
 } from "@/lib/daily-adventure";
-import { getDailyQuests, ALL_QUESTS, getRandomQuests } from "@/lib/quests";
+import { getDailyQuests, getRandomQuests } from "@/lib/quests";
 import type { Quest } from "@/lib/types";
-import XPBar from "@/components/XPBar";
-import StreakDisplay from "@/components/StreakDisplay";
-const DailyHabitsWidget = lazy(() => import("@/components/DailyHabitsWidget"));
-import ActiveQuestPanel from "@/components/ActiveQuestPanel";
-import QuestPickerPanel from "@/components/QuestPickerPanel";
+import XPBar from "@/components/ui/XPBar";
+import StreakDisplay from "@/components/ui/StreakDisplay";
+const DailyHabitsWidget = lazy(() => import("@/components/habit/DailyHabitsWidget"));
+import ActiveQuestPanel from "@/components/quest/ActiveQuestPanel";
+import QuestPickerPanel from "@/components/quest/QuestPickerPanel";
 
-const OnboardingModal = lazy(() => import("@/components/OnboardingModal"));
+const OnboardingModal = lazy(() => import("@/components/modals/OnboardingModal"));
 
 export default function HomePage() {
   const [heroName,       setHeroName]       = useState<string | null>(null);

@@ -4,14 +4,13 @@ import React from "react";
 import Link from "next/link";
 import { Questline } from "@/lib/types";
 import { getCategoryByKey } from "@/lib/quests";
-import PixelButton from "./PixelButton";
+import PixelButton from "@/components/ui/PixelButton";
 
 interface QuestlineCardProps {
   questline: Questline;
-  onStart?: () => void;
 }
 
-export default function QuestlineCard({ questline, onStart }: QuestlineCardProps) {
+export default function QuestlineCard({ questline }: QuestlineCardProps) {
   const category = getCategoryByKey(questline.category);
   const completedSteps = questline.progress?.completed_steps || 0;
   const totalSteps = questline.steps?.length || 0;

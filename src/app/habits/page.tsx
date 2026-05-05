@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSpring, animated, useTrail, config } from "@react-spring/web";
 import { HabitWithStatus } from "@/lib/types";
 import { getUserHabits, toggleHabitActive, updateHabitOrder } from "@/lib/habits";
-import HabitCard from "@/components/HabitCard";
+import HabitCard from "@/components/habit/HabitCard";
 import { getSupabaseClient } from "@/lib/supabase";
 
 function HabitCardWithReorder({

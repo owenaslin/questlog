@@ -17,11 +17,9 @@ import type {
   DiscoveryResponse, 
   NarrativeQuest,
   DiscoveryIntent,
-  DiscoveryState,
 } from '@/lib/discovery/types';
 
 interface DiscoveryForgeProps {
-  userLocation?: { city?: string; coords?: { lat: number; lng: number } };
   onQuestAccepted?: (quest: NarrativeQuest) => void;
   onQuestDismissed?: () => void;
 }
@@ -45,7 +43,6 @@ const LOADING_STAGES = [
 ];
 
 export default function DiscoveryForge({ 
-  userLocation, 
   onQuestAccepted, 
   onQuestDismissed 
 }: DiscoveryForgeProps) {
@@ -139,13 +136,6 @@ export default function DiscoveryForge({
     if (onQuestDismissed) {
       onQuestDismissed();
     }
-  };
-
-  const handleReset = () => {
-    setDiscoveredQuest(null);
-    setSelectedIntent(null);
-    setTheme('');
-    setError(null);
   };
 
   // Loading State

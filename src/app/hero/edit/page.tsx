@@ -3,10 +3,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import HeroPortrait, { PortraitPicker } from "@/components/HeroPortrait";
-import XPBar from "@/components/XPBar";
-import DesktopRightRail from "@/components/DesktopRightRail";
-import { useViewMode } from "@/components/ViewModeProvider";
+import HeroPortrait, { PortraitPicker } from "@/components/ui/HeroPortrait";
+import XPBar from "@/components/ui/XPBar";
+import DesktopRightRail from "@/components/layout/DesktopRightRail";
+import { useViewMode } from "@/components/ui/ViewModeProvider";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { AvatarKey, HeroProfile, PinnedQuest, deriveTitle } from "@/lib/types";

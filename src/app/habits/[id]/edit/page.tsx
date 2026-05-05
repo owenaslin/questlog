@@ -6,7 +6,7 @@ import Link from "next/link";
 import { HabitRecurrenceType, HabitRecurrenceData } from "@/lib/types";
 import { getHabitById, updateHabit, deleteHabit } from "@/lib/habits";
 import { validateRecurrenceData } from "@/lib/habit-recurrence";
-import RecurrencePicker from "@/components/RecurrencePicker";
+import RecurrencePicker from "@/components/habit/RecurrencePicker";
 import { getSupabaseClient } from "@/lib/supabase";
 
 const ICON_OPTIONS = [

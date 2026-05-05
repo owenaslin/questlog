@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { QuestRecommendation, getSmartRecommendations, getLowEnergySuggestion } from "@/lib/quest-recommendations";
 import { Quest } from "@/lib/types";
-import QuestCard from "./QuestCard";
+import QuestCard from "@/components/quest/QuestCard";
 
 interface SmartSuggestionsProps {
   showLowEnergy?: boolean;

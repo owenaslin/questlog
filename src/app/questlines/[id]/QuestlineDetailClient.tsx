@@ -4,9 +4,8 @@ import React, { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import { Questline, QuestlineStep } from "@/lib/types";
 import { getCategoryByKey } from "@/lib/quests";
-import QuestlineProgress from "@/components/QuestlineProgress";
-import PixelButton from "@/components/PixelButton";
-import BadgeIcon from "@/components/BadgeIcon";
+import QuestlineProgress from "@/components/quest/QuestlineProgress";
+import BadgeIcon from "@/components/ui/BadgeIcon";
 import { getQuestlineProgressMap, getUserQuestProgressMap } from "@/lib/quest-progress";
 import { getErrorMessage } from "@/lib/errors";
 

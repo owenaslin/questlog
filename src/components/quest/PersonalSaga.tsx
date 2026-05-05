@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useSpring, animated } from "@react-spring/web";
-import type { PersonalSaga } from "@/lib/saga-generator";
+import type { PersonalSaga, SagaChapter } from "@/lib/saga-generator";
 import { getSagaArchetype } from "@/lib/saga-generator";
 
 interface PersonalSagaProps {
@@ -10,7 +10,7 @@ interface PersonalSagaProps {
   heroName: string;
 }
 
-function ChapterItem({ chapter, index }: { chapter: any; index: number }) {
+function ChapterItem({ chapter, index }: { chapter: SagaChapter; index: number }) {
   const spring = useSpring({
     opacity: 1,
     x: 0,

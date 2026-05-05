@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import XPBar from "@/components/XPBar";
-import StreakDisplay from "@/components/StreakDisplay";
-import WeeklyRecap from "@/components/WeeklyRecap";
-import DesktopRightRail from "@/components/DesktopRightRail";
-import RoutinesSection from "@/components/RoutinesSection";
-import PersonalSaga from "@/components/PersonalSaga";
+import XPBar from "@/components/ui/XPBar";
+import StreakDisplay from "@/components/ui/StreakDisplay";
+import WeeklyRecap from "@/components/quest/WeeklyRecap";
+import DesktopRightRail from "@/components/layout/DesktopRightRail";
+import RoutinesSection from "@/components/habit/RoutinesSection";
+import PersonalSaga from "@/components/quest/PersonalSaga";
 import { generatePersonalSaga } from "@/lib/saga-generator";
-import AmbientScene from "@/components/AmbientScene";
-import { useViewMode } from "@/components/ViewModeProvider";
+import AmbientScene from "@/components/ui/AmbientScene";
+import { useViewMode } from "@/components/ui/ViewModeProvider";
 import { ALL_QUESTS } from "@/lib/quests";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { useRequireAuth } from "@/lib/auth-hooks";
@@ -26,7 +26,7 @@ import {
   WeeklyRecap as WeeklyRecapType,
 } from "@/lib/quest-progress";
 import { Quest } from "@/lib/types";
-import { BadgeShowcase } from "@/components/BadgeGrid";
+import { BadgeShowcase } from "@/components/badge/BadgeGrid";
 import { BADGES } from "@/lib/badges";
 
 export default function JournalPage() {

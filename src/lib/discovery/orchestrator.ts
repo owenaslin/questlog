@@ -17,8 +17,6 @@ import type {
 import { 
   getRegionalPlaces, 
   setRegionalPlaces,
-  getTemporalEvents,
-  setTemporalEvents,
   recordCacheHit,
 } from './cache';
 
@@ -88,11 +86,6 @@ interface DiscoveryProvider {
   search(params: ProviderSearchParams): Promise<ProviderResult>;
   name: ProviderSource;
 }
-
-// Placeholder imports - these will be implemented in separate files
-let mockProvider: DiscoveryProvider;
-let googlePlacesProvider: DiscoveryProvider;
-let openStreetMapProvider: DiscoveryProvider;
 
 // Provider registry
 const providerRegistry: Map<ProviderSource, DiscoveryProvider> = new Map();
@@ -297,17 +290,10 @@ function deduplicatePlaces(places: ProviderPlace[]): ProviderPlace[] {
 }
 
 function generatePlaceKey(place: ProviderPlace): string {
-  // Normalize address for better deduping
-  const normalizedAddress = place.address
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .replace(/(street|st|avenue|ave|road|rd|drive|dr|boulevard|blvd)\b/gi, '')
-    .trim();
-  
   // Round coordinates to ~100m precision for fuzzy matching
   const roundedLat = Math.round(place.coordinates.lat * 1000) / 1000;
   const roundedLng = Math.round(place.coordinates.lng * 1000) / 1000;
-  
+
   return `${place.name.toLowerCase().trim()}_${roundedLat}_${roundedLng}`;
 }
 
