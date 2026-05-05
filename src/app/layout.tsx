@@ -1,6 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Cinzel, JetBrains_Mono, Press_Start_2P } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/layout/Navbar";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import ViewModeProvider from "@/components/ui/ViewModeProvider";
+import WeatherLayer from "@/components/layout/WeatherLayer";
+import ThemeModeSync from "@/components/ui/ThemeModeSync";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import InstallPrompt from "@/components/InstallPrompt";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,15 +37,6 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
   display: "optional",
 });
-import Navbar from "@/components/layout/Navbar";
-import MobileBottomNav from "@/components/layout/MobileBottomNav";
-import ViewModeProvider from "@/components/ui/ViewModeProvider";
-import WeatherLayer from "@/components/layout/WeatherLayer";
-import ThemeModeSync from "@/components/ui/ThemeModeSync";
-import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
-import InstallPrompt from "@/components/InstallPrompt";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "tavrn — The Adventurer's Tavern",
