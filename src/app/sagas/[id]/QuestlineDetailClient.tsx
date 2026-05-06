@@ -96,7 +96,7 @@ export default function QuestlineDetailClient({ questline }: QuestlineDetailClie
     <div className="max-w-4xl mx-auto">
       {/* Back Button */}
       <Link
-        href="/questlines"
+        href="/sagas"
         className="font-pixel text-retro-lightgray text-[8px] hover:text-retro-white mb-4 inline-block"
       >
         ← Back to Questlines
@@ -203,7 +203,7 @@ export default function QuestlineDetailClient({ questline }: QuestlineDetailClie
           onStepClick={(step) => {
             // Navigate to quest detail
             if (step.quest) {
-              window.location.href = `/quests/${step.quest_id}`;
+              window.location.href = `/board/${step.quest_id}`;
             }
           }}
         />

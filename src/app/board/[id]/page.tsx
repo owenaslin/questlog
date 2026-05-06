@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { ALL_QUESTS } from "@/lib/quests";
 import { Quest } from "@/lib/types";
 import { getSupabaseServerClient } from "@/lib/supabase";
-import QuestDetailClient from "@/app/quests/[id]/QuestDetailClient";
+import QuestDetailClient from "@/app/board/[id]/QuestDetailClient";
 
 export const dynamicParams = true;
 

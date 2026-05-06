@@ -1,1 +1,5 @@
-export { default } from "@/app/quests/new/page";
+import { redirect } from "next/navigation";
+
+export default function BoardNewPage() {
+  redirect("/board");
+}

@@ -106,7 +106,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       if (!result.success) {
         setStatus(previousStatus);
         if (result.error?.toLowerCase().includes("log in")) {
-          router.push(buildAuthUrl("login", pathname || `/quests/${quest.id}`));
+          router.push(buildAuthUrl("login", pathname || `/board/${quest.id}`));
         }
         setActionError(result.error || "Could not accept quest.");
       }
@@ -171,7 +171,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       if (!result.success) {
         setStatus(previousStatus);
         if (result.error?.toLowerCase().includes("log in")) {
-          router.push(buildAuthUrl("login", pathname || `/quests/${quest.id}`));
+          router.push(buildAuthUrl("login", pathname || `/board/${quest.id}`));
         }
         setActionError(result.error || "Could not complete quest.");
         return;

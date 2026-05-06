@@ -76,7 +76,7 @@ export {
 } from './prompts';
 
 // Providers
-export { mockDiscoveryProvider, mockEventProvider } from './providers/mock';
+export { mockDiscoveryProvider } from './providers/mock';
 export { 
   openStreetMapProvider,
   buildOverpassQuery,
