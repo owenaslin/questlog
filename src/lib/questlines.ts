@@ -1,5 +1,5 @@
 import { Questline, QuestlineStep, Quest, Badge } from "@/lib/types";
-import { generateStableId } from "@/lib/seed-quests";
+import { generateStableId } from "@/lib/stable-id";
 import { FITNESS_QUESTS_WITH_IDS } from "./quests/fitness";
 import { CREATIVE_QUESTS_WITH_IDS } from "./quests/creative";
 import { TECH_QUESTS_WITH_IDS } from "./quests/tech";

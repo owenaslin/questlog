@@ -1,5 +1,5 @@
 import { Badge } from "@/lib/types";
-import { generateStableId } from "@/lib/seed-quests";
+import { generateStableId } from "@/lib/stable-id";
 
 // Badge definitions with requirements
 export const BADGE_DEFINITIONS: Omit<Badge, "id" | "earned_at">[] = [
