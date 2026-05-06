@@ -296,38 +296,3 @@ export const mockDiscoveryProvider: DiscoveryProvider = {
     };
   },
 };
-
-// Additional mock providers for different data types
-export const mockEventProvider: DiscoveryProvider = {
-  name: 'mock' as ProviderSource,
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async search(_params: ProviderSearchParams): Promise<ProviderResult> {
-    const startTime = Date.now();
-    await new Promise(resolve => setTimeout(resolve, 30 + Math.random() * 100));
-    
-    // Return "event" places
-    const events: ProviderPlace[] = [
-      {
-        id: 'mock_event_001',
-        source: 'mock' as ProviderSource,
-        name: 'Local Art Walk',
-        description: 'Monthly art walk featuring local galleries and artists.',
-        address: 'Downtown Arts District',
-        coordinates: { lat: 45.52, lng: -122.68 },
-        rating: 4.5,
-        categories: ['event', 'art', 'social'],
-        tags: ['art', 'social', 'free', 'evening'],
-        is_open_now: false,
-        distance_km: 1.0,
-      },
-    ];
-    
-    return {
-      places: events,
-      source: 'mock' as ProviderSource,
-      latency_ms: Date.now() - startTime,
-      cached: false,
-    };
-  },
-};

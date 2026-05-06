@@ -356,4 +356,3 @@ export async function expandSearchRadius(
 // Placeholder: Providers are registered at runtime
 // registerProvider('google_places', googlePlacesProvider);
 // registerProvider('openstreetmap', openStreetMapProvider);
-// registerProvider('mock', mockDiscoveryProvider);
