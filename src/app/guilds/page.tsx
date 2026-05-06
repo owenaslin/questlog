@@ -5,7 +5,7 @@ import { CATEGORIES, getCategoryByKey, ALL_QUESTS } from "@/lib/quests";
 import { Category } from "@/lib/types";
 import QuestCard from "@/components/quest/QuestCard";
 
-export default function CategoriesPage() {
+export default function GuildsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 

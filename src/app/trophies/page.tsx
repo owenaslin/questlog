@@ -5,8 +5,9 @@ import BadgeGrid from "@/components/badge/BadgeGrid";
 import { BADGES, getBadgesByRarity } from "@/lib/badges";
 import { Badge, BadgeRarity } from "@/lib/types";
 import { getUserEarnedBadgeIds } from "@/lib/quest-progress";
+import { getRequirementHint } from "@/lib/badge-utils";
 
-export default function BadgesPage() {
+export default function TrophiesPage() {
   const [filter, setFilter] = useState<BadgeRarity | "all">("all");
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [earnedBadgeIds, setEarnedBadgeIds] = useState<string[]>([]);
@@ -34,23 +35,17 @@ export default function BadgesPage() {
 
   const rarityCounts = useMemo(() => {
     const earnedIdSet = new Set(earnedBadgeIds);
+    const byRarity = {
+      common: getBadgesByRarity("common"),
+      rare: getBadgesByRarity("rare"),
+      epic: getBadgesByRarity("epic"),
+      legendary: getBadgesByRarity("legendary"),
+    } as const;
     return {
-      common: {
-        total: getBadgesByRarity("common").length,
-        earned: getBadgesByRarity("common").filter((b) => earnedIdSet.has(b.id)).length,
-      },
-      rare: {
-        total: getBadgesByRarity("rare").length,
-        earned: getBadgesByRarity("rare").filter((b) => earnedIdSet.has(b.id)).length,
-      },
-      epic: {
-        total: getBadgesByRarity("epic").length,
-        earned: getBadgesByRarity("epic").filter((b) => earnedIdSet.has(b.id)).length,
-      },
-      legendary: {
-        total: getBadgesByRarity("legendary").length,
-        earned: getBadgesByRarity("legendary").filter((b) => earnedIdSet.has(b.id)).length,
-      },
+      common: { total: byRarity.common.length, earned: byRarity.common.filter((b) => earnedIdSet.has(b.id)).length },
+      rare: { total: byRarity.rare.length, earned: byRarity.rare.filter((b) => earnedIdSet.has(b.id)).length },
+      epic: { total: byRarity.epic.length, earned: byRarity.epic.filter((b) => earnedIdSet.has(b.id)).length },
+      legendary: { total: byRarity.legendary.length, earned: byRarity.legendary.filter((b) => earnedIdSet.has(b.id)).length },
     };
   }, [earnedBadgeIds]);
 
@@ -227,7 +222,7 @@ export default function BadgesPage() {
                 Requirement
               </span>
               <p className="font-pixel text-retro-cyan text-[9px]">
-                {getRequirementText(selectedBadge)}
+                {getRequirementHint(selectedBadge)}
               </p>
             </div>
 
@@ -244,21 +239,3 @@ export default function BadgesPage() {
   );
 }
 
-function getRequirementText(badge: Badge): string {
-  switch (badge.requirement_type) {
-    case "total_quests":
-      return `Complete ${badge.requirement_value} quests`;
-    case "category_count":
-      return `Complete ${badge.requirement_value} ${badge.requirement_category || ""} quests`;
-    case "main_quests":
-      return `Complete ${badge.requirement_value} main quest${badge.requirement_value > 1 ? "s" : ""}`;
-    case "questlines_completed":
-      return `Complete ${badge.requirement_value} questline${badge.requirement_value > 1 ? "s" : ""}`;
-    case "level_reached":
-      return `Reach Level ${badge.requirement_value}`;
-    case "unique_categories":
-      return `Complete quests in ${badge.requirement_value} different categories`;
-    default:
-      return "Complete special requirements";
-  }
-}
