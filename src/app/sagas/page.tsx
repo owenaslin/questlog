@@ -21,10 +21,10 @@ export default function QuestlinesPage() {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="tavrn-wordmark text-4xl leading-none mb-2">
-          🗺️ Questlines
+          🗺️ Sagas
         </h1>
         <p className="font-pixel text-retro-lightgray text-[10px] max-w-2xl mx-auto leading-loose">
-          Embark on epic journeys! Complete linear questlines step by step, or choose your path through skill trees.
+          Embark on epic journeys! Complete linear sagas step by step, or choose your path through skill trees.
         </p>
       </div>
 

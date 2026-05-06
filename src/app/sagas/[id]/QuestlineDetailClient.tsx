@@ -99,7 +99,7 @@ export default function QuestlineDetailClient({ questline }: QuestlineDetailClie
         href="/sagas"
         className="font-pixel text-retro-lightgray text-[8px] hover:text-retro-white mb-4 inline-block"
       >
-        ← Back to Questlines
+        ← Back to Sagas
       </Link>
 
       {/* Header */}

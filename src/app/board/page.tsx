@@ -274,13 +274,13 @@ export default function QuestsPage() {
             href="/guilds"
             className="font-pixel text-[9px] px-4 py-2 bg-retro-darkgray text-retro-lightgray border-b-4 border-retro-black hover:bg-retro-gray transition-none"
           >
-            🗂️ Categories
+            🗂️ Guilds
           </Link>
           <Link
             href="/sagas"
             className="font-pixel text-[9px] px-4 py-2 bg-retro-darkgray text-retro-lightgray border-b-4 border-retro-black hover:bg-retro-gray transition-none"
           >
-            🗺️ Questlines
+            🗺️ Sagas
           </Link>
         </div>
       </div>
