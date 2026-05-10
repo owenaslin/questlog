@@ -272,22 +272,20 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
               </p>
               <div className="flex flex-col gap-2">
                 {acceptedQuestId && (
-                  <Link href={`/board/${acceptedQuestId}`} onClick={onDismiss}>
-                    <button
-                      type="button"
-                      className="w-full tavrn-btn tavrn-btn-primary tavrn-btn-lg"
-                    >
-                      View Quest →
-                    </button>
+                  <Link
+                    href={`/board/${acceptedQuestId}`}
+                    onClick={onDismiss}
+                    className="tavrn-btn tavrn-btn-primary tavrn-btn-lg w-full"
+                  >
+                    View Quest →
                   </Link>
                 )}
-                <Link href="/journal" onClick={onDismiss}>
-                  <button
-                    type="button"
-                    className="w-full tavrn-btn tavrn-btn-ghost"
-                  >
-                    📜 Open My Journal
-                  </button>
+                <Link
+                  href="/journal"
+                  onClick={onDismiss}
+                  className="tavrn-btn tavrn-btn-ghost w-full"
+                >
+                  📜 Open My Journal
                 </Link>
               </div>
             </div>

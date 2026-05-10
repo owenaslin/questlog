@@ -21,7 +21,7 @@ export default function StreakDisplay({
       container: "px-2 py-1 gap-1",
       icon: "text-sm",
       number: "text-sm",
-      label: "text-body-sm",
+      label: "text-[10px] [font-family:var(--body)]",
     },
     md: {
       container: "px-3 py-2 gap-2",

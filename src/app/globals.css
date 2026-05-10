@@ -86,6 +86,8 @@ body {
   min-height: 100vh;
 }
 
+/* Pixel font for headings by default. Override with .text-heading / .text-subhead
+   (class specificity > element selector, so those classes always win). */
 h1,
 h2,
 h3,
@@ -179,69 +181,73 @@ h6 {
   box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.85);
 }
 
-/* ── Typography scale (Inter body font) ──────────────────────────────── */
-.text-body    { font-family: var(--body); font-size: 14px; line-height: 1.55; }
-.text-body-sm { font-family: var(--body); font-size: 12.5px; line-height: 1.5; }
-.text-body-lg { font-family: var(--body); font-size: 16px; line-height: 1.6; }
-.text-heading { font-family: var(--body); font-size: 16px; font-weight: 600; color: var(--parchment); }
-.text-subhead { font-family: var(--body); font-size: 14px; font-weight: 500; color: var(--parchment); }
+@layer components {
+  /* ── Typography scale (Inter body font) ─────────────────────────────── */
+  .text-body    { font-family: var(--body); font-size: 14px; line-height: 1.55; }
+  .text-body-sm { font-family: var(--body); font-size: 12.5px; line-height: 1.5; }
+  .text-body-lg { font-family: var(--body); font-size: 16px; line-height: 1.6; }
+  .text-heading { font-family: var(--body); font-size: 16px; font-weight: 600; color: var(--parchment); }
+  .text-subhead { font-family: var(--body); font-size: 14px; font-weight: 500; color: var(--parchment); }
 
-/* Section kicker label — Inter version of .tavrn-kicker */
-.kicker {
-  font-family: var(--body);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--parchment-dim);
-}
+  /* Section kicker label — Inter version of .tavrn-kicker */
+  .kicker {
+    font-family: var(--body);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--parchment-dim);
+  }
 
-/* ── Badge system ─────────────────────────────────────────────────────── */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 3px 8px;
-  border-radius: 2px;
-  font-family: var(--body);
-  font-size: 11.5px;
-  font-weight: 500;
-  line-height: 1;
-}
-.badge-gold   { background: rgba(232,184,100,0.12); color: var(--gold);        border: 1px solid rgba(232,184,100,0.22); }
-.badge-ember  { background: rgba(196,74,54,0.14);   color: #ef8b78;            border: 1px solid rgba(196,74,54,0.25); }
-.badge-lime   { background: rgba(167,240,112,0.10); color: #a7f070;            border: 1px solid rgba(167,240,112,0.22); }
-.badge-muted  { background: rgba(255,255,255,0.06); color: var(--parchment-dim); border: 1px solid rgba(255,255,255,0.09); }
-.badge-blue   { background: rgba(59,93,201,0.16);   color: #82a8f4;            border: 1px solid rgba(59,93,201,0.28); }
-.badge-purple { background: rgba(139,42,139,0.18);  color: #d08ef4;            border: 1px solid rgba(139,42,139,0.3); }
+  /* ── Badge system ───────────────────────────────────────────────────── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    font-family: var(--body);
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .badge-gold   { background: rgba(232,184,100,0.12); color: var(--gold);          border: 1px solid rgba(232,184,100,0.22); }
+  .badge-ember  { background: rgba(196,74,54,0.14);   color: #ef8b78;              border: 1px solid rgba(196,74,54,0.25); }
+  .badge-lime   { background: rgba(167,240,112,0.10); color: #a7f070;              border: 1px solid rgba(167,240,112,0.22); }
+  .badge-muted  { background: rgba(255,255,255,0.06); color: var(--parchment-dim); border: 1px solid rgba(255,255,255,0.09); }
+  .badge-blue   { background: rgba(59,93,201,0.16);   color: #82a8f4;              border: 1px solid rgba(59,93,201,0.28); }
+  .badge-purple { background: rgba(139,42,139,0.18);  color: #d08ef4;              border: 1px solid rgba(139,42,139,0.3); }
 
-/* ── Button system (replaces .tavrn-button) ──────────────────────────── */
-.tavrn-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 9px 16px;
-  font-family: var(--body);
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 2px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.12s;
-  text-decoration: none;
-  white-space: nowrap;
-  min-height: 40px;
+  /* ── Button system (replaces .tavrn-button) ─────────────────────────── */
+  .tavrn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 16px;
+    font-family: var(--body);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.12s;
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 40px;
+  }
+  .tavrn-btn:active { transform: translateY(1px); }
+  .tavrn-btn-primary       { background: var(--gold); color: #1a0e04; border-color: var(--gold-dark); }
+  .tavrn-btn-primary:hover { background: #f0c878; border-color: var(--gold); }
+  .tavrn-btn-ghost         { background: rgba(255,255,255,0.06); color: var(--parchment); border-color: rgba(255,255,255,0.10); }
+  .tavrn-btn-ghost:hover   { background: rgba(255,255,255,0.10); border-color: rgba(232,184,100,0.25); }
+  .tavrn-btn-danger        { background: rgba(196,74,54,0.15); color: #ef8b78; border-color: rgba(196,74,54,0.3); }
+  .tavrn-btn-danger:hover  { background: rgba(196,74,54,0.25); border-color: rgba(196,74,54,0.5); }
+  .tavrn-btn-mystic        { background: rgba(139,42,139,0.20); color: #d08ef4; border-color: rgba(139,42,139,0.4); }
+  .tavrn-btn-mystic:hover  { background: rgba(139,42,139,0.32); border-color: rgba(139,42,139,0.6); }
+  .tavrn-btn-sm { padding: 6px 12px; font-size: 12px; min-height: 34px; }
+  .tavrn-btn-lg { padding: 12px 22px; font-size: 15px; min-height: 48px; }
 }
-.tavrn-btn:active { transform: translateY(1px); }
-.tavrn-btn-primary { background: var(--gold); color: #1a0e04; border-color: var(--gold-dark); }
-.tavrn-btn-primary:hover { background: #f0c878; }
-.tavrn-btn-ghost   { background: rgba(255,255,255,0.06); color: var(--parchment); border-color: rgba(255,255,255,0.10); }
-.tavrn-btn-ghost:hover { background: rgba(255,255,255,0.10); border-color: rgba(232,184,100,0.25); }
-.tavrn-btn-danger  { background: rgba(196,74,54,0.15); color: #ef8b78; border-color: rgba(196,74,54,0.3); }
-.tavrn-btn-danger:hover { background: rgba(196,74,54,0.25); }
-.tavrn-btn-sm { padding: 6px 12px; font-size: 12px; min-height: 34px; }
-.tavrn-btn-lg { padding: 12px 22px; font-size: 15px; min-height: 48px; }
 
 /* Blinking cursor for text */
 .pixel-cursor::after {

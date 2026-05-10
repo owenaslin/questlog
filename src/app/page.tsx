@@ -300,7 +300,7 @@ export default function HomePage() {
             <p className="text-body-sm text-tavern-parchment leading-relaxed mb-3">
               Ask for a quest shaped to your current mood, location, and goals.
             </p>
-            <Link href="/generate" className="tavrn-btn tavrn-btn-primary w-full justify-center" style={{ background: "#8b2a8b", borderColor: "#6a1f6a" }}>
+            <Link href="/generate" className="tavrn-btn tavrn-btn-mystic w-full justify-center">
               Ask The Giver
             </Link>
           </div>
@@ -337,7 +337,7 @@ export default function HomePage() {
                 showLongest={false}
               />
             )}
-            <Link href="/generate" className="tavrn-btn tavrn-btn-sm" style={{ background: "#8b2a8b", color: "white", borderColor: "#6a1f6a" }}>
+            <Link href="/generate" className="tavrn-btn tavrn-btn-mystic tavrn-btn-sm">
               ⚡ Quest Giver
             </Link>
           </div>
@@ -476,7 +476,7 @@ export default function HomePage() {
                   <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
                     📋 Browse Board
                   </Link>
-                  <Link href="/discover" className="tavrn-btn tavrn-btn-sm" style={{ background: "#3a1a3a", color: "white", borderColor: "#6a1f6a" }}>
+                  <Link href="/discover" className="tavrn-btn tavrn-btn-mystic tavrn-btn-sm">
                     ⚡ Discover
                   </Link>
                   <Link href="/packs" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
