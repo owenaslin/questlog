@@ -135,11 +135,11 @@ export default function JournalPage() {
     return (
       <div className="max-w-2xl mx-auto tavrn-panel p-4 md:p-6">
         <div className="tavern-card p-6 text-center">
-          <p className="font-pixel text-tavern-ember text-[9px] mb-4">{authError}</p>
+          <p className="text-body-sm text-tavern-ember mb-4">{authError}</p>
           <button
             type="button"
             onClick={() => router.replace(buildAuthUrl("login", pathname || "/journal"))}
-            className="font-pixel text-[8px] px-4 py-2 bg-retro-blue text-retro-white"
+            className="tavrn-btn tavrn-btn-ghost"
           >
             Go to Login
           </button>
@@ -159,7 +159,7 @@ export default function JournalPage() {
         <Image src="/tavern/scroll.svg" alt="" width={28} height={24} />
         <div>
           <h1 className="tavrn-wordmark text-3xl leading-none">My Questline</h1>
-          <p className="font-pixel text-tavern-smoke-light text-[7px] mt-0.5">
+          <p className="text-body-sm text-[--parchment-dim] mt-0.5">
             {heroName}&apos;s adventure log
           </p>
         </div>
@@ -172,8 +172,8 @@ export default function JournalPage() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-3 mb-2">
-            <span className="font-pixel text-tavern-gold text-[10px]">Level {level}</span>
-            <span className="font-pixel text-tavern-parchment text-[7px] opacity-70">
+            <span className="text-body-sm font-semibold text-tavern-gold">Level {level}</span>
+            <span className="text-body-sm text-[--parchment-dim] opacity-70">
               {xpTotal} XP total
             </span>
           </div>
@@ -189,7 +189,7 @@ export default function JournalPage() {
         <div className="tavern-card p-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-base">🔥</span>
-            <h2 className="font-pixel text-tavern-gold text-[9px]">Streak</h2>
+            <h2 className="text-body-sm font-semibold text-tavern-gold">Streak</h2>
           </div>
           {streak ? (
             <StreakDisplay
@@ -199,7 +199,7 @@ export default function JournalPage() {
               showLongest
             />
           ) : (
-            <p className="font-pixel text-tavern-smoke-light text-[8px]">
+            <p className="text-body-sm text-[--parchment-dim]">
               Complete a quest to start your streak!
             </p>
           )}
@@ -217,15 +217,13 @@ export default function JournalPage() {
       {/* ── Active Quests — journal entries ───────────────────────── */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-pixel text-tavern-gold text-[11px] flex items-center gap-2">
+          <h2 className="text-heading text-tavern-gold flex items-center gap-2">
             ▶ Active Quests
             {activeQuests.length > 0 && (
-              <span className="font-pixel text-tavern-ember text-[7px] px-2 py-0.5 border border-tavern-ember">
-                {activeQuests.length}
-              </span>
+              <span className="badge badge-ember">{activeQuests.length}</span>
             )}
           </h2>
-          <Link href="/board" className="font-pixel text-tavern-gold text-[7px] hover:text-tavern-candle">
+          <Link href="/board" className="text-body-sm text-tavern-gold hover:text-tavern-candle">
             + Find more →
           </Link>
         </div>
@@ -241,11 +239,11 @@ export default function JournalPage() {
           </div>
         ) : activeQuests.length === 0 ? (
           <div className="parchment-card p-5 text-center">
-            <p className="font-pixel text-tavern-parchment text-[8px] leading-loose mb-3">
+            <p className="text-body text-tavern-parchment leading-relaxed mb-3">
               No active quests. The board awaits, adventurer.
             </p>
             <Link href="/board">
-              <span className="font-pixel text-tavern-gold text-[8px] hover:text-tavern-candle underline">
+              <span className="text-body-sm text-tavern-gold hover:text-tavern-candle underline">
                 ⚔ Browse The Board →
               </span>
             </Link>
@@ -268,13 +266,13 @@ export default function JournalPage() {
                     >
                       {quest.type === "main" ? "⚔" : "🗡"}
                     </span>
-                    <span className="font-pixel text-tavern-parchment text-[9px] leading-snug truncate">
+                    <span className="text-body-sm font-medium text-tavern-parchment leading-snug truncate">
                       {quest.title}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="font-pixel text-tavern-gold text-[7px]">+{quest.xp_reward} XP</span>
-                    <span className="font-pixel text-tavern-smoke-light text-[7px]">{quest.duration_label}</span>
+                    <span className="text-body-sm text-tavern-gold">+{quest.xp_reward} XP</span>
+                    <span className="text-body-sm text-[--parchment-dim]">{quest.duration_label}</span>
                   </div>
                 </div>
                 <Link
@@ -306,7 +304,7 @@ export default function JournalPage() {
           </div>
         ) : completedQuests.length === 0 ? (
           <div className="parchment-card p-4 text-center">
-            <p className="font-pixel text-tavern-parchment text-[8px]">
+            <p className="text-body text-tavern-parchment">
               Your tale is yet unwritten. Complete your first quest.
             </p>
           </div>
@@ -324,7 +322,7 @@ export default function JournalPage() {
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="text-tavern-gold font-pixel text-[10px]">✓</span>
-                  <span className="font-pixel text-tavern-parchment text-[8px] truncate">
+                  <span className="text-body text-tavern-parchment truncate">
                     {quest.title}
                   </span>
                 </div>
@@ -336,7 +334,7 @@ export default function JournalPage() {
                   >
                     {quest.type === "main" ? "Main" : "Side"}
                   </span>
-                  <span className="font-pixel text-tavern-gold text-[7px]">+{quest.xp_reward} XP</span>
+                  <span className="text-body-sm text-tavern-gold">+{quest.xp_reward} XP</span>
                 </div>
               </div>
             ))}
@@ -362,22 +360,22 @@ export default function JournalPage() {
         ].map(({ value, label, color }) => (
           <div key={label} className="tavern-card p-3 text-center">
             <div className={`font-pixel text-lg ${color}`}>{value}</div>
-            <div className="font-pixel text-tavern-smoke-light text-[7px] mt-1">{label}</div>
+            <div className="text-body-sm text-[--parchment-dim] mt-1">{label}</div>
           </div>
         ))}
       </div>
 
       {/* ── Footer nav ────────────────────────────────────────────── */}
       <div className="flex justify-center gap-4 pb-4">
-        <Link href="/board" className="font-pixel text-tavern-gold text-[8px] hover:text-tavern-candle">
+        <Link href="/board" className="text-body-sm text-tavern-gold hover:text-tavern-candle">
           ⚔ The Board
         </Link>
-        <span className="font-pixel text-tavern-smoke-light text-[8px]">·</span>
-        <Link href="/trophies" className="font-pixel text-tavern-gold text-[8px] hover:text-tavern-candle">
+        <span className="text-body-sm text-[--parchment-dim]">·</span>
+        <Link href="/trophies" className="text-body-sm text-tavern-gold hover:text-tavern-candle">
           🏅 Trophies
         </Link>
-        <span className="font-pixel text-tavern-smoke-light text-[8px]">·</span>
-        <Link href="/sagas" className="font-pixel text-tavern-gold text-[8px] hover:text-tavern-candle">
+        <span className="text-body-sm text-[--parchment-dim]">·</span>
+        <Link href="/sagas" className="text-body-sm text-tavern-gold hover:text-tavern-candle">
           📜 Questlines
         </Link>
       </div>
@@ -385,15 +383,15 @@ export default function JournalPage() {
 
       <DesktopRightRail title="Journal Desk">
         <div className="bg-retro-black border-2 border-retro-darkgray p-3">
-          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Snapshot</p>
-          <p className="font-pixel text-tavern-gold text-[7px] mb-1">Level: {level}</p>
+          <p className="kicker mb-2">Snapshot</p>
+          <p className="text-body-sm text-tavern-gold mb-1">Level: {level}</p>
           <p className="font-pixel text-retro-lime text-[7px] mb-1">XP: {xpTotal}</p>
           <p className="font-pixel text-retro-cyan text-[7px]">Active: {activeQuests.length}</p>
         </div>
         <div className="bg-retro-black border-2 border-retro-darkgray p-3">
-          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Quick Paths</p>
+          <p className="kicker mb-2">Quick Paths</p>
           <div className="flex flex-col gap-2">
-            <Link href="/board" className="font-pixel text-[7px] text-tavern-gold hover:text-tavern-candle">⚔ Open Board</Link>
+            <Link href="/board" className="text-body-sm text-tavern-gold hover:text-tavern-candle">⚔ Open Board</Link>
             <Link href="/hero/edit" className="font-pixel text-[7px] text-retro-lightblue hover:text-retro-white">🧙 Edit Hero</Link>
             <Link href="/trophies" className="font-pixel text-[7px] text-retro-lime hover:text-retro-white">🏅 View Trophies</Link>
           </div>

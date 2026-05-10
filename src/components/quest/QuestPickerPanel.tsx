@@ -63,12 +63,12 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
   return (
     <div className="tavern-card p-4 md:p-5">
       <div className="mb-4">
-        <p className="font-pixel text-tavern-gold text-[8px] mb-1">⚔ Choose Your Next Adventure</p>
-        <p className="text-[12px] text-[#cdb68f]">Pick a quest to begin. You can always browse more on the board.</p>
+        <p className="kicker text-tavern-gold mb-1">⚔ Choose Your Next Adventure</p>
+        <p className="text-body-sm text-[--parchment-dim]">Pick a quest to begin. You can always browse more on the board.</p>
       </div>
 
       {error && (
-        <div className="mb-3 p-2 border border-retro-red bg-retro-black/40 font-pixel text-retro-red text-[8px]">
+        <div className="mb-3 p-2 border border-retro-red bg-retro-black/40 text-body-sm text-retro-red">
           {error}
         </div>
       )}
@@ -76,23 +76,23 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
       {/* Abandon conflict modal */}
       {conflictQuest && pendingAccept && (
         <div className="mb-4 p-3 border-2 border-tavern-ember bg-black/60">
-          <p className="font-pixel text-[8px] text-tavern-parchment leading-relaxed mb-3">
-            You&apos;re already on <span className="text-tavern-gold">{conflictQuest.title}</span>. Abandon it and start <span className="text-tavern-gold">{pendingAccept.title}</span> instead?
+          <p className="text-body-sm text-tavern-parchment leading-relaxed mb-3">
+            You&apos;re already on <span className="text-tavern-gold font-semibold">{conflictQuest.title}</span>. Abandon it and start <span className="text-tavern-gold font-semibold">{pendingAccept.title}</span> instead?
           </p>
-          <p className="text-[10px] text-[#bda780] mb-3">Abandoning will not erase any XP you&apos;ve already earned.</p>
+          <p className="text-body-sm text-[--parchment-dim] mb-3">Abandoning will not erase any XP you&apos;ve already earned.</p>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={handleAbandonAndAccept}
               disabled={!!acceptingId}
-              className="tavrn-button !bg-tavern-ember !text-white text-[8px]"
+              className="tavrn-btn tavrn-btn-danger tavrn-btn-sm"
             >
               Abandon &amp; Switch
             </button>
             <button
               type="button"
               onClick={() => { setConflictQuest(null); setPendingAccept(null); }}
-              className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px]"
+              className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
             >
               Keep Current
             </button>
@@ -111,19 +111,19 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
             <div key={quest.id} className="border border-tavern-oak/60 bg-black/20 p-3 flex items-start gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-pixel text-[7px] text-tavern-gold">
+                  <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
                     {quest.type === "main" ? "⚔ Main" : "🗡 Side"}
                   </span>
-                  <span className="font-pixel text-[7px] text-retro-lime">+{quest.xp_reward} XP</span>
+                  <span className="badge badge-lime">+{quest.xp_reward} XP</span>
                 </div>
-                <p className="font-pixel text-[9px] text-tavern-parchment leading-relaxed mb-1">{quest.title}</p>
-                <p className="text-[11px] text-[#bda780] leading-snug">{blurb}</p>
+                <p className="text-body-sm font-medium text-tavern-parchment leading-snug mb-1">{quest.title}</p>
+                <p className="text-body-sm text-[--parchment-dim] leading-snug">{blurb}</p>
               </div>
               <button
                 type="button"
                 onClick={() => handleAccept(quest)}
                 disabled={!!acceptingId}
-                className="tavrn-button flex-shrink-0 !text-[8px] !py-1.5 !px-3 disabled:opacity-50"
+                className="tavrn-btn tavrn-btn-primary tavrn-btn-sm flex-shrink-0 disabled:opacity-50"
               >
                 {isAccepting ? "…" : "Accept"}
               </button>
@@ -133,8 +133,8 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
       </div>
 
       <div className="mt-4 pt-3 border-t border-tavern-oak/30 flex items-center justify-between">
-        <span className="text-[11px] text-[#7a6a50]">Not feeling these?</span>
-        <Link href="/board" className="text-[11px] text-tavern-gold hover:text-tavern-candle underline">
+        <span className="text-body-sm text-[--parchment-dim]">Not feeling these?</span>
+        <Link href="/board" className="text-body-sm text-tavern-gold hover:text-tavern-candle underline">
           Browse the board →
         </Link>
       </div>

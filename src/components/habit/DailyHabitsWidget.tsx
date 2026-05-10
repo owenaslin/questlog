@@ -107,7 +107,7 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
           </p>
           <Link
             href="/habits/new"
-            className="tavrn-button text-[9px] inline-block"
+            className="tavrn-btn tavrn-btn-primary tavrn-btn-sm inline-flex"
           >
             Create Your First Habit
           </Link>
@@ -222,7 +222,7 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
         )}
         <Link
           href="/habits"
-          className="tavrn-button text-[8px] !py-1.5 !px-2.5"
+          className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
         >
           Manage
         </Link>

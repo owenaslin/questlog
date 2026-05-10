@@ -69,7 +69,7 @@ function QuickAcceptButton({
   if (showConflict) {
     const conflictContent = (
       <div onClick={(e) => e.preventDefault()}>
-        <p className="font-pixel text-[7px] text-tavern-ember mb-2 leading-snug">
+        <p className="text-body-sm text-tavern-ember mb-2 leading-snug">
           Abandon your current main quest and start this one?
         </p>
         <div className="flex gap-1">
@@ -77,14 +77,14 @@ function QuickAcceptButton({
             type="button"
             onClick={handleAbandonAndAccept}
             disabled={loading}
-            className="font-pixel text-[7px] px-2 py-1 bg-tavern-ember text-white disabled:opacity-50"
+            className="tavrn-btn tavrn-btn-danger tavrn-btn-sm disabled:opacity-50"
           >
             Abandon &amp; Accept
           </button>
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowConflict(false); }}
-            className="font-pixel text-[7px] px-2 py-1 bg-tavern-oak text-tavern-parchment"
+            className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
           >
             Cancel
           </button>
@@ -101,7 +101,7 @@ function QuickAcceptButton({
     );
   }
 
-  const btnClass = `font-pixel text-[7px] px-2 py-1 border transition-none disabled:opacity-50 ${
+  const btnClass = `text-body-sm px-2 py-1 border transition-none disabled:opacity-50 rounded ${
     isMainBlocked
       ? "border-tavern-oak/50 text-tavern-parchment-dim cursor-not-allowed bg-black/40"
       : "border-tavern-gold bg-black/80 text-tavern-gold hover:bg-tavern-gold hover:text-black"
@@ -255,10 +255,10 @@ export default function QuestsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-pixel text-retro-yellow text-xl mb-2">
+          <h1 className="tavrn-wordmark text-4xl leading-none mb-2">
             ⚔ Quest Board
           </h1>
-          <p className="font-pixel text-retro-lightgray text-[9px]">
+          <p className="text-body-sm text-[--parchment-dim]">
             {MAIN_QUEST_COUNT} Main Quests • {SIDE_QUEST_COUNT} Side Quests • {allQuests.length} Total
           </p>
         </div>
@@ -266,20 +266,14 @@ export default function QuestsPage() {
           <button
             type="button"
             onClick={() => setForgeOpen(true)}
-            className="font-pixel text-[9px] px-4 py-2 bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle transition-none"
+            className="tavrn-btn tavrn-btn-primary"
           >
             🔨 Forge a Quest
           </button>
-          <Link
-            href="/guilds"
-            className="font-pixel text-[9px] px-4 py-2 bg-retro-darkgray text-retro-lightgray border-b-4 border-retro-black hover:bg-retro-gray transition-none"
-          >
+          <Link href="/guilds" className="tavrn-btn tavrn-btn-ghost">
             🗂️ Guilds
           </Link>
-          <Link
-            href="/sagas"
-            className="font-pixel text-[9px] px-4 py-2 bg-retro-darkgray text-retro-lightgray border-b-4 border-retro-black hover:bg-retro-gray transition-none"
-          >
+          <Link href="/sagas" className="tavrn-btn tavrn-btn-ghost">
             🗺️ Sagas
           </Link>
         </div>
@@ -288,11 +282,11 @@ export default function QuestsPage() {
       {/* Today / Next Action */}
       <div className="mb-8 tavern-card p-4 md:p-5">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="tavrn-kicker text-sm">▶ Today</h2>
+          <h2 className="kicker">▶ Today</h2>
           {!isAuthenticated && (
             <Link
               href={buildAuthUrl("login", "/board")}
-              className="font-pixel text-retro-lightblue text-[8px] hover:text-retro-white"
+              className="text-body-sm text-retro-lightblue hover:text-retro-white"
             >
               Login to save progress
             </Link>
@@ -300,16 +294,16 @@ export default function QuestsPage() {
         </div>
 
         {isLoadingProgress ? (
-          <p className="font-pixel text-retro-lightgray text-[8px]">Loading your progress...</p>
+          <p className="text-body-sm text-[--parchment-dim]">Loading your progress...</p>
         ) : todayPrimaryQuest ? (
           <>
             <div className="bg-retro-black border-2 border-retro-darkpurple p-3 mb-4">
-              <p className="font-pixel text-retro-gray text-[7px] mb-2 uppercase">Next Best Quest</p>
+              <p className="kicker mb-2">Next Best Quest</p>
               <Link href={`/board/${todayPrimaryQuest.id}`} className="block">
-                <p className="font-pixel text-retro-yellow text-[10px] leading-relaxed mb-1">
+                <p className="text-body-sm font-semibold text-retro-yellow leading-snug mb-1">
                   {todayPrimaryQuest.title}
                 </p>
-                <p className="font-pixel text-retro-lightgray text-[7px]">
+                <p className="text-body-sm text-[--parchment-dim]">
                   {todayPrimaryQuest.status === "active"
                     ? "Continue your active quest"
                     : "Quick win available now"}
@@ -319,7 +313,7 @@ export default function QuestsPage() {
 
             {todayQuickQuests.length > 0 && (
               <div>
-                <p className="font-pixel text-retro-gray text-[7px] mb-2 uppercase">Quick Side Quests</p>
+                <p className="kicker mb-2">Quick Side Quests</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   {todayQuickQuests.map((quest) => (
                     <Link
@@ -327,7 +321,7 @@ export default function QuestsPage() {
                       href={`/board/${quest.id}`}
                       className="bg-retro-black border-2 border-retro-darkgray p-2 hover:border-retro-lightblue"
                     >
-                      <p className="font-pixel text-retro-lightgray text-[8px] leading-relaxed line-clamp-2">
+                      <p className="text-body-sm text-[--parchment-dim] leading-relaxed line-clamp-2">
                         {quest.title}
                       </p>
                     </Link>
@@ -337,7 +331,7 @@ export default function QuestsPage() {
             )}
           </>
         ) : (
-          <p className="font-pixel text-retro-lightgray text-[8px]">
+          <p className="text-body-sm text-[--parchment-dim]">
             No quests in progress yet. Pick one below to start your adventure.
           </p>
         )}
@@ -358,7 +352,7 @@ export default function QuestsPage() {
             role="tab"
             aria-selected={activeTab === tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`font-pixel text-[9px] px-4 py-2 transition-none ${
+            className={`text-body-sm font-medium px-4 py-2 transition-none ${
               activeTab === tab.key
                 ? "bg-retro-darkpurple text-retro-yellow border-b-4 border-retro-yellow"
                 : "bg-retro-darkgray text-retro-lightgray hover:bg-retro-gray border-b-4 border-retro-black"
@@ -372,14 +366,14 @@ export default function QuestsPage() {
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
         <div>
-          <label htmlFor="filter-difficulty" className="font-pixel text-retro-lightgray text-[8px] block mb-2">
+          <label htmlFor="filter-difficulty" className="text-body-sm font-medium text-[--parchment-dim] block mb-2">
             Difficulty
           </label>
           <select
             id="filter-difficulty"
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(Number(e.target.value))}
-            className="font-pixel text-[9px]"
+            className="text-body-sm"
           >
             <option value={0}>All</option>
             <option value={1}>★ Easy</option>
@@ -391,7 +385,7 @@ export default function QuestsPage() {
         </div>
 
         <div>
-          <label htmlFor="filter-source" className="font-pixel text-retro-lightgray text-[8px] block mb-2">
+          <label htmlFor="filter-source" className="text-body-sm font-medium text-[--parchment-dim] block mb-2">
             Source
           </label>
           <select
@@ -400,7 +394,7 @@ export default function QuestsPage() {
             onChange={(e) =>
               setSourceFilter(e.target.value as QuestSource | "all")
             }
-            className="font-pixel text-[9px]"
+            className="text-body-sm"
           >
             <option value="all">All Sources</option>
             <option value="predefined">★ Curated</option>
@@ -411,14 +405,14 @@ export default function QuestsPage() {
 
         {isAuthenticated && (
           <div>
-            <label htmlFor="filter-status" className="font-pixel text-retro-lightgray text-[8px] block mb-2">
+            <label htmlFor="filter-status" className="text-body-sm font-medium text-[--parchment-dim] block mb-2">
               Status
             </label>
             <select
               id="filter-status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-              className="font-pixel text-[9px]"
+              className="text-body-sm"
             >
               <option value="all">All Status</option>
               <option value="available">● Available</option>
@@ -429,7 +423,7 @@ export default function QuestsPage() {
         )}
 
         <div className="flex items-end">
-          <span className="font-pixel text-retro-cyan text-[8px]">
+          <span className="text-body-sm text-retro-cyan">
             {filteredQuests.length} quest
             {filteredQuests.length !== 1 ? "s" : ""} found
           </span>
@@ -445,7 +439,7 @@ export default function QuestsPage() {
           ) : filteredQuests.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-[minmax(280px,360px)_minmax(0,1fr)] gap-4">
               <section className="tavern-card p-3 h-[68vh] overflow-y-auto">
-                <h3 className="font-pixel text-tavern-gold text-[8px] uppercase mb-3 tracking-wider">
+                <h3 className="kicker text-tavern-gold mb-3">
                   Quest List
                 </h3>
                 <div className="flex flex-col gap-2">
@@ -462,14 +456,14 @@ export default function QuestsPage() {
                             : "border-tavern-oak bg-retro-darkgray hover:border-tavern-parchment"
                         }`}
                       >
-                        <p className="font-pixel text-[8px] text-tavern-gold mb-1 line-clamp-1">{quest.title}</p>
-                        <p className="font-pixel text-[7px] text-retro-lightgray line-clamp-1">{quest.category}</p>
-                        <p className="font-pixel text-[7px] text-retro-cyan mt-1">+{quest.xp_reward} XP</p>
+                        <p className="text-body-sm font-semibold text-tavern-gold mb-1 line-clamp-1">{quest.title}</p>
+                        <p className="text-body-sm text-[--parchment-dim] line-clamp-1">{quest.category}</p>
+                        <p className="text-body-sm text-retro-cyan mt-1">+{quest.xp_reward} XP</p>
 
                         <div className="pointer-events-none absolute left-full top-1/2 z-20 hidden w-64 -translate-y-1/2 ml-3 group-hover:block">
                           <div className="parchment-card p-3">
-                            <p className="font-pixel text-[8px] text-tavern-gold mb-2 line-clamp-2">{quest.title}</p>
-                            <p className="font-pixel text-[7px] text-tavern-parchment leading-loose line-clamp-3 mb-2">
+                            <p className="text-body-sm font-semibold text-tavern-gold mb-2 line-clamp-2">{quest.title}</p>
+                            <p className="text-body-sm text-tavern-parchment leading-relaxed line-clamp-3 mb-2">
                               {quest.description}
                             </p>
                             <p className="font-pixel text-[7px] text-retro-cyan">{quest.duration_label}</p>
@@ -487,32 +481,32 @@ export default function QuestsPage() {
                     <div className="flex items-start justify-between gap-3 mb-4">
                       <div>
                         <h3 className="font-pixel text-tavern-gold text-sm leading-relaxed mb-2">{selectedQuest.title}</h3>
-                        <p className="font-pixel text-tavern-smoke-light text-[7px] uppercase tracking-wider">
+                        <p className="kicker">
                           {selectedQuest.type === "main" ? "⚔ Main Quest" : "🗡 Side Quest"} • {selectedQuest.category}
                         </p>
                       </div>
-                      <span className="font-pixel text-retro-lime text-[9px]">+{selectedQuest.xp_reward} XP</span>
+                      <span className="badge badge-lime">+{selectedQuest.xp_reward} XP</span>
                     </div>
 
-                    <p className="font-pixel text-retro-lightgray text-[8px] leading-loose mb-4">
+                    <p className="text-body text-[--parchment-dim] leading-relaxed mb-4">
                       {selectedQuest.description}
                     </p>
 
                     <div className="grid grid-cols-2 gap-3 mb-5">
                       <div className="bg-retro-black border-2 border-retro-darkgray p-2">
-                        <p className="font-pixel text-retro-gray text-[7px] uppercase mb-1">Difficulty</p>
-                        <p className="font-pixel text-retro-yellow text-[8px]">{"★".repeat(selectedQuest.difficulty)}</p>
+                        <p className="kicker mb-1">Difficulty</p>
+                        <p className="text-body-sm text-retro-yellow">{"★".repeat(selectedQuest.difficulty)}</p>
                       </div>
                       <div className="bg-retro-black border-2 border-retro-darkgray p-2">
-                        <p className="font-pixel text-retro-gray text-[7px] uppercase mb-1">Duration</p>
-                        <p className="font-pixel text-retro-cyan text-[8px]">{selectedQuest.duration_label}</p>
+                        <p className="kicker mb-1">Duration</p>
+                        <p className="text-body-sm text-retro-cyan">{selectedQuest.duration_label}</p>
                       </div>
                     </div>
 
                     <div className="flex gap-2 flex-wrap">
                       <Link
                         href={`/board/${selectedQuest.id}`}
-                        className="font-pixel text-[8px] px-4 py-2 bg-retro-blue text-retro-white border-b-4 border-retro-darkblue hover:bg-retro-lightblue"
+                        className="tavrn-btn tavrn-btn-ghost"
                       >
                         Open Details
                       </Link>
@@ -527,14 +521,14 @@ export default function QuestsPage() {
                     </div>
                   </>
                 ) : (
-                  <p className="font-pixel text-retro-lightgray text-[8px]">Select a quest to inspect it.</p>
+                  <p className="text-body-sm text-[--parchment-dim]">Select a quest to inspect it.</p>
                 )}
               </section>
             </div>
           ) : (
             <div className="text-center py-16 xl:pr-4">
               <div className="text-4xl mb-4">🏜</div>
-              <p className="font-pixel text-retro-lightgray text-xs">No quests match your filters.</p>
+              <p className="text-body-sm text-[--parchment-dim]">No quests match your filters.</p>
               <p className="font-pixel text-retro-gray text-[8px] mt-2">Try adjusting your search criteria.</p>
             </div>
           )}
@@ -545,20 +539,20 @@ export default function QuestsPage() {
                 href={`/board/${todayPrimaryQuest.id}`}
                 className="bg-retro-black border-2 border-retro-darkpurple p-3 hover:border-tavern-gold"
               >
-                <p className="font-pixel text-retro-gray text-[7px] uppercase mb-1">Next Best Quest</p>
-                <p className="font-pixel text-retro-yellow text-[8px] leading-relaxed line-clamp-2">
+                <p className="kicker mb-1">Next Best Quest</p>
+                <p className="text-body-sm font-medium text-retro-yellow leading-snug line-clamp-2">
                   {todayPrimaryQuest.title}
                 </p>
               </Link>
             ) : (
-              <p className="font-pixel text-retro-lightgray text-[7px]">Pick a quest to begin your session.</p>
+              <p className="text-body-sm text-[--parchment-dim]">Pick a quest to begin your session.</p>
             )}
 
             <div className="bg-retro-black border-2 border-retro-darkgray p-3">
-              <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Quick Stats</p>
-              <p className="font-pixel text-retro-cyan text-[7px] mb-1">Active: {activeQuests.length}</p>
-              <p className="font-pixel text-retro-lime text-[7px] mb-1">Available Side: {availableSideQuests.length}</p>
-              <p className="font-pixel text-retro-lightblue text-[7px]">Filtered: {filteredQuests.length}</p>
+              <p className="kicker mb-2">Quick Stats</p>
+              <p className="text-body-sm text-retro-cyan mb-1">Active: {activeQuests.length}</p>
+              <p className="text-body-sm text-retro-lime mb-1">Available Side: {availableSideQuests.length}</p>
+              <p className="text-body-sm text-retro-lightblue">Filtered: {filteredQuests.length}</p>
             </div>
 
             {isAuthenticated && (
@@ -592,7 +586,7 @@ export default function QuestsPage() {
         ) : (
           <div className="text-center py-16">
             <div className="text-4xl mb-4">🏜</div>
-            <p className="font-pixel text-retro-lightgray text-xs">
+            <p className="text-body-sm text-[--parchment-dim]">
               No quests match your filters.
             </p>
             <p className="font-pixel text-retro-gray text-[8px] mt-2">

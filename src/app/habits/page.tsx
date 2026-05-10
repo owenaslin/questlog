@@ -152,9 +152,9 @@ export default function HabitsPage() {
   if (isAuthenticated === false) {
     return (
       <div className="tavrn-panel p-8 text-center">
-        <p className="font-pixel text-tavern-gold text-[10px] mb-3">📋 Habits</p>
-        <p className="text-tavern-parchment mb-4">Sign in to track your daily habits and build streaks.</p>
-        <Link href="/login" className="tavrn-button inline-block">Sign In</Link>
+        <p className="text-body-sm font-semibold text-tavern-gold mb-3">📋 Habits</p>
+        <p className="text-body text-tavern-parchment mb-4">Sign in to track your daily habits and build streaks.</p>
+        <Link href="/login" className="tavrn-btn tavrn-btn-primary inline-flex">Sign In</Link>
       </div>
     );
   }
@@ -183,11 +183,11 @@ export default function HabitsPage() {
         </div>
         <div className="text-center py-16">
           <div className="text-5xl mb-4">⚡</div>
-          <p className="font-pixel text-tavern-gold text-[10px] mb-2">No habits yet</p>
-          <p className="text-[13px] text-tavern-parchment-dim mb-6 max-w-sm mx-auto">
+          <p className="text-body-sm font-semibold text-tavern-gold mb-2">No habits yet</p>
+          <p className="text-body text-[--parchment-dim] mb-6 max-w-sm mx-auto">
             Small daily actions compound into big results. Create your first habit to start building streaks and earning XP.
           </p>
-          <Link href="/habits/new" className="tavrn-button inline-block">
+          <Link href="/habits/new" className="tavrn-btn tavrn-btn-primary inline-flex">
             + Create Your First Habit
           </Link>
         </div>
@@ -203,17 +203,17 @@ export default function HabitsPage() {
           <h1 className="tavrn-wordmark text-4xl leading-none mb-2">Your Habits</h1>
           <p className="text-sm text-tavern-parchment-dim">Build consistency, one day at a time</p>
         </div>
-        <Link href="/habits/new" className="tavrn-button text-center">+ New Habit</Link>
+        <Link href="/habits/new" className="tavrn-btn tavrn-btn-primary">+ New Habit</Link>
       </div>
 
       {/* ── Due Today (primary section) ── */}
       {dueToday.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <p className="font-pixel text-tavern-gold text-[9px] uppercase tracking-wide">
+            <p className="kicker text-tavern-gold">
               Due Today
             </p>
-            <span className="text-[11px] text-tavern-parchment-dim">
+            <span className="text-body-sm text-[--parchment-dim]">
               {completedToday.length}/{dueToday.length + completedToday.length} done
             </span>
           </div>
@@ -239,7 +239,7 @@ export default function HabitsPage() {
       {/* ── Completed Today ── */}
       {completedToday.length > 0 && (
         <div className="mb-6">
-          <p className="font-pixel text-retro-lime text-[9px] uppercase tracking-wide mb-3">
+          <p className="kicker text-retro-lime mb-3">
             ✓ Completed Today ({completedToday.length})
           </p>
           <div className="space-y-3 opacity-70">
@@ -253,7 +253,7 @@ export default function HabitsPage() {
       {/* ── All habits with filter tabs (below the daily section) ── */}
       <div className="border-t border-tavern-oak/30 pt-5">
         <div className="flex items-center justify-between mb-4">
-          <p className="font-pixel text-[9px] text-tavern-parchment-dim uppercase">All Habits</p>
+          <p className="kicker">All Habits</p>
           <div className="flex items-center gap-2">
             <div className="flex gap-1">
               {(["active", "paused", "all"] as const).map((f) => (
@@ -262,7 +262,7 @@ export default function HabitsPage() {
                   type="button"
                   onClick={() => setFilter(f)}
                   className={`
-                    px-3 py-1.5 rounded font-pixel text-[9px] transition-all
+                    px-3 py-1.5 rounded text-body-sm font-medium transition-all
                     ${filter === f
                       ? "bg-tavern-gold text-tavern-smoke"
                       : "bg-tavern-oak/50 text-tavern-parchment-dim hover:bg-tavern-oak"
@@ -280,7 +280,7 @@ export default function HabitsPage() {
                 type="button"
                 onClick={() => setIsReorderMode(!isReorderMode)}
                 className={`
-                  text-[9px] px-3 py-1.5 rounded transition-all
+                  text-body-sm px-3 py-1.5 rounded transition-all
                   ${isReorderMode
                     ? "bg-tavern-gold text-tavern-smoke"
                     : "text-tavern-parchment-dim hover:text-tavern-parchment"
@@ -304,7 +304,7 @@ export default function HabitsPage() {
               }
             </p>
             {filter === "active" && (
-              <Link href="/habits/new" className="tavrn-button text-[9px] inline-block mt-2">
+              <Link href="/habits/new" className="tavrn-btn tavrn-btn-primary tavrn-btn-sm inline-flex mt-2">
                 Create Habit
               </Link>
             )}
@@ -331,7 +331,7 @@ export default function HabitsPage() {
       {/* Info section */}
       <div className="mt-8 pt-6 border-t border-tavern-oak/30">
         <h2 className="font-pixel text-tavern-gold text-xs mb-3">💡 How Habits Work</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-[11px] text-tavern-parchment-dim">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-body-sm text-[--parchment-dim]">
           <div>
             <p className="text-tavern-parchment mb-1">Daily Check-ins</p>
             <p>Mark habits as complete each day to build streaks. You can check in any time until midnight.</p>

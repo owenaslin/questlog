@@ -75,7 +75,7 @@ export default function HabitCard({
           {habit.title}
         </span>
         {streakCount > 0 && (
-          <span className="ml-auto text-[10px] text-tavern-gold">
+          <span className="ml-auto text-body-sm text-tavern-gold">
             {streakCount}🔥
           </span>
         )}
@@ -106,7 +106,7 @@ export default function HabitCard({
           <p className={`text-sm truncate ${habit.is_completed_today ? "line-through opacity-70" : ""}`}>
             {habit.title}
           </p>
-          <p className="text-[10px] text-tavern-parchment-dim">
+          <p className="text-body-sm text-tavern-parchment-dim">
             {getRecurrenceDescription(habit)} · +{habit.xp_reward} XP
           </p>
         </div>
@@ -177,7 +177,7 @@ export default function HabitCard({
           <div className={`flex items-center gap-1 ${isHotStreak ? "text-tavern-ember" : "text-tavern-gold"}`}>
             <span>🔥</span>
             <span className="font-medium">{streakCount}</span>
-            <span className="text-[10px]">day{streakCount !== 1 ? "s" : ""}</span>
+            <span className="text-body-sm">day{streakCount !== 1 ? "s" : ""}</span>
           </div>
         )}
       </div>
@@ -187,7 +187,7 @@ export default function HabitCard({
         href={`/habits/${habit.id}/edit`}
         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
       >
-        <span className="text-[10px] text-tavern-parchment-dim hover:text-tavern-gold">
+        <span className="text-body-sm text-tavern-parchment-dim hover:text-tavern-gold">
           Edit
         </span>
       </Link>

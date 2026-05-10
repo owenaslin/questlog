@@ -79,12 +79,12 @@ export default function NearbyPage() {
           {!locationLabel && (
             <Link
               href="/settings"
-              className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px]"
+              className="tavrn-btn tavrn-btn-ghost"
             >
               Set Location
             </Link>
           )}
-          <Link href="/" className="tavrn-button text-[8px]">
+          <Link href="/" className="tavrn-btn tavrn-btn-primary">
             Back to Today
           </Link>
         </div>

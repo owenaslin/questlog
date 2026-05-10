@@ -321,7 +321,7 @@ export default function EditHabitPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 tavrn-button disabled:opacity-50"
+            className="tavrn-btn tavrn-btn-primary flex-1 disabled:opacity-50"
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
           </button>

@@ -132,7 +132,7 @@ export default function NewHabitPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
         <div>
-          <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+          <label className="text-body-sm font-medium text-tavern-gold block mb-2">
             Habit Name
           </label>
           <input
@@ -147,7 +147,7 @@ export default function NewHabitPage() {
 
         {/* Description */}
         <div>
-          <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+          <label className="text-body-sm font-medium text-tavern-gold block mb-2">
             Description <span className="text-tavern-parchment-dim">(optional)</span>
           </label>
           <textarea
@@ -165,7 +165,7 @@ export default function NewHabitPage() {
         {/* Icon & Color */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+            <label className="text-body-sm font-medium text-tavern-gold block mb-2">
               Icon
             </label>
             <div className="grid grid-cols-5 gap-2">
@@ -189,7 +189,7 @@ export default function NewHabitPage() {
           </div>
 
           <div>
-            <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+            <label className="text-body-sm font-medium text-tavern-gold block mb-2">
               Color
             </label>
             <div className="grid grid-cols-5 gap-2">
@@ -224,7 +224,7 @@ export default function NewHabitPage() {
 
         {/* XP Tier */}
         <div>
-          <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+          <label className="text-body-sm font-medium text-tavern-gold block mb-2">
             Habit Size
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -239,10 +239,10 @@ export default function NewHabitPage() {
                     : "border-tavern-oak hover:border-tavern-gold/50"
                 }`}
               >
-                <div className="font-pixel text-[10px] text-tavern-gold">
+                <div className="text-body-sm font-semibold text-tavern-gold">
                   {XP_TIERS[tier].label}
                 </div>
-                <div className="font-pixel text-[8px] text-tavern-parchment-dim mt-1">
+                <div className="text-body-sm text-[--parchment-dim] mt-1">
                   {XP_TIERS[tier].xp} XP
                 </div>
                 <div className="text-[9px] text-tavern-parchment-dim/70 mt-0.5">
@@ -255,7 +255,7 @@ export default function NewHabitPage() {
 
         {/* Preview */}
         <div className="p-4 bg-tavern-smoke/50 rounded-lg border border-tavern-oak">
-          <p className="font-pixel text-[8px] text-tavern-parchment-dim mb-2">
+          <p className="text-body-sm text-[--parchment-dim] mb-2">
             Preview
           </p>
           <div className="flex items-center gap-3">
@@ -269,7 +269,7 @@ export default function NewHabitPage() {
               <p className="font-medium">
                 {formData.title || "Your habit name"}
               </p>
-              <p className="text-[10px] text-tavern-parchment-dim">
+              <p className="text-body-sm text-[--parchment-dim]">
                 {formData.recurrence_type} • +{XP_TIERS[formData.xp_tier].xp} XP
               </p>
             </div>
@@ -287,7 +287,7 @@ export default function NewHabitPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 tavrn-button disabled:opacity-50 disabled:cursor-not-allowed"
+            className="tavrn-btn tavrn-btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Creating..." : "Create Habit"}
           </button>

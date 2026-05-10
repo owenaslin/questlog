@@ -23,31 +23,31 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
   return (
     <div className="tavern-card p-4 md:p-5">
       <div className="flex items-center gap-2 mb-3">
-        <span className="font-pixel text-[7px] text-tavern-ember uppercase">
+        <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
           {quest.type === "main" ? "⚔ Main Quest" : "🗡 Side Quest"}
         </span>
-        <span className="font-pixel text-[7px] text-retro-lime ml-auto">+{quest.xp_reward} XP</span>
+        <span className="badge badge-lime ml-auto">+{quest.xp_reward} XP</span>
       </div>
 
-      <h2 className="font-pixel text-[11px] text-tavern-gold leading-relaxed mb-1">
+      <h2 className="text-heading text-tavern-gold leading-snug mb-1">
         {quest.title}
       </h2>
 
       <div className="flex items-center gap-3 mb-3">
-        <span className="font-pixel text-[8px] text-tavern-ember">{difficultyStars}</span>
-        <span className="text-[11px] text-tavern-parchment-dim">{quest.category}</span>
-        <span className="text-[11px] text-tavern-parchment-dim">{quest.duration_label}</span>
+        <span className="text-body-sm text-tavern-ember">{difficultyStars}</span>
+        <span className="text-body-sm text-[--parchment-dim]">{quest.category}</span>
+        <span className="text-body-sm text-[--parchment-dim]">{quest.duration_label}</span>
       </div>
 
       {quest.type === "main" && (
         <div className="mb-3 p-3 border border-tavern-oak/60 bg-black/20">
-          <p className="font-pixel text-[7px] text-tavern-gold mb-2">Today&apos;s Action</p>
+          <p className="kicker text-tavern-gold mb-2">Today&apos;s Action</p>
           {steps.length === 0 ? (
-            <p className="text-[11px] text-tavern-parchment-dark leading-relaxed">Open the quest and choose the smallest next step.</p>
+            <p className="text-body-sm text-[--parchment-dim] leading-relaxed">Open the quest and choose the smallest next step.</p>
           ) : nextStep ? (
-            <p className="text-[12px] text-tavern-parchment leading-relaxed">{nextStep.title}</p>
+            <p className="text-body text-tavern-parchment leading-relaxed">{nextStep.title}</p>
           ) : (
-            <p className="text-[12px] text-retro-lime leading-relaxed">All steps are checked. Finish the quest when you&apos;re ready.</p>
+            <p className="text-body text-retro-lime leading-relaxed">All steps are checked. Finish the quest when you&apos;re ready.</p>
           )}
         </div>
       )}
@@ -55,7 +55,7 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
       {/* Step progress bar */}
       {totalSteps > 0 && (
         <div className="mb-3">
-          <div className="flex justify-between text-[10px] text-tavern-parchment-dim mb-1">
+          <div className="flex justify-between text-body-sm text-[--parchment-dim] mb-1">
             <span>{completedCount}/{totalSteps} steps</span>
             <span>{progressPct}%</span>
           </div>
@@ -89,11 +89,11 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
                         : "border-tavern-oak group-hover:border-tavern-parchment"
                     } ${loading ? "opacity-50" : ""}`}
                   >
-                    {done && <span className="font-pixel text-[7px] text-retro-lime leading-none">✓</span>}
+                    {done && <span className="text-body-sm text-retro-lime leading-none">✓</span>}
                   </div>
                   <span
-                    className={`text-[11px] leading-tight ${
-                      done ? "line-through text-tavern-oak" : "text-tavern-parchment-dark group-hover:text-tavern-parchment"
+                    className={`text-body-sm leading-tight ${
+                      done ? "line-through text-tavern-oak" : "text-tavern-parchment group-hover:text-tavern-parchment"
                     }`}
                   >
                     {step.title}
@@ -103,7 +103,7 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
             );
           })}
           {steps.length > 4 && (
-            <li className="text-[10px] text-tavern-oak">
+            <li className="text-body-sm text-tavern-oak">
               +{steps.length - 4} more — <Link href={`/quests/${quest.id}`} className="underline hover:text-tavern-gold">view all</Link>
             </li>
           )}
@@ -112,7 +112,7 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
 
       <Link
         href={`/quests/${quest.id}`}
-        className="tavrn-button block text-center"
+        className="tavrn-btn tavrn-btn-primary w-full justify-center"
       >
         Continue Quest →
       </Link>

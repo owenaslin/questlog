@@ -85,7 +85,7 @@ export default function RoutinesSection() {
           </div>
           <Link
             href="/habits/new"
-            className="tavrn-button text-[8px] !py-1.5 !px-2.5"
+            className="tavrn-btn tavrn-btn-primary tavrn-btn-sm"
           >
             Add Habit
           </Link>
