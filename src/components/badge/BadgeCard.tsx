@@ -33,7 +33,7 @@ export default function BadgeCard({
     >
       {/* New indicator */}
       {isNew && (
-        <div className="absolute -top-2 -left-2 bg-retro-yellow text-retro-black font-pixel text-[8px] px-2 py-1 border-2 border-retro-black">
+        <div className="absolute -top-2 -left-2 bg-retro-yellow text-retro-black text-body-sm font-bold px-2 py-1 border-2 border-retro-black">
           NEW!
         </div>
       )}
@@ -44,26 +44,26 @@ export default function BadgeCard({
       {/* Badge Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-pixel text-retro-yellow text-xs truncate">
+          <h3 className="text-body-sm font-semibold text-retro-yellow truncate">
             {isLocked ? "Locked Badge" : badge.name}
           </h3>
           {!isLocked && <BadgeRarityBadge rarity={badge.rarity} />}
         </div>
         
-        <p className="font-pixel text-retro-lightgray text-[8px] leading-relaxed line-clamp-2">
+        <p className="text-body-sm text-retro-lightgray leading-relaxed line-clamp-2">
           {isLocked ? "Complete the required challenge to unlock this badge." : badge.description}
         </p>
 
         {/* Requirement hint for locked badges */}
         {isLocked && (
-          <p className="font-pixel text-retro-gray text-[7px] mt-2 italic">
+          <p className="text-body-sm text-retro-gray mt-2 italic">
             Hint: {getRequirementHint(badge)}
           </p>
         )}
 
         {/* Earned date */}
         {!isLocked && badge.earned_at && (
-          <p className="font-pixel text-retro-gray text-[7px] mt-2">
+          <p className="text-body-sm text-retro-gray mt-2">
             Earned {new Date(badge.earned_at).toLocaleDateString()}
           </p>
         )}

@@ -85,10 +85,10 @@ export default function Navbar() {
   };
 
   const linkClasses = (href: string) =>
-    `font-pixel text-[9px] px-3 py-2 uppercase tracking-wider whitespace-nowrap transition-none ${
+    `text-body-sm px-3 py-2 font-medium whitespace-nowrap transition-none relative ${
       isActivePath(href)
-        ? "bg-tavern-oak text-tavern-gold border-b-2 border-tavern-gold nav-active-glow"
-        : "text-tavern-parchment hover:text-tavern-gold hover:bg-tavern-smoke-light"
+        ? "text-tavern-gold nav-active-glow after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-tavern-gold"
+        : "text-[--parchment-dim] hover:text-tavern-parchment hover:bg-white/[0.04]"
     }`;
 
   /* XP bar width (0–100%) based on progress within current level (500 XP/level) */
@@ -134,44 +134,42 @@ export default function Navbar() {
         {/* ── Hero pill (authed) / auth buttons ─── */}
         <div className="hidden md:flex items-center gap-2">
           <div className="flex items-center gap-2 bg-tavern-smoke border-2 border-tavern-oak px-2 py-1">
-            <span className="font-pixel text-[6px] text-tavern-smoke-light uppercase tracking-wider">
-              View
-            </span>
+            <span className="kicker text-[--parchment-dim]">View</span>
             <select
               aria-label="View mode"
               value={viewMode}
               onChange={(e) => setViewMode(e.target.value as "auto" | "desktop" | "compact")}
-              className="font-pixel text-[7px] bg-tavern-smoke text-tavern-parchment border-0 p-0"
+              className="text-body-sm bg-tavern-smoke text-tavern-parchment border-0 p-0"
             >
               <option value="auto">Auto</option>
               <option value="desktop">Desktop</option>
               <option value="compact">Compact</option>
             </select>
-            <span className={`font-pixel text-[6px] ${isDesktopActive ? "text-retro-lime" : "text-retro-lightblue"}`}>
+            <span className={`kicker ${isDesktopActive ? "text-retro-lime" : "text-retro-lightblue"}`}>
               {isDesktopActive ? "DESK" : "COMP"}
             </span>
           </div>
 
           {isLoadingAuth ? (
-            <span className="font-pixel text-tavern-smoke-light text-[8px] px-3 py-2 animate-flicker">...</span>
+            <span className="text-body-sm text-[--parchment-dim] px-3 py-2">...</span>
           ) : isAuthenticated ? (
             <>
               {/* Hero pill */}
               <Link
                 href={heroHandle ? `/hero/${heroHandle}` : "/hero/edit"}
-                className="flex items-center gap-2 bg-tavern-smoke border-2 border-tavern-oak px-3 py-1 hover:border-tavern-gold transition-none"
+                className="flex items-center gap-2.5 bg-tavern-smoke border border-tavern-oak rounded px-3 py-1.5 hover:border-tavern-gold/30 transition-none"
               >
-                <span className="text-base leading-none">🧙</span>
-                <div className="flex flex-col gap-0.5">
+                <span className="text-xl leading-none">🧙</span>
+                <div className="flex flex-col gap-1">
                   {heroLevel !== null && (
-                    <span className="font-pixel text-tavern-gold text-[7px]">
-                      LVL {heroLevel}
+                    <span className="text-body-sm font-semibold text-tavern-gold leading-none">
+                      Lv. {heroLevel}
                     </span>
                   )}
                   {heroXp !== null && (
-                    <div className="w-16 h-1 bg-tavern-smoke-light relative">
+                    <div className="w-16 h-1.5 bg-black/40 rounded-sm overflow-hidden">
                       <div
-                        className="h-full bg-tavern-gold absolute left-0 top-0 transition-none"
+                        className="h-full bg-tavern-gold rounded-sm transition-none"
                         style={{ width: `${xpPct}%` }}
                       />
                     </div>
@@ -182,23 +180,17 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-tavern-ember text-retro-white hover:bg-tavern-ember-dark transition-none"
+                className="tavrn-btn tavrn-btn-danger tavrn-btn-sm"
               >
                 Leave
               </button>
             </>
           ) : (
             <>
-              <Link
-                href={loginUrl}
-                className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-retro-blue text-retro-white hover:bg-retro-lightblue transition-none"
-              >
+              <Link href={loginUrl} className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
                 Enter
               </Link>
-              <Link
-                href={signupUrl}
-                className="font-pixel text-[8px] px-3 py-2 uppercase tracking-wider bg-tavern-gold text-tavern-smoke hover:bg-tavern-candle transition-none"
-              >
+              <Link href={signupUrl} className="tavrn-btn tavrn-btn-primary tavrn-btn-sm">
                 Join
               </Link>
             </>
@@ -211,12 +203,12 @@ export default function Navbar() {
         <div className="md:hidden border-t-4 border-tavern-oak-dark px-4 py-3 flex flex-col gap-2"
              style={{ background: "#1a1510" }}>
           <div className="bg-tavern-smoke border-2 border-tavern-oak p-2">
-            <label className="font-pixel text-[7px] text-tavern-smoke-light block mb-1 uppercase">View Mode</label>
+            <label className="kicker text-[--parchment-dim] block mb-1.5">View Mode</label>
             <select
               aria-label="View mode"
               value={viewMode}
               onChange={(e) => setViewMode(e.target.value as "auto" | "desktop" | "compact")}
-              className="w-full font-pixel text-[8px]"
+              className="w-full text-body-sm"
             >
               <option value="auto">Auto</option>
               <option value="desktop">Desktop</option>
@@ -248,14 +240,14 @@ export default function Navbar() {
           )}
 
           {isLoadingAuth ? (
-            <span className="font-pixel text-tavern-smoke-light text-[9px] px-3 py-2">
+            <span className="text-body-sm text-[--parchment-dim] px-3 py-2">
               Checking your bounty...
             </span>
           ) : isAuthenticated ? (
             <button
               type="button"
               onClick={handleSignOut}
-              className="font-pixel text-[9px] px-3 py-3 uppercase tracking-wider bg-tavern-ember text-retro-white text-left"
+              className="tavrn-btn tavrn-btn-danger w-full justify-start"
             >
               Leave the Tavern
             </button>
@@ -264,14 +256,14 @@ export default function Navbar() {
               <Link
                 href={loginUrl}
                 onClick={() => setIsMenuOpen(false)}
-                className="font-pixel text-[9px] px-3 py-3 uppercase tracking-wider bg-retro-blue text-retro-white"
+                className="tavrn-btn tavrn-btn-ghost w-full justify-start"
               >
                 Enter the Tavern
               </Link>
               <Link
                 href={signupUrl}
                 onClick={() => setIsMenuOpen(false)}
-                className="font-pixel text-[9px] px-3 py-3 uppercase tracking-wider bg-tavern-gold text-tavern-smoke"
+                className="tavrn-btn tavrn-btn-primary w-full justify-start"
               >
                 Begin Your Legend
               </Link>

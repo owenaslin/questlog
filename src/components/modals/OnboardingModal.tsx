@@ -55,7 +55,6 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
     const diffRange = DIFFICULTY_OPTIONS.find((d) => d.key === choice)!.range;
     const [minD, maxD] = diffRange;
 
-    // Find a matching quest
     const pool = ALL_QUESTS.filter(
       (q) =>
         q.type === "side" &&
@@ -97,7 +96,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
           className="flex items-center justify-between px-6 py-3 border-b-4"
           style={{ borderColor: "#5c3a1a", background: "#2a1a0a" }}
         >
-          <span className="font-pixel text-tavern-gold text-[9px] tracking-wider">
+          <span className="text-body-sm font-semibold text-tavern-gold tracking-wide">
             {step === "welcome"    ? "Welcome to Tarvn"         :
              step === "categories" ? "Choose Your Interests"     :
              step === "difficulty" ? "Pick Your Challenge Level" :
@@ -107,7 +106,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
           <button
             type="button"
             onClick={onDismiss}
-            className="font-pixel text-tavern-smoke-light text-[7px] hover:text-tavern-parchment px-1"
+            className="text-body-sm text-[--parchment-dim] hover:text-tavern-parchment px-1"
             aria-label="Skip intro"
           >
             Skip intro
@@ -122,7 +121,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
               <h2 className="font-pixel text-tavern-gold text-[11px] leading-relaxed mb-3">
                 Welcome, {heroName}!
               </h2>
-              <p className="font-pixel text-tavern-parchment text-[8px] leading-loose mb-6 opacity-90">
+              <p className="text-body text-tavern-parchment leading-relaxed mb-6 opacity-90">
                 You&apos;ve walked through the tavern door.<br />
                 The quest board is before you, full of adventures<br />
                 waiting for a hero like yourself.
@@ -130,7 +129,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
               <button
                 type="button"
                 onClick={() => setStep("categories")}
-                className="font-pixel text-[9px] px-6 py-3 bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle transition-none"
+                className="tavrn-btn tavrn-btn-primary tavrn-btn-lg"
               >
                 Let&apos;s find your first quest →
               </button>
@@ -140,7 +139,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
           {/* Step: Categories */}
           {step === "categories" && (
             <div>
-              <p className="font-pixel text-tavern-smoke-light text-[8px] leading-loose mb-4">
+              <p className="text-body-sm text-[--parchment-dim] leading-relaxed mb-4">
                 What are you interested in? Pick up to 3.
               </p>
               <div className="grid grid-cols-3 gap-2 mb-6">
@@ -158,7 +157,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                       }`}
                     >
                       <div className="text-xl mb-1">{cat.icon}</div>
-                      <div className="font-pixel text-[7px] text-tavern-parchment">{cat.label}</div>
+                      <div className="text-body-sm text-tavern-parchment">{cat.label}</div>
                     </button>
                   );
                 })}
@@ -167,14 +166,14 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                 <button
                   type="button"
                   onClick={() => setStep("difficulty")}
-                  className="font-pixel text-tavern-smoke-light text-[7px] hover:text-tavern-parchment"
+                  className="text-body-sm text-[--parchment-dim] hover:text-tavern-parchment"
                 >
                   Skip →
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep("difficulty")}
-                  className="font-pixel text-[9px] px-5 py-2 bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle transition-none"
+                  className="tavrn-btn tavrn-btn-primary"
                 >
                   Next →
                 </button>
@@ -185,7 +184,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
           {/* Step: Difficulty */}
           {step === "difficulty" && (
             <div>
-              <p className="font-pixel text-tavern-smoke-light text-[8px] leading-loose mb-4">
+              <p className="text-body-sm text-[--parchment-dim] leading-relaxed mb-4">
                 How bold are you feeling today?
               </p>
               <div className="flex flex-col gap-3">
@@ -202,8 +201,8 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                   >
                     <span className="text-2xl">{opt.icon}</span>
                     <div>
-                      <div className="font-pixel text-tavern-gold text-[9px] mb-0.5">{opt.label}</div>
-                      <div className="font-pixel text-tavern-smoke-light text-[7px]">{opt.sub}</div>
+                      <div className="text-body-sm font-semibold text-tavern-gold mb-0.5">{opt.label}</div>
+                      <div className="text-body-sm text-[--parchment-dim]">{opt.sub}</div>
                     </div>
                   </button>
                 ))}
@@ -214,7 +213,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
           {/* Step: Quest suggestion */}
           {step === "quest" && suggestedQuest && (
             <div>
-              <p className="font-pixel text-tavern-smoke-light text-[7px] leading-loose mb-4">
+              <p className="text-body-sm text-[--parchment-dim] leading-relaxed mb-4">
                 The Quest Giver nods and taps the board:
               </p>
               <div
@@ -222,21 +221,21 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                 style={{ border: "2px solid #c4a85a", background: "#0f0d07" }}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="font-pixel text-[6px] px-1.5 py-0.5 bg-retro-blue text-retro-white">
+                  <span className={`badge ${suggestedQuest.type === "main" ? "badge-ember" : "badge-blue"}`}>
                     {suggestedQuest.type === "main" ? "⚔ Main" : "🗡 Side"}
                   </span>
-                  <span className="font-pixel text-tavern-smoke-light text-[6px]">{suggestedQuest.category}</span>
+                  <span className="text-body-sm text-[--parchment-dim]">{suggestedQuest.category}</span>
                 </div>
-                <h3 className="font-pixel text-tavern-gold text-[10px] leading-relaxed mb-2">
+                <h3 className="text-subhead text-tavern-gold leading-snug mb-2">
                   {suggestedQuest.title}
                 </h3>
-                <p className="font-pixel text-tavern-parchment text-[8px] leading-loose mb-3 opacity-80">
+                <p className="text-body text-tavern-parchment leading-relaxed mb-3 opacity-80">
                   {suggestedQuest.description}
                 </p>
-                <div className="flex gap-4">
-                  <span className="font-pixel text-retro-lime text-[7px]">+{suggestedQuest.xp_reward} XP</span>
-                  <span className="font-pixel text-retro-cyan text-[7px]">{suggestedQuest.duration_label}</span>
-                  <span className="font-pixel text-tavern-smoke-light text-[7px]">{"★".repeat(suggestedQuest.difficulty)}</span>
+                <div className="flex gap-3">
+                  <span className="badge badge-lime">+{suggestedQuest.xp_reward} XP</span>
+                  <span className="badge badge-muted">{suggestedQuest.duration_label}</span>
+                  <span className="text-body-sm text-[--parchment-dim]">{"★".repeat(suggestedQuest.difficulty)}</span>
                 </div>
               </div>
 
@@ -245,14 +244,14 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                   type="button"
                   onClick={handleAcceptQuest}
                   disabled={isAccepting}
-                  className="font-pixel text-[9px] px-5 py-3 bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle transition-none disabled:opacity-60"
+                  className="tavrn-btn tavrn-btn-primary tavrn-btn-lg w-full disabled:opacity-60"
                 >
                   {isAccepting ? "Accepting…" : "▶ Accept This Quest"}
                 </button>
                 <Link
                   href="/board"
                   onClick={onDismiss}
-                  className="font-pixel text-[8px] text-tavern-smoke-light text-center hover:text-tavern-parchment py-2"
+                  className="text-body-sm text-[--parchment-dim] text-center hover:text-tavern-parchment py-2"
                 >
                   See more on the board →
                 </Link>
@@ -267,7 +266,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
               <h2 className="font-pixel text-tavern-gold text-[11px] leading-relaxed mb-3">
                 Quest Accepted!
               </h2>
-              <p className="font-pixel text-tavern-parchment text-[8px] leading-loose mb-6 opacity-90">
+              <p className="text-body text-tavern-parchment leading-relaxed mb-6 opacity-90">
                 The tavern cheers. Your adventure has begun.<br />
                 Track your progress in the Journal.
               </p>
@@ -276,7 +275,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                   <Link href={`/board/${acceptedQuestId}`} onClick={onDismiss}>
                     <button
                       type="button"
-                      className="w-full font-pixel text-[9px] px-5 py-3 bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle transition-none"
+                      className="w-full tavrn-btn tavrn-btn-primary tavrn-btn-lg"
                     >
                       View Quest →
                     </button>
@@ -285,7 +284,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                 <Link href="/journal" onClick={onDismiss}>
                   <button
                     type="button"
-                    className="w-full font-pixel text-[8px] px-5 py-2 border-2 border-tavern-oak text-tavern-parchment hover:border-tavern-gold transition-none"
+                    className="w-full tavrn-btn tavrn-btn-ghost"
                   >
                     📜 Open My Journal
                   </button>

@@ -23,7 +23,7 @@ export default function QuestlinesPage() {
         <h1 className="tavrn-wordmark text-4xl leading-none mb-2">
           🗺️ Sagas
         </h1>
-        <p className="font-pixel text-retro-lightgray text-[10px] max-w-2xl mx-auto leading-loose">
+        <p className="text-body text-[--parchment-dim] max-w-2xl mx-auto leading-relaxed">
           Embark on epic journeys! Complete linear sagas step by step, or choose your path through skill trees.
         </p>
       </div>
@@ -33,7 +33,7 @@ export default function QuestlinesPage() {
         <button
           onClick={() => setFilter("all")}
           className={`
-            font-pixel text-[10px] px-4 py-2 border-b-4 transition-none
+            text-body-sm font-medium px-4 py-2 border-b-4 transition-none
             ${filter === "all"
               ? "bg-retro-darkpurple text-retro-yellow border-retro-yellow"
               : "bg-retro-darkgray text-retro-lightgray border-retro-black hover:bg-retro-gray"
@@ -45,7 +45,7 @@ export default function QuestlinesPage() {
         <button
           onClick={() => setFilter("linear")}
           className={`
-            font-pixel text-[10px] px-4 py-2 border-b-4 transition-none
+            text-body-sm font-medium px-4 py-2 border-b-4 transition-none
             ${filter === "linear"
               ? "bg-retro-blue text-retro-white border-retro-darkblue"
               : "bg-retro-darkgray text-retro-lightgray border-retro-black hover:bg-retro-gray"
@@ -57,7 +57,7 @@ export default function QuestlinesPage() {
         <button
           onClick={() => setFilter("skill_tree")}
           className={`
-            font-pixel text-[10px] px-4 py-2 border-b-4 transition-none
+            text-body-sm font-medium px-4 py-2 border-b-4 transition-none
             ${filter === "skill_tree"
               ? "bg-retro-purple text-retro-white border-retro-darkpurple"
               : "bg-retro-darkgray text-retro-lightgray border-retro-black hover:bg-retro-gray"
@@ -78,7 +78,7 @@ export default function QuestlinesPage() {
       ) : (
         <div className="text-center py-16">
           <div className="text-4xl mb-4">🏜️</div>
-          <p className="font-pixel text-retro-lightgray text-xs">
+          <p className="text-body-sm text-[--parchment-dim]">
             No questlines found.
           </p>
         </div>
@@ -92,13 +92,13 @@ export default function QuestlinesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h3 className="font-pixel text-retro-yellow text-xs mb-2">📋 Linear Questlines</h3>
-            <p className="font-pixel text-retro-lightgray text-[9px] leading-relaxed">
+            <p className="text-body-sm text-[--parchment-dim] leading-relaxed">
               Complete quests in sequential order. Each quest unlocks the next step. Perfect for structured learning and progressive skill building.
             </p>
           </div>
           <div>
             <h3 className="font-pixel text-retro-yellow text-xs mb-2">🌳 Skill Trees</h3>
-            <p className="font-pixel text-retro-lightgray text-[9px] leading-relaxed">
+            <p className="text-body-sm text-[--parchment-dim] leading-relaxed">
               Start with a foundation quest, then choose your specialization. Complete one branch or master them all. Great for exploring different paths.
             </p>
           </div>

@@ -21,19 +21,19 @@ export default function StreakDisplay({
       container: "px-2 py-1 gap-1",
       icon: "text-sm",
       number: "text-sm",
-      label: "text-[6px]",
+      label: "text-body-sm",
     },
     md: {
       container: "px-3 py-2 gap-2",
       icon: "text-lg",
       number: "text-base",
-      label: "text-[8px]",
+      label: "text-body-sm",
     },
     lg: {
       container: "px-4 py-3 gap-3",
       icon: "text-2xl",
       number: "text-lg",
-      label: "text-[9px]",
+      label: "text-body-sm",
     },
   };
 
@@ -56,10 +56,10 @@ export default function StreakDisplay({
       >
         <LivingFlame streakDays={currentStreak} size={size} />
         <div className="flex flex-col items-start">
-          <span className={`font-pixel ${sizeClasses[size].number} leading-none`}>
+          <span className={`${sizeClasses[size].number} leading-none font-semibold`}>
             {currentStreak}
           </span>
-          <span className={`font-pixel ${sizeClasses[size].label} uppercase`}>
+          <span className={`${sizeClasses[size].label} uppercase font-medium`}>
             Day{currentStreak !== 1 ? "s" : ""}
           </span>
         </div>
@@ -76,10 +76,10 @@ export default function StreakDisplay({
         >
           <span className={sizeClasses[size].icon}>🏆</span>
           <div className="flex flex-col items-start">
-            <span className={`font-pixel ${sizeClasses[size].number} leading-none`}>
+            <span className={`${sizeClasses[size].number} leading-none font-semibold`}>
               {longestStreak}
             </span>
-            <span className={`font-pixel ${sizeClasses[size].label} uppercase`}>
+            <span className={`${sizeClasses[size].label} uppercase font-medium`}>
               Best
             </span>
           </div>
