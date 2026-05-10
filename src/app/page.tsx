@@ -313,6 +313,7 @@ export default function HomePage() {
   const sideQuestOptions = pickerQuests.filter((q) => q.type === "side");
   const drawnSideQuest = dailyLoadout?.sideQuest ?? null;
   const showDrawnQuest = drawnSideQuest !== null && !activeSideQuests.some((q) => q.id === drawnSideQuest.id);
+  const rerollsUsed = dailyLoadout?.adventure.side_quest_rerolls_used ?? 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -342,6 +343,12 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {dailyActionMessage && (
+        <div className="p-2 border border-tavern-oak bg-black/30 text-[11px] text-tavern-parchment">
+          {dailyActionMessage}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-6">
         {/* ── Main column ── */}
@@ -377,12 +384,6 @@ export default function HomePage() {
           {/* Section C: Find Something To Do */}
           <div className="tavrn-panel p-4 md:p-5">
             <p className="tavrn-kicker mb-4">Find Something To Do</p>
-
-            {dailyActionMessage && (
-              <div className="mb-4 p-2 border border-tavern-oak bg-black/30 text-[11px] text-tavern-parchment">
-                {dailyActionMessage}
-              </div>
-            )}
 
             {dataLoading ? (
               <div className="animate-pulse space-y-3">
@@ -422,7 +423,7 @@ export default function HomePage() {
                     <p className="font-pixel text-[8px] text-tavern-gold mb-2">
                       🗡 Today&apos;s Draw
                       <span className="text-tavern-parchment-dim ml-2">
-                        ({dailyLoadout!.adventure.side_quest_rerolls_used}/1 reroll)
+                        ({rerollsUsed}/1 reroll)
                       </span>
                     </p>
                     <div className="border border-tavern-oak/60 bg-black/20 p-3">
@@ -445,7 +446,7 @@ export default function HomePage() {
                         <button
                           type="button"
                           onClick={handleRerollSideQuest}
-                          disabled={dailyLoadout!.adventure.side_quest_rerolls_used >= 1}
+                          disabled={rerollsUsed >= 1}
                           className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px] !py-1.5 !px-3 disabled:opacity-50"
                         >
                           Surprise Me
@@ -487,7 +488,18 @@ export default function HomePage() {
           </div>
 
           {/* Section D: Today's Reflection */}
-          {!dataLoading && (
+          {dataLoading ? (
+            <div className="tavrn-panel p-4 md:p-5 animate-pulse">
+              <div className="h-3 w-36 bg-tavern-oak/60 rounded mb-3" />
+              <div className="h-2 w-full bg-tavern-oak/40 rounded mb-1" />
+              <div className="h-2 w-4/5 bg-tavern-oak/40 rounded mb-4" />
+              <div className="h-20 bg-tavern-oak/30 rounded mb-3" />
+              <div className="flex gap-2">
+                <div className="h-6 w-28 bg-tavern-oak/50 rounded" />
+                <div className="h-6 w-28 bg-tavern-oak/50 rounded" />
+              </div>
+            </div>
+          ) : (
             <div className="tavrn-panel p-4 md:p-5">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <p className="tavrn-kicker">Today&apos;s Reflection</p>
