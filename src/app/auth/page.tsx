@@ -273,7 +273,7 @@ export default function AuthPage() {
               type="button"
               onClick={handleGoogleAuth}
               disabled={isLoading}
-              className="tavrn-btn tavrn-btn-ghost tavrn-btn-lg w-full mb-4 disabled:opacity-50 disabled:cursor-not-allowed" style={{ background: "#f4f4f4", color: "#1a1208" }}
+              className="tavrn-btn tavrn-btn-ghost tavrn-btn-lg w-full mb-4 disabled:opacity-50 disabled:cursor-not-allowed bg-retro-white text-[--ink]"
             >
               G - Continue with Google
             </button>

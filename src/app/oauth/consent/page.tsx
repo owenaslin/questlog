@@ -28,7 +28,7 @@ export default function OauthConsentPage() {
         <div className="flex flex-wrap gap-3">
           <Link
             href="/auth"
-            className="tavrn-btn tavrn-btn-ghost"
+            className="tavrn-btn tavrn-btn-primary"
           >
             Continue to Login
           </Link>

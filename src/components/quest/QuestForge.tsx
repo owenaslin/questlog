@@ -517,7 +517,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                 <button
                   type="button"
                   onClick={handleAccept}
-                  className="tavrn-btn tavrn-btn-lg flex-1" style={{ background: "#4e8a4a", color: "white", borderColor: "#2e5a2e" }}
+                  className="tavrn-btn tavrn-btn-lg flex-1 bg-retro-green text-white border-[#2e5a2e]"
                 >
                   ✓ Accept Quest
                 </button>
