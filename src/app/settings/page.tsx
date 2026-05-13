@@ -399,8 +399,8 @@ export default function SettingsPage() {
                       : "border-retro-black bg-retro-darkpurple"
                   }`}
                 >
-                  <p className="font-pixel text-[8px] text-tavern-parchment">{option.label}</p>
-                  <p className="text-[11px] text-retro-gray mt-1">{option.hint}</p>
+                  <p className="text-body-sm font-medium text-tavern-parchment">{option.label}</p>
+                  <p className="text-body-sm text-[--parchment-dim] mt-1">{option.hint}</p>
                 </button>
               ))}
             </div>

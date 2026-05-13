@@ -41,18 +41,13 @@ export default function QuestlineCard({ questline }: QuestlineCardProps) {
           <div>
             {/* Type Badge */}
             <span
-              className={`
-                font-pixel text-[7px] px-2 py-1 uppercase tracking-wider
-                ${questline.type === "linear" 
-                  ? "bg-retro-blue text-retro-white" 
-                  : "bg-retro-purple text-retro-white"}
-              `}
+              className={`badge ${questline.type === "linear" ? "badge-blue" : "badge-purple"}`}
             >
               {questline.type === "linear" ? "📋 Linear" : "🌳 Skill Tree"}
             </span>
             
             {/* Difficulty */}
-            <span className="font-pixel text-[7px] px-2 py-1 bg-retro-darkgray text-retro-lightgray uppercase ml-2">
+            <span className="badge badge-muted ml-2">
               {questline.difficulty}
             </span>
             

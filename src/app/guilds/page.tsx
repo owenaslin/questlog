@@ -65,7 +65,7 @@ export default function GuildsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setViewMode("grid")}
-              className={`font-pixel text-[8px] px-3 py-1 ${
+              className={`text-body-sm font-medium px-3 py-1 ${
                 viewMode === "grid"
                   ? "bg-retro-darkpurple text-retro-white"
                   : "bg-retro-darkgray text-retro-lightgray"
@@ -75,7 +75,7 @@ export default function GuildsPage() {
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`font-pixel text-[8px] px-3 py-1 ${
+              className={`text-body-sm font-medium px-3 py-1 ${
                 viewMode === "list"
                   ? "bg-retro-darkpurple text-retro-white"
                   : "bg-retro-darkgray text-retro-lightgray"

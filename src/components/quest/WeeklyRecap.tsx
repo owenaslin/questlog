@@ -90,7 +90,7 @@ export default function WeeklyRecap({ recap, isLoading }: WeeklyRecapProps) {
                 {recap.categories.map((category, i) => (
                   <span
                     key={i}
-                    className="font-pixel text-[7px] px-2 py-1 bg-retro-darkpurple text-retro-lightgray"
+                    className="badge badge-muted"
                   >
                     {category}
                   </span>

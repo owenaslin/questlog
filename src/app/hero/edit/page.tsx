@@ -472,7 +472,7 @@ export default function HeroEditPage() {
         {hero?.handle && (
           <Link
             href={`/hero/${hero.handle}`}
-            className="font-pixel text-[7px] text-tavern-gold hover:text-tavern-candle"
+            className="text-body-sm text-tavern-gold hover:text-tavern-candle"
           >
             View public hero →
           </Link>

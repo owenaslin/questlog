@@ -14,7 +14,7 @@ export default function OfflinePage() {
         <h1 className="font-pixel text-tavern-gold text-[12px] leading-relaxed mb-4">
           The Tavern is Dark
         </h1>
-        <p className="font-pixel text-tavern-smoke-light text-[8px] leading-loose max-w-sm">
+        <p className="text-body text-[--parchment-dim] leading-relaxed max-w-sm">
           You&apos;ve wandered beyond the reach of the signal fire.
           <br />
           Return to the village and reconnect to continue your quest.
@@ -23,7 +23,7 @@ export default function OfflinePage() {
 
       <Link
         href="/"
-        className="font-pixel text-[9px] px-6 py-3 bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle active:border-b-0 active:translate-y-1 transition-none"
+        className="tavrn-btn tavrn-btn-primary tavrn-btn-lg"
       >
         ▶ Try Again
       </Link>

@@ -466,7 +466,7 @@ export default function QuestsPage() {
                             <p className="text-body-sm text-tavern-parchment leading-relaxed line-clamp-3 mb-2">
                               {quest.description}
                             </p>
-                            <p className="font-pixel text-[7px] text-retro-cyan">{quest.duration_label}</p>
+                            <p className="text-body-sm text-retro-cyan">{quest.duration_label}</p>
                           </div>
                         </div>
                       </button>

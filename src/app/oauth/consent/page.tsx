@@ -28,19 +28,19 @@ export default function OauthConsentPage() {
         <div className="flex flex-wrap gap-3">
           <Link
             href="/auth"
-            className="font-pixel text-[8px] px-4 py-3 uppercase tracking-wider bg-retro-blue text-retro-white hover:bg-retro-lightblue"
+            className="tavrn-btn tavrn-btn-primary"
           >
             Continue to Login
           </Link>
           <Link
             href="/privacy"
-            className="font-pixel text-[8px] px-4 py-3 uppercase tracking-wider bg-retro-darkpurple text-retro-white hover:bg-retro-purple"
+            className="tavrn-btn tavrn-btn-ghost"
           >
             Privacy Policy
           </Link>
           <Link
             href="/terms"
-            className="font-pixel text-[8px] px-4 py-3 uppercase tracking-wider bg-retro-darkgray text-retro-lightgray hover:text-retro-white"
+            className="tavrn-btn tavrn-btn-ghost"
           >
             Terms
           </Link>
