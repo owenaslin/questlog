@@ -51,7 +51,7 @@ export default function HeroPortrait({
       </span>
       {selected && (
         <span
-          className="absolute -top-1 -right-1 font-pixel text-[7px] bg-tavern-gold text-tavern-smoke px-1"
+          className="absolute -top-1 -right-1 text-[10px] [font-family:var(--body)] bg-tavern-gold text-tavern-smoke px-1"
           style={{ lineHeight: "12px" }}
         >
           ✓

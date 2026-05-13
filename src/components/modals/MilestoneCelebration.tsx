@@ -53,7 +53,7 @@ export default function MilestoneCelebration({
           <div className="mb-4"
           >
             <span
-              className="font-pixel text-[8px] px-3 py-1 border-2"
+              className="text-body-sm font-medium px-3 py-1 border-2"
               style={{ color, borderColor: color }}
             >
               {currentMilestone.rarity.toUpperCase()} MILESTONE

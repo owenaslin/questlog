@@ -154,7 +154,7 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="font-pixel text-[8px] px-3 border-2 border-retro-darkgray bg-retro-black text-retro-lightgray hover:text-retro-white"
+                className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
                 aria-label={showPassword ? "Hide new password" : "Show new password"}
               >
                 {showPassword ? "Hide" : "Show"}
@@ -181,7 +181,7 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
-                className="font-pixel text-[8px] px-3 border-2 border-retro-darkgray bg-retro-black text-retro-lightgray hover:text-retro-white"
+                className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
                 aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
               >
                 {showConfirmPassword ? "Hide" : "Show"}

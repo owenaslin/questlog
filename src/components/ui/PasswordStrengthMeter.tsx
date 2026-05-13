@@ -32,7 +32,7 @@ export default function PasswordStrengthMeter({ password, className = "" }: Pass
           />
         ))}
       </div>
-      <p className="font-pixel text-[7px] text-retro-lightgray">
+      <p className="text-body-sm text-[--parchment-dim]">
         Password Strength: <span className="text-retro-white">{label}</span>
       </p>
     </div>

@@ -92,7 +92,7 @@ export default function SmartSuggestions({
           <div className="flex gap-1" role="group" aria-label="Suggestion mode">
             <button
               onClick={() => setActiveMode("smart")}
-              className={`font-pixel text-[7px] px-2 py-1 ${
+              className={`text-body-sm font-medium px-2 py-1 ${
                 activeMode === "smart"
                   ? "bg-retro-blue text-retro-white"
                   : "bg-retro-black text-retro-gray"
@@ -104,7 +104,7 @@ export default function SmartSuggestions({
             </button>
             <button
               onClick={() => setActiveMode("low-energy")}
-              className={`font-pixel text-[7px] px-2 py-1 ${
+              className={`text-body-sm font-medium px-2 py-1 ${
                 activeMode === "low-energy"
                   ? "bg-retro-green text-retro-black"
                   : "bg-retro-black text-retro-gray"
@@ -142,7 +142,7 @@ export default function SmartSuggestions({
                   <p className="font-pixel text-retro-yellow text-[10px] leading-relaxed mb-1">
                     {rec.quest.title}
                   </p>
-                  <p className={`font-pixel text-[7px] ${getReasonColor(rec.type)}`}>
+                  <p className={`text-body-sm ${getReasonColor(rec.type)}`}>
                     {rec.reason}
                   </p>
                 </div>

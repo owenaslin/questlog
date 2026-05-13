@@ -115,7 +115,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="md:hidden font-pixel text-[10px] px-4 py-3 min-h-[48px] min-w-[48px] bg-tavern-smoke text-tavern-parchment border-2 border-tavern-oak active:bg-tavern-oak transition-none touch-target"
+          className="md:hidden text-body-sm px-4 py-3 min-h-[48px] min-w-[48px] bg-tavern-smoke text-tavern-parchment border-2 border-tavern-oak active:bg-tavern-oak transition-none touch-target"
           aria-label="Toggle navigation"
           aria-expanded={isMenuOpen}
         >

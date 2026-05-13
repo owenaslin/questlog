@@ -258,14 +258,10 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel-lg p-8">
         {/* Type & Source badges */}
         <div className="flex items-center gap-3 mb-6">
-          <span
-            className={`font-pixel text-[9px] px-3 py-1 uppercase ${
-              quest.type === "main" ? "bg-retro-red text-retro-white" : "bg-retro-blue text-retro-white"
-            }`}
-          >
+          <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
             {quest.type === "main" ? "⚔ Main Quest" : "🗡 Side Quest"}
           </span>
-          <span className="font-pixel text-[8px] px-2 py-1 bg-retro-darkgreen text-retro-white uppercase">
+          <span className="badge badge-muted">
             {quest.source === "predefined" ? "★ Curated" : quest.source === "ai" ? "⚡ AI" : "✎ Custom"}
           </span>
         </div>
@@ -300,9 +296,9 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         {steps.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
-              <span className="font-pixel text-retro-gray text-[7px] uppercase tracking-widest">Objectives</span>
+              <span className="kicker">Objectives</span>
               <div className="flex-1 h-px bg-retro-darkgray" />
-              <span className="font-pixel text-retro-gray text-[7px]">
+              <span className="text-body-sm text-[--parchment-dim]">
                 {completedStepsCount}/{steps.length}
               </span>
             </div>
@@ -330,10 +326,10 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                         `}
                         style={{ imageRendering: "pixelated" }}
                       >
-                        {done && <span className="font-pixel text-retro-lime text-[8px] leading-none">✓</span>}
+                        {done && <span className="text-body-sm text-retro-lime leading-none">✓</span>}
                       </div>
                       <span
-                        className={`font-pixel text-[9px] leading-relaxed ${
+                        className={`text-body-sm leading-snug ${
                           done ? "text-retro-gray line-through" : "text-retro-lightgray"
                         }`}
                       >

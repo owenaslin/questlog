@@ -257,13 +257,7 @@ export default function JournalPage() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span
-                      className={`font-pixel text-[7px] px-1.5 py-0.5 ${
-                        quest.type === "main"
-                          ? "bg-tavern-ember text-retro-white"
-                          : "bg-retro-blue text-retro-white"
-                      }`}
-                    >
+                    <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
                       {quest.type === "main" ? "⚔" : "🗡"}
                     </span>
                     <span className="text-body-sm font-medium text-tavern-parchment leading-snug truncate">
@@ -277,7 +271,7 @@ export default function JournalPage() {
                 </div>
                 <Link
                   href={`/board/${quest.id}`}
-                  className="font-pixel text-[7px] px-3 py-2 border border-tavern-gold text-tavern-gold hover:bg-tavern-smoke-light flex-shrink-0 whitespace-nowrap"
+                  className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm flex-shrink-0"
                 >
                   Continue →
                 </Link>
@@ -321,17 +315,13 @@ export default function JournalPage() {
                 }}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-tavern-gold font-pixel text-[10px]">✓</span>
+                  <span className="text-tavern-gold text-lg leading-none">✓</span>
                   <span className="text-body text-tavern-parchment truncate">
                     {quest.title}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <span
-                    className={`font-pixel text-[6px] px-1.5 py-0.5 ${
-                      quest.type === "main" ? "bg-tavern-ember text-retro-white" : "bg-retro-blue text-retro-white"
-                    }`}
-                  >
+                  <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
                     {quest.type === "main" ? "Main" : "Side"}
                   </span>
                   <span className="text-body-sm text-tavern-gold">+{quest.xp_reward} XP</span>
@@ -359,7 +349,7 @@ export default function JournalPage() {
           { value: xpTotal, label: "Total XP",  color: "text-retro-lime" },
         ].map(({ value, label, color }) => (
           <div key={label} className="tavern-card p-3 text-center">
-            <div className={`font-pixel text-lg ${color}`}>{value}</div>
+            <div className={`text-lg font-bold ${color}`}>{value}</div>
             <div className="text-body-sm text-[--parchment-dim] mt-1">{label}</div>
           </div>
         ))}
@@ -385,15 +375,15 @@ export default function JournalPage() {
         <div className="bg-retro-black border-2 border-retro-darkgray p-3">
           <p className="kicker mb-2">Snapshot</p>
           <p className="text-body-sm text-tavern-gold mb-1">Level: {level}</p>
-          <p className="font-pixel text-retro-lime text-[7px] mb-1">XP: {xpTotal}</p>
-          <p className="font-pixel text-retro-cyan text-[7px]">Active: {activeQuests.length}</p>
+          <p className="text-body-sm text-retro-lime mb-1">XP: {xpTotal}</p>
+          <p className="text-body-sm text-retro-cyan">Active: {activeQuests.length}</p>
         </div>
         <div className="bg-retro-black border-2 border-retro-darkgray p-3">
           <p className="kicker mb-2">Quick Paths</p>
           <div className="flex flex-col gap-2">
             <Link href="/board" className="text-body-sm text-tavern-gold hover:text-tavern-candle">⚔ Open Board</Link>
-            <Link href="/hero/edit" className="font-pixel text-[7px] text-retro-lightblue hover:text-retro-white">🧙 Edit Hero</Link>
-            <Link href="/trophies" className="font-pixel text-[7px] text-retro-lime hover:text-retro-white">🏅 View Trophies</Link>
+            <Link href="/hero/edit" className="text-body-sm text-retro-lightblue hover:text-retro-white">🧙 Edit Hero</Link>
+            <Link href="/trophies" className="text-body-sm text-retro-lime hover:text-retro-white">🏅 View Trophies</Link>
           </div>
         </div>
       </DesktopRightRail>

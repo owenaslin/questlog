@@ -30,7 +30,7 @@ export default function PullToRefresh({
       <button
         onClick={handleRefresh}
         disabled={isRefreshing || disabled}
-        className="w-full flex items-center justify-center py-4 bg-tavern-oak/20 text-tavern-gold font-pixel text-[10px] hover:bg-tavern-oak/30 disabled:opacity-50"
+        className="w-full flex items-center justify-center py-4 bg-tavern-oak/20 text-tavern-gold text-body-sm hover:bg-tavern-oak/30 disabled:opacity-50"
       >
         {isRefreshing ? "✨ Refreshing..." : "🍺 Tap to refresh"}
       </button>

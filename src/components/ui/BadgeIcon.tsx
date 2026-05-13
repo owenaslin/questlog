@@ -89,11 +89,7 @@ export function BadgeRarityBadge({ rarity }: { rarity: Badge["rarity"] }) {
 
   return (
     <span
-      className={`
-        font-pixel text-[8px] px-2 py-1 uppercase tracking-wider
-        ${colors.bg} ${colors.text}
-        border-2 ${colors.border}
-      `}
+      className={`badge ${colors.bg} ${colors.text} border-2 ${colors.border}`}
     >
       {label}
     </span>

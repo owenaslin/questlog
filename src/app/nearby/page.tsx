@@ -119,7 +119,7 @@ export default function NearbyPage() {
 
       {/* Privacy Note */}
       <section className="mt-8 bg-retro-darkgray border-4 border-retro-black p-4">
-        <p className="font-pixel text-[8px] text-retro-lightgray mb-2">🔒 Privacy Note</p>
+        <p className="kicker mb-2">🔒 Privacy Note</p>
         <p className="text-[12px] text-retro-gray leading-relaxed">
           This page uses your optional home area label from Settings. No precise GPS is required. 
           For AI-powered local place discovery, visit{" "}

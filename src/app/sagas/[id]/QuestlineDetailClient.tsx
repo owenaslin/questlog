@@ -115,17 +115,10 @@ export default function QuestlineDetailClient({ questline }: QuestlineDetailClie
 
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <span
-                className={`
-                  font-pixel text-[8px] px-3 py-1 uppercase
-                  ${questline.type === "linear"
-                    ? "bg-retro-blue text-retro-white"
-                    : "bg-retro-purple text-retro-white"}
-                `}
-              >
+              <span className={`badge ${questline.type === "linear" ? "badge-blue" : "badge-purple"}`}>
                 {questline.type === "linear" ? "📋 Linear" : "🌳 Skill Tree"}
               </span>
-              <span className="font-pixel text-[8px] px-2 py-1 bg-retro-darkgray text-retro-lightgray uppercase border border-retro-gray">
+              <span className="badge badge-muted">
                 {questline.difficulty}
               </span>
             </div>

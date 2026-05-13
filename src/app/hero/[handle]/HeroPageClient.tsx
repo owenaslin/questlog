@@ -85,12 +85,12 @@ export default function HeroPageClient() {
       <div className="max-w-lg mx-auto text-center py-20">
         <div className="text-5xl mb-4">🏚</div>
         <h1 className="font-pixel text-tavern-gold text-sm mb-3">Hero Not Found</h1>
-        <p className="font-pixel text-tavern-smoke-light text-[8px] leading-loose mb-6">
+        <p className="text-body text-[--parchment-dim] leading-relaxed mb-6">
           No adventurer answers to &ldquo;{handle}&rdquo;.<br />
           They may have set their page to private.
         </p>
         <Link href="/board">
-          <span className="font-pixel text-tavern-gold text-[9px] hover:text-tavern-candle underline">
+          <span className="text-body-sm text-tavern-gold hover:text-tavern-candle underline">
             ⚔ Return to The Board
           </span>
         </Link>
@@ -134,7 +134,7 @@ export default function HeroPageClient() {
           <div className="absolute top-4 right-4 flex gap-2">
             <Link
               href="/hero/edit"
-              className="font-pixel text-[7px] px-2 py-1 border border-tavern-oak text-tavern-parchment hover:border-tavern-gold"
+              className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
             >
               ✏ Edit Hero
             </Link>
@@ -150,16 +150,16 @@ export default function HeroPageClient() {
             <h1 className="font-pixel text-tavern-gold text-sm leading-relaxed mb-0.5">
               {hero.display_name}
             </h1>
-            <p className="font-pixel text-tavern-parchment text-[8px] mb-3 opacity-80">
+            <p className="text-body-sm text-tavern-parchment mb-3 opacity-80">
               {displayTitle}
             </p>
 
             {/* Level + XP */}
             <div className="flex items-baseline gap-3 mb-2">
-              <span className="font-pixel text-tavern-gold text-[10px]">
+              <span className="text-body-sm font-semibold text-tavern-gold">
                 Level {hero.level}
               </span>
-              <span className="font-pixel text-tavern-smoke-light text-[7px]">
+              <span className="text-body-sm text-[--parchment-dim]">
                 {hero.xp_total} XP
               </span>
             </div>
@@ -169,7 +169,7 @@ export default function HeroPageClient() {
             <button
               type="button"
               onClick={handleShare}
-              className="font-pixel text-[7px] mt-3 px-3 py-1.5 border border-tavern-oak text-tavern-parchment hover:border-tavern-gold"
+              className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm mt-3"
             >
               🔗 Share Hero
             </button>
@@ -179,7 +179,7 @@ export default function HeroPageClient() {
         {/* Handle pill */}
         <div className="mt-4 flex items-center gap-2">
           <Image src="/tavern/scroll.svg" alt="" width={16} height={14} />
-          <span className="font-pixel text-tavern-smoke-light text-[7px]">
+          <span className="text-body-sm text-[--parchment-dim]">
             tarvn.xyz/hero/{handle}
           </span>
         </div>
@@ -194,8 +194,8 @@ export default function HeroPageClient() {
         ].map(({ value, label, color, icon }) => (
           <div key={label} className="tavern-card p-4 text-center">
             <div className="text-lg mb-1">{icon}</div>
-            <div className={`font-pixel text-xl ${color}`}>{value}</div>
-            <div className="font-pixel text-tavern-smoke-light text-[7px] mt-1">{label}</div>
+            <div className={`text-xl font-bold ${color}`}>{value}</div>
+            <div className="text-body-sm text-[--parchment-dim] mt-1">{label}</div>
           </div>
         ))}
       </div>
@@ -215,22 +215,16 @@ export default function HeroPageClient() {
                 style={{ border: "2px solid #5c3a1a", background: "#1f1608" }}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="font-pixel text-tavern-gold text-[10px]">📌</span>
-                  <span className="font-pixel text-tavern-parchment text-[8px] truncate">
+                  <span className="text-tavern-gold text-lg">📌</span>
+                  <span className="text-body-sm text-tavern-parchment truncate">
                     {pq.quest_title}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className={`font-pixel text-[6px] px-1.5 py-0.5 ${
-                    pq.quest_type === "main"
-                      ? "bg-tavern-ember text-retro-white"
-                      : "bg-retro-blue text-retro-white"
-                  }`}>
+                  <span className={`badge ${pq.quest_type === "main" ? "badge-ember" : "badge-blue"}`}>
                     {pq.quest_type === "main" ? "Main" : "Side"}
                   </span>
-                  <span className="font-pixel text-tavern-gold text-[7px]">
-                    +{pq.quest_xp_reward} XP
-                  </span>
+                  <span className="badge badge-lime">+{pq.quest_xp_reward} XP</span>
                 </div>
               </div>
             ))}
@@ -244,14 +238,14 @@ export default function HeroPageClient() {
           <h2 className="font-pixel text-tavern-gold text-[11px] flex items-center gap-2">
             🏅 Trophy Wall
           </h2>
-          <span className="font-pixel text-tavern-smoke-light text-[7px]">
+          <span className="text-body-sm text-[--parchment-dim]">
             {earnedBadgeIds.length} / {BADGES.length} earned
           </span>
         </div>
 
         {earnedBadgeIds.length === 0 ? (
           <div className="parchment-card p-4 text-center">
-            <p className="font-pixel text-tavern-parchment text-[8px]">
+            <p className="text-body text-tavern-parchment">
               No trophies yet — the board awaits this adventurer.
             </p>
           </div>
@@ -269,10 +263,10 @@ export default function HeroPageClient() {
 
       {/* ── Footer ──────────────────────────────────────────────── */}
       <div className="flex items-center justify-between pb-4">
-        <Link href="/board" className="font-pixel text-tavern-gold text-[7px] hover:text-tavern-candle">
+        <Link href="/board" className="text-body-sm text-tavern-gold hover:text-tavern-candle">
           ← Back to the Tavern
         </Link>
-        <p className="font-pixel text-tavern-smoke-light text-[7px]">
+        <p className="text-body-sm text-[--parchment-dim]">
           🍺 tarvn.xyz
         </p>
       </div>
@@ -280,28 +274,28 @@ export default function HeroPageClient() {
 
       <DesktopRightRail title="Hero Ledger">
         <div className="bg-retro-black border-2 border-retro-darkgray p-3">
-          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Legend Summary</p>
-          <p className="font-pixel text-tavern-gold text-[7px] mb-1">Level: {hero.level}</p>
-          <p className="font-pixel text-retro-cyan text-[7px] mb-1">XP: {hero.xp_total}</p>
-          <p className="font-pixel text-retro-lime text-[7px] mb-1">Completed: {completedCount}</p>
-          <p className="font-pixel text-tavern-ember text-[7px]">Best Streak: {longestStreak}</p>
+          <p className="kicker mb-2">Legend Summary</p>
+          <p className="text-body-sm text-tavern-gold mb-1">Level: {hero.level}</p>
+          <p className="text-body-sm text-retro-cyan mb-1">XP: {hero.xp_total}</p>
+          <p className="text-body-sm text-retro-lime mb-1">Completed: {completedCount}</p>
+          <p className="text-body-sm text-tavern-ember">Best Streak: {longestStreak}</p>
         </div>
         <div className="bg-retro-black border-2 border-retro-darkgray p-3">
-          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Quick Actions</p>
+          <p className="kicker mb-2">Quick Actions</p>
           <div className="flex flex-col gap-2">
             <button
               type="button"
               onClick={handleShare}
-              className="text-left font-pixel text-[7px] text-tavern-gold hover:text-tavern-candle"
+              className="text-left text-body-sm text-tavern-gold hover:text-tavern-candle"
             >
               🔗 Share Hero Link
             </button>
             {isOwner && (
-              <Link href="/hero/edit" className="font-pixel text-[7px] text-retro-lightblue hover:text-retro-white">
+              <Link href="/hero/edit" className="text-body-sm text-retro-lightblue hover:text-retro-white">
                 ✏ Edit Hero
               </Link>
             )}
-            <Link href="/board" className="font-pixel text-[7px] text-retro-lime hover:text-retro-white">
+            <Link href="/board" className="text-body-sm text-retro-lime hover:text-retro-white">
               ⚔ Visit Board
             </Link>
           </div>

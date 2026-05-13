@@ -133,7 +133,7 @@ export default function LivingFlame({ streakDays, size = "md" }: LivingFlameProp
       {size === "lg" && (
         <div className="absolute -bottom-6 text-center">
           <span
-            className="font-pixel text-[7px] uppercase tracking-wider"
+            className="kicker"
             style={{ color: state.color }}
           >
             {state.name}

@@ -77,13 +77,13 @@ export default function InstallPrompt() {
       >
         {/* Title bar */}
         <div className="flex items-center justify-between px-4 py-2 border-b-4 border-tavern-oak-dark bg-tavern-smoke">
-          <span className="font-pixel text-tavern-gold text-[8px] tracking-wider">
+          <span className="text-body-sm font-semibold text-tavern-gold">
             New Quest Unlocked
           </span>
           <button
             type="button"
             onClick={handleDismiss}
-            className="font-pixel text-tavern-smoke-light text-[7px] hover:text-tavern-parchment px-1 leading-none"
+            className="text-body-sm text-[--parchment-dim] hover:text-tavern-parchment px-1 leading-none"
             aria-label="Dismiss install prompt"
           >
             ✕
@@ -101,25 +101,17 @@ export default function InstallPrompt() {
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="font-pixel text-[9px] text-tavern-gold leading-relaxed mb-1">
+            <p className="text-body-sm font-semibold text-tavern-gold leading-snug mb-1">
               Install tavrn
             </p>
-            <p className="font-pixel text-[7px] text-tavern-smoke-light leading-loose mb-3">
+            <p className="text-body-sm text-[--parchment-dim] leading-relaxed mb-3">
               Add to your home screen for the full tavern experience. No app store required.
             </p>
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleInstall}
-                className="font-pixel text-[8px] px-4 py-2 bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle active:border-b-0 active:translate-y-1 transition-none"
-              >
+              <button type="button" onClick={handleInstall} className="tavrn-btn tavrn-btn-primary tavrn-btn-sm">
                 ▶ Install
               </button>
-              <button
-                type="button"
-                onClick={handleLater}
-                className="font-pixel text-[8px] px-4 py-2 border-2 border-tavern-oak text-tavern-parchment hover:border-tavern-gold transition-none"
-              >
+              <button type="button" onClick={handleLater} className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
                 Later
               </button>
             </div>

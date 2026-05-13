@@ -97,7 +97,7 @@ export default function PersonalSaga({ saga, heroName }: PersonalSagaProps) {
           title="Share your saga"
         >
           <span className="text-sm">🔗</span>
-          <span className="font-pixel text-[7px] text-tavern-parchment">Share</span>
+          <span className="text-body-sm text-tavern-parchment">Share</span>
         </button>
       </div>
 
