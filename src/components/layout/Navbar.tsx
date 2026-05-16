@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -8,15 +8,17 @@ import { buildAuthUrl } from "@/lib/auth-redirect";
 import { getUserDashboardSnapshot } from "@/lib/quest-progress";
 import { getOwnHeroProfile } from "@/lib/hero";
 import { useViewMode } from "@/components/ui/ViewModeProvider";
+import { getTimeOfDayLabel } from "@/lib/time-of-day";
 
 const navLinks = [
-  { href: "/", label: "Tonight" },
+  { href: "/", label: "Home" },
   { href: "/board", label: "The Board" },
   { href: "/profile", label: "My Saga" },
   { href: "/settings", label: "Settings" },
   { href: "/habits", label: "Habits" },
   { href: "/sagas", label: "Questlines" },
   { href: "/trophies", label: "Trophies" },
+  { href: "/packs", label: "Quest Packs" },
 ];
 
 export default function Navbar() {
@@ -24,6 +26,7 @@ export default function Navbar() {
   const router = useRouter();
   const { viewMode, setViewMode, isDesktopActive } = useViewMode();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [todayLabel, setTodayLabel] = useState<string>("Tonight");
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [heroLevel, setHeroLevel] = useState<number | null>(null);
@@ -70,6 +73,10 @@ export default function Navbar() {
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  useLayoutEffect(() => {
+    setTodayLabel(getTimeOfDayLabel());
   }, []);
 
   const handleSignOut = async () => {
@@ -126,7 +133,7 @@ export default function Navbar() {
         <div className="hidden md:flex gap-1 items-center flex-1">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClasses(link.href)} aria-current={isActivePath(link.href) ? "page" : undefined}>
-              {link.label}
+              {link.href === "/" ? todayLabel : link.label}
             </Link>
           ))}
         </div>
@@ -224,7 +231,7 @@ export default function Navbar() {
               className={linkClasses(link.href)}
               aria-current={isActivePath(link.href) ? "page" : undefined}
             >
-              {link.label}
+              {link.href === "/" ? todayLabel : link.label}
             </Link>
           ))}
 

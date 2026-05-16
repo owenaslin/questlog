@@ -5,6 +5,7 @@ import Link from "next/link";
 import { HabitWithStatus } from "@/lib/types";
 import { getHabitsForToday, completeHabit, uncompleteHabit } from "@/lib/habits";
 import HabitCheck from "@/components/habit/HabitCheck";
+import { isStreakStillActive } from "@/lib/time-of-day";
 
 interface DailyHabitsWidgetProps {
   maxDisplay?: number;
@@ -184,7 +185,7 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
                 <p className={`text-sm truncate ${habit.is_completed_today ? "line-through opacity-60" : ""}`}>
                   {habit.title}
                 </p>
-                {habit.streak && habit.streak.current_streak > 0 && (
+                {habit.streak && habit.streak.current_streak > 0 && isStreakStillActive(habit.streak.last_completed_date) && (
                   <p className="text-[10px] text-tavern-gold">{habit.streak.current_streak} day streak 🔥</p>
                 )}
               </div>

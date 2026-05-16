@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getTimeOfDayLabel } from "@/lib/time-of-day";
 
 interface NavItem {
   href: string;
@@ -21,6 +22,11 @@ const navItems: NavItem[] = [
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
+  const [todayLabel, setTodayLabel] = useState<string>("Tonight");
+
+  useLayoutEffect(() => {
+    setTodayLabel(getTimeOfDayLabel());
+  }, []);
 
   const isActive = (item: NavItem) => {
     if (item.exact) return pathname === item.href;
@@ -50,7 +56,7 @@ export default function MobileBottomNav() {
             >
               <span className="text-xl leading-none mb-1">{item.icon}</span>
               <span className="text-body-sm font-medium">
-                {item.label}
+                {item.href === "/" ? todayLabel : item.label}
               </span>
               {active && (
                 <div className="absolute -top-1 w-8 h-1 bg-tavern-gold transition-all" />
