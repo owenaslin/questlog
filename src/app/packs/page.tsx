@@ -59,7 +59,7 @@ export default function QuestPacksPage() {
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => setAvailableTimeMinutes(option.value)}
+                  onClick={() => { setAvailableTimeMinutes(option.value); setSelectedPackId(null); }}
                   className={`border-2 p-2 font-pixel text-[8px] ${
                     availableTimeMinutes === option.value
                       ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
@@ -79,7 +79,7 @@ export default function QuestPacksPage() {
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => setEnergyLevel(option.value)}
+                  onClick={() => { setEnergyLevel(option.value); setSelectedPackId(null); }}
                   className={`border-2 p-2 font-pixel text-[8px] ${
                     energyLevel === option.value
                       ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
@@ -96,7 +96,7 @@ export default function QuestPacksPage() {
             <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Vibe</p>
             <select
               value={vibe}
-              onChange={(event) => setVibe(event.target.value as QuestVibe)}
+              onChange={(event) => { setVibe(event.target.value as QuestVibe); setSelectedPackId(null); }}
               className="w-full bg-tavern-smoke border-2 border-tavern-oak rounded p-2 text-tavern-parchment"
             >
               {VIBE_OPTIONS.map((option) => (
@@ -132,6 +132,7 @@ export default function QuestPacksPage() {
                 onClick={() => {
                   setSelectedPackId(pack.id);
                   setVibe(pack.vibes[0]);
+                  setPreferredCategories(pack.categories);
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
                 className={`text-left bg-retro-darkgray border-4 p-4 w-full transition-none ${

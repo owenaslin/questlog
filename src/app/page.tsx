@@ -46,7 +46,7 @@ export default function HomePage() {
   const [pickedId,       setPickedId]       = useState<string | null>(null);
   const [dataLoading,    setDataLoading]    = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [timeLabel, setTimeLabel] = useState<"Morning" | "Today" | "Tonight">("Tonight");
+  const [timeLabel, setTimeLabel] = useState<"Morning" | "Afternoon" | "Tonight">("Tonight");
 
   useEffect(() => {
     setTimeLabel(getTimeOfDayLabel());
@@ -195,6 +195,8 @@ export default function HomePage() {
     );
   }
 
+  const timeAdverb = timeLabel === "Morning" ? "this morning" : timeLabel === "Afternoon" ? "this afternoon" : "tonight";
+
   // ── Guest view ────────────────────────────────────────────────────────────
   if (!isLoggedIn) {
     const pickedQuest = tonightQuests.find((q) => q.id === pickedId) ?? tonightQuests[0] ?? null;
@@ -214,7 +216,7 @@ export default function HomePage() {
             <div className="tavern-card p-4 md:p-5">
               <p className="font-pixel text-tavern-gold text-[8px] mb-2">🍺 The barkeep speaks</p>
               <p className="text-[14px] leading-relaxed text-[#dbc59a]">
-                Welcome, adventurer. Three quests are laid out {timeLabel === "Tonight" ? "tonight" : timeLabel === "Morning" ? "this morning" : "today"}. Choose your path and begin your legend.
+                Welcome, adventurer. Three quests are laid out {timeAdverb}. Choose your path and begin your legend.
               </p>
             </div>
 
@@ -296,7 +298,7 @@ export default function HomePage() {
           <div className="tavrn-panel p-4">
             <p className="tavrn-kicker mb-3">Hero Ledger</p>
             <p className="font-pixel text-[10px] text-tavern-gold">Adventurer</p>
-            <p className="text-[12px] text-tavern-parchment mt-2">Level up by finishing one quest {timeLabel === "Tonight" ? "tonight" : timeLabel === "Morning" ? "this morning" : "today"}.</p>
+            <p className="text-[12px] text-tavern-parchment mt-2">Level up by finishing one quest {timeAdverb}.</p>
             <div className="mt-4 h-2 bg-black/40 border border-tavern-oak">
               <div className="h-full bg-tavern-gold" style={{ width: "24%" }} />
             </div>

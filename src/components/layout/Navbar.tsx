@@ -64,7 +64,6 @@ export default function Navbar() {
     };
 
     hydrateSession();
-    setTodayLabel(getTimeOfDayLabel());
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
@@ -74,6 +73,10 @@ export default function Navbar() {
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    setTodayLabel(getTimeOfDayLabel());
   }, []);
 
   const handleSignOut = async () => {
