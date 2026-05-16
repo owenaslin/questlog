@@ -9,6 +9,7 @@ import {
   type ProfileProgressSummary,
   type UserStreak,
 } from "@/lib/quest-progress";
+import { getTimeOfDayLabel, isStreakStillActive } from "@/lib/time-of-day";
 import {
   completeTodayAdventure,
   getDailyAdventureStats,
@@ -45,6 +46,11 @@ export default function HomePage() {
   const [pickedId,       setPickedId]       = useState<string | null>(null);
   const [dataLoading,    setDataLoading]    = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [timeLabel, setTimeLabel] = useState<"Morning" | "Today" | "Tonight">("Tonight");
+
+  useEffect(() => {
+    setTimeLabel(getTimeOfDayLabel());
+  }, []);
 
   useEffect(() => {
     const mounted = { current: true };
@@ -202,13 +208,13 @@ export default function HomePage() {
                 <h1 className="tavrn-wordmark text-4xl leading-none">tavrn</h1>
                 <p className="text-[11px] text-[#cdb68f] mt-2 tracking-wide">a quiet corner of your life</p>
               </div>
-              <div className="tavrn-kicker">Tonight&apos;s Hand · Three Drawn Quests</div>
+              <div className="tavrn-kicker">{timeLabel}&apos;s Hand · Three Drawn Quests</div>
             </header>
 
             <div className="tavern-card p-4 md:p-5">
               <p className="font-pixel text-tavern-gold text-[8px] mb-2">🍺 The barkeep speaks</p>
               <p className="text-[14px] leading-relaxed text-[#dbc59a]">
-                Welcome, adventurer. Three quests are laid out tonight. Choose your path and begin your legend.
+                Welcome, adventurer. Three quests are laid out {timeLabel === "Tonight" ? "tonight" : timeLabel === "Morning" ? "this morning" : "today"}. Choose your path and begin your legend.
               </p>
             </div>
 
@@ -290,7 +296,7 @@ export default function HomePage() {
           <div className="tavrn-panel p-4">
             <p className="tavrn-kicker mb-3">Hero Ledger</p>
             <p className="font-pixel text-[10px] text-tavern-gold">Adventurer</p>
-            <p className="text-[12px] text-tavern-parchment mt-2">Level up by finishing one quest tonight.</p>
+            <p className="text-[12px] text-tavern-parchment mt-2">Level up by finishing one quest {timeLabel === "Tonight" ? "tonight" : timeLabel === "Morning" ? "this morning" : "today"}.</p>
             <div className="mt-4 h-2 bg-black/40 border border-tavern-oak">
               <div className="h-full bg-tavern-gold" style={{ width: "24%" }} />
             </div>
@@ -324,7 +330,7 @@ export default function HomePage() {
             )}
           </div>
           <div className="flex items-center gap-4">
-            {!dataLoading && streak && streak.current_streak > 0 && (
+            {!dataLoading && streak && streak.current_streak > 0 && isStreakStillActive(streak.last_activity_date) && (
               <StreakDisplay
                 currentStreak={streak.current_streak}
                 longestStreak={streak.longest_streak}
