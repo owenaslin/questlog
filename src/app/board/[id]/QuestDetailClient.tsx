@@ -258,27 +258,23 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel-lg p-8">
         {/* Type & Source badges */}
         <div className="flex items-center gap-3 mb-6">
-          <span
-            className={`font-pixel text-[9px] px-3 py-1 uppercase ${
-              quest.type === "main" ? "bg-retro-red text-retro-white" : "bg-retro-blue text-retro-white"
-            }`}
-          >
+          <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
             {quest.type === "main" ? "⚔ Main Quest" : "🗡 Side Quest"}
           </span>
-          <span className="font-pixel text-[8px] px-2 py-1 bg-retro-darkgreen text-retro-white uppercase">
+          <span className="badge badge-muted">
             {quest.source === "predefined" ? "★ Curated" : quest.source === "ai" ? "⚡ AI" : "✎ Custom"}
           </span>
         </div>
 
         {/* Title */}
-        <h1 className="font-pixel text-retro-yellow text-lg leading-relaxed mb-2">
+        <h1 className="text-heading text-retro-yellow leading-snug mb-2">
           {quest.title}
         </h1>
 
         {/* Step progress bar (shown when quest is active and has steps) */}
         {status === "active" && steps.length > 0 && stepsHydrated && (
           <div className="mb-4">
-            <div className="flex justify-between text-[10px] text-retro-gray mb-1">
+            <div className="flex justify-between text-body-sm text-retro-gray mb-1">
               <span>{completedStepsCount}/{steps.length} objectives</span>
               <span>{progressPct}%</span>
             </div>
@@ -292,7 +288,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         )}
 
         {/* Description */}
-        <p className="font-pixel text-retro-lightgray text-[10px] leading-loose mb-6">
+        <p className="text-body text-retro-lightgray leading-relaxed mb-6">
           {quest.description}
         </p>
 
@@ -300,9 +296,9 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         {steps.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
-              <span className="font-pixel text-retro-gray text-[7px] uppercase tracking-widest">Objectives</span>
+              <span className="kicker">Objectives</span>
               <div className="flex-1 h-px bg-retro-darkgray" />
-              <span className="font-pixel text-retro-gray text-[7px]">
+              <span className="text-body-sm text-retro-gray">
                 {completedStepsCount}/{steps.length}
               </span>
             </div>
@@ -330,16 +326,16 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                         `}
                         style={{ imageRendering: "pixelated" }}
                       >
-                        {done && <span className="font-pixel text-retro-lime text-[8px] leading-none">✓</span>}
+                        {done && <span className="text-retro-lime text-sm leading-none">✓</span>}
                       </div>
                       <span
-                        className={`font-pixel text-[9px] leading-relaxed ${
+                        className={`text-body-sm leading-relaxed ${
                           done ? "text-retro-gray line-through" : "text-retro-lightgray"
                         }`}
                       >
                         {step.title}
                         {step.optional && (
-                          <span className="ml-2 text-[7px] text-retro-darkgray">(optional)</span>
+                          <span className="ml-2 text-body-sm text-retro-darkgray">(optional)</span>
                         )}
                       </span>
                     </button>
@@ -353,25 +349,25 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-retro-black p-3 text-center">
-            <div className="font-pixel text-retro-gray text-[7px] mb-1 uppercase">Difficulty</div>
+            <div className="kicker mb-1">Difficulty</div>
             <div className="flex justify-center gap-1 mb-1">
               {DIFFICULTY_STARS.map((i) => (
                 <span key={i} className={`text-xs ${i < quest.difficulty ? "text-retro-yellow" : "text-retro-darkgray"}`}>★</span>
               ))}
             </div>
-            <div className="font-pixel text-retro-white text-[8px]">{difficultyLabels[quest.difficulty]}</div>
+            <div className="text-body-sm text-retro-white">{difficultyLabels[quest.difficulty]}</div>
           </div>
           <div className="bg-retro-black p-3 text-center">
-            <div className="font-pixel text-retro-gray text-[7px] mb-1 uppercase">XP Reward</div>
+            <div className="kicker mb-1">XP Reward</div>
             <div className="font-pixel text-retro-lime text-sm">+{quest.xp_reward}</div>
           </div>
           <div className="bg-retro-black p-3 text-center">
-            <div className="font-pixel text-retro-gray text-[7px] mb-1 uppercase">Duration</div>
-            <div className="font-pixel text-retro-cyan text-[9px]">{quest.duration_label}</div>
+            <div className="kicker mb-1">Duration</div>
+            <div className="text-body-sm text-retro-cyan">{quest.duration_label}</div>
           </div>
           <div className="bg-retro-black p-3 text-center">
-            <div className="font-pixel text-retro-gray text-[7px] mb-1 uppercase">Category</div>
-            <div className="font-pixel text-retro-orange text-[9px]">{quest.category}</div>
+            <div className="kicker mb-1">Category</div>
+            <div className="text-body-sm text-retro-orange">{quest.category}</div>
           </div>
         </div>
 
@@ -382,11 +378,11 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
               <div className="flex items-start gap-2">
                 <span className="text-retro-red text-lg">⚠</span>
                 <div className="flex-1">
-                  <p className="font-pixel text-retro-red text-[8px] leading-relaxed">{actionError}</p>
+                  <p className="text-body-sm text-retro-red leading-relaxed">{actionError}</p>
                 </div>
                 <button
                   onClick={() => setActionError(null)}
-                  className="font-pixel text-retro-gray hover:text-retro-white text-[8px] px-1"
+                  className="text-body-sm text-retro-gray hover:text-retro-white px-1 min-h-[32px]"
                   aria-label="Dismiss error"
                 >✕</button>
               </div>
@@ -396,7 +392,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
           {/* Conflict: already have a main quest */}
           {conflictQuest && (
             <div className="bg-retro-black border-2 border-retro-orange p-4 mb-4">
-              <p className="font-pixel text-retro-orange text-[8px] leading-relaxed mb-3">
+              <p className="text-body-sm text-retro-orange leading-relaxed mb-3">
                 You&apos;re already on <span className="text-retro-yellow">{conflictQuest.title}</span>.
                 Abandon it and start this one? Your progress and XP are kept.
               </p>
@@ -413,7 +409,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
 
           {status === "available" && !conflictQuest && (
             <div className="flex flex-col items-center gap-4">
-              <p className="font-pixel text-retro-lightgray text-[9px]">Ready to begin this quest?</p>
+              <p className="text-body-sm text-retro-lightgray">Ready to begin this quest?</p>
               <PixelButton variant="success" size="lg" onClick={handleAccept} disabled={isWorking}>
                 {isWorking ? (
                   <span className="flex items-center gap-2"><span className="animate-spin">⟳</span> Accepting...</span>
@@ -424,7 +420,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
 
           {status === "active" && (
             <div className="flex flex-col items-center gap-4">
-              <div className="font-pixel text-retro-orange text-[10px] bg-retro-black px-4 py-2 animate-pulse">
+              <div className="text-body-sm font-medium text-retro-orange bg-retro-black px-4 py-2 animate-pulse">
                 ▶ Quest In Progress
               </div>
 
@@ -448,7 +444,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
               {/* Abandon Quest (secondary) */}
               {showAbandonConfirm ? (
                 <div className="w-full text-center space-y-2">
-                  <p className="font-pixel text-retro-gray text-[8px]">Abandon this quest?</p>
+                  <p className="text-body-sm text-retro-gray">Abandon this quest?</p>
                   <div className="flex justify-center gap-2">
                     <PixelButton variant="danger" size="sm" onClick={handleAbandon} disabled={isWorking}>
                       Yes, Abandon
@@ -462,7 +458,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 <button
                   type="button"
                   onClick={() => setShowAbandonConfirm(true)}
-                  className="font-pixel text-retro-gray text-[8px] hover:text-retro-red underline"
+                  className="text-body-sm text-retro-gray hover:text-retro-red underline"
                 >
                   Abandon Quest
                 </button>
@@ -472,7 +468,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
 
           {status === "completed" && (
             <div className="flex flex-col items-center gap-4">
-              <div className="font-pixel text-retro-green text-xs bg-retro-black px-4 py-2">✓ Quest Completed!</div>
+              <div className="text-body-sm font-medium text-retro-green bg-retro-black px-4 py-2">✓ Quest Completed!</div>
               {showXpAnimation && (
                 <div className="font-pixel text-retro-lime text-lg animate-bounce-8bit">+{xpEarned} XP!</div>
               )}
@@ -483,7 +479,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 </Link>
                 <button
                   onClick={() => setShowCompletionModal(true)}
-                  className="font-pixel text-retro-cyan text-[8px] hover:text-retro-lightblue underline"
+                  className="text-body-sm text-retro-cyan hover:text-retro-lightblue underline"
                 >
                   View Reward
                 </button>

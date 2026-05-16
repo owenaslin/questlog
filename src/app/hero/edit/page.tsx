@@ -250,7 +250,7 @@ export default function HeroEditPage() {
       <div className="flex items-center gap-3 mb-6">
         <span className="text-2xl">🧙</span>
         <div>
-          <h1 className="font-pixel text-tavern-gold text-sm">Edit Hero</h1>
+          <h1 className="text-subhead text-tavern-gold">Edit Hero</h1>
           <p className="text-body-sm text-[--parchment-dim] mt-0.5">
             Your public character sheet
           </p>
@@ -263,7 +263,7 @@ export default function HeroEditPage() {
         <div className="flex items-center gap-4">
           <HeroPortrait spriteKey={avatarSprite} size="lg" />
           <div className="flex-1 min-w-0">
-            <p className="font-pixel text-tavern-gold text-[11px] mb-0.5">
+            <p className="text-body-sm font-semibold text-tavern-gold mb-0.5">
               {hero?.display_name ?? "Adventurer"}
             </p>
             <p className="text-body-sm text-tavern-parchment mb-2 opacity-80">
@@ -357,7 +357,7 @@ export default function HeroEditPage() {
       {/* ── Pinned Triumphs picker ───────────────────────────────── */}
       <div className="tavern-card p-5 mb-6">
         <div className="flex items-center justify-between mb-3">
-          <label className="font-pixel text-tavern-gold text-[8px]">
+          <label className="text-body-sm font-medium text-tavern-gold">
             Pinned Triumphs
           </label>
           <span className="text-body-sm text-[--parchment-dim]">
@@ -389,7 +389,7 @@ export default function HeroEditPage() {
                   }}
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-pixel text-tavern-gold text-[9px]">
+                    <span className="text-tavern-gold text-base leading-none">
                       {isPinned ? "📌" : "✓"}
                     </span>
                     <span className="text-body-sm text-tavern-parchment truncate">
@@ -455,13 +455,13 @@ export default function HeroEditPage() {
 
       <DesktopRightRail title="Hero Workshop">
         <div className="bg-retro-black border-2 border-retro-darkgray p-3">
-          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Live Summary</p>
-          <p className="font-pixel text-tavern-gold text-[7px] mb-1">Handle: {handle || "(none)"}</p>
-          <p className="font-pixel text-retro-cyan text-[7px] mb-1">Visibility: {isPublic ? "Public" : "Private"}</p>
+          <p className="kicker mb-2">Live Summary</p>
+          <p className="text-body-sm text-tavern-gold mb-1">Handle: {handle || "(none)"}</p>
+          <p className="text-body-sm text-retro-cyan mb-1">Visibility: {isPublic ? "Public" : "Private"}</p>
           <p className="text-body-sm text-retro-lime">Pinned: {pinnedQuests.length}/5</p>
         </div>
         <div className="bg-retro-black border-2 border-retro-darkgray p-3">
-          <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Tips</p>
+          <p className="kicker mb-2">Tips</p>
           <p className="text-body-sm text-tavern-parchment leading-loose mb-2">
             Keep handles short and memorable for easier sharing.
           </p>
@@ -472,7 +472,7 @@ export default function HeroEditPage() {
         {hero?.handle && (
           <Link
             href={`/hero/${hero.handle}`}
-            className="font-pixel text-[7px] text-tavern-gold hover:text-tavern-candle"
+            className="text-body-sm text-tavern-gold hover:text-tavern-candle"
           >
             View public hero →
           </Link>

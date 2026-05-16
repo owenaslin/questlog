@@ -287,7 +287,7 @@ export default function SettingsPage() {
 
       <div className="space-y-5">
         <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4">
-          <h2 className="font-pixel text-retro-yellow text-xs mb-3">👤 Profile</h2>
+          <h2 className="text-body-sm font-semibold text-retro-yellow mb-3">👤 Profile</h2>
 
           <label className="text-body-sm font-medium text-[--parchment-dim] block mb-2">Display Name</label>
           <input
@@ -322,7 +322,7 @@ export default function SettingsPage() {
         </section>
 
         <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4">
-          <h2 className="font-pixel text-retro-yellow text-xs mb-3">📅 Habit Tracker</h2>
+          <h2 className="text-body-sm font-semibold text-retro-yellow mb-3">📅 Habit Tracker</h2>
           <label className="text-body-sm font-medium text-[--parchment-dim] block mb-2">Week starts on</label>
           <select
             value={selectedWeekStartDay}
@@ -339,7 +339,7 @@ export default function SettingsPage() {
         </section>
 
         <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4">
-          <h2 className="font-pixel text-retro-yellow text-xs mb-3">🎨 Theme</h2>
+          <h2 className="text-body-sm font-semibold text-retro-yellow mb-3">🎨 Theme</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             {THEME_OPTIONS.map((option) => (
               <button
@@ -360,8 +360,8 @@ export default function SettingsPage() {
         </section>
 
         <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4">
-          <h2 className="font-pixel text-retro-yellow text-xs mb-3">🧭 Quest Recommendations</h2>
-          <p className="text-[12px] text-retro-gray mb-4">
+          <h2 className="text-body-sm font-semibold text-retro-yellow mb-3">🧭 Quest Recommendations</h2>
+          <p className="text-body-sm text-retro-gray mb-4">
             Tune Today&apos;s Adventure so the tavern draws quests that match your time, energy, and preferred kind of discovery.
           </p>
 
@@ -399,8 +399,8 @@ export default function SettingsPage() {
                       : "border-retro-black bg-retro-darkpurple"
                   }`}
                 >
-                  <p className="font-pixel text-[8px] text-tavern-parchment">{option.label}</p>
-                  <p className="text-[11px] text-retro-gray mt-1">{option.hint}</p>
+                  <p className="text-body-sm font-medium text-tavern-parchment">{option.label}</p>
+                  <p className="text-body-sm text-retro-gray mt-1">{option.hint}</p>
                 </button>
               ))}
             </div>
@@ -467,7 +467,7 @@ export default function SettingsPage() {
         </section>
 
         <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4">
-          <h2 className="font-pixel text-retro-yellow text-xs mb-3">🔔 Notifications</h2>
+          <h2 className="text-body-sm font-semibold text-retro-yellow mb-3">🔔 Notifications</h2>
           <div className="space-y-2">
             <label className="flex items-center justify-between bg-retro-darkpurple border-2 border-retro-black p-2">
               <span className="text-body-sm text-tavern-parchment">Habit reminders</span>
