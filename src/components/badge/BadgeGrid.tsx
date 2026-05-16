@@ -69,7 +69,7 @@ export function BadgeShowcase({
     return (
       <div className="bg-retro-darkgray border-4 border-retro-black p-6 text-center">
         <div className="text-3xl mb-2">🏅</div>
-        <p className="font-pixel text-retro-lightgray text-[10px]">
+        <p className="text-body text-retro-lightgray">
           No badges yet. Complete quests to earn your first badge!
         </p>
       </div>
@@ -91,7 +91,7 @@ export function BadgeShowcase({
             >
               {badge.icon}
             </div>
-            <span className="font-pixel text-retro-lightgray text-[7px] text-center max-w-[60px]">
+            <span className="text-body-sm text-retro-lightgray text-center max-w-[60px]">
               {badge.name}
             </span>
           </div>
@@ -105,7 +105,7 @@ export function BadgeShowcase({
             <div className="w-14 h-14 flex items-center justify-center bg-retro-gray border-4 border-retro-black shadow-pixel group-hover:bg-retro-darkgray transition-colors">
               <span className="font-pixel text-retro-lightgray text-lg">+{remaining}</span>
             </div>
-            <span className="font-pixel text-retro-cyan text-[7px]">See All</span>
+            <span className="text-body-sm text-retro-cyan">See All</span>
           </button>
         )}
       </div>

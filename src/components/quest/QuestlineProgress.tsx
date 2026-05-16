@@ -54,25 +54,21 @@ function LinearProgress({
                 `}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <h4 className="font-pixel text-retro-yellow text-xs">
+                  <h4 className="text-body-sm font-semibold text-retro-yellow">
                     Step {step.step_number}: {quest.title}
                   </h4>
                   <StepStatusBadge step={step} />
                 </div>
 
-                <p className="font-pixel text-retro-lightgray text-[8px] leading-relaxed mb-3">
+                <p className="text-body-sm text-retro-lightgray leading-relaxed mb-3">
                   {step.is_unlocked || step.is_completed
                     ? quest.description
                     : "Complete the previous step to unlock."}
                 </p>
 
                 <div className="flex items-center justify-between">
-                  <span className="font-pixel text-retro-lime text-[8px]">
-                    +{quest.xp_reward} XP
-                  </span>
-                  <span className="font-pixel text-retro-cyan text-[8px]">
-                    {quest.duration_label}
-                  </span>
+                  <span className="badge badge-lime">+{quest.xp_reward} XP</span>
+                  <span className="text-body-sm text-retro-cyan">{quest.duration_label}</span>
                 </div>
 
                 {step.is_unlocked && !step.is_completed && (
@@ -121,7 +117,7 @@ function SkillTreeProgress({
 
   if (!rootStep && branches.length === 0) {
     return (
-      <p className="font-pixel text-retro-gray text-[8px]">No steps defined.</p>
+      <p className="text-body-sm text-retro-gray">No steps defined.</p>
     );
   }
 
@@ -163,7 +159,7 @@ function SkillTreeProgress({
 
               return (
                 <div key={branch} className="flex flex-col items-center gap-2">
-                  <h4 className="font-pixel text-retro-cyan text-[8px] uppercase tracking-wider text-center mb-1">
+                  <h4 className="kicker text-retro-cyan text-center mb-1">
                     {branch}
                   </h4>
                   {branchSteps.map((step, index) => (
@@ -238,17 +234,17 @@ function SkillTreeNode({
     >
       <div className="flex items-center gap-2 mb-2">
         <StepNode step={step} />
-        <h4 className="font-pixel text-retro-yellow text-xs">{quest.title}</h4>
+        <h4 className="text-body-sm font-semibold text-retro-yellow">{quest.title}</h4>
       </div>
 
       {(step.is_unlocked || step.is_completed) && (
-        <p className="font-pixel text-retro-lightgray text-[8px] leading-relaxed line-clamp-2">
+        <p className="text-body-sm text-retro-lightgray leading-relaxed line-clamp-2">
           {quest.description}
         </p>
       )}
 
       <div className="flex items-center justify-between mt-2">
-        <span className="font-pixel text-retro-lime text-[7px]">+{quest.xp_reward} XP</span>
+        <span className="badge badge-lime">+{quest.xp_reward} XP</span>
         <StepStatusBadge step={step} small />
       </div>
     </div>
@@ -256,28 +252,12 @@ function SkillTreeNode({
 }
 
 // Status badge
-function StepStatusBadge({ step, small = false }: { step: QuestlineStep; small?: boolean }) {
-  const className = small ? "text-[6px] px-1 py-0.5" : "text-[8px] px-2 py-1";
-
+function StepStatusBadge({ step }: { step: QuestlineStep; small?: boolean }) {
   if (step.is_completed) {
-    return (
-      <span className={`font-pixel ${className} bg-retro-green text-retro-black`}>
-        ✓ Done
-      </span>
-    );
+    return <span className="badge badge-lime">✓ Done</span>;
   }
-
   if (step.is_unlocked) {
-    return (
-      <span className={`font-pixel ${className} bg-retro-lime text-retro-black`}>
-        ▶ Available
-      </span>
-    );
+    return <span className="badge badge-blue">▶ Available</span>;
   }
-
-  return (
-    <span className={`font-pixel ${className} bg-retro-darkgray text-retro-gray`}>
-      🔒 Locked
-    </span>
-  );
+  return <span className="badge badge-muted">🔒 Locked</span>;
 }
