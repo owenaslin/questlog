@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getTimeOfDayLabel } from "@/lib/time-of-day";
@@ -24,7 +24,7 @@ export default function MobileBottomNav() {
   const pathname = usePathname();
   const [todayLabel, setTodayLabel] = useState<string>("Tonight");
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setTodayLabel(getTimeOfDayLabel());
   }, []);
 

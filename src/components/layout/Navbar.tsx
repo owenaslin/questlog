@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -11,7 +11,7 @@ import { useViewMode } from "@/components/ui/ViewModeProvider";
 import { getTimeOfDayLabel } from "@/lib/time-of-day";
 
 const navLinks = [
-  { href: "/", label: "Tonight" },
+  { href: "/", label: "Home" },
   { href: "/board", label: "The Board" },
   { href: "/profile", label: "My Saga" },
   { href: "/settings", label: "Settings" },
@@ -75,7 +75,7 @@ export default function Navbar() {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setTodayLabel(getTimeOfDayLabel());
   }, []);
 

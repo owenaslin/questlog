@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useLayoutEffect, useState, lazy, Suspense } from "react";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabase";
 import {
@@ -48,7 +48,7 @@ export default function HomePage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [timeLabel, setTimeLabel] = useState<"Morning" | "Afternoon" | "Tonight">("Tonight");
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setTimeLabel(getTimeOfDayLabel());
   }, []);
 
@@ -195,10 +195,9 @@ export default function HomePage() {
     );
   }
 
-  const timeAdverb = timeLabel === "Morning" ? "this morning" : timeLabel === "Afternoon" ? "this afternoon" : "tonight";
-
   // ── Guest view ────────────────────────────────────────────────────────────
   if (!isLoggedIn) {
+    const timeAdverb = timeLabel === "Morning" ? "this morning" : timeLabel === "Afternoon" ? "this afternoon" : "tonight";
     const pickedQuest = tonightQuests.find((q) => q.id === pickedId) ?? tonightQuests[0] ?? null;
 
     return (
