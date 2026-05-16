@@ -11,84 +11,7 @@ interface DailyHabitsWidgetProps {
   maxDisplay?: number;
 }
 
-function HabitListItem({
-  habit,
-  index,
-  isLoading,
-  xpAmount,
-  onToggle,
-}: {
-  habit: HabitWithStatus;
-  index: number;
-  isLoading: boolean;
-  xpAmount?: number;
-  onToggle: () => void;
-}) {
-  return (
-    <div
-      style={{
-        opacity: 0,
-        animation: `fadeInSlide 0.3s ease-out forwards`,
-        animationDelay: `${index * 50}ms`,
-      }}
-      className={`
-        relative flex items-center gap-3 p-2 rounded-lg border transition-all
-        ${habit.is_completed_today
-          ? "border-tavern-gold/30 bg-tavern-gold/5"
-          : "border-tavern-oak/50 bg-tavern-smoke/30 hover:border-tavern-gold/30"
-        }
-      `}
-    >
-      {/* Icon */}
-      <div
-        className="w-8 h-8 rounded flex items-center justify-center text-lg flex-shrink-0"
-        style={{ backgroundColor: habit.color }}
-      >
-        {habit.icon}
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <p
-          className={`text-sm truncate ${
-            habit.is_completed_today ? "line-through opacity-60" : ""
-          }`}
-        >
-          {habit.title}
-        </p>
-        {habit.streak && habit.streak.current_streak > 0 && isStreakStillActive(habit.streak.last_completed_date) && (
-          <p className="text-[10px] text-tavern-gold">
-            {habit.streak.current_streak} day streak 🔥
-          </p>
-        )}
-      </div>
-
-      {/* XP badge */}
-      {xpAmount && (
-        <span
-          style={{
-            opacity: xpAmount ? 1 : 0,
-            transition: "opacity 0.3s ease-out",
-          }}
-          className="absolute right-14 text-xs text-retro-lime font-pixel"
-        >
-          +{xpAmount} XP
-        </span>
-      )}
-
-      {/* Checkbox */}
-      <HabitCheck
-        checked={habit.is_completed_today}
-        onChange={onToggle}
-        disabled={isLoading}
-        size="md"
-        color={habit.color}
-      />
-    </div>
-  );
-}
-
-export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetProps) {
+export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidgetProps) {
   const [habits, setHabits] = useState<HabitWithStatus[]>([]);
   const [summary, setSummary] = useState({
     totalScheduled: 0,
@@ -185,7 +108,7 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
           </p>
           <Link
             href="/habits/new"
-            className="tavrn-button text-[9px] inline-block"
+            className="tavrn-btn tavrn-btn-primary tavrn-btn-sm inline-flex"
           >
             Create Your First Habit
           </Link>
@@ -235,16 +158,55 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
 
       {/* Habits list */}
       <div className="space-y-2">
-        {displayedHabits.map((habit, index) => (
-          <HabitListItem
-            key={habit.id}
-            habit={habit}
-            index={index}
-            isLoading={loadingHabitId === habit.id}
-            xpAmount={xpAnimations.find((a) => a.id === habit.id)?.amount}
-            onToggle={() => handleToggle(habit)}
-          />
-        ))}
+        {displayedHabits.map((habit, index) => {
+          const isLoading = loadingHabitId === habit.id;
+          const xpAmount = xpAnimations.find((a) => a.id === habit.id)?.amount;
+          return (
+            <div
+              key={habit.id}
+              style={{
+                opacity: 0,
+                animation: "fadeInSlide 0.3s ease-out forwards",
+                animationDelay: `${index * 50}ms`,
+              }}
+              className={`relative flex items-center gap-3 p-2 rounded-lg border transition-all ${
+                habit.is_completed_today
+                  ? "border-tavern-gold/30 bg-tavern-gold/5"
+                  : "border-tavern-oak/50 bg-tavern-smoke/30 hover:border-tavern-gold/30"
+              }`}
+            >
+              <div
+                className="w-8 h-8 rounded flex items-center justify-center text-lg flex-shrink-0"
+                style={{ backgroundColor: habit.color }}
+              >
+                {habit.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm truncate ${habit.is_completed_today ? "line-through opacity-60" : ""}`}>
+                  {habit.title}
+                </p>
+                {habit.streak && habit.streak.current_streak > 0 && isStreakStillActive(habit.streak.last_completed_date) && (
+                  <p className="text-[10px] text-tavern-gold">{habit.streak.current_streak} day streak 🔥</p>
+                )}
+              </div>
+              {xpAmount && (
+                <span
+                  style={{ opacity: 1, transition: "opacity 0.3s ease-out" }}
+                  className="absolute right-14 text-xs text-retro-lime font-pixel"
+                >
+                  +{xpAmount} XP
+                </span>
+              )}
+              <HabitCheck
+                checked={habit.is_completed_today}
+                onChange={() => handleToggle(habit)}
+                disabled={isLoading}
+                size="md"
+                color={habit.color}
+              />
+            </div>
+          );
+        })}
       </div>
 
       {/* Footer links */}
@@ -261,7 +223,7 @@ export default function DailyHabitsWidget({ maxDisplay = 5 }: DailyHabitsWidgetP
         )}
         <Link
           href="/habits"
-          className="tavrn-button text-[8px] !py-1.5 !px-2.5"
+          className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
         >
           Manage
         </Link>

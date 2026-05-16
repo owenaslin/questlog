@@ -76,12 +76,8 @@ export {
 } from './prompts';
 
 // Providers
-export { mockDiscoveryProvider, mockEventProvider } from './providers/mock';
-export { 
-  openStreetMapProvider,
-  buildOverpassQuery,
-  fetchFromOverpass,
-} from './providers/openstreetmap';
+export { mockDiscoveryProvider } from './providers/mock';
+export { openStreetMapProvider } from './providers/openstreetmap';
 
 // Constants
 export const DISCOVERY_CONSTANTS = {

@@ -17,10 +17,10 @@ export default function XPBar({ xpTotal, showLabel = true }: XPBarProps) {
     <div className="w-full">
       {showLabel && (
         <div className="flex justify-between mb-1">
-          <span className="font-pixel text-retro-yellow text-[10px]">
+          <span className="text-body-sm font-semibold text-tavern-gold">
             LVL {level}
           </span>
-          <span className="font-pixel text-retro-lightgray text-[8px]">
+          <span className="text-body-sm text-[--parchment-dim]">
             {current}/{needed} XP
           </span>
         </div>

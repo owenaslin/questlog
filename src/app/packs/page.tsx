@@ -45,7 +45,7 @@ export default function QuestPacksPage() {
             Pick your time, energy, and mood. The tavern will deal three quests.
           </p>
         </div>
-        <Link href="/" className="tavrn-button !bg-tavern-oak !text-tavern-parchment text-[8px]">
+        <Link href="/" className="tavrn-btn tavrn-btn-ghost">
           Back to Today
         </Link>
       </div>

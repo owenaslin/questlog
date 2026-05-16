@@ -122,13 +122,8 @@ export default async function DiscoverPage() {
         
         {/* Discovery Forge */}
         <DiscoveryForge
-          onQuestAccepted={(quest) => {
-            // This will be handled client-side
-            console.log('Quest accepted:', quest);
-          }}
-          onQuestDismissed={() => {
-            console.log('Quest dismissed');
-          }}
+          onQuestAccepted={() => {}}
+          onQuestDismissed={() => {}}
         />
         
         {/* How It Works */}

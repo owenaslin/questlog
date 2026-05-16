@@ -25,33 +25,25 @@ function DifficultySwords({ difficulty }: { difficulty: number }) {
 
 function QuestTypeBadge({ type }: { type: string }) {
   return (
-    <span
-      className={`font-pixel text-[8px] px-2 py-1 uppercase tracking-wider ${
-        type === "main"
-          ? "bg-retro-red text-retro-white"
-          : "bg-retro-blue text-retro-white"
-      }`}
-    >
+    <span className={`badge ${type === "main" ? "badge-ember" : "badge-blue"}`}>
       {type === "main" ? "⚔ Main" : "🗡 Side"}
     </span>
   );
 }
 
 function SourceBadge({ source }: { source: string }) {
-  const styles: Record<string, string> = {
-    predefined: "bg-retro-darkgreen text-retro-white",
-    user: "bg-retro-orange text-retro-black",
-    ai: "bg-retro-darkpurple text-retro-white",
-  };
   const labels: Record<string, string> = {
     predefined: "★ Curated",
     user: "✎ Custom",
     ai: "⚡ AI",
   };
+  const variants: Record<string, string> = {
+    predefined: "badge-muted",
+    user: "badge-gold",
+    ai: "badge-purple",
+  };
   return (
-    <span
-      className={`font-pixel text-[7px] px-2 py-1 uppercase ${styles[source] || ""}`}
-    >
+    <span className={`badge ${variants[source] || "badge-muted"}`}>
       {labels[source] || source}
     </span>
   );
@@ -59,7 +51,7 @@ function SourceBadge({ source }: { source: string }) {
 
 function CategoryBadge({ category }: { category: string }) {
   const categoryData = getCategoryByKey(category);
-  
+
   return (
     <div className="flex items-center gap-1.5">
       <span
@@ -68,7 +60,7 @@ function CategoryBadge({ category }: { category: string }) {
       >
         {categoryData?.icon || "📜"}
       </span>
-      <span className="font-pixel text-retro-cyan text-[8px] uppercase">
+      <span className="text-body-sm text-[--parchment-dim] uppercase">
         {category}
       </span>
     </div>
@@ -98,35 +90,33 @@ export default function QuestCard({ quest }: QuestCardProps) {
         <div className="md:hidden absolute inset-0" aria-hidden="true" />
 
         {/* Title */}
-        <h3 className="font-pixel text-tavern-gold text-xs leading-relaxed">
+        <h3 className="text-subhead text-tavern-gold leading-snug">
           {quest.title}
         </h3>
 
         {/* Description */}
-        <p className="text-retro-lightgray text-[10px] font-pixel leading-relaxed line-clamp-2">
+        <p className="text-body-sm text-[--parchment-dim] leading-relaxed line-clamp-2">
           {quest.description}
         </p>
 
         {/* Difficulty & XP */}
         <div className="flex items-center justify-between mt-auto">
           <DifficultySwords difficulty={quest.difficulty} />
-          <span className="font-pixel text-retro-lime text-[10px]">
-            +{quest.xp_reward} XP
-          </span>
+          <span className="badge badge-lime">+{quest.xp_reward} XP</span>
         </div>
 
         {/* Duration & Category */}
         <div className="flex items-center justify-between">
-          <span className="font-pixel text-retro-lightgray text-[8px]">
+          <span className="text-body-sm text-[--parchment-dim]">
             ⏱ {quest.duration_label}
           </span>
           <CategoryBadge category={quest.category} />
         </div>
 
-        {/* Status — wax seal style */}
+        {/* Status */}
         {quest.status !== "available" && (
           <div
-            className={`w-full font-pixel text-[7px] text-center py-1.5 uppercase tracking-wider ${
+            className={`w-full text-body-sm text-center py-1.5 ${
               quest.status === "active"
                 ? "bg-retro-orange text-retro-black"
                 : "bg-retro-darkgreen text-retro-white"

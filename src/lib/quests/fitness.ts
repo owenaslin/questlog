@@ -1,5 +1,5 @@
 import { Quest } from "@/lib/types";
-import { generateStableId } from "@/lib/seed-quests";
+import { generateStableId } from "@/lib/stable-id";
 import { durationLabelToMinutes, calcQuestXP } from "@/lib/xp";
 
 const FITNESS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [

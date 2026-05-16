@@ -229,9 +229,9 @@ export default function HeroEditPage() {
     return (
       <div className="max-w-lg mx-auto">
         <div className="tavern-card p-6 text-center">
-          <p className="font-pixel text-tavern-ember text-[9px] mb-4">{authError}</p>
+          <p className="text-body-sm text-tavern-ember mb-4">{authError}</p>
           <button onClick={() => router.replace(buildAuthUrl("login", "/hero/edit"))}
-            className="font-pixel text-[8px] px-4 py-2 bg-retro-blue text-retro-white">
+            className="tavrn-btn tavrn-btn-ghost">
             Go to Login
           </button>
         </div>
@@ -251,7 +251,7 @@ export default function HeroEditPage() {
         <span className="text-2xl">🧙</span>
         <div>
           <h1 className="font-pixel text-tavern-gold text-sm">Edit Hero</h1>
-          <p className="font-pixel text-tavern-smoke-light text-[7px] mt-0.5">
+          <p className="text-body-sm text-[--parchment-dim] mt-0.5">
             Your public character sheet
           </p>
         </div>
@@ -259,22 +259,22 @@ export default function HeroEditPage() {
 
       {/* ── Preview card ─────────────────────────────────────────── */}
       <div className="tavern-card p-5 mb-6">
-        <p className="font-pixel text-tavern-smoke-light text-[7px] mb-3 uppercase tracking-wider">Preview</p>
+        <p className="text-body-sm text-[--parchment-dim] mb-3 uppercase tracking-wider">Preview</p>
         <div className="flex items-center gap-4">
           <HeroPortrait spriteKey={avatarSprite} size="lg" />
           <div className="flex-1 min-w-0">
             <p className="font-pixel text-tavern-gold text-[11px] mb-0.5">
               {hero?.display_name ?? "Adventurer"}
             </p>
-            <p className="font-pixel text-tavern-parchment text-[7px] mb-2 opacity-80">
+            <p className="text-body-sm text-tavern-parchment mb-2 opacity-80">
               {displayTitle}
             </p>
-            <p className="font-pixel text-tavern-smoke-light text-[7px] mb-2">
+            <p className="text-body-sm text-[--parchment-dim] mb-2">
               Level {hero?.level ?? 1} · {hero?.xp_total ?? 0} XP
             </p>
             <XPBar xpTotal={hero?.xp_total ?? 0} showLabel={false} />
             {handle && (
-              <p className="font-pixel text-tavern-smoke-light text-[6px] mt-2">
+              <p className="text-body-sm text-[--parchment-dim] mt-2">
                 tarvn.xyz/hero/{handle}
               </p>
             )}
@@ -284,10 +284,10 @@ export default function HeroEditPage() {
 
       {/* ── Handle ──────────────────────────────────────────────── */}
       <div className="tavern-card p-5 mb-4">
-        <label className="font-pixel text-tavern-gold text-[8px] block mb-2">
+        <label className="text-body-sm font-medium text-tavern-gold block mb-2">
           Hero Handle
         </label>
-        <p className="font-pixel text-tavern-smoke-light text-[7px] mb-3">
+        <p className="text-body-sm text-[--parchment-dim] mb-3">
           Your public URL: tarvn.xyz/hero/<strong className="text-tavern-parchment">{handle || "your-handle"}</strong>
         </p>
         <div className="flex gap-2 items-start">
@@ -297,21 +297,21 @@ export default function HeroEditPage() {
             onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9\-]/g, ""))}
             placeholder="the-iron-mage"
             maxLength={20}
-            className="flex-1 font-pixel text-[8px] px-3 py-2 bg-tavern-smoke border-2 border-tavern-oak text-tavern-parchment focus:border-tavern-gold outline-none"
+            className="flex-1 text-body-sm px-3 py-2 bg-tavern-smoke border-2 border-tavern-oak text-tavern-parchment focus:border-tavern-gold outline-none rounded"
           />
         </div>
         <div className="mt-2 h-4">
           {handleStatus === "checking" && (
-            <span className="font-pixel text-tavern-smoke-light text-[7px] animate-flicker">Checking…</span>
+            <span className="text-body-sm text-[--parchment-dim] animate-flicker">Checking…</span>
           )}
           {handleStatus === "available" && (
-            <span className="font-pixel text-retro-lime text-[7px]">✓ Available!</span>
+            <span className="text-body-sm text-retro-lime">✓ Available!</span>
           )}
           {handleStatus === "taken" && (
-            <span className="font-pixel text-tavern-ember text-[7px]">✗ Already taken</span>
+            <span className="text-body-sm text-tavern-ember">✗ Already taken</span>
           )}
           {handleStatus === "invalid" && (
-            <span className="font-pixel text-tavern-ember text-[7px]">
+            <span className="text-body-sm text-tavern-ember">
               3–20 chars, lowercase a-z, 0-9 and hyphens only
             </span>
           )}
@@ -320,7 +320,7 @@ export default function HeroEditPage() {
 
       {/* ── Portrait picker ─────────────────────────────────────── */}
       <div className="tavern-card p-5 mb-4">
-        <label className="font-pixel text-tavern-gold text-[8px] block mb-3">
+        <label className="text-body-sm font-medium text-tavern-gold block mb-3">
           Choose Your Portrait
         </label>
         <PortraitPicker selected={avatarSprite} onSelect={setAvatarSprite} />
@@ -328,7 +328,7 @@ export default function HeroEditPage() {
 
       {/* ── Visibility toggle ────────────────────────────────────── */}
       <div className="tavern-card p-5 mb-4">
-        <label className="font-pixel text-tavern-gold text-[8px] block mb-3">
+        <label className="text-body-sm font-medium text-tavern-gold block mb-3">
           Visibility
         </label>
         <div className="flex gap-3">
@@ -337,7 +337,7 @@ export default function HeroEditPage() {
               key={String(val)}
               type="button"
               onClick={() => setIsPublic(val)}
-              className={`font-pixel text-[8px] px-4 py-2 border-2 transition-none ${
+              className={`tavrn-btn tavrn-btn-sm transition-none ${
                 isPublic === val
                   ? "border-tavern-gold text-tavern-gold bg-tavern-smoke"
                   : "border-tavern-oak text-tavern-parchment hover:border-tavern-gold"
@@ -347,7 +347,7 @@ export default function HeroEditPage() {
             </button>
           ))}
         </div>
-        <p className="font-pixel text-tavern-smoke-light text-[7px] mt-2">
+        <p className="text-body-sm text-[--parchment-dim] mt-2">
           {isPublic
             ? "Anyone with your link can view your hero page."
             : "Only you can view your hero page."}
@@ -360,17 +360,17 @@ export default function HeroEditPage() {
           <label className="font-pixel text-tavern-gold text-[8px]">
             Pinned Triumphs
           </label>
-          <span className="font-pixel text-tavern-smoke-light text-[7px]">
+          <span className="text-body-sm text-[--parchment-dim]">
             {pinnedQuests.length} / 5 pinned
           </span>
         </div>
-        <p className="font-pixel text-tavern-smoke-light text-[7px] mb-3">
+        <p className="text-body-sm text-[--parchment-dim] mb-3">
           Pick up to 5 completed quests to highlight on your hero page.
         </p>
 
         {completedQuests.length === 0 ? (
           <div className="parchment-card p-3 text-center">
-            <p className="font-pixel text-tavern-parchment text-[7px]">
+            <p className="text-body-sm text-tavern-parchment">
               Complete quests to pin them here.
             </p>
           </div>
@@ -392,7 +392,7 @@ export default function HeroEditPage() {
                     <span className="font-pixel text-tavern-gold text-[9px]">
                       {isPinned ? "📌" : "✓"}
                     </span>
-                    <span className="font-pixel text-tavern-parchment text-[7px] truncate">
+                    <span className="text-body-sm text-tavern-parchment truncate">
                       {quest.title}
                     </span>
                   </div>
@@ -400,7 +400,7 @@ export default function HeroEditPage() {
                     type="button"
                     onClick={() => togglePin(quest)}
                     disabled={isWorking || (!isPinned && pinnedQuests.length >= 5)}
-                    className={`font-pixel text-[6px] px-2 py-1 border flex-shrink-0 ml-2 transition-none ${
+                    className={`text-body-sm px-2 py-1 border flex-shrink-0 ml-2 transition-none rounded ${
                       isPinned
                         ? "border-tavern-ember text-tavern-ember hover:bg-tavern-smoke"
                         : "border-tavern-oak text-tavern-parchment hover:border-tavern-gold"
@@ -419,12 +419,12 @@ export default function HeroEditPage() {
       <div className="flex flex-col gap-3 mb-8">
         {saveMsg && (
           <div className="parchment-card px-4 py-2 text-center">
-            <span className="font-pixel text-retro-lime text-[8px]">✓ {saveMsg}</span>
+            <span className="text-body-sm text-retro-lime">✓ {saveMsg}</span>
           </div>
         )}
         {saveError && (
           <div className="tavern-card px-4 py-2 text-center border-tavern-ember">
-            <span className="font-pixel text-tavern-ember text-[8px]">✗ {saveError}</span>
+            <span className="text-body-sm text-tavern-ember">✗ {saveError}</span>
           </div>
         )}
 
@@ -432,21 +432,21 @@ export default function HeroEditPage() {
           type="button"
           onClick={handleSave}
           disabled={isSaving || handleStatus === "taken" || handleStatus === "invalid"}
-          className="w-full font-pixel text-[9px] px-6 py-3 border-4 border-b-8 border-tavern-gold-dark bg-tavern-gold text-tavern-smoke hover:bg-tavern-candle disabled:opacity-50 disabled:cursor-not-allowed transition-none"
+          className="tavrn-btn tavrn-btn-primary tavrn-btn-lg w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSaving ? "Saving…" : "⚔ Save Hero"}
         </button>
 
         {hero?.handle && (
           <Link href={`/hero/${hero.handle}`} className="block text-center">
-            <span className="font-pixel text-tavern-gold text-[8px] hover:text-tavern-candle underline">
+            <span className="text-body-sm text-tavern-gold hover:text-tavern-candle underline">
               View Public Page →
             </span>
           </Link>
         )}
 
         <Link href="/journal" className="block text-center">
-          <span className="font-pixel text-tavern-smoke-light text-[7px] hover:text-tavern-parchment">
+          <span className="text-body-sm text-[--parchment-dim] hover:text-tavern-parchment">
             ← Back to Journal
           </span>
         </Link>
@@ -458,14 +458,14 @@ export default function HeroEditPage() {
           <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Live Summary</p>
           <p className="font-pixel text-tavern-gold text-[7px] mb-1">Handle: {handle || "(none)"}</p>
           <p className="font-pixel text-retro-cyan text-[7px] mb-1">Visibility: {isPublic ? "Public" : "Private"}</p>
-          <p className="font-pixel text-retro-lime text-[7px]">Pinned: {pinnedQuests.length}/5</p>
+          <p className="text-body-sm text-retro-lime">Pinned: {pinnedQuests.length}/5</p>
         </div>
         <div className="bg-retro-black border-2 border-retro-darkgray p-3">
           <p className="font-pixel text-retro-gray text-[7px] uppercase mb-2">Tips</p>
-          <p className="font-pixel text-tavern-parchment text-[7px] leading-loose mb-2">
+          <p className="text-body-sm text-tavern-parchment leading-loose mb-2">
             Keep handles short and memorable for easier sharing.
           </p>
-          <p className="font-pixel text-tavern-parchment text-[7px] leading-loose">
+          <p className="text-body-sm text-tavern-parchment leading-loose">
             Pin your strongest completed quests to tell your story quickly.
           </p>
         </div>

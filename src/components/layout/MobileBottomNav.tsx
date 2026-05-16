@@ -47,7 +47,7 @@ export default function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-2 py-1 transition-none ${
+              className={`relative flex flex-col items-center justify-center min-w-[64px] min-h-[56px] px-2 py-2 transition-none ${
                 active
                   ? "text-tavern-gold nav-active-glow bg-tavern-smoke"
                   : "text-tavern-parchment active:bg-tavern-smoke"
@@ -55,7 +55,7 @@ export default function MobileBottomNav() {
               aria-current={active ? "page" : undefined}
             >
               <span className="text-xl leading-none mb-1">{item.icon}</span>
-              <span className="font-pixel text-[9px] uppercase tracking-wider">
+              <span className="text-body-sm font-medium">
                 {item.href === "/" ? todayLabel : item.label}
               </span>
               {active && (

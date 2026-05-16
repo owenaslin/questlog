@@ -248,11 +248,11 @@ export default function SettingsPage() {
     return (
       <div className="max-w-2xl mx-auto tavrn-panel p-4 md:p-6">
         <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6 text-center">
-          <p className="font-pixel text-retro-red text-[9px] mb-4">{authError}</p>
+          <p className="text-body-sm text-retro-red mb-4">{authError}</p>
           <button
             type="button"
             onClick={() => router.replace(`/login?redirect=${encodeURIComponent(pathname || "/settings")}`)}
-            className="font-pixel text-[8px] px-4 py-2 bg-retro-blue text-retro-white"
+            className="tavrn-btn tavrn-btn-ghost"
           >
             Go to Login
           </button>
@@ -271,7 +271,7 @@ export default function SettingsPage() {
         <Link
           href="/profile"
           onClick={handleBackToProfileClick}
-          className="font-pixel text-[8px] text-retro-cyan hover:text-retro-lightblue"
+          className="text-body-sm text-retro-cyan hover:text-retro-lightblue"
         >
           ← Back to Profile
         </Link>
@@ -279,7 +279,7 @@ export default function SettingsPage() {
 
       {(error || saveMessage) && (
         <div className="mb-4 bg-retro-darkgray border-2 border-retro-black p-3">
-          <p className={`font-pixel text-[8px] ${error ? "text-retro-red" : "text-retro-lime"}`}>
+          <p className={`text-body-sm ${error ? "text-retro-red" : "text-retro-lime"}`}>
             {error || saveMessage}
           </p>
         </div>
@@ -289,7 +289,7 @@ export default function SettingsPage() {
         <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4">
           <h2 className="font-pixel text-retro-yellow text-xs mb-3">👤 Profile</h2>
 
-          <label className="font-pixel text-[8px] text-retro-lightgray block mb-2">Display Name</label>
+          <label className="text-body-sm font-medium text-[--parchment-dim] block mb-2">Display Name</label>
           <input
             type="text"
             value={displayName}
@@ -298,7 +298,7 @@ export default function SettingsPage() {
             className="w-full bg-tavern-smoke border-2 border-tavern-oak rounded p-2 text-tavern-parchment mb-4"
           />
 
-          <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Avatar</p>
+          <p className="text-body-sm font-medium text-[--parchment-dim] mb-2">Avatar</p>
           <div className="flex flex-wrap gap-2">
             {AVATAR_OPTIONS.map((emoji) => (
               <button
@@ -317,13 +317,13 @@ export default function SettingsPage() {
           </div>
 
           {profile?.email && (
-            <p className="font-pixel text-[7px] text-retro-gray mt-4">Signed in as {profile.email}</p>
+            <p className="text-body-sm text-[--parchment-dim] mt-4">Signed in as {profile.email}</p>
           )}
         </section>
 
         <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4">
           <h2 className="font-pixel text-retro-yellow text-xs mb-3">📅 Habit Tracker</h2>
-          <label className="font-pixel text-[8px] text-retro-lightgray block mb-2">Week starts on</label>
+          <label className="text-body-sm font-medium text-[--parchment-dim] block mb-2">Week starts on</label>
           <select
             value={selectedWeekStartDay}
             onChange={(e) => setSelectedWeekStartDay(Number(e.target.value))}
@@ -333,7 +333,7 @@ export default function SettingsPage() {
               <option key={day.value} value={day.value}>{day.label}</option>
             ))}
           </select>
-          <p className="font-pixel text-[7px] text-retro-gray mt-2">
+          <p className="text-body-sm text-[--parchment-dim] mt-2">
             This controls weekly habit counters and progress windows.
           </p>
         </section>
@@ -352,8 +352,8 @@ export default function SettingsPage() {
                     : "border-retro-black bg-retro-darkpurple"
                 }`}
               >
-                <p className="font-pixel text-[8px] text-tavern-parchment">{option.label}</p>
-                <p className="text-[11px] text-retro-gray mt-1">{option.hint}</p>
+                <p className="text-body-sm font-medium text-tavern-parchment">{option.label}</p>
+                <p className="text-body-sm text-[--parchment-dim] mt-1">{option.hint}</p>
               </button>
             ))}
           </div>
@@ -366,14 +366,14 @@ export default function SettingsPage() {
           </p>
 
           <div className="mb-4">
-            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Default time available</p>
+            <p className="text-body-sm font-medium text-[--parchment-dim] mb-2">Default time available</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {TIME_OPTIONS.map((option) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => setAvailableTime(option.value)}
-                  className={`border-2 p-2 font-pixel text-[8px] ${
+                  className={`border-2 p-2 text-body-sm font-medium ${
                     availableTime === option.value
                       ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
                       : "border-retro-black bg-retro-darkpurple text-retro-lightgray"
@@ -386,7 +386,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="mb-4">
-            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Default energy</p>
+            <p className="text-body-sm font-medium text-[--parchment-dim] mb-2">Default energy</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               {ENERGY_OPTIONS.map((option) => (
                 <button
@@ -407,7 +407,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="mb-4">
-            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Preferred categories</p>
+            <p className="text-body-sm font-medium text-[--parchment-dim] mb-2">Preferred categories</p>
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((category) => {
                 const selected = preferredCategories.includes(category.name);
@@ -416,7 +416,7 @@ export default function SettingsPage() {
                     key={category.key}
                     type="button"
                     onClick={() => togglePreferredCategory(category.name)}
-                    className={`border-2 px-3 py-2 text-[11px] ${
+                    className={`border-2 px-3 py-2 text-body-sm ${
                       selected
                         ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
                         : "border-retro-black bg-retro-darkpurple text-retro-lightgray"
@@ -430,7 +430,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="mb-4">
-            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Discovery style</p>
+            <p className="text-body-sm font-medium text-[--parchment-dim] mb-2">Discovery style</p>
             <div className="flex flex-wrap gap-2">
               {DISCOVERY_OPTIONS.map((option) => {
                 const selected = discoveryPreferences.includes(option.value);
@@ -439,7 +439,7 @@ export default function SettingsPage() {
                     key={option.value}
                     type="button"
                     onClick={() => toggleDiscoveryPreference(option.value)}
-                    className={`border-2 px-3 py-2 font-pixel text-[8px] ${
+                    className={`border-2 px-3 py-2 text-body-sm font-medium ${
                       selected
                         ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
                         : "border-retro-black bg-retro-darkpurple text-retro-lightgray"
@@ -452,7 +452,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <label className="font-pixel text-[8px] text-retro-lightgray block mb-2">Home area label</label>
+          <label className="text-body-sm font-medium text-[--parchment-dim] block mb-2">Home area label</label>
           <input
             type="text"
             value={homeLocationLabel}
@@ -461,7 +461,7 @@ export default function SettingsPage() {
             placeholder="Neighborhood, city, or favorite area"
             className="w-full bg-tavern-smoke border-2 border-tavern-oak rounded p-2 text-tavern-parchment"
           />
-          <p className="font-pixel text-[7px] text-retro-gray mt-2">
+          <p className="text-body-sm text-[--parchment-dim] mt-2">
             Used for future nearby quest ideas. Precise location is not required.
           </p>
         </section>
@@ -470,15 +470,15 @@ export default function SettingsPage() {
           <h2 className="font-pixel text-retro-yellow text-xs mb-3">🔔 Notifications</h2>
           <div className="space-y-2">
             <label className="flex items-center justify-between bg-retro-darkpurple border-2 border-retro-black p-2">
-              <span className="font-pixel text-[8px] text-tavern-parchment">Habit reminders</span>
+              <span className="text-body-sm text-tavern-parchment">Habit reminders</span>
               <input type="checkbox" checked={habitReminders} onChange={(e) => setHabitReminders(e.target.checked)} />
             </label>
             <label className="flex items-center justify-between bg-retro-darkpurple border-2 border-retro-black p-2">
-              <span className="font-pixel text-[8px] text-tavern-parchment">Quest activity alerts</span>
+              <span className="text-body-sm text-tavern-parchment">Quest activity alerts</span>
               <input type="checkbox" checked={questAlerts} onChange={(e) => setQuestAlerts(e.target.checked)} />
             </label>
             <label className="flex items-center justify-between bg-retro-darkpurple border-2 border-retro-black p-2">
-              <span className="font-pixel text-[8px] text-tavern-parchment">Weekly recap summary</span>
+              <span className="text-body-sm text-tavern-parchment">Weekly recap summary</span>
               <input type="checkbox" checked={weeklyRecap} onChange={(e) => setWeeklyRecap(e.target.checked)} />
             </label>
           </div>
@@ -486,7 +486,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="mt-6 flex items-center justify-between gap-3">
-        <div className="font-pixel text-[7px] text-retro-gray min-h-[12px]">
+        <div className="text-body-sm text-[--parchment-dim] min-h-[12px]">
           {lastSavedAt
             ? `Last saved at ${lastSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
             : "Not saved yet in this session"}
@@ -496,7 +496,7 @@ export default function SettingsPage() {
           type="button"
           onClick={handleSave}
           disabled={!hasChanges || isSaving}
-          className="font-pixel text-[8px] px-5 py-3 bg-tavern-gold text-tavern-smoke disabled:opacity-50"
+          className="tavrn-btn tavrn-btn-primary disabled:opacity-50"
         >
           {isSaving ? "Saving..." : "Save Changes"}
         </button>

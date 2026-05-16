@@ -156,7 +156,7 @@ export default function CompletionModal({
 
         <div className="p-6">
           {/* Quest name */}
-          <p className="font-pixel text-tavern-parchment text-[8px] leading-loose text-center mb-5">
+          <p className="text-body text-tavern-parchment text-center mb-5">
             {quest.title}
           </p>
 
@@ -172,7 +172,7 @@ export default function CompletionModal({
                     background: "#1a0d05",
                   }}
                 >
-                  <div className="font-pixel text-[8px]" style={{ color: getMilestoneColor(milestone.rarity) }}>
+                  <div className="text-body-sm font-medium" style={{ color: getMilestoneColor(milestone.rarity) }}>
                     {getMilestoneEmoji(milestone.type)} {milestone.title}
                   </div>
                 </div>
@@ -185,7 +185,7 @@ export default function CompletionModal({
             className="text-center py-4 mb-4 relative overflow-hidden"
             style={{ border: "4px solid #c4a85a", background: "#0f0d07" }}
           >
-            <div className="font-pixel text-[7px] text-tavern-smoke-light mb-1 uppercase tracking-wider">
+            <div className="kicker text-[--parchment-dim] mb-1">
               XP Earned
             </div>
             <div className="font-pixel text-tavern-gold text-4xl text-gold-shimmer">
@@ -205,7 +205,7 @@ export default function CompletionModal({
               style={{ border: "4px solid #e8b864", background: "#2a1a0a" }}
             >
               <div className="font-pixel text-tavern-gold text-[11px]">🎉 LEVEL UP!</div>
-              <div className="font-pixel text-tavern-parchment text-[9px] mt-1">
+              <div className="text-body-sm text-tavern-parchment mt-1">
                 You are now Level {newLevel}
               </div>
             </div>
@@ -219,11 +219,11 @@ export default function CompletionModal({
             >
               <span className="text-xl">🔥</span>
               <div>
-                <div className="font-pixel text-tavern-ember text-[9px]">
+                <div className="text-body-sm font-medium text-tavern-ember">
                   {newStreak} day streak{isNewLongest ? " — NEW RECORD!" : " kept alive!"}
                 </div>
                 {isNewLongest && (
-                  <div className="font-pixel text-tavern-gold text-[7px] mt-0.5">
+                  <div className="text-body-sm text-tavern-gold mt-0.5">
                     Your longest yet, adventurer.
                   </div>
                 )}
@@ -234,8 +234,8 @@ export default function CompletionModal({
           {/* ── XP bar ── */}
           <div className="mb-5">
             <div className="flex justify-between mb-1">
-              <span className="font-pixel text-tavern-smoke-light text-[7px]">Total XP</span>
-              <span className="font-pixel text-tavern-gold text-[7px]">{newXpTotal} XP</span>
+              <span className="text-body-sm text-[--parchment-dim]">Total XP</span>
+              <span className="text-body-sm text-tavern-gold">{newXpTotal} XP</span>
             </div>
             <XPBar xpTotal={newXpTotal} showLabel={false} />
           </div>
@@ -265,22 +265,22 @@ export default function CompletionModal({
               className="mb-5 p-3"
               style={{ border: "2px solid #3a2a10", background: "#110e06" }}
             >
-              <p className="font-pixel text-tavern-smoke-light text-[7px] uppercase tracking-widest mb-3">
+              <p className="kicker text-[--parchment-dim] mb-3">
                 What&apos;s Next?
               </p>
               <div className="space-y-2">
                 {nextQuestlineQuest && (
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className="font-pixel text-[8px] text-tavern-gold leading-snug truncate">
+                      <p className="text-body-sm font-semibold text-tavern-gold leading-snug truncate">
                         {nextQuestlineQuest.title}
                       </p>
-                      <p className="text-[10px] text-[#bda780]">Questline · +{nextQuestlineQuest.xp_reward} XP</p>
+                      <p className="text-body-sm text-[--parchment-dim]">Questline · +{nextQuestlineQuest.xp_reward} XP</p>
                     </div>
                     <Link
                       href={`/quests/${nextQuestlineQuest.id}`}
                       onClick={onClose}
-                      className="tavrn-button !text-[8px] !py-1 !px-2 flex-shrink-0"
+                      className="tavrn-btn tavrn-btn-primary tavrn-btn-sm flex-shrink-0"
                     >
                       Continue →
                     </Link>
@@ -291,8 +291,8 @@ export default function CompletionModal({
                   return (
                     <div key={sq.id} className="flex items-center justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="font-pixel text-[8px] text-tavern-parchment leading-snug truncate">{sq.title}</p>
-                        <p className="text-[10px] text-[#bda780]">
+                        <p className="text-body-sm font-medium text-tavern-parchment leading-snug truncate">{sq.title}</p>
+                        <p className="text-body-sm text-[--parchment-dim]">
                           {sq.type === "main" ? "Main" : "Side"} · +{sq.xp_reward} XP
                         </p>
                       </div>
@@ -308,7 +308,7 @@ export default function CompletionModal({
                             router.push("/");
                           }
                         }}
-                        className="tavrn-button !text-[8px] !py-1 !px-2 flex-shrink-0 disabled:opacity-50"
+                        className="tavrn-btn tavrn-btn-primary tavrn-btn-sm flex-shrink-0 disabled:opacity-50"
                       >
                         {isAccepting ? "…" : "Accept"}
                       </button>
@@ -341,10 +341,10 @@ export default function CompletionModal({
               <button
                 type="button"
                 onClick={() => setPinned((p) => !p)}
-                className={`font-pixel text-[7px] px-3 py-2 border-2 transition-none ${
+                className={`tavrn-btn tavrn-btn-sm ${
                   pinned
-                    ? "border-tavern-gold bg-tavern-smoke text-tavern-gold"
-                    : "border-tavern-oak bg-tavern-smoke text-tavern-parchment hover:border-tavern-gold"
+                    ? "tavrn-btn-ghost border-tavern-gold text-tavern-gold"
+                    : "tavrn-btn-ghost"
                 }`}
               >
                 {pinned ? "✓ Pinned" : "📌 Pin to Hero"}
@@ -352,7 +352,7 @@ export default function CompletionModal({
               <button
                 type="button"
                 onClick={handleShare}
-                className="font-pixel text-[7px] px-3 py-2 border-2 border-tavern-oak bg-tavern-smoke text-tavern-parchment hover:border-tavern-gold transition-none"
+                className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
               >
                 🔗 Share Triumph
               </button>
@@ -362,13 +362,13 @@ export default function CompletionModal({
             <div className="flex items-center justify-between mt-1">
               <Link
                 href="/journal"
-                className="font-pixel text-tavern-gold text-[7px] hover:text-tavern-candle"
+                className="text-body-sm text-tavern-gold hover:text-tavern-candle"
               >
                 View Journal →
               </Link>
               <button
                 onClick={onClose}
-                className="font-pixel text-tavern-smoke-light text-[7px] hover:text-tavern-parchment"
+                className="text-body-sm text-[--parchment-dim] hover:text-tavern-parchment"
                 aria-label="Close"
               >
                 Close

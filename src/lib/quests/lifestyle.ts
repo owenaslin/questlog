@@ -1,5 +1,5 @@
 import { Quest } from "@/lib/types";
-import { generateStableId } from "@/lib/seed-quests";
+import { generateStableId } from "@/lib/stable-id";
 
 const LIFESTYLE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
   // Side Quests
