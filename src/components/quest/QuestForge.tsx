@@ -462,7 +462,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
               <button
                 type="button"
                 onClick={() => { abortRef.current?.abort(); setStage("form"); }}
-                className="text-body-sm text-tavern-smoke-light hover:text-tavern-parchment min-h-[32px] px-2"
+                className="text-body-sm text-tavern-smoke-light hover:text-tavern-parchment min-h-[40px] px-2"
               >
                 Cancel
               </button>
@@ -572,7 +572,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                 <button
                   type="button"
                   onClick={() => { setStage("form"); setPreview(null); setSavedId(null); setError(null); }}
-                  className="text-body-sm text-tavern-smoke-light hover:text-tavern-parchment min-h-[32px] px-2"
+                  className="text-body-sm text-tavern-smoke-light hover:text-tavern-parchment min-h-[40px] px-2"
                 >
                   Forge another quest
                 </button>

@@ -245,14 +245,14 @@ function SkillTreeNode({
 
       <div className="flex items-center justify-between mt-2">
         <span className="badge badge-lime">+{quest.xp_reward} XP</span>
-        <StepStatusBadge step={step} small />
+        <StepStatusBadge step={step} />
       </div>
     </div>
   );
 }
 
 // Status badge
-function StepStatusBadge({ step }: { step: QuestlineStep; small?: boolean }) {
+function StepStatusBadge({ step }: { step: QuestlineStep }) {
   if (step.is_completed) {
     return <span className="badge badge-lime">✓ Done</span>;
   }
