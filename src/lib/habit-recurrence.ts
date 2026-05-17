@@ -160,7 +160,7 @@ export function validateRecurrenceData(
       return { valid: true };
 
     case "weekly_x_days":
-      if (!data.timesPerWeek || data.timesPerWeek < 1 || data.timesPerWeek > 7) {
+      if (data.timesPerWeek == null || data.timesPerWeek < 1 || data.timesPerWeek > 7) {
         return { valid: false, error: "Select between 1 and 7 days per week" };
       }
       return { valid: true };

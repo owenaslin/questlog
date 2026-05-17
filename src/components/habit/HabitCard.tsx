@@ -62,7 +62,8 @@ export default function HabitCard({
   });
 
   const isWeeklyXDays = habit.recurrence_type === "weekly_x_days";
-  const timesPerWeek = habit.recurrence_data.timesPerWeek ?? 3;
+  // Only read timesPerWeek for weekly_x_days habits; streak accumulates via DB trigger but isn't shown
+  const timesPerWeek = isWeeklyXDays ? (habit.recurrence_data.timesPerWeek ?? 3) : 0;
   const weeklyGoalMet = isWeeklyXDays && habit.completions_this_week >= timesPerWeek;
 
   if (variant === "minimal") {
@@ -115,10 +116,16 @@ export default function HabitCard({
             {habit.title}
           </p>
           <p className="text-body-sm text-tavern-parchment-dim">
-            {isWeeklyXDays
-              ? `${habit.completions_this_week}/${timesPerWeek} this week${weeklyGoalMet ? " ✓" : ""} · +${habit.xp_reward} XP`
-              : `${getRecurrenceDescription(habit)} · +${habit.xp_reward} XP`
-            }
+            {isWeeklyXDays ? (
+              <>
+                <span className={weeklyGoalMet ? "text-tavern-gold" : undefined}>
+                  {habit.completions_this_week}/{timesPerWeek} this week{weeklyGoalMet ? " ✓" : ""}
+                </span>
+                {" · "}+{habit.xp_reward} XP
+              </>
+            ) : (
+              <>{getRecurrenceDescription(habit)} · +{habit.xp_reward} XP</>
+            )}
           </p>
         </div>
         {!isWeeklyXDays && streakCount > 0 && (

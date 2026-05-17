@@ -67,35 +67,44 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
 
   const handleTimesPerWeekChange = (timesPerWeek: number) => {
     const clamped = Math.min(7, Math.max(1, timesPerWeek));
-    const newData = { timesPerWeek: clamped };
-    const validation = validateRecurrenceData("weekly_x_days", newData);
-    setLocalError(validation.error);
-    onChange({ type: "weekly_x_days", data: newData });
+    onChange({ type: "weekly_x_days", data: { timesPerWeek: clamped } });
   };
 
-  const renderTypeSelector = () => (
-    <div className="grid grid-cols-2 gap-2">
-      {RECURRENCE_OPTIONS.map((option) => (
-        <button
-          key={option.type}
-          type="button"
-          onClick={() => handleTypeChange(option.type)}
-          className={`
-            p-3 text-left rounded border-2 transition-all
-            ${value.type === option.type
-              ? "border-tavern-gold bg-tavern-gold/10"
-              : "border-tavern-oak bg-tavern-smoke/50 hover:border-tavern-gold/50"
-            }
-          `}
-        >
-          <div className="text-body-sm font-semibold text-tavern-gold">{option.label}</div>
-          <div className="text-body-sm text-tavern-parchment-dim mt-1">
-            {option.description}
-          </div>
-        </button>
-      ))}
-    </div>
-  );
+  const renderTypeSelector = () => {
+    const options = value.type === "interval"
+      ? [...RECURRENCE_OPTIONS, { type: "interval" as HabitRecurrenceType, label: "Custom (Legacy)", description: "Every X days" }]
+      : RECURRENCE_OPTIONS;
+
+    return (
+      <div className="grid grid-cols-2 gap-2">
+        {options.map((option) => {
+          const isLegacy = option.type === "interval";
+          const isSelected = value.type === option.type;
+          return (
+            <button
+              key={option.type}
+              type="button"
+              onClick={() => !isLegacy && handleTypeChange(option.type)}
+              disabled={isLegacy}
+              className={`
+                p-3 text-left rounded border-2 transition-all
+                ${isSelected
+                  ? "border-tavern-gold bg-tavern-gold/10"
+                  : "border-tavern-oak bg-tavern-smoke/50 hover:border-tavern-gold/50"
+                }
+                ${isLegacy ? "opacity-60 cursor-default" : ""}
+              `}
+            >
+              <div className="text-body-sm font-semibold text-tavern-gold">{option.label}</div>
+              <div className="text-body-sm text-tavern-parchment-dim mt-1">
+                {option.description}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
 
   const renderWeekdaysSelector = () => {
     const selectedDays = value.data.days || [1, 2, 3, 4, 5];
