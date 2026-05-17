@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import QuestCard from "@/components/quest/QuestCard";
 import QuestCardSkeleton from "@/components/ui/QuestCardSkeleton";
@@ -25,11 +25,15 @@ function QuickAcceptButton({
   quest,
   activeMainQuestId,
   onAccepted,
+  onAcceptStart,
+  onAcceptEnd,
   inline = false,
 }: {
   quest: Quest;
   activeMainQuestId: string | null;
   onAccepted: (questId: string) => void;
+  onAcceptStart?: () => void;
+  onAcceptEnd?: () => void;
   inline?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
@@ -49,21 +53,31 @@ function QuickAcceptButton({
       return;
     }
 
+    onAcceptStart?.();
     setLoading(true);
-    const result = await acceptQuest(quest.id, quest.type, quest.category);
-    setLoading(false);
-    if (result.success) onAccepted(quest.id);
+    try {
+      const result = await acceptQuest(quest.id, quest.type, quest.category);
+      if (result.success) onAccepted(quest.id);
+    } finally {
+      setLoading(false);
+      onAcceptEnd?.();
+    }
   };
 
   const handleAbandonAndAccept = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!activeMainQuestId) return;
+    onAcceptStart?.();
     setLoading(true);
     setShowConflict(false);
-    const result = await abandonAndAccept(activeMainQuestId, quest.id, quest.type, quest.category);
-    setLoading(false);
-    if (result.success) onAccepted(quest.id);
+    try {
+      const result = await abandonAndAccept(activeMainQuestId, quest.id, quest.type, quest.category);
+      if (result.success) onAccepted(quest.id);
+    } finally {
+      setLoading(false);
+      onAcceptEnd?.();
+    }
   };
 
   if (showConflict) {
@@ -112,6 +126,7 @@ function QuickAcceptButton({
       type="button"
       onClick={handleAccept}
       disabled={loading}
+      aria-busy={loading}
       title={isMainBlocked ? "Finish your current main quest first" : undefined}
       className={btnClass}
     >
@@ -122,6 +137,7 @@ function QuickAcceptButton({
       type="button"
       onClick={handleAccept}
       disabled={loading}
+      aria-busy={loading}
       title={isMainBlocked ? "Finish your current main quest first" : `Accept "${quest.title}"`}
       className={`absolute bottom-2 right-2 z-10 ${btnClass}`}
     >
@@ -146,6 +162,7 @@ type StatusFilter = "all" | "available" | "active" | "completed";
 
 export default function QuestsPage() {
   const { isDesktopActive } = useViewMode();
+  const pendingWriteRef = useRef(false);
   const [forgeOpen, setForgeOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<number>(0);
@@ -174,7 +191,9 @@ export default function QuestsPage() {
       setIsAuthenticated(true);
       const progressMap = await getUserQuestProgressMap();
       if (!mounted) return;
-      setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
+      if (!pendingWriteRef.current) {
+        setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
+      }
       setIsLoadingProgress(false);
     };
 
@@ -515,6 +534,8 @@ export default function QuestsPage() {
                           quest={selectedQuest}
                           activeMainQuestId={activeMainQuestId}
                           onAccepted={handleQuickAccepted}
+                          onAcceptStart={() => { pendingWriteRef.current = true; }}
+                          onAcceptEnd={() => { pendingWriteRef.current = false; }}
                           inline
                         />
                       )}
@@ -578,6 +599,8 @@ export default function QuestsPage() {
                     quest={quest}
                     activeMainQuestId={activeMainQuestId}
                     onAccepted={handleQuickAccepted}
+                    onAcceptStart={() => { pendingWriteRef.current = true; }}
+                    onAcceptEnd={() => { pendingWriteRef.current = false; }}
                   />
                 )}
               </div>

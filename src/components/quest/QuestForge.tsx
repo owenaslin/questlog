@@ -332,7 +332,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
   };
 
   const handleAccept = async () => {
-    if (!preview) return;
+    if (!preview || stage !== "preview") return;
     setStage("saving");
     setError(null);
 

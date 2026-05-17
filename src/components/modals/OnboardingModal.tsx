@@ -43,6 +43,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
   const [suggestedQuest, setSuggestedQuest] = useState<Quest | null>(null);
   const [isAccepting, setIsAccepting] = useState(false);
   const [acceptedQuestId, setAcceptedQuestId] = useState<string | null>(null);
+  const [acceptError, setAcceptError] = useState<string | null>(null);
 
   const toggleCategory = (key: string) => {
     setSelectedCategories((prev) =>
@@ -70,11 +71,14 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
   const handleAcceptQuest = async () => {
     if (!suggestedQuest) return;
     setIsAccepting(true);
+    setAcceptError(null);
     try {
       const result = await acceptQuest(suggestedQuest.id, suggestedQuest.type, suggestedQuest.category);
       if (result.success) {
         setAcceptedQuestId(suggestedQuest.id);
         setStep("done");
+      } else {
+        setAcceptError(result.error || "Could not accept quest. Please try again.");
       }
     } finally {
       setIsAccepting(false);
@@ -240,10 +244,14 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
               </div>
 
               <div className="flex flex-col gap-2">
+                {acceptError && (
+                  <p className="text-body-sm text-tavern-ember">{acceptError}</p>
+                )}
                 <button
                   type="button"
                   onClick={handleAcceptQuest}
                   disabled={isAccepting}
+                  aria-busy={isAccepting}
                   className="tavrn-btn tavrn-btn-primary tavrn-btn-lg w-full disabled:opacity-60"
                 >
                   {isAccepting ? "Accepting…" : "▶ Accept This Quest"}

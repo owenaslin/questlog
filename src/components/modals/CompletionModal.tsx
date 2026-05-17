@@ -58,6 +58,7 @@ export default function CompletionModal({
   const [showMugs, setShowMugs] = useState(false);
   const [pinned, setPinned] = useState(false);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [acceptError, setAcceptError] = useState<string | null>(null);
   const [nextQuestlineQuest] = useState<Quest | null>(() => findNextQuestlineQuest(quest.id));
 
   useEffect(() => {
@@ -299,13 +300,17 @@ export default function CompletionModal({
                       <button
                         type="button"
                         disabled={!!acceptingId}
+                        aria-busy={isAccepting}
                         onClick={async () => {
                           setAcceptingId(sq.id);
+                          setAcceptError(null);
                           const result = await acceptQuest(sq.id, sq.type, sq.category);
                           setAcceptingId(null);
                           if (result.success) {
                             onClose();
                             router.push("/");
+                          } else {
+                            setAcceptError(result.error || "Could not accept quest. Please try again.");
                           }
                         }}
                         className="tavrn-btn tavrn-btn-primary tavrn-btn-sm flex-shrink-0 disabled:opacity-50"
@@ -315,6 +320,9 @@ export default function CompletionModal({
                     </div>
                   );
                 })}
+                {acceptError && (
+                  <p className="text-body-sm text-tavern-ember mt-2">{acceptError}</p>
+                )}
               </div>
             </div>
           )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, lazy, Suspense } from "react";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabase";
 import {
@@ -47,6 +47,8 @@ export default function HomePage() {
   const [dataLoading,    setDataLoading]    = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [timeLabel, setTimeLabel] = useState<"Morning" | "Afternoon" | "Tonight">("Tonight");
+  const [isDailyAccepting, setIsDailyAccepting] = useState(false);
+  const pendingAcceptRef = useRef(false);
 
   useLayoutEffect(() => {
     setTimeLabel(getTimeOfDayLabel());
@@ -112,7 +114,9 @@ export default function HomePage() {
 
         const allActiveIds = new Set(allActiveQuests.map((q) => q.id));
         setActiveMainQuest(todayAdventure?.mainQuest ?? null);
-        setActiveSideQuests(todayAdventure?.activeSideQuests ?? []);
+        if (!pendingAcceptRef.current) {
+          setActiveSideQuests(todayAdventure?.activeSideQuests ?? []);
+        }
         setPickerQuests(getDailyQuests([...completedIds, ...Array.from(allActiveIds)]));
         setDailyLoadout(todayAdventure);
         setDailyStats(adventureStats);
@@ -144,15 +148,22 @@ export default function HomePage() {
 
   const handleAcceptDailySideQuest = async () => {
     if (!dailyLoadout?.sideQuest) return;
+    pendingAcceptRef.current = true;
+    setIsDailyAccepting(true);
     setDailyActionMessage(null);
     const quest = dailyLoadout.sideQuest;
-    const result = await acceptQuest(quest.id, quest.type, quest.category);
-    if (!result.success) {
-      setDailyActionMessage(result.error || "Could not accept today's side quest.");
-      return;
+    try {
+      const result = await acceptQuest(quest.id, quest.type, quest.category);
+      if (!result.success) {
+        setDailyActionMessage(result.error || "Could not accept today's side quest.");
+        return;
+      }
+      setActiveSideQuests((prev) => prev.some((q) => q.id === quest.id) ? prev : [...prev, { ...quest, status: "active" }]);
+      setDailyActionMessage("Side quest accepted.");
+    } finally {
+      pendingAcceptRef.current = false;
+      setIsDailyAccepting(false);
     }
-    setActiveSideQuests((prev) => prev.some((q) => q.id === quest.id) ? prev : [...prev, { ...quest, status: "active" }]);
-    setDailyActionMessage("Side quest accepted.");
   };
 
   const handleSaveReflection = async () => {
@@ -444,8 +455,8 @@ export default function HomePage() {
                         +{drawnSideQuest.xp_reward} XP · {drawnSideQuest.category} · {drawnSideQuest.duration_label}
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={handleAcceptDailySideQuest} className="tavrn-btn tavrn-btn-primary tavrn-btn-sm">
-                          Accept
+                        <button type="button" onClick={handleAcceptDailySideQuest} disabled={isDailyAccepting} aria-busy={isDailyAccepting} className="tavrn-btn tavrn-btn-primary tavrn-btn-sm disabled:opacity-50">
+                          {isDailyAccepting ? "…" : "Accept"}
                         </button>
                         <Link href={`/quests/${drawnSideQuest.id}`} className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
                           Details
