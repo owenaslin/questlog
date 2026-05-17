@@ -300,6 +300,7 @@ export default function CompletionModal({
                       <button
                         type="button"
                         disabled={!!acceptingId}
+                        aria-busy={isAccepting}
                         onClick={async () => {
                           setAcceptingId(sq.id);
                           setAcceptError(null);

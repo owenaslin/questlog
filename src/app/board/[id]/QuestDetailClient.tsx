@@ -415,7 +415,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
           {status === "available" && !conflictQuest && (
             <div className="flex flex-col items-center gap-4">
               <p className="text-body-sm text-retro-lightgray">Ready to begin this quest?</p>
-              <PixelButton variant="success" size="lg" onClick={handleAccept} disabled={isWorking}>
+              <PixelButton variant="success" size="lg" onClick={handleAccept} disabled={isWorking} aria-busy={isWorking}>
                 {isWorking ? (
                   <span className="flex items-center gap-2"><span className="animate-spin">⟳</span> Accepting...</span>
                 ) : "▶ Accept Quest"}

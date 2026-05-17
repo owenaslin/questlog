@@ -455,7 +455,7 @@ export default function HomePage() {
                         +{drawnSideQuest.xp_reward} XP · {drawnSideQuest.category} · {drawnSideQuest.duration_label}
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={handleAcceptDailySideQuest} disabled={isDailyAccepting} className="tavrn-btn tavrn-btn-primary tavrn-btn-sm disabled:opacity-50">
+                        <button type="button" onClick={handleAcceptDailySideQuest} disabled={isDailyAccepting} aria-busy={isDailyAccepting} className="tavrn-btn tavrn-btn-primary tavrn-btn-sm disabled:opacity-50">
                           {isDailyAccepting ? "…" : "Accept"}
                         </button>
                         <Link href={`/quests/${drawnSideQuest.id}`} className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">

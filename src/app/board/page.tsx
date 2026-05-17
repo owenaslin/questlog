@@ -126,6 +126,7 @@ function QuickAcceptButton({
       type="button"
       onClick={handleAccept}
       disabled={loading}
+      aria-busy={loading}
       title={isMainBlocked ? "Finish your current main quest first" : undefined}
       className={btnClass}
     >
@@ -136,6 +137,7 @@ function QuickAcceptButton({
       type="button"
       onClick={handleAccept}
       disabled={loading}
+      aria-busy={loading}
       title={isMainBlocked ? "Finish your current main quest first" : `Accept "${quest.title}"`}
       className={`absolute bottom-2 right-2 z-10 ${btnClass}`}
     >

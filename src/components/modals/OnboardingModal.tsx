@@ -251,6 +251,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                   type="button"
                   onClick={handleAcceptQuest}
                   disabled={isAccepting}
+                  aria-busy={isAccepting}
                   className="tavrn-btn tavrn-btn-primary tavrn-btn-lg w-full disabled:opacity-60"
                 >
                   {isAccepting ? "Accepting…" : "▶ Accept This Quest"}
