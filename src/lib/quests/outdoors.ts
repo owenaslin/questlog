@@ -127,10 +127,10 @@ const OUTDOORS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
   {
     title: "Visit a New National Park",
     description: "Visit a national park you've never been to. Hike a trail, learn about the ecosystem, and take in the scale of it.",
-    type: "side",
+    type: "main",
     source: "predefined",
     difficulty: 2,
-    xp_reward: 150,
+    xp_reward: 300,
     duration_label: "1-2 days",
     category: "Outdoors",
     location: null,
