@@ -61,6 +61,10 @@ export default function HabitCard({
     config: { duration: 300 },
   });
 
+  const isWeeklyXDays = habit.recurrence_type === "weekly_x_days";
+  const timesPerWeek = habit.recurrence_data.timesPerWeek ?? 3;
+  const weeklyGoalMet = isWeeklyXDays && habit.completions_this_week >= timesPerWeek;
+
   if (variant === "minimal") {
     return (
       <div className="flex items-center gap-3 p-2">
@@ -74,11 +78,15 @@ export default function HabitCard({
         <span className={`text-sm ${habit.is_completed_today ? "line-through opacity-60" : ""}`}>
           {habit.title}
         </span>
-        {streakCount > 0 && (
+        {isWeeklyXDays ? (
+          <span className={`ml-auto text-body-sm ${weeklyGoalMet ? "text-tavern-gold" : "text-tavern-parchment-dim"}`}>
+            {habit.completions_this_week}/{timesPerWeek}{weeklyGoalMet ? " ✓" : ""}
+          </span>
+        ) : streakCount > 0 ? (
           <span className="ml-auto text-body-sm text-tavern-gold">
             {streakCount}🔥
           </span>
-        )}
+        ) : null}
       </div>
     );
   }
@@ -107,10 +115,13 @@ export default function HabitCard({
             {habit.title}
           </p>
           <p className="text-body-sm text-tavern-parchment-dim">
-            {getRecurrenceDescription(habit)} · +{habit.xp_reward} XP
+            {isWeeklyXDays
+              ? `${habit.completions_this_week}/${timesPerWeek} this week${weeklyGoalMet ? " ✓" : ""} · +${habit.xp_reward} XP`
+              : `${getRecurrenceDescription(habit)} · +${habit.xp_reward} XP`
+            }
           </p>
         </div>
-        {streakCount > 0 && (
+        {!isWeeklyXDays && streakCount > 0 && (
           <div className={`flex items-center gap-1 text-xs ${isHotStreak ? "text-tavern-ember animate-pulse" : "text-tavern-gold"}`}>
             <span>🔥</span>
             <span>{streakCount}</span>
@@ -168,12 +179,18 @@ export default function HabitCard({
       {/* Stats row */}
       <div className="flex items-center justify-between text-xs text-tavern-parchment-dim">
         <div className="flex items-center gap-3">
-          <span>{getRecurrenceDescription(habit)}</span>
+          {isWeeklyXDays ? (
+            <span className={weeklyGoalMet ? "text-tavern-gold" : undefined}>
+              {habit.completions_this_week}/{timesPerWeek} this week{weeklyGoalMet ? " ✓" : ""}
+            </span>
+          ) : (
+            <span>{getRecurrenceDescription(habit)}</span>
+          )}
           <span>·</span>
           <span>+{habit.xp_reward} XP</span>
         </div>
-        
-        {streakCount > 0 && (
+
+        {!isWeeklyXDays && streakCount > 0 && (
           <div className={`flex items-center gap-1 ${isHotStreak ? "text-tavern-ember" : "text-tavern-gold"}`}>
             <span>🔥</span>
             <span className="font-medium">{streakCount}</span>
