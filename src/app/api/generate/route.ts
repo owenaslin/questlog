@@ -219,7 +219,7 @@ Quest Type: ${questType === "main" ? "Main Quest (takes months to complete)" : "
 Respond with ONLY a JSON object (no markdown, no code fences) with these exact fields:
 {
   "title": "A catchy quest title (max 50 chars)",
-  "description": "A fun, detailed description of the quest (2-3 sentences, written like an RPG quest giver)",
+  "description": "A clear, motivating description of the quest (2-3 sentences, explaining what to do and why it matters)",
   "difficulty": <number 1-5>,
   "duration_label": "estimated time (e.g., '2-3 hours', '1 weekend', '2-3 months')",
   "category": "one of: Fitness, Education, Creative, Tech, Food, Outdoors, Social, Wellness, Community, Career, Business, Culture, Productivity"

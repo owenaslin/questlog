@@ -140,7 +140,7 @@ IMPORTANT: Do NOT assign XP — the system calculates it automatically based on 
 Respond with ONLY a JSON object — no markdown, no code fences:
 {
   "title": "Catchy quest title (max 80 chars)",
-  "description": "2-3 sentence RPG-flavored description written like a quest giver NPC (max 400 chars)",
+  "description": "2-3 sentence description explaining what to do and why it matters — clear and motivating (max 400 chars)",
   "difficulty": <1–5>,
   "duration_label": "Realistic time estimate, e.g. '2-3 hours', '1 weekend', '2-3 months'",
   "category": "one of: Fitness, Education, Creative, Tech, Food, Outdoors, Social, Wellness, Community, Career, Business, Culture, Productivity",
@@ -162,7 +162,7 @@ function buildUserPrompt(
   const typeLabel = questType === "main"
     ? "Main Quest (weeks to months of commitment)"
     : "Side Quest (hours to a weekend)";
-  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and refine it for RPG flavor while preserving the user's intent exactly.
+  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and make it clear and motivating while keeping the adventure framing and preserving the user's intent exactly.
 
 Quest type: ${typeLabel}
 Category: ${category}
@@ -171,14 +171,14 @@ User's description: ${sanitize(description)}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
 
-- Lightly refine the title and description for RPG flavor while preserving the user's intent exactly.
+- Lightly refine the title and description to be clear and direct while keeping the adventure framing and preserving the user's intent exactly.
 - Assign a realistic duration estimate.
 - Break the quest into 3-6 concrete, actionable steps.
 
 Respond with ONLY a JSON object — no markdown, no code fences:
 {
   "title": "Refined title (stay close to theirs, max 80 chars)",
-  "description": "User's quest refined for RPG tone (max 400 chars, 2-3 sentences)",
+  "description": "User's quest refined for clarity, keeping the adventure framing (max 400 chars, 2-3 sentences)",
   "difficulty": <1–5>,
   "duration_label": "Realistic estimate, e.g. '1-2 hours', '3 months'",
   "category": "${category}",
