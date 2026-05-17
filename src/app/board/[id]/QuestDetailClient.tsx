@@ -38,6 +38,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   const [status, setStatus] = useState(quest.status);
   const [isWorking, setIsWorking] = useState(false);
   const isCompletingRef = useRef(false);
+  const pendingWriteRef = useRef(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [profileXpTotal, setProfileXpTotal] = useState<number | null>(null);
   const [xpEarned, setXpEarned] = useState(0);
@@ -79,7 +80,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       const progressMap = snapshot?.progressMap ?? {};
       const summary = snapshot?.profileSummary ?? null;
       const progress = progressMap[quest.id];
-      if (progress?.status) setStatus(progress.status);
+      if (progress?.status && !pendingWriteRef.current) setStatus(progress.status);
       if (summary) setProfileXpTotal(summary.xp_total);
       if (heroProfile?.handle) setHeroHandle(heroProfile.handle);
     };
@@ -89,6 +90,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
   }, [quest.id]);
 
   const handleAccept = async () => {
+    pendingWriteRef.current = true;
     setIsWorking(true);
     setActionError(null);
     const previousStatus = status;
@@ -114,12 +116,14 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       setStatus(previousStatus);
       setActionError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
+      pendingWriteRef.current = false;
       setIsWorking(false);
     }
   };
 
   const handleAbandonAndAccept = async () => {
     if (!conflictQuest) return;
+    pendingWriteRef.current = true;
     setIsWorking(true);
     setConflictQuest(null);
     const previousStatus = status;
@@ -135,6 +139,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       setStatus(previousStatus);
       setActionError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
+      pendingWriteRef.current = false;
       setIsWorking(false);
     }
   };
