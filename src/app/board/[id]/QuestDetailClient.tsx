@@ -382,7 +382,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 </div>
                 <button
                   onClick={() => setActionError(null)}
-                  className="text-body-sm text-retro-gray hover:text-retro-white px-1 min-h-[32px]"
+                  className="text-body-sm text-retro-gray hover:text-retro-white px-1 min-h-[40px] min-w-[40px]"
                   aria-label="Dismiss error"
                 >✕</button>
               </div>
