@@ -241,7 +241,7 @@ export const FALLBACK_TEMPLATES: FallbackTemplate[] = [
   // Level 1: City-specific (still uses location)
   {
     level: 1,
-    title: 'Seeker of Local Secrets',
+    title: 'Explore Your Neighborhood',
     description: 'No nearby spots matched your request, so here\'s a different kind of adventure closer to home.',
     task: 'Explore your immediate neighborhood on foot and document 3 interesting things you notice',
     artifact: '3 photos or written observations of local details',
@@ -250,7 +250,7 @@ export const FALLBACK_TEMPLATES: FallbackTemplate[] = [
   // Level 2: Regional
   {
     level: 2,
-    title: 'Wanderer of the Region',
+    title: 'Get Out of Town',
     description: 'Nothing suitable turned up locally, so this quest takes you a bit further out to explore the wider area.',
     task: 'Travel to the nearest town or natural landmark and document your journey',
     artifact: 'A reflection on what you discovered in the wider region',
@@ -259,7 +259,7 @@ export const FALLBACK_TEMPLATES: FallbackTemplate[] = [
   // Level 3: Global/Universal
   {
     level: 3,
-    title: 'The Hermit\'s Quest',
+    title: 'Work From Where You Are',
     description: 'No places found nearby today. Time to make the most of where you are with a focused session at home.',
     task: 'Create a comfortable space at home and engage in deep reflection or creative work',
     artifact: 'A journal entry, artwork, or meditation log',

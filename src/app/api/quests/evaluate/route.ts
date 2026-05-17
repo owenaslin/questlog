@@ -129,9 +129,13 @@ function buildAiPrompt(topic: string, location: string, questType: "main" | "sid
     ? "Main Quest (a meaningful goal taking weeks to months)"
     : "Side Quest (a focused task taking an hour to a weekend)";
 
-  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+  const example = questType === "main"
+    ? `Good: "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`
+    : `Good: "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you."`;
 
-Good: "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you."
+  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear, actionable objectives. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+
+${example}
 Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
 Location: ${sanitize(location) || "anywhere"}
@@ -183,7 +187,7 @@ IMPORTANT: Do NOT assign XP — the system calculates it automatically based on 
 Respond with ONLY a JSON object — no markdown, no code fences:
 {
   "title": "Refined title (stay close to theirs, max 80 chars)",
-  "description": "User's quest refined for clarity, keeping the adventure framing (max 400 chars, 2-3 sentences)",
+  "description": "User's quest rewritten for clarity — plain, motivating, tells them exactly what to do and why (max 400 chars, 2-3 sentences)",
   "difficulty": <1–5>,
   "duration_label": "Realistic estimate, e.g. '1-2 hours', '3 months'",
   "category": "${category}",
