@@ -124,9 +124,7 @@ export default function SmartSuggestions({
           <p className="text-body-sm text-retro-lightgray mb-3">
             Not feeling it today? This quick win takes 30 min or less:
           </p>
-          <Link href={`/quests/${lowEnergyQuest.id}`}>
-            <QuestCard quest={lowEnergyQuest} />
-          </Link>
+          <QuestCard quest={lowEnergyQuest} />
         </div>
       ) : (
         // Smart Suggestions Mode
@@ -134,7 +132,7 @@ export default function SmartSuggestions({
           {recommendations.map((rec) => (
             <Link
               key={rec.quest.id}
-              href={`/quests/${rec.quest.id}`}
+              href={`/board/${rec.quest.id}`}
               className="block bg-retro-black border-2 border-retro-darkgray p-3 hover:border-retro-lightblue transition-colors"
             >
               <div className="flex items-start justify-between gap-2">

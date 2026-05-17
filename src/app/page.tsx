@@ -48,6 +48,8 @@ export default function HomePage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [timeLabel, setTimeLabel] = useState<"Morning" | "Afternoon" | "Tonight">("Tonight");
   const [isDailyAccepting, setIsDailyAccepting] = useState(false);
+  const [isRerolling, setIsRerolling] = useState(false);
+  const [drawMessage, setDrawMessage] = useState<string | null>(null);
   const pendingAcceptRef = useRef(false);
 
   useLayoutEffect(() => {
@@ -136,30 +138,38 @@ export default function HomePage() {
   const isLoggedIn = authChecked && heroName !== null;
 
   const handleRerollSideQuest = async () => {
-    setDailyActionMessage(null);
-    const result = await rerollTodaySideQuest();
-    if (!result.success) {
-      setDailyActionMessage(result.error || "Could not reroll today's side quest.");
-      return;
+    setDrawMessage(null);
+    setIsRerolling(true);
+    try {
+      const result = await rerollTodaySideQuest();
+      if (!result.success) {
+        setDrawMessage(result.error || "Could not reroll today's side quest.");
+        return;
+      }
+      setDailyLoadout(result.loadout ?? null);
+    } catch (err) {
+      setDrawMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } finally {
+      setIsRerolling(false);
     }
-    setDailyLoadout(result.loadout ?? null);
-    setDailyActionMessage("A fresh side quest has been drawn.");
   };
 
   const handleAcceptDailySideQuest = async () => {
     if (!dailyLoadout?.sideQuest) return;
     pendingAcceptRef.current = true;
     setIsDailyAccepting(true);
-    setDailyActionMessage(null);
+    setDrawMessage(null);
     const quest = dailyLoadout.sideQuest;
     try {
       const result = await acceptQuest(quest.id, quest.type, quest.category);
       if (!result.success) {
-        setDailyActionMessage(result.error || "Could not accept today's side quest.");
+        setDrawMessage(result.error || "Could not accept today's side quest.");
         return;
       }
       setActiveSideQuests((prev) => prev.some((q) => q.id === quest.id) ? prev : [...prev, { ...quest, status: "active" }]);
       setDailyActionMessage("Side quest accepted.");
+    } catch (err) {
+      setDrawMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       pendingAcceptRef.current = false;
       setIsDailyAccepting(false);
@@ -168,28 +178,36 @@ export default function HomePage() {
 
   const handleSaveReflection = async () => {
     setDailyActionMessage(null);
-    const result = await saveTodayReflection(reflectionText);
-    setDailyActionMessage(result.success ? "Reflection saved." : result.error || "Could not save reflection.");
+    try {
+      const result = await saveTodayReflection(reflectionText);
+      setDailyActionMessage(result.success ? "Reflection saved." : result.error || "Could not save reflection.");
+    } catch (err) {
+      setDailyActionMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
+    }
   };
 
   const handleCompleteTodayAdventure = async () => {
     setDailyActionMessage(null);
-    const saveResult = await saveTodayReflection(reflectionText);
-    if (!saveResult.success) {
-      setDailyActionMessage(saveResult.error || "Could not save reflection.");
-      return;
-    }
+    try {
+      const saveResult = await saveTodayReflection(reflectionText);
+      if (!saveResult.success) {
+        setDailyActionMessage(saveResult.error || "Could not save reflection.");
+        return;
+      }
 
-    const completeResult = await completeTodayAdventure();
-    if (!completeResult.success || !completeResult.adventure) {
-      setDailyActionMessage(completeResult.error || "Could not complete today's adventure.");
-      return;
-    }
+      const completeResult = await completeTodayAdventure();
+      if (!completeResult.success || !completeResult.adventure) {
+        setDailyActionMessage(completeResult.error || "Could not complete today's adventure.");
+        return;
+      }
 
-    const refreshedStats = await getDailyAdventureStats();
-    setDailyLoadout((prev) => prev ? { ...prev, adventure: completeResult.adventure! } : prev);
-    setDailyStats(refreshedStats);
-    setDailyActionMessage("Today's adventure is complete. Rest well, hero.");
+      const refreshedStats = await getDailyAdventureStats();
+      setDailyLoadout((prev) => prev ? { ...prev, adventure: completeResult.adventure! } : prev);
+      setDailyStats(refreshedStats);
+      setDailyActionMessage("Today's adventure is complete. Rest well, hero.");
+    } catch (err) {
+      setDailyActionMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
+    }
   };
 
   // ── Auth skeleton — shown while we don't know yet if user is logged in ───
@@ -419,7 +437,7 @@ export default function HomePage() {
                       {activeSideQuests.map((quest) => (
                         <Link
                           key={quest.id}
-                          href={`/quests/${quest.id}`}
+                          href={`/board/${quest.id}`}
                           className="flex items-center justify-between p-3 border border-tavern-oak/50 hover:border-tavern-gold/50 transition-none group"
                         >
                           <div>
@@ -454,20 +472,23 @@ export default function HomePage() {
                       <p className="text-body-sm text-[--parchment-dim] mb-3">
                         +{drawnSideQuest.xp_reward} XP · {drawnSideQuest.category} · {drawnSideQuest.duration_label}
                       </p>
+                      {drawMessage && (
+                        <p className="text-body-sm text-tavern-ember mb-2">{drawMessage}</p>
+                      )}
                       <div className="flex flex-wrap gap-2">
                         <button type="button" onClick={handleAcceptDailySideQuest} disabled={isDailyAccepting} aria-busy={isDailyAccepting} className="tavrn-btn tavrn-btn-primary tavrn-btn-sm disabled:opacity-50">
                           {isDailyAccepting ? "…" : "Accept"}
                         </button>
-                        <Link href={`/quests/${drawnSideQuest.id}`} className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
+                        <Link href={`/board/${drawnSideQuest.id}`} className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
                           Details
                         </Link>
                         <button
                           type="button"
                           onClick={handleRerollSideQuest}
-                          disabled={rerollsUsed >= 1}
+                          disabled={rerollsUsed >= 1 || isRerolling}
                           className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm disabled:opacity-50"
                         >
-                          Surprise Me
+                          {isRerolling ? "…" : rerollsUsed >= 1 ? "Rerolled" : "Surprise Me"}
                         </button>
                       </div>
                     </div>
