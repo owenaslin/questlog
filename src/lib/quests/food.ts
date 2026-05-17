@@ -125,6 +125,18 @@ const FOOD_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     status: "available",
   },
   {
+    title: "Well-Rounded Meal",
+    description: "Plan and cook a single meal that hits 4–5 food groups: protein, dairy, fruit, vegetable, and a grain. No delivery, no shortcuts.",
+    type: "side",
+    source: "predefined",
+    difficulty: 2,
+    xp_reward: 100,
+    duration_label: "1-2 hours",
+    category: "Food",
+    location: null,
+    status: "available",
+  },
+  {
     title: "Master a Classic Cocktail",
     description: "Pick one classic cocktail — Negroni, Old Fashioned, or Martini. Make three back-to-back batches refining the balance each time until it's perfect.",
     type: "side",

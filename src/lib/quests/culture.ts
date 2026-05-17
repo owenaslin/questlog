@@ -125,6 +125,18 @@ export const CULTURE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     status: "available",
   },
   {
+    title: "Read a Nonfiction Book About a Country You'd Like to Visit",
+    description: "Choose a country you've always wanted to travel to but haven't visited yet. Read a nonfiction book — history, culture, travel writing — that brings it to life.",
+    type: "side",
+    source: "predefined",
+    difficulty: 1,
+    xp_reward: 100,
+    duration_label: "2-4 weeks",
+    category: "Culture",
+    location: null,
+    status: "available",
+  },
+  {
     title: "Architecture Walk",
     description: "Pick a neighbourhood with interesting buildings and walk it slowly. Research the styles, eras, and stories behind at least 5 structures you find.",
     type: "side",
