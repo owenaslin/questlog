@@ -97,7 +97,7 @@ export default function QuestlineDetailClient({ questline }: QuestlineDetailClie
       {/* Back Button */}
       <Link
         href="/sagas"
-        className="font-pixel text-retro-lightgray text-[8px] hover:text-retro-white mb-4 inline-block"
+        className="text-body-sm text-retro-lightgray hover:text-retro-white mb-4 inline-block"
       >
         ← Back to Sagas
       </Link>
@@ -116,58 +116,53 @@ export default function QuestlineDetailClient({ questline }: QuestlineDetailClie
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <span
-                className={`
-                  font-pixel text-[8px] px-3 py-1 uppercase
-                  ${questline.type === "linear"
-                    ? "bg-retro-blue text-retro-white"
-                    : "bg-retro-purple text-retro-white"}
-                `}
+                className={`badge ${questline.type === "linear" ? "badge-blue" : "badge-purple"}`}
               >
                 {questline.type === "linear" ? "📋 Linear" : "🌳 Skill Tree"}
               </span>
-              <span className="font-pixel text-[8px] px-2 py-1 bg-retro-darkgray text-retro-lightgray uppercase border border-retro-gray">
+              <span className="badge badge-muted">
                 {questline.difficulty}
               </span>
             </div>
 
-            <h1 className="font-pixel text-retro-yellow text-lg leading-tight">
+            <h1 className="text-heading text-retro-yellow leading-tight">
               {questline.title}
             </h1>
           </div>
         </div>
 
-        <p className="font-pixel text-retro-lightgray text-[10px] leading-loose mb-6">
+        <p className="text-body text-retro-lightgray leading-relaxed mb-6">
           {questline.description}
         </p>
 
         {/* Stats Row */}
         <div className="flex items-center justify-between py-4 border-t-2 border-b-2 border-retro-black">
           <div className="text-center flex-1">
-            <span className="font-pixel text-retro-gray text-[8px] block">Category</span>
-            <span className="font-pixel text-retro-lightgray text-xs">
+            <span className="kicker block mb-1">Category</span>
+            <span className="text-body-sm text-retro-lightgray">
               {questline.category}
             </span>
           </div>
           <div className="text-center flex-1 border-x-2 border-retro-black">
-            <span className="font-pixel text-retro-gray text-[8px] block">Steps</span>
-            <span className="font-pixel text-retro-cyan text-xs">
+            <span className="kicker block mb-1">Steps</span>
+            <span className="text-body-sm font-semibold text-retro-cyan">
               {questline.steps.length}
             </span>
           </div>
           <div className="text-center flex-1 border-r-2 border-retro-black">
-            <span className="font-pixel text-retro-gray text-[8px] block">Total XP</span>
-            <span className="font-pixel text-retro-lime text-xs">
+            <span className="kicker block mb-1">Total XP</span>
+            <span className="badge badge-lime">
               +{questline.total_xp}
             </span>
           </div>
           <div className="text-center flex-1">
-            <span className="font-pixel text-retro-gray text-[8px] block">Reward</span>
+            <span className="kicker block mb-1">Reward</span>
             {questline.badge_reward ? (
               <div className="flex items-center justify-center gap-1">
                 <BadgeIcon badge={questline.badge_reward} size="sm" />
               </div>
             ) : (
-              <span className="font-pixel text-retro-gray text-xs">-</span>
+              <span className="text-body-sm text-retro-gray">-</span>
             )}
           </div>
         </div>
@@ -179,14 +174,14 @@ export default function QuestlineDetailClient({ questline }: QuestlineDetailClie
           <div className="bg-retro-black border-2 border-retro-red p-3 mb-4">
             <div className="flex items-start gap-2">
               <span className="text-retro-red text-lg">⚠</span>
-              <p className="font-pixel text-retro-red text-[8px] leading-relaxed flex-1">
+              <p className="text-body-sm text-retro-red leading-relaxed flex-1">
                 {loadError}
               </p>
             </div>
           </div>
         )}
 
-        <h2 className="font-pixel text-retro-cyan text-sm mb-6">
+        <h2 className="text-subhead text-retro-cyan mb-6">
           {isLoading
             ? "Loading progress..."
             : loadError
