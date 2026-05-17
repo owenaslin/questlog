@@ -92,7 +92,7 @@ Analyze each candidate considering:
 - Does it match the intent "${intent}"? (Score 1-10)
 - Does it fit the theme "${theme || 'any'}"? (Score 1-10)
 - Is it likely open now? (Check hours, current time)
-- Which has the best "narrative potential" based on tags?
+- Which is most worth visiting given the intent and tags?
 
 Step 2 - JUSTIFICATION:
 Write 2-3 sentences explaining WHY you chose this place. Reference specific tags/highlights from the data.
@@ -118,12 +118,12 @@ FINAL OUTPUT: Return JSON matching this schema exactly:
   "category": "One of: Fitness, Education, Creative, Tech, Food, Outdoors, Social, Wellness, Community, Career, Business, Culture, Productivity",
   "xp_reward": calculated from difficulty,
   "narrative": {
-    "task": "Specific action to take",
-    "artifact": "What to find/bring back",
+    "task": "Specific action to take — plain and concrete",
+    "artifact": "The tangible thing to observe, note, or bring back — e.g., 'a photo of the storefront', 'a reflection on what you learned'",
     "requirement": "Prerequisites/open hours",
-    "environment": "Atmospheric description",
-    "hook": "Opening line to grab attention",
-    "reward_flavor": "How the XP is described"
+    "environment": "What the place is actually like — describe it as you'd tell a friend, using only confirmed details",
+    "hook": "One sentence that makes the user want to go — focus on what's genuinely interesting about this place, no mystical language",
+    "reward_flavor": "A plain description of what completing this is worth — skip dramatic flourishes"
   },
   "discovery": {
     "place_id": "ID from candidate data",

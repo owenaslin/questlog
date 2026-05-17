@@ -129,7 +129,10 @@ function buildAiPrompt(topic: string, location: string, questType: "main" | "sid
     ? "Main Quest (a meaningful goal taking weeks to months)"
     : "Side Quest (a focused task taking an hour to a weekend)";
 
-  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear objectives.
+  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+
+Good: "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you."
+Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
 Location: ${sanitize(location) || "anywhere"}
 Topic / Interest: ${sanitize(topic)}
@@ -162,7 +165,9 @@ function buildUserPrompt(
   const typeLabel = questType === "main"
     ? "Main Quest (weeks to months of commitment)"
     : "Side Quest (hours to a weekend)";
-  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and make it clear and motivating while keeping the adventure framing and preserving the user's intent exactly.
+  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and make it clear and motivating while preserving the user's intent exactly.
+
+Keep the adventure framing (quest structure, step-by-step objectives) — but write the description like you're telling a friend about a genuinely worthwhile thing to do, not narrating an epic saga. Avoid mystical language, invented names, or dramatic flourishes that obscure what the user actually needs to do.
 
 Quest type: ${typeLabel}
 Category: ${category}
@@ -171,7 +176,7 @@ User's description: ${sanitize(description)}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
 
-- Lightly refine the title and description to be clear and direct while keeping the adventure framing and preserving the user's intent exactly.
+- Lightly refine the title and description to be clear and direct, preserving the user's intent exactly.
 - Assign a realistic duration estimate.
 - Break the quest into 3-6 concrete, actionable steps.
 

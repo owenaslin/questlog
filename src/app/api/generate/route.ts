@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
     const safeLocation = sanitizeForPrompt(location);
     const safeTopic = sanitizeForPrompt(topic);
 
-    const prompt = `You are a quest generator for an 8-bit RPG-style task app. Generate a single quest based on these parameters:
+    const prompt = `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest based on these parameters. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time. Avoid mystical language, invented names, or dramatic flourishes.
 
 Location: ${safeLocation}
 Topic/Interest: ${safeTopic}
