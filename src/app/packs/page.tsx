@@ -39,7 +39,7 @@ export default function QuestPacksPage() {
     <div className="max-w-5xl mx-auto tavrn-panel p-4 md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
-          <p className="tavrn-kicker mb-2">Quest Packs</p>
+          <p className="kicker mb-2">Quest Packs</p>
           <h1 className="tavrn-wordmark text-4xl leading-none mb-2">Draw By Vibe</h1>
           <p className="text-sm text-tavern-parchment-dim">
             Pick your time, energy, and mood. The tavern will deal three quests.

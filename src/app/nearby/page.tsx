@@ -65,7 +65,7 @@ export default function NearbyPage() {
     <div className="max-w-5xl mx-auto tavrn-panel p-4 md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
-          <p className="tavrn-kicker mb-2">Local Discovery</p>
+          <p className="kicker mb-2">Local Discovery</p>
           <h1 className="tavrn-wordmark text-4xl leading-none mb-2">
             {locationLabel ? `${locationLabel}` : "Nearby Quests"}
           </h1>

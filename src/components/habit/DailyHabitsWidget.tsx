@@ -101,7 +101,7 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
   if (habits.length === 0 && !summary.loading) {
     return (
       <div className="tavrn-panel p-4">
-        <p className="tavrn-kicker mb-3">Daily Habits</p>
+        <p className="kicker mb-3">Daily Habits</p>
         <div className="text-center py-4">
           <p className="text-sm text-tavern-parchment-dim mb-2">
             No habits scheduled for today
@@ -121,7 +121,7 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
     <div className="tavrn-panel p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <p className="tavrn-kicker">Daily Habits</p>
+        <p className="kicker">Daily Habits</p>
         <span
           style={{
             transform: allCompleted ? "scale(1)" : "scale(0)",

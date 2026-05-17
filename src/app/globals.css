@@ -151,34 +151,10 @@ h6 {
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
 }
 
-.tavrn-kicker {
-  font-family: var(--pixel);
-  font-size: 10px;
-  color: var(--gold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .tavrn-wordmark {
   font-family: var(--wordmark);
   color: var(--gold);
   letter-spacing: 0.05em;
-}
-
-.tavrn-button {
-  font-family: var(--pixel);
-  font-size: 10px;
-  background: var(--gold);
-  color: #1a1008;
-  border: 2px solid #0a0807;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.82);
-  padding: 0.6rem 0.85rem;
-  text-transform: uppercase;
-}
-
-.tavrn-button:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.85);
 }
 
 @layer components {
@@ -189,7 +165,7 @@ h6 {
   .text-heading { font-family: var(--body); font-size: 16px; font-weight: 600; color: var(--parchment); }
   .text-subhead { font-family: var(--body); font-size: 14px; font-weight: 500; color: var(--parchment); }
 
-  /* Section kicker label — Inter version of .tavrn-kicker */
+  /* Section kicker label */
   .kicker {
     font-family: var(--body);
     font-size: 10.5px;
@@ -218,7 +194,7 @@ h6 {
   .badge-blue   { background: rgba(59,93,201,0.16);   color: #82a8f4;              border: 1px solid rgba(59,93,201,0.28); }
   .badge-purple { background: rgba(139,42,139,0.18);  color: #d08ef4;              border: 1px solid rgba(139,42,139,0.3); }
 
-  /* ── Button system (replaces .tavrn-button) ─────────────────────────── */
+  /* ── Button system ──────────────────────────────────────────────────── */
   .tavrn-btn {
     display: inline-flex;
     align-items: center;
