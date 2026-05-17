@@ -210,7 +210,14 @@ export async function POST(request: NextRequest) {
     const safeLocation = sanitizeForPrompt(location);
     const safeTopic = sanitizeForPrompt(topic);
 
-    const prompt = `You are a quest generator for an 8-bit RPG-style task app. Generate a single quest based on these parameters:
+    const goodExample = questType === "main"
+      ? `Good: "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`
+      : `Good: "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you."`;
+
+    const prompt = `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest based on these parameters. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+
+${goodExample}
+Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
 Location: ${safeLocation}
 Topic/Interest: ${safeTopic}
@@ -219,7 +226,7 @@ Quest Type: ${questType === "main" ? "Main Quest (takes months to complete)" : "
 Respond with ONLY a JSON object (no markdown, no code fences) with these exact fields:
 {
   "title": "A catchy quest title (max 50 chars)",
-  "description": "A fun, detailed description of the quest (2-3 sentences, written like an RPG quest giver)",
+  "description": "A clear, motivating description of the quest (2-3 sentences, explaining what to do and why it matters)",
   "difficulty": <number 1-5>,
   "duration_label": "estimated time (e.g., '2-3 hours', '1 weekend', '2-3 months')",
   "category": "one of: Fitness, Education, Creative, Tech, Food, Outdoors, Social, Wellness, Community, Career, Business, Culture, Productivity"

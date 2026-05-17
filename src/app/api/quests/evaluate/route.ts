@@ -129,7 +129,14 @@ function buildAiPrompt(topic: string, location: string, questType: "main" | "sid
     ? "Main Quest (a meaningful goal taking weeks to months)"
     : "Side Quest (a focused task taking an hour to a weekend)";
 
-  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear objectives.
+  const example = questType === "main"
+    ? `Good: "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`
+    : `Good: "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you."`;
+
+  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear, actionable objectives. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+
+${example}
+Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
 Location: ${sanitize(location) || "anywhere"}
 Topic / Interest: ${sanitize(topic)}
@@ -140,7 +147,7 @@ IMPORTANT: Do NOT assign XP — the system calculates it automatically based on 
 Respond with ONLY a JSON object — no markdown, no code fences:
 {
   "title": "Catchy quest title (max 80 chars)",
-  "description": "2-3 sentence RPG-flavored description written like a quest giver NPC (max 400 chars)",
+  "description": "2-3 sentence description explaining what to do and why it matters — clear and motivating (max 400 chars)",
   "difficulty": <1–5>,
   "duration_label": "Realistic time estimate, e.g. '2-3 hours', '1 weekend', '2-3 months'",
   "category": "one of: Fitness, Education, Creative, Tech, Food, Outdoors, Social, Wellness, Community, Career, Business, Culture, Productivity",
@@ -162,7 +169,9 @@ function buildUserPrompt(
   const typeLabel = questType === "main"
     ? "Main Quest (weeks to months of commitment)"
     : "Side Quest (hours to a weekend)";
-  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and refine it for RPG flavor while preserving the user's intent exactly.
+  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and make it clear and motivating while preserving the user's intent exactly.
+
+Keep the adventure framing (quest structure, step-by-step objectives) — but write the description like you're telling a friend about a genuinely worthwhile thing to do, not narrating an epic saga. Avoid mystical language, invented names, or dramatic flourishes that obscure what the user actually needs to do.
 
 Quest type: ${typeLabel}
 Category: ${category}
@@ -171,14 +180,14 @@ User's description: ${sanitize(description)}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
 
-- Lightly refine the title and description for RPG flavor while preserving the user's intent exactly.
+- Lightly refine the title and description to be clear and direct, preserving the user's intent exactly.
 - Assign a realistic duration estimate.
 - Break the quest into 3-6 concrete, actionable steps.
 
 Respond with ONLY a JSON object — no markdown, no code fences:
 {
   "title": "Refined title (stay close to theirs, max 80 chars)",
-  "description": "User's quest refined for RPG tone (max 400 chars, 2-3 sentences)",
+  "description": "User's quest rewritten for clarity — plain, motivating, tells them exactly what to do and why (max 400 chars, 2-3 sentences)",
   "difficulty": <1–5>,
   "duration_label": "Realistic estimate, e.g. '1-2 hours', '3 months'",
   "category": "${category}",
