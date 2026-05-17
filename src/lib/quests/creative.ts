@@ -198,7 +198,6 @@ const CREATIVE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Blind Contour Drawing",
     description: "Pick any object and draw it without looking at your paper — keep the pen moving continuously. Do 5 drawings in a row.",
@@ -251,7 +250,6 @@ const CREATIVE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Learn to Knit or Crochet",
     description: "Master the basics of knitting or crochet over 2 months. Complete a finished project: scarf, beanie, or amigurumi.",

@@ -124,7 +124,6 @@ const SOCIAL_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Write 5 Appreciation Letters",
     description: "Handwrite (or type) a heartfelt thank-you note to 5 people who've positively shaped your life. Send them all.",
@@ -161,7 +160,6 @@ const SOCIAL_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Take an Improv Comedy Course",
     description: "Enrol in a beginner improv course and attend all sessions over 6–8 weeks. Perform in the end-of-course show.",

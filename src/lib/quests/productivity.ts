@@ -124,7 +124,6 @@ export const PRODUCTIVITY_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[]
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Run a Time Audit",
     description: "Track every 30-minute block of one full day. At the end, tally how your time actually split across work, rest, distraction, and everything else. Face the truth.",
@@ -173,7 +172,6 @@ export const PRODUCTIVITY_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[]
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Build a Second Brain",
     description: "Set up a personal knowledge management system in Notion, Obsidian, or similar over 2 months. Capture, organise, and connect notes until it genuinely saves you time.",

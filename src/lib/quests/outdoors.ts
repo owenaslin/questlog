@@ -124,7 +124,6 @@ const OUTDOORS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Wild Swimming",
     description: "Find a safe, accessible natural body of water — lake, river, or sea — and swim in it. No pool walls, no lanes, just nature.",
@@ -173,7 +172,6 @@ const OUTDOORS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Complete a Cycling Tour",
     description: "Plan and ride a multi-day cycling tour between two or more towns. Navigate, camp or stay in hostels, and cover at least 150 miles total.",

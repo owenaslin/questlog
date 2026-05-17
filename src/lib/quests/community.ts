@@ -124,7 +124,6 @@ export const COMMUNITY_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = 
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Donate Blood",
     description: "Book a slot at your nearest blood donation centre and donate. Takes about an hour. Eat well beforehand and stay hydrated.",
@@ -161,7 +160,6 @@ export const COMMUNITY_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = 
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Start a Community Group",
     description: "Launch a recurring local group around any interest — book club, running crew, repair café, skill swap. Get 10+ regular members and run it for 3 months.",
@@ -192,7 +190,7 @@ export const COMMUNITY_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = 
     type: "main",
     source: "predefined",
     difficulty: 3,
-    xp_reward: 800,
+    xp_reward: 600,
     duration_label: "6 months",
     category: "Community",
     location: null,

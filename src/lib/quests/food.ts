@@ -124,7 +124,6 @@ const FOOD_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Master a Classic Cocktail",
     description: "Pick one classic cocktail — Negroni, Old Fashioned, or Martini. Make three back-to-back batches refining the balance each time until it's perfect.",
@@ -173,7 +172,6 @@ const FOOD_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Cook the World in 12 Weeks",
     description: "Each week, cook one traditional dish from a different country. No repeats, no easy ones. Document each dish with a photo and brief note on the cuisine.",

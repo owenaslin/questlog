@@ -124,7 +124,6 @@ export const BUSINESS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Create a One-Page Business Plan",
     description: "Summarise your idea on a single page: problem, solution, target customer, revenue model, and one key metric. Keep it honest and tight.",
@@ -161,10 +160,9 @@ export const BUSINESS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Publish a Paid Digital Product",
-    description: "Create and sell a digital product: eBook, template pack, mini-course, or notion dashboard. Get at least 5 paying customers.",
+    description: "Create and sell a digital product: eBook, template pack, mini-course, or Notion dashboard. Get at least 5 paying customers.",
     type: "main",
     source: "predefined",
     difficulty: 4,

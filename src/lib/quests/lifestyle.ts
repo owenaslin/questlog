@@ -124,7 +124,6 @@ const LIFESTYLE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Build a Capsule Wardrobe",
     description: "Pare your wardrobe down to 30–35 versatile items that all work together. Donate everything that doesn't make the cut.",
@@ -161,7 +160,6 @@ const LIFESTYLE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Make Your First Investment",
     description: "Research index funds, ETFs, or a brokerage of your choice. Open an account and invest your first £/$/€500 with a clear rationale. Check in monthly for 3 months.",

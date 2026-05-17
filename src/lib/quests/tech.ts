@@ -184,7 +184,6 @@ const TECH_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Master the Command Line",
     description: "Learn 20 essential terminal commands: navigation, file manipulation, piping, grep, and permissions. Complete a beginner CLI course.",
@@ -233,7 +232,6 @@ const TECH_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Cybersecurity Fundamentals",
     description: "Complete a cybersecurity course (TryHackMe, Hack The Box, or similar). Finish 3 beginner CTF challenges and write a summary of what you learned.",

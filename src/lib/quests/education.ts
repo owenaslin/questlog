@@ -184,10 +184,9 @@ const EDUCATION_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Binge a Podcast Series",
-    description: "Pick a documentary or narrative podcast series and listen to the whole thing in one go. Write down the most surprising thing you learned.",
+    description: "Pick a documentary or narrative podcast series and listen to the whole series. Write down the most surprising thing you learned.",
     type: "side",
     source: "predefined",
     difficulty: 1,
@@ -233,7 +232,6 @@ const EDUCATION_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Study a New Field for 30 Days",
     description: "Pick a subject outside your expertise — economics, psychology, astronomy, or philosophy. Spend 30 minutes each day reading or listening for 30 consecutive days. Write a summary at the end.",

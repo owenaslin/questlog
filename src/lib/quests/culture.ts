@@ -124,7 +124,6 @@ export const CULTURE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Architecture Walk",
     description: "Pick a neighbourhood with interesting buildings and walk it slowly. Research the styles, eras, and stories behind at least 5 structures you find.",
@@ -173,7 +172,6 @@ export const CULTURE_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Learn a Traditional Dance Style",
     description: "Take lessons in salsa, tango, swing, or bharatanatyam over 3 months. Attend classes weekly and practise at home. Perform once for someone.",

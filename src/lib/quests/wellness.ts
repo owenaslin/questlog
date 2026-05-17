@@ -124,7 +124,6 @@ const WELLNESS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Breathwork Session",
     description: "Try a structured breathing practice: box breathing (4-4-4-4) or the Physiological Sigh. Do 10 full rounds and notice the shift in your nervous system.",
@@ -173,7 +172,6 @@ const WELLNESS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "30-Day No Alcohol Challenge",
     description: "Go alcohol-free for 30 consecutive days. Track your sleep, energy, and mood daily. Reflect on what changes and what you miss.",

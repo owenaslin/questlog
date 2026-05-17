@@ -196,7 +196,6 @@ const FITNESS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Jump Rope Blitz",
     description: "Grab a jump rope and aim for 100 consecutive jumps without stopping. Take breaks and retry until you hit it.",
@@ -249,7 +248,6 @@ const FITNESS_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Learn to Handstand",
     description: "Practice 10–15 minutes of handstand drills daily for 2 months: wall holds, kick-ups, shoulder conditioning. Goal: 5-second freestanding handstand.",

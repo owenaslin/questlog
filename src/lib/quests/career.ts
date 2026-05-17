@@ -124,7 +124,6 @@ const CAREER_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Side Quests ──────────────────────────────────────────────────────
   {
     title: "Write Your Professional Bio",
     description: "Draft a compelling 150-word third-person bio that captures what you do, what makes you distinctive, and what you're working toward. Polish it until you're proud of it.",
@@ -161,7 +160,6 @@ const CAREER_QUESTS: Omit<Quest, "id" | "created_at" | "user_id">[] = [
     location: null,
     status: "available",
   },
-  // ── New Main Quests ──────────────────────────────────────────────────────
   {
     title: "Launch a Professional Newsletter",
     description: "Choose your niche, set up a Substack or Beehiiv, and publish consistently for 12 weeks. Aim for 100+ subscribers by the end.",
