@@ -80,6 +80,8 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
       } else {
         setAcceptError(result.error || "Could not accept quest. Please try again.");
       }
+    } catch (err) {
+      setAcceptError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setIsAccepting(false);
     }

@@ -38,6 +38,7 @@ function QuickAcceptButton({
 }) {
   const [loading, setLoading] = useState(false);
   const [showConflict, setShowConflict] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (quest.status !== "available") return null;
 
@@ -55,9 +56,16 @@ function QuickAcceptButton({
 
     onAcceptStart?.();
     setLoading(true);
+    setError(null);
     try {
       const result = await acceptQuest(quest.id, quest.type, quest.category);
-      if (result.success) onAccepted(quest.id);
+      if (result.success) {
+        onAccepted(quest.id);
+      } else if (result.conflict) {
+        setShowConflict(true);
+      } else {
+        setError(result.error || 'Could not accept quest.');
+      }
     } finally {
       setLoading(false);
       onAcceptEnd?.();
@@ -97,7 +105,7 @@ function QuickAcceptButton({
           </button>
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowConflict(false); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowConflict(false); setError(null); }}
             className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
           >
             Cancel
@@ -122,16 +130,21 @@ function QuickAcceptButton({
   }`;
 
   return inline ? (
-    <button
-      type="button"
-      onClick={handleAccept}
-      disabled={loading}
-      aria-busy={loading}
-      title={isMainBlocked ? "Finish your current main quest first" : undefined}
-      className={btnClass}
-    >
-      {loading ? "…" : isMainBlocked ? "🔒 Blocked" : "⚡ Accept"}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleAccept}
+        disabled={loading}
+        aria-busy={loading}
+        title={isMainBlocked ? "Finish your current main quest first" : undefined}
+        className={btnClass}
+      >
+        {loading ? "…" : isMainBlocked ? "🔒 Blocked" : "⚡ Accept"}
+      </button>
+      {error && (
+        <p className="text-body-sm text-tavern-ember mt-1">{error}</p>
+      )}
+    </>
   ) : (
     <button
       type="button"

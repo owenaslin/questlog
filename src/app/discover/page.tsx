@@ -121,10 +121,7 @@ export default async function DiscoverPage() {
         </div>
         
         {/* Discovery Forge */}
-        <DiscoveryForge
-          onQuestAccepted={() => {}}
-          onQuestDismissed={() => {}}
-        />
+        <DiscoveryForge />
         
         {/* How It Works */}
         <div className="mt-12 border-t border-slate-800 pt-8">

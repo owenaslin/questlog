@@ -48,6 +48,7 @@ export default function HomePage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [timeLabel, setTimeLabel] = useState<"Morning" | "Afternoon" | "Tonight">("Tonight");
   const [isDailyAccepting, setIsDailyAccepting] = useState(false);
+  const [isRerolling, setIsRerolling] = useState(false);
   const [drawMessage, setDrawMessage] = useState<string | null>(null);
   const pendingAcceptRef = useRef(false);
 
@@ -138,6 +139,7 @@ export default function HomePage() {
 
   const handleRerollSideQuest = async () => {
     setDrawMessage(null);
+    setIsRerolling(true);
     try {
       const result = await rerollTodaySideQuest();
       if (!result.success) {
@@ -147,6 +149,8 @@ export default function HomePage() {
       setDailyLoadout(result.loadout ?? null);
     } catch (err) {
       setDrawMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } finally {
+      setIsRerolling(false);
     }
   };
 
@@ -481,10 +485,10 @@ export default function HomePage() {
                         <button
                           type="button"
                           onClick={handleRerollSideQuest}
-                          disabled={rerollsUsed >= 1}
+                          disabled={rerollsUsed >= 1 || isRerolling}
                           className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm disabled:opacity-50"
                         >
-                          {rerollsUsed >= 1 ? "Rerolled" : "Surprise Me"}
+                          {isRerolling ? "…" : rerollsUsed >= 1 ? "Rerolled" : "Surprise Me"}
                         </button>
                       </div>
                     </div>
