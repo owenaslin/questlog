@@ -74,7 +74,7 @@ export default function BadgeIcon({
 
       {/* Badge Name (only on larger sizes) */}
       {(size === "lg" || size === "xl") && (
-        <span className="font-pixel text-retro-lightgray text-[8px] text-center max-w-[80px] leading-tight">
+        <span className="text-body-sm text-retro-lightgray text-center max-w-[80px] leading-tight">
           {isLocked ? "???" : badge.name}
         </span>
       )}
@@ -90,7 +90,7 @@ export function BadgeRarityBadge({ rarity }: { rarity: Badge["rarity"] }) {
   return (
     <span
       className={`
-        font-pixel text-[8px] px-2 py-1 uppercase tracking-wider
+        kicker px-2 py-1
         ${colors.bg} ${colors.text}
         border-2 ${colors.border}
       `}

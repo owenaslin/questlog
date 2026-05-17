@@ -48,7 +48,7 @@ function QuestTypeToggle({
 }) {
   return (
     <div>
-      <label className="font-pixel text-tavern-smoke-light text-[7px] block mb-2 uppercase tracking-wider">
+      <label className="kicker block mb-2">
         Quest Type
       </label>
       <div className="flex gap-3">
@@ -57,7 +57,7 @@ function QuestTypeToggle({
             key={t}
             type="button"
             onClick={() => onChange(t)}
-            className={`font-pixel text-[8px] px-4 py-2 transition-none ${
+            className={`text-body-sm font-medium px-4 py-2 min-h-[40px] transition-none ${
               value === t
                 ? t === "main"
                   ? "bg-tavern-ember text-retro-white border-b-4 border-tavern-ember-dark"
@@ -69,7 +69,7 @@ function QuestTypeToggle({
           </button>
         ))}
       </div>
-      <p className="font-pixel text-tavern-smoke-light text-[7px] mt-1.5 opacity-70">
+      <p className="text-body-sm text-tavern-smoke-light mt-1.5 opacity-70">
         {value === "main" ? "Weeks–months of commitment" : "Hours to a weekend"}
       </p>
     </div>
@@ -101,13 +101,13 @@ function AiForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {/* Topic */}
       <div>
-        <label className="font-pixel text-tavern-smoke-light text-[7px] block mb-2 uppercase tracking-wider">
+        <label className="kicker block mb-2">
           Topic / Interest
         </label>
         <select
           value={topic}
           onChange={(e) => { setTopic(e.target.value); if (e.target.value) setCustom(""); }}
-          className="w-full mb-2 font-pixel text-[9px]"
+          className="w-full mb-2"
         >
           <option value="">Choose a topic…</option>
           {AI_TOPICS.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -117,14 +117,14 @@ function AiForm({
           value={custom}
           onChange={(e) => { setCustom(e.target.value); if (e.target.value) setTopic(""); }}
           placeholder="Or type your own topic…"
-          className="w-full font-pixel text-[9px]"
+          className="w-full"
           maxLength={100}
         />
       </div>
 
       {/* Location */}
       <div>
-        <label className="font-pixel text-tavern-smoke-light text-[7px] block mb-2 uppercase tracking-wider">
+        <label className="kicker block mb-2">
           Location <span className="opacity-50">(optional)</span>
         </label>
         <input
@@ -132,7 +132,7 @@ function AiForm({
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="e.g., Brooklyn, NY or Tokyo"
-          className="w-full font-pixel text-[9px]"
+          className="w-full"
           maxLength={100}
         />
       </div>
@@ -142,7 +142,7 @@ function AiForm({
       <button
         type="submit"
         disabled={!canSubmit}
-        className={`w-full font-pixel text-[9px] px-4 py-3 border-b-4 transition-none ${
+        className={`w-full text-body-sm font-medium px-4 py-3 min-h-[44px] border-b-4 transition-none ${
           canSubmit
             ? "bg-tavern-gold text-retro-black border-tavern-gold-dark hover:bg-tavern-candle cursor-pointer"
             : "bg-retro-darkgray text-retro-gray border-retro-black cursor-not-allowed"
@@ -183,7 +183,7 @@ function UserForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {/* Title */}
       <div>
-        <label className="font-pixel text-tavern-smoke-light text-[7px] block mb-2 uppercase tracking-wider">
+        <label className="kicker block mb-2">
           Quest Title
         </label>
         <input
@@ -191,45 +191,45 @@ function UserForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="What will you accomplish?"
-          className="w-full font-pixel text-[9px]"
+          className="w-full"
           minLength={5}
           maxLength={80}
           required
         />
-        <p className="font-pixel text-tavern-smoke-light text-[7px] mt-1 opacity-60">
+        <p className="text-body-sm text-tavern-smoke-light mt-1 opacity-60">
           {title.trim().length}/80
         </p>
       </div>
 
       {/* Description */}
       <div>
-        <label className="font-pixel text-tavern-smoke-light text-[7px] block mb-2 uppercase tracking-wider">
+        <label className="kicker block mb-2">
           Describe the Quest
         </label>
         <textarea
           value={description}
           onChange={(e) => setDesc(e.target.value)}
           placeholder="Be specific — what exactly will you do? The Quest Giver rewards clear objectives."
-          className="w-full font-pixel text-[9px] resize-none"
+          className="w-full resize-none"
           rows={4}
           minLength={20}
           maxLength={400}
           required
         />
-        <p className="font-pixel text-tavern-smoke-light text-[7px] mt-1 opacity-60">
+        <p className="text-body-sm text-tavern-smoke-light mt-1 opacity-60">
           {description.trim().length}/400 (min 20)
         </p>
       </div>
 
       {/* Category */}
       <div>
-        <label className="font-pixel text-tavern-smoke-light text-[7px] block mb-2 uppercase tracking-wider">
+        <label className="kicker block mb-2">
           Category
         </label>
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full font-pixel text-[9px]"
+          className="w-full"
           required
         >
           <option value="">Select a category…</option>
@@ -242,7 +242,7 @@ function UserForm({
       <button
         type="submit"
         disabled={!canSubmit}
-        className={`w-full font-pixel text-[9px] px-4 py-3 border-b-4 transition-none ${
+        className={`w-full text-body-sm font-medium px-4 py-3 min-h-[44px] border-b-4 transition-none ${
           canSubmit
             ? "bg-tavern-gold text-retro-black border-tavern-gold-dark hover:bg-tavern-candle cursor-pointer"
             : "bg-retro-darkgray text-retro-gray border-retro-black cursor-not-allowed"
@@ -251,7 +251,7 @@ function UserForm({
         ✎ Submit for Evaluation
       </button>
 
-      <p className="font-pixel text-tavern-smoke-light text-[7px] text-center opacity-60">
+      <p className="text-body-sm text-tavern-smoke-light text-center opacity-60">
         The Quest Giver determines your XP — no self-scoring.
       </p>
     </form>
@@ -385,7 +385,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
           <button
             type="button"
             onClick={onClose}
-            className="font-pixel text-tavern-smoke-light text-[9px] hover:text-tavern-parchment px-2"
+            className="text-tavern-smoke-light text-xl leading-none hover:text-tavern-parchment px-2 py-1 min-h-[40px] min-w-[40px]"
             aria-label="Close"
           >
             ✕
@@ -402,7 +402,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                     key={m}
                     type="button"
                     onClick={() => { setMode(m); setError(null); }}
-                    className={`font-pixel text-[8px] px-5 py-2 transition-none ${
+                    className={`text-body-sm font-medium px-5 py-2 min-h-[40px] transition-none ${
                       mode === m
                         ? "text-tavern-gold border-b-4 border-tavern-gold -mb-[2px]"
                         : "text-tavern-smoke-light hover:text-tavern-parchment border-b-4 border-transparent -mb-[2px]"
@@ -421,7 +421,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
               className="mb-4 px-4 py-3 border-2 border-tavern-ember"
               style={{ background: "#1a0d05" }}
             >
-              <p className="font-pixel text-tavern-ember text-[8px] leading-relaxed">{error}</p>
+              <p className="text-body-sm text-tavern-ember leading-relaxed">{error}</p>
             </div>
           )}
 
@@ -446,10 +446,10 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
             <div className="flex flex-col items-center py-10 gap-6">
               <div className="text-5xl animate-bounce">🧙</div>
               <div className="text-center">
-                <p className="font-pixel text-tavern-gold text-[9px] mb-2">
+                <p className="text-body text-tavern-gold mb-2">
                   The Quest Giver reviews your challenge…
                 </p>
-                <p className="font-pixel text-tavern-smoke-light text-[7px]">
+                <p className="text-body-sm text-tavern-smoke-light">
                   Determining your reward…
                 </p>
               </div>
@@ -462,7 +462,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
               <button
                 type="button"
                 onClick={() => { abortRef.current?.abort(); setStage("form"); }}
-                className="font-pixel text-tavern-smoke-light text-[7px] hover:text-tavern-parchment"
+                className="text-body-sm text-tavern-smoke-light hover:text-tavern-parchment min-h-[40px] px-2"
               >
                 Cancel
               </button>
@@ -484,17 +484,17 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                 className="text-center py-4 mb-5"
                 style={{ border: "4px solid #c4a85a", background: "#0f0d07" }}
               >
-                <p className="font-pixel text-tavern-smoke-light text-[7px] mb-1 uppercase tracking-wider">
+                <p className="kicker mb-1">
                   The Quest Giver awards
                 </p>
                 <p className="font-pixel text-tavern-gold text-4xl">+{preview.xp_reward} XP</p>
               </div>
 
               {/* Quest title + description */}
-              <h3 className="font-pixel text-tavern-parchment text-[10px] leading-relaxed mb-3">
+              <h3 className="text-subhead leading-snug mb-3">
                 {preview.title}
               </h3>
-              <p className="font-pixel text-tavern-smoke-light text-[8px] leading-loose mb-5">
+              <p className="text-body text-tavern-smoke-light leading-relaxed mb-5">
                 {preview.description}
               </p>
 
@@ -506,8 +506,8 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                   { label: "Category", value: preview.category },
                 ].map(({ label, value }) => (
                   <div key={label} className="bg-retro-black border-2 border-retro-darkgray p-2">
-                    <p className="font-pixel text-retro-gray text-[6px] uppercase mb-1">{label}</p>
-                    <p className="font-pixel text-tavern-parchment text-[7px]">{value}</p>
+                    <p className="kicker mb-1">{label}</p>
+                    <p className="text-body-sm text-tavern-parchment">{value}</p>
                   </div>
                 ))}
               </div>
@@ -517,14 +517,14 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                 <button
                   type="button"
                   onClick={handleAccept}
-                  className="flex-1 font-pixel text-[9px] px-4 py-3 bg-retro-green text-retro-white border-b-4 border-retro-darkgreen hover:bg-retro-lime hover:text-retro-black transition-none"
+                  className="flex-1 text-body-sm font-medium px-4 py-3 min-h-[44px] bg-retro-green text-retro-white border-b-4 border-retro-darkgreen hover:bg-retro-lime hover:text-retro-black transition-none"
                 >
                   ✓ Accept Quest
                 </button>
                 <button
                   type="button"
                   onClick={() => { setPreview(null); setStage("form"); }}
-                  className="font-pixel text-[8px] px-4 py-3 border-2 border-tavern-oak text-tavern-smoke-light hover:border-tavern-parchment transition-none"
+                  className="text-body-sm font-medium px-4 py-3 min-h-[44px] border-2 border-tavern-oak text-tavern-smoke-light hover:border-tavern-parchment transition-none"
                 >
                   ↩ Revise
                 </button>
@@ -536,7 +536,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
           {stage === "saving" && (
             <div className="flex flex-col items-center py-10 gap-4">
               <div className="text-3xl animate-spin">⚙</div>
-              <p className="font-pixel text-tavern-parchment text-[9px]">
+              <p className="text-body text-tavern-parchment">
                 Recording your quest…
               </p>
             </div>
@@ -548,7 +548,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
               <div className="text-5xl">🍺</div>
               <div>
                 <p className="font-pixel text-tavern-gold text-[11px] mb-2">Quest Accepted!</p>
-                <p className="font-pixel text-tavern-smoke-light text-[8px] leading-loose">
+                <p className="text-body text-tavern-smoke-light leading-relaxed">
                   The tavern erupts in cheer. Your adventure begins.
                 </p>
               </div>
@@ -557,7 +557,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                   <Link
                     href={`/board/${savedQuestId}`}
                     onClick={onClose}
-                    className="block text-center font-pixel text-[9px] px-4 py-3 bg-retro-blue text-retro-white border-b-4 border-retro-darkblue hover:bg-retro-lightblue"
+                    className="block text-center text-body-sm font-medium px-4 py-3 min-h-[44px] bg-retro-blue text-retro-white border-b-4 border-retro-darkblue hover:bg-retro-lightblue"
                   >
                     View Quest →
                   </Link>
@@ -565,14 +565,14 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                 <Link
                   href="/journal"
                   onClick={onClose}
-                  className="block text-center font-pixel text-[8px] px-4 py-2 border-2 border-tavern-oak text-tavern-gold hover:border-tavern-gold"
+                  className="block text-center text-body-sm font-medium px-4 py-2 min-h-[40px] border-2 border-tavern-oak text-tavern-gold hover:border-tavern-gold"
                 >
                   View in Journal →
                 </Link>
                 <button
                   type="button"
                   onClick={() => { setStage("form"); setPreview(null); setSavedId(null); setError(null); }}
-                  className="font-pixel text-[7px] text-tavern-smoke-light hover:text-tavern-parchment"
+                  className="text-body-sm text-tavern-smoke-light hover:text-tavern-parchment min-h-[40px] px-2"
                 >
                   Forge another quest
                 </button>

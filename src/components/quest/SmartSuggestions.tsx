@@ -49,7 +49,7 @@ export default function SmartSuggestions({
   if (isLoading) {
     return (
       <div className="bg-retro-darkgray border-4 border-retro-black p-4">
-        <p className="font-pixel text-retro-lightgray text-[8px]">Loading suggestions...</p>
+        <p className="text-body-sm text-retro-lightgray">Loading suggestions...</p>
       </div>
     );
   }
@@ -57,7 +57,7 @@ export default function SmartSuggestions({
   if (recommendations.length === 0 && !lowEnergyQuest) {
     return (
       <div className="bg-retro-darkgray border-4 border-retro-black p-4 text-center">
-        <p className="font-pixel text-retro-gray text-[8px]">
+        <p className="text-body-sm text-retro-gray">
           Complete a few quests to get personalized suggestions!
         </p>
       </div>
@@ -85,14 +85,14 @@ export default function SmartSuggestions({
     <div className="bg-retro-darkgray border-4 border-retro-black p-4">
       {/* Header with mode toggle */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-pixel text-retro-yellow text-xs">
+        <h2 className="text-body-sm font-semibold text-retro-yellow">
           {activeMode === "smart" ? "💡 Smart Suggestions" : "😌 Low Energy Mode"}
         </h2>
         {lowEnergyQuest && (
           <div className="flex gap-1" role="group" aria-label="Suggestion mode">
             <button
               onClick={() => setActiveMode("smart")}
-              className={`font-pixel text-[7px] px-2 py-1 ${
+              className={`text-body-sm font-medium px-2 py-1 min-h-[34px] ${
                 activeMode === "smart"
                   ? "bg-retro-blue text-retro-white"
                   : "bg-retro-black text-retro-gray"
@@ -104,7 +104,7 @@ export default function SmartSuggestions({
             </button>
             <button
               onClick={() => setActiveMode("low-energy")}
-              className={`font-pixel text-[7px] px-2 py-1 ${
+              className={`text-body-sm font-medium px-2 py-1 min-h-[34px] ${
                 activeMode === "low-energy"
                   ? "bg-retro-green text-retro-black"
                   : "bg-retro-black text-retro-gray"
@@ -121,7 +121,7 @@ export default function SmartSuggestions({
       {activeMode === "low-energy" && lowEnergyQuest ? (
         // Low Energy Mode
         <div>
-          <p className="font-pixel text-retro-lightgray text-[8px] mb-3">
+          <p className="text-body-sm text-retro-lightgray mb-3">
             Not feeling it today? This quick win takes 30 min or less:
           </p>
           <Link href={`/quests/${lowEnergyQuest.id}`}>
@@ -139,22 +139,22 @@ export default function SmartSuggestions({
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1">
-                  <p className="font-pixel text-retro-yellow text-[10px] leading-relaxed mb-1">
+                  <p className="text-body-sm font-medium text-retro-yellow leading-snug mb-1">
                     {rec.quest.title}
                   </p>
-                  <p className={`font-pixel text-[7px] ${getReasonColor(rec.type)}`}>
+                  <p className={`text-body-sm ${getReasonColor(rec.type)}`}>
                     {rec.reason}
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="font-pixel text-retro-lime text-[8px] block">
+                  <span className="badge badge-lime block mb-1">
                     +{rec.quest.xp_reward} XP
                   </span>
                   <span
-                    className={`font-pixel text-[6px] px-1 py-0.5 ${
+                    className={`badge ${
                       rec.quest.type === "main"
-                        ? "bg-retro-red text-retro-white"
-                        : "bg-retro-blue text-retro-white"
+                        ? "badge-ember"
+                        : "badge-blue"
                     }`}
                   >
                     {rec.quest.type === "main" ? "Main" : "Side"}
