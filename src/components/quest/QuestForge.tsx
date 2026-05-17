@@ -517,9 +517,10 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                 <button
                   type="button"
                   onClick={handleAccept}
-                  className="flex-1 text-body-sm font-medium px-4 py-3 min-h-[44px] bg-retro-green text-retro-white border-b-4 border-retro-darkgreen hover:bg-retro-lime hover:text-retro-black transition-none"
+                  disabled={stage === "saving"}
+                  className="flex-1 text-body-sm font-medium px-4 py-3 min-h-[44px] bg-retro-green text-retro-white border-b-4 border-retro-darkgreen hover:bg-retro-lime hover:text-retro-black transition-none disabled:opacity-50"
                 >
-                  ✓ Accept Quest
+                  {stage === "saving" ? "…" : "✓ Accept Quest"}
                 </button>
                 <button
                   type="button"
