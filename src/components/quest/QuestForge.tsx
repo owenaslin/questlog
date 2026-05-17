@@ -332,7 +332,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
   };
 
   const handleAccept = async () => {
-    if (!preview) return;
+    if (!preview || stage !== "preview") return;
     setStage("saving");
     setError(null);
 
@@ -517,11 +517,9 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
                 <button
                   type="button"
                   onClick={handleAccept}
-                  disabled={stage === "saving"}
-                  aria-busy={stage === "saving"}
-                  className="flex-1 text-body-sm font-medium px-4 py-3 min-h-[44px] bg-retro-green text-retro-white border-b-4 border-retro-darkgreen hover:bg-retro-lime hover:text-retro-black transition-none disabled:opacity-50"
+                  className="flex-1 text-body-sm font-medium px-4 py-3 min-h-[44px] bg-retro-green text-retro-white border-b-4 border-retro-darkgreen hover:bg-retro-lime hover:text-retro-black transition-none"
                 >
-                  {stage === "saving" ? "…" : "✓ Accept Quest"}
+                  ✓ Accept Quest
                 </button>
                 <button
                   type="button"
