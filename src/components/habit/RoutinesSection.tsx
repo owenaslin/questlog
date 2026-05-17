@@ -76,7 +76,7 @@ export default function RoutinesSection() {
       <div className="tavern-card p-4 mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-pixel text-tavern-gold text-[10px] mb-1">
+            <h3 className="text-body-sm font-semibold text-tavern-gold mb-1">
               📋 Daily Routine
             </h3>
             <p className="text-xs text-tavern-parchment-dim">
@@ -103,10 +103,10 @@ export default function RoutinesSection() {
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center gap-2">
-          <h3 className="font-pixel text-tavern-gold text-[10px]">
+          <h3 className="text-body-sm font-semibold text-tavern-gold">
             📋 Daily Routine
           </h3>
-          <span className="text-[10px] text-tavern-parchment-dim">
+          <span className="text-body-sm text-tavern-parchment-dim">
             ({completedCount}/{totalCount})
           </span>
           {allCompleted && (
@@ -116,7 +116,7 @@ export default function RoutinesSection() {
           )}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[9px] text-tavern-parchment-dim">
+          <span className="text-body-sm text-tavern-parchment-dim">
             {hoursUntilReset}h to reset
           </span>
           <span className={`text-tavern-gold transition-transform duration-200 inline-block ${isExpanded ? "rotate-180" : ""}`}>
@@ -171,7 +171,7 @@ export default function RoutinesSection() {
                       </span>
                     </div>
                     {habit.streak && habit.streak.current_streak > 0 && (
-                      <span className="text-[9px] text-tavern-gold">
+                      <span className="text-body-sm text-tavern-gold">
                         {habit.streak.current_streak}🔥
                       </span>
                     )}
@@ -183,13 +183,13 @@ export default function RoutinesSection() {
               <div className="mt-3 pt-3 border-t border-tavern-oak/30 flex items-center justify-between">
                 <Link
                   href="/habits"
-                  className="text-[9px] text-tavern-gold hover:text-tavern-candle"
+                  className="text-body-sm text-tavern-gold hover:text-tavern-candle"
                 >
                   View all habits →
                 </Link>
                 <Link
                   href="/habits/new"
-                  className="text-[9px] text-tavern-parchment-dim hover:text-tavern-parchment"
+                  className="text-body-sm text-tavern-parchment-dim hover:text-tavern-parchment"
                 >
                   + New habit
                 </Link>

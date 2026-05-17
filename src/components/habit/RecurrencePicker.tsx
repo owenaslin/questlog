@@ -80,8 +80,8 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
             }
           `}
         >
-          <div className="font-pixel text-[9px] text-tavern-gold">{option.label}</div>
-          <div className="text-[10px] text-tavern-parchment-dim mt-1">
+          <div className="text-body-sm font-semibold text-tavern-gold">{option.label}</div>
+          <div className="text-body-sm text-tavern-parchment-dim mt-1">
             {option.description}
           </div>
         </button>
@@ -94,7 +94,7 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
     
     return (
       <div className="mt-4">
-        <p className="font-pixel text-[8px] text-tavern-parchment mb-2">Select days:</p>
+        <p className="text-body-sm text-tavern-parchment mb-2">Select days:</p>
         <div className="flex gap-1">
           {DAY_NAMES.map((day, index) => (
             <button
@@ -102,7 +102,7 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
               type="button"
               onClick={() => handleDayToggle(index)}
               className={`
-                w-8 h-8 rounded font-pixel text-[9px] transition-all
+                w-8 h-8 rounded text-body-sm font-medium transition-all
                 ${selectedDays.includes(index)
                   ? "bg-tavern-gold text-tavern-smoke"
                   : "bg-tavern-oak text-tavern-parchment-dim hover:bg-tavern-oak/80"
@@ -123,7 +123,7 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
     
     return (
       <div className="mt-4">
-        <p className="font-pixel text-[8px] text-tavern-parchment mb-2">Repeat on:</p>
+        <p className="text-body-sm text-tavern-parchment mb-2">Repeat on:</p>
         <select
           value={selectedDay}
           onChange={(e) => handleDayOfWeekChange(Number(e.target.value))}
@@ -144,7 +144,7 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
     
     return (
       <div className="mt-4">
-        <p className="font-pixel text-[8px] text-tavern-parchment mb-2">
+        <p className="text-body-sm text-tavern-parchment mb-2">
           Repeat every {intervalDays} day{intervalDays !== 1 ? "s" : ""}
         </p>
         <div className="flex items-center gap-3">
@@ -162,7 +162,7 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
             max={365}
             value={intervalDays}
             onChange={(e) => handleIntervalChange(Number(e.target.value))}
-            className="w-16 bg-tavern-smoke border-2 border-tavern-oak rounded p-1 text-center text-tavern-parchment font-pixel text-xs"
+            className="w-16 bg-tavern-smoke border-2 border-tavern-oak rounded p-1 text-center text-tavern-parchment text-body-sm"
           />
         </div>
       </div>
@@ -184,7 +184,7 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
 
   return (
     <div className="space-y-3">
-      <label className="font-pixel text-[9px] text-tavern-gold block">
+      <label className="text-body-sm font-medium text-tavern-gold block">
         Recurrence Pattern
       </label>
       
@@ -192,7 +192,7 @@ export default function RecurrencePicker({ value, onChange, error }: RecurrenceP
       {renderTypeSpecificOptions()}
       
       {(localError || error) && (
-        <p className="font-pixel text-[7px] text-tavern-ember mt-1">
+        <p className="text-body-sm text-tavern-ember mt-1">
           {localError || error}
         </p>
       )}

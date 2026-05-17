@@ -92,14 +92,14 @@ export default function NearbyPage() {
 
       {/* Suggestions */}
       <section className="mb-8">
-        <h2 className="font-pixel text-retro-yellow text-sm mb-4">💡 Try This Week</h2>
+        <h2 className="text-subhead text-retro-yellow mb-4">💡 Try This Week</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {suggestions.map((suggestion, i) => (
             <div
               key={i}
               className="bg-retro-darkgray border-4 border-retro-black p-4 hover:border-tavern-gold/50 transition-none"
             >
-              <p className="text-[12px] text-tavern-parchment leading-relaxed">
+              <p className="text-body-sm text-tavern-parchment leading-relaxed">
                 {suggestion}
               </p>
             </div>
@@ -109,7 +109,7 @@ export default function NearbyPage() {
 
       {/* Nearby Quests */}
       <section>
-        <h2 className="font-pixel text-retro-yellow text-sm mb-4">🗺 Quests for Getting Out</h2>
+        <h2 className="text-subhead text-retro-yellow mb-4">🗺 Quests for Getting Out</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {nearbyQuests.map((quest) => (
             <QuestCard key={quest.id} quest={quest} />
@@ -119,8 +119,8 @@ export default function NearbyPage() {
 
       {/* Privacy Note */}
       <section className="mt-8 bg-retro-darkgray border-4 border-retro-black p-4">
-        <p className="font-pixel text-[8px] text-retro-lightgray mb-2">🔒 Privacy Note</p>
-        <p className="text-[12px] text-retro-gray leading-relaxed">
+        <p className="kicker mb-2">🔒 Privacy Note</p>
+        <p className="text-body-sm text-retro-gray leading-relaxed">
           This page uses your optional home area label from Settings. No precise GPS is required. 
           For AI-powered local place discovery, visit{" "}
           <Link href="/discover" className="text-tavern-gold hover:underline">

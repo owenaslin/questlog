@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
     return (
       <div className="max-w-md mx-auto mt-10">
         <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6 text-center">
-          <p className="font-pixel text-retro-lightgray text-[9px]">Checking reset link...</p>
+          <p className="text-body-sm text-retro-lightgray">Checking reset link...</p>
         </div>
       </div>
     );
@@ -109,8 +109,8 @@ export default function ResetPasswordPage() {
       <div className="max-w-md mx-auto mt-10">
         <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6 text-center">
           <div className="text-3xl mb-3">⚠️</div>
-          <h1 className="font-pixel text-retro-yellow text-sm mb-3">Invalid Reset Link</h1>
-          <p className="font-pixel text-retro-lightgray text-[8px] leading-loose mb-4">
+          <h1 className="text-subhead text-retro-yellow mb-3">Invalid Reset Link</h1>
+          <p className="text-body text-retro-lightgray leading-relaxed mb-4">
             This password reset link is invalid or has expired.
           </p>
           <Link href="/auth?mode=forgot">
@@ -126,18 +126,18 @@ export default function ResetPasswordPage() {
       <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-6" aria-busy={isSaving}>
         <div className="text-center mb-5">
           <div className="text-3xl mb-3">🔒</div>
-          <h1 className="font-pixel text-retro-yellow text-sm mb-2">Set new password</h1>
-          <p className="font-pixel text-retro-lightgray text-[8px] leading-loose">
+          <h1 className="text-subhead text-retro-yellow mb-2">Set new password</h1>
+          <p className="text-body-sm text-retro-lightgray leading-relaxed">
             Choose a new secure password for your account.
           </p>
-          <p className="font-pixel text-retro-gray text-[7px] mt-2 break-all">
+          <p className="text-body-sm text-retro-gray mt-2 break-all">
             After login, you will continue to: {redirectTarget}
           </p>
         </div>
 
         <form onSubmit={handleUpdatePassword} className="flex flex-col gap-4">
           <div>
-            <label className="font-pixel text-retro-lightgray text-[8px] block mb-2">New Password</label>
+            <label className="text-body-sm text-retro-lightgray block mb-2">New Password</label>
             <div className="flex gap-2 items-stretch">
               <input
                 type={showPassword ? "text" : "password"}
@@ -154,7 +154,7 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="font-pixel text-[8px] px-3 border-2 border-retro-darkgray bg-retro-black text-retro-lightgray hover:text-retro-white"
+                className="text-body-sm px-3 border-2 border-retro-darkgray bg-retro-black text-retro-lightgray hover:text-retro-white"
                 aria-label={showPassword ? "Hide new password" : "Show new password"}
               >
                 {showPassword ? "Hide" : "Show"}
@@ -164,7 +164,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <div>
-            <label className="font-pixel text-retro-lightgray text-[8px] block mb-2">Confirm Password</label>
+            <label className="text-body-sm text-retro-lightgray block mb-2">Confirm Password</label>
             <div className="flex gap-2 items-stretch">
               <input
                 type={showConfirmPassword ? "text" : "password"}
@@ -181,7 +181,7 @@ export default function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
-                className="font-pixel text-[8px] px-3 border-2 border-retro-darkgray bg-retro-black text-retro-lightgray hover:text-retro-white"
+                className="text-body-sm px-3 border-2 border-retro-darkgray bg-retro-black text-retro-lightgray hover:text-retro-white"
                 aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
               >
                 {showConfirmPassword ? "Hide" : "Show"}
@@ -190,21 +190,21 @@ export default function ResetPasswordPage() {
           </div>
 
           {isCapsLockOn && (
-            <p className="font-pixel text-retro-orange text-[7px]">Caps Lock is on.</p>
+            <p className="text-body-sm text-retro-orange">Caps Lock is on.</p>
           )}
 
-          <p className="font-pixel text-retro-gray text-[7px] leading-relaxed">
+          <p className="text-body-sm text-retro-gray leading-relaxed">
             For best security, use at least 8 characters with mixed case, numbers, and symbols.
           </p>
 
           {error && (
-            <p className="font-pixel text-retro-red text-[8px] leading-relaxed bg-retro-black border-2 border-retro-red p-2" role="alert" aria-live="assertive">
+            <p className="text-body-sm text-retro-red leading-relaxed bg-retro-black border-2 border-retro-red p-2" role="alert" aria-live="assertive">
               {error}
             </p>
           )}
 
           {message && (
-            <p className="font-pixel text-retro-lime text-[8px] leading-relaxed bg-retro-black border-2 border-retro-green p-2" role="status" aria-live="polite">
+            <p className="text-body-sm text-retro-lime leading-relaxed bg-retro-black border-2 border-retro-green p-2" role="status" aria-live="polite">
               {message}
             </p>
           )}

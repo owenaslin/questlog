@@ -152,7 +152,7 @@ export default function DiscoveryForge({
           </div>
         </div>
         
-        <h3 className="text-xl font-bold text-amber-400 mb-2 font-pixel">
+        <h3 className="text-xl font-bold text-amber-400 mb-2">
           {LOADING_STAGES[loadingStage]?.message}
         </h3>
         

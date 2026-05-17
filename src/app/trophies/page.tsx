@@ -56,7 +56,7 @@ export default function TrophiesPage() {
         <h1 className="tavrn-wordmark text-4xl leading-none mb-2">
           🏅 Badge Collection
         </h1>
-        <p className="font-pixel text-retro-lightgray text-[10px] max-w-2xl mx-auto leading-loose">
+        <p className="text-body text-retro-lightgray max-w-2xl mx-auto leading-relaxed">
           Complete quests and earn badges! Collect them all to become a true Legend of the Board.
         </p>
       </div>
@@ -64,12 +64,8 @@ export default function TrophiesPage() {
       {/* Progress Overview */}
       <div className="tavern-card p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
-          <span className="font-pixel text-retro-lightgray text-xs">
-            Collection Progress
-          </span>
-          <span className="font-pixel text-retro-cyan text-xs">
-            {earnedCount} / {totalCount} Badges
-          </span>
+          <span className="text-body-sm text-retro-lightgray">Collection Progress</span>
+          <span className="text-body-sm text-retro-cyan">{earnedCount} / {totalCount} Badges</span>
         </div>
         <div className="w-full h-4 bg-retro-black border-2 border-retro-darkgray mb-4">
           <div
@@ -79,20 +75,20 @@ export default function TrophiesPage() {
         </div>
         <div className="grid grid-cols-4 gap-2 text-center">
           <div className="bg-retro-gray bg-opacity-30 p-2">
-            <span className="font-pixel text-retro-gray text-[7px] block">Common</span>
-            <span className="font-pixel text-retro-lightgray text-xs">{rarityCounts.common.earned}/{rarityCounts.common.total}</span>
+            <span className="kicker block mb-0.5">Common</span>
+            <span className="text-body-sm text-retro-lightgray">{rarityCounts.common.earned}/{rarityCounts.common.total}</span>
           </div>
           <div className="bg-retro-blue bg-opacity-30 p-2">
-            <span className="font-pixel text-retro-blue text-[7px] block">Rare</span>
-            <span className="font-pixel text-retro-lightgray text-xs">{rarityCounts.rare.earned}/{rarityCounts.rare.total}</span>
+            <span className="kicker text-retro-blue block mb-0.5">Rare</span>
+            <span className="text-body-sm text-retro-lightgray">{rarityCounts.rare.earned}/{rarityCounts.rare.total}</span>
           </div>
           <div className="bg-retro-purple bg-opacity-30 p-2">
-            <span className="font-pixel text-retro-purple text-[7px] block">Epic</span>
-            <span className="font-pixel text-retro-lightgray text-xs">{rarityCounts.epic.earned}/{rarityCounts.epic.total}</span>
+            <span className="kicker text-retro-purple block mb-0.5">Epic</span>
+            <span className="text-body-sm text-retro-lightgray">{rarityCounts.epic.earned}/{rarityCounts.epic.total}</span>
           </div>
           <div className="bg-retro-yellow bg-opacity-30 p-2">
-            <span className="font-pixel text-retro-yellow text-[7px] block">Legendary</span>
-            <span className="font-pixel text-retro-lightgray text-xs">{rarityCounts.legendary.earned}/{rarityCounts.legendary.total}</span>
+            <span className="kicker text-retro-yellow block mb-0.5">Legendary</span>
+            <span className="text-body-sm text-retro-lightgray">{rarityCounts.legendary.earned}/{rarityCounts.legendary.total}</span>
           </div>
         </div>
       </div>
@@ -102,7 +98,7 @@ export default function TrophiesPage() {
         <button
           onClick={() => setFilter("all")}
           className={`
-            font-pixel text-[10px] px-4 py-2 border-b-4 transition-none
+            text-body-sm font-medium px-4 py-2 min-h-[40px] border-b-4 transition-none
             ${filter === "all"
               ? "bg-retro-darkpurple text-retro-yellow border-retro-yellow"
               : "bg-retro-darkgray text-retro-lightgray border-retro-black hover:bg-retro-gray"
@@ -114,7 +110,7 @@ export default function TrophiesPage() {
         <button
           onClick={() => setFilter("common")}
           className={`
-            font-pixel text-[10px] px-4 py-2 border-b-4 transition-none
+            text-body-sm font-medium px-4 py-2 min-h-[40px] border-b-4 transition-none
             ${filter === "common"
               ? "bg-retro-gray text-retro-white border-retro-darkgray"
               : "bg-retro-darkgray text-retro-lightgray border-retro-black hover:bg-retro-gray"
@@ -126,7 +122,7 @@ export default function TrophiesPage() {
         <button
           onClick={() => setFilter("rare")}
           className={`
-            font-pixel text-[10px] px-4 py-2 border-b-4 transition-none
+            text-body-sm font-medium px-4 py-2 min-h-[40px] border-b-4 transition-none
             ${filter === "rare"
               ? "bg-retro-blue text-retro-white border-retro-darkblue"
               : "bg-retro-darkgray text-retro-lightgray border-retro-black hover:bg-retro-gray"
@@ -138,7 +134,7 @@ export default function TrophiesPage() {
         <button
           onClick={() => setFilter("epic")}
           className={`
-            font-pixel text-[10px] px-4 py-2 border-b-4 transition-none
+            text-body-sm font-medium px-4 py-2 min-h-[40px] border-b-4 transition-none
             ${filter === "epic"
               ? "bg-retro-purple text-retro-white border-retro-darkpurple"
               : "bg-retro-darkgray text-retro-lightgray border-retro-black hover:bg-retro-gray"
@@ -150,7 +146,7 @@ export default function TrophiesPage() {
         <button
           onClick={() => setFilter("legendary")}
           className={`
-            font-pixel text-[10px] px-4 py-2 border-b-4 transition-none
+            text-body-sm font-medium px-4 py-2 min-h-[40px] border-b-4 transition-none
             ${filter === "legendary"
               ? "bg-gradient-to-r from-retro-yellow to-retro-orange text-retro-black border-retro-yellow"
               : "bg-retro-darkgray text-retro-lightgray border-retro-black hover:bg-retro-gray"
@@ -164,7 +160,7 @@ export default function TrophiesPage() {
       {/* Badge Grid */}
       {isLoading ? (
         <div className="text-center py-8">
-          <p className="font-pixel text-retro-lightgray text-[8px]">Loading badges...</p>
+          <p className="text-body-sm text-retro-lightgray">Loading badges...</p>
         </div>
       ) : (
         <BadgeGrid
@@ -189,12 +185,12 @@ export default function TrophiesPage() {
               <div className="flex items-center gap-3">
                 <span className="text-4xl">{selectedBadge.icon}</span>
                 <div>
-                  <h3 className="font-pixel text-retro-yellow text-sm">
+                  <h3 className="text-subhead text-retro-yellow">
                     {selectedBadge.name}
                   </h3>
                   <span
                     className={`
-                      font-pixel text-[8px] px-2 py-0.5 uppercase
+                      badge
                       ${selectedBadge.rarity === "common" && "bg-retro-gray text-retro-white"}
                       ${selectedBadge.rarity === "rare" && "bg-retro-blue text-retro-white"}
                       ${selectedBadge.rarity === "epic" && "bg-retro-purple text-retro-white"}
@@ -207,28 +203,26 @@ export default function TrophiesPage() {
               </div>
               <button
                 onClick={() => setSelectedBadge(null)}
-                className="font-pixel text-retro-gray hover:text-retro-white text-lg"
+                className="text-retro-gray hover:text-retro-white text-xl leading-none p-1"
               >
                 ×
               </button>
             </div>
 
-            <p className="font-pixel text-retro-lightgray text-[10px] leading-relaxed mb-4">
+            <p className="text-body text-retro-lightgray leading-relaxed mb-4">
               {selectedBadge.description}
             </p>
 
             <div className="bg-retro-black p-3 mb-4">
-              <span className="font-pixel text-retro-gray text-[8px] block mb-1">
-                Requirement
-              </span>
-              <p className="font-pixel text-retro-cyan text-[9px]">
+              <span className="kicker block mb-1">Requirement</span>
+              <p className="text-body-sm text-retro-cyan">
                 {getRequirementHint(selectedBadge)}
               </p>
             </div>
 
             <button
               onClick={() => setSelectedBadge(null)}
-              className="w-full font-pixel text-[10px] bg-retro-darkgray text-retro-lightgray py-2 border-2 border-retro-gray hover:bg-retro-gray"
+              className="w-full text-body-sm bg-retro-darkgray text-retro-lightgray py-2 min-h-[40px] border-2 border-retro-gray hover:bg-retro-gray"
             >
               Close
             </button>

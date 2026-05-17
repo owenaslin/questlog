@@ -118,7 +118,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
           {step === "welcome" && (
             <div className="text-center">
               <div className="text-5xl mb-4">🍺</div>
-              <h2 className="font-pixel text-tavern-gold text-[11px] leading-relaxed mb-3">
+              <h2 className="text-subhead text-tavern-gold mb-3">
                 Welcome, {heroName}!
               </h2>
               <p className="text-body text-tavern-parchment leading-relaxed mb-6 opacity-90">

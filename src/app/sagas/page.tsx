@@ -86,18 +86,18 @@ export default function QuestlinesPage() {
 
       {/* Info Section */}
       <div className="mt-12 tavern-card p-6">
-        <h2 className="font-pixel text-retro-cyan text-sm mb-4">
+        <h2 className="text-subhead text-retro-cyan mb-4">
           📖 What are Questlines?
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="font-pixel text-retro-yellow text-xs mb-2">📋 Linear Questlines</h3>
+            <h3 className="text-body-sm font-semibold text-retro-yellow mb-2">📋 Linear Questlines</h3>
             <p className="text-body-sm text-[--parchment-dim] leading-relaxed">
               Complete quests in sequential order. Each quest unlocks the next step. Perfect for structured learning and progressive skill building.
             </p>
           </div>
           <div>
-            <h3 className="font-pixel text-retro-yellow text-xs mb-2">🌳 Skill Trees</h3>
+            <h3 className="text-body-sm font-semibold text-retro-yellow mb-2">🌳 Skill Trees</h3>
             <p className="text-body-sm text-[--parchment-dim] leading-relaxed">
               Start with a foundation quest, then choose your specialization. Complete one branch or master them all. Great for exploring different paths.
             </p>

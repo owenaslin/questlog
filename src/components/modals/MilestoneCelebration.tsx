@@ -53,7 +53,7 @@ export default function MilestoneCelebration({
           <div className="mb-4"
           >
             <span
-              className="font-pixel text-[8px] px-3 py-1 border-2"
+              className="text-body-sm font-medium px-3 py-1 border-2"
               style={{ color, borderColor: color }}
             >
               {currentMilestone.rarity.toUpperCase()} MILESTONE
@@ -74,7 +74,7 @@ export default function MilestoneCelebration({
           </h2>
 
           {/* Description */}
-          <p className="font-pixel text-tavern-parchment text-[10px] leading-relaxed max-w-md mx-auto"
+          <p className="text-body text-tavern-parchment leading-relaxed max-w-md mx-auto"
           >
             {currentMilestone.description}
           </p>
@@ -98,7 +98,7 @@ export default function MilestoneCelebration({
       {/* Skip button */}
       <button
         onClick={onComplete}
-        className="absolute bottom-8 font-pixel text-tavern-smoke-light text-[8px] hover:text-tavern-parchment"
+        className="absolute bottom-8 text-body-sm text-tavern-smoke-light hover:text-tavern-parchment"
       >
         Press to skip →
       </button>
