@@ -212,12 +212,12 @@ export async function POST(request: NextRequest) {
 
     const goodExample = questType === "main"
       ? `Good: "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`
-      : `Good: "Build a home workout habit — 20 minutes every morning for 30 days, tracking progress in a simple log."`;
+      : `Good: "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you."`;
 
     const prompt = `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest based on these parameters. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
 
 ${goodExample}
-Avoid: mystical language, invented names, or dramatic flourishes.
+Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
 Location: ${safeLocation}
 Topic/Interest: ${safeTopic}
