@@ -151,7 +151,7 @@ export function xpForNextLevel(currentXP: number): {
 // HABITS SYSTEM TYPES
 // ============================================
 
-export type HabitRecurrenceType = "daily" | "weekdays" | "interval" | "weekly";
+export type HabitRecurrenceType = "daily" | "weekdays" | "interval" | "weekly" | "weekly_x_days";
 
 export interface HabitRecurrenceData {
   // For 'weekdays': array of day indices (0=Sun, 1=Mon, etc.)
@@ -160,6 +160,8 @@ export interface HabitRecurrenceData {
   intervalDays?: number;
   // For 'weekly': day of week (0-6)
   dayOfWeek?: number;
+  // For 'weekly_x_days': target completions per week (1-7)
+  timesPerWeek?: number;
 }
 
 export interface Habit {

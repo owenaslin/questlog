@@ -36,6 +36,9 @@ export function isHabitScheduledForDate(
       return daysSinceCreated >= 0 && daysSinceCreated % intervalDays === 0;
     }
 
+    case "weekly_x_days":
+      return true;
+
     default:
       return true;
   }
@@ -72,6 +75,11 @@ export function getRecurrenceDescription(habit: Habit): string {
       if (intervalDays === 1) return "Daily";
       if (intervalDays === 7) return "Weekly";
       return `Every ${intervalDays} days`;
+    }
+
+    case "weekly_x_days": {
+      const times = habit.recurrence_data.timesPerWeek ?? 3;
+      return `${times} day${times !== 1 ? "s" : ""} per week`;
     }
 
     default:
@@ -151,6 +159,12 @@ export function validateRecurrenceData(
       }
       return { valid: true };
 
+    case "weekly_x_days":
+      if (data.timesPerWeek == null || data.timesPerWeek < 1 || data.timesPerWeek > 7) {
+        return { valid: false, error: "Select between 1 and 7 days per week" };
+      }
+      return { valid: true };
+
     case "daily":
     default:
       return { valid: true };
@@ -166,6 +180,7 @@ export function buildRecurrenceData(
     days?: number[];
     intervalDays?: number;
     dayOfWeek?: number;
+    timesPerWeek?: number;
   }
 ): HabitRecurrenceData {
   switch (type) {
@@ -175,6 +190,8 @@ export function buildRecurrenceData(
       return { intervalDays: options.intervalDays || 1 };
     case "weekly":
       return { dayOfWeek: options.dayOfWeek ?? 1 };
+    case "weekly_x_days":
+      return { timesPerWeek: options.timesPerWeek ?? 3 };
     case "daily":
     default:
       return {};
