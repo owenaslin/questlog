@@ -103,7 +103,7 @@ Using ONLY the factual data provided (tags: [LIST THEM], description: [DATA]), c
 - Task: What must the hero do?
 - Artifact: What must they find/observe?
 - Requirement: When is it open? Anything needed?
-- Environment: Atmospheric description using only confirmed details
+- Environment: What the place is actually like, using only confirmed details
 
 Step 4 - VERIFICATION:
 Check: "Did I add any amenity not in the source data?" List what you invented and remove it.

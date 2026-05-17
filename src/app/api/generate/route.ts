@@ -210,7 +210,14 @@ export async function POST(request: NextRequest) {
     const safeLocation = sanitizeForPrompt(location);
     const safeTopic = sanitizeForPrompt(topic);
 
-    const prompt = `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest based on these parameters. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time. Avoid mystical language, invented names, or dramatic flourishes.
+    const goodExample = questType === "main"
+      ? `Good: "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`
+      : `Good: "Build a home workout habit — 20 minutes every morning for 30 days, tracking progress in a simple log."`;
+
+    const prompt = `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest based on these parameters. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+
+${goodExample}
+Avoid: mystical language, invented names, or dramatic flourishes.
 
 Location: ${safeLocation}
 Topic/Interest: ${safeTopic}
