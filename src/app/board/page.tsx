@@ -466,7 +466,7 @@ export default function QuestsPage() {
                             <p className="text-body-sm text-tavern-parchment leading-relaxed line-clamp-3 mb-2">
                               {quest.description}
                             </p>
-                            <p className="font-pixel text-[7px] text-retro-cyan">{quest.duration_label}</p>
+                            <p className="text-body-sm text-retro-cyan">{quest.duration_label}</p>
                           </div>
                         </div>
                       </button>
@@ -480,7 +480,7 @@ export default function QuestsPage() {
                   <>
                     <div className="flex items-start justify-between gap-3 mb-4">
                       <div>
-                        <h3 className="font-pixel text-tavern-gold text-sm leading-relaxed mb-2">{selectedQuest.title}</h3>
+                        <h3 className="text-subhead text-tavern-gold leading-snug mb-2">{selectedQuest.title}</h3>
                         <p className="kicker">
                           {selectedQuest.type === "main" ? "⚔ Main Quest" : "🗡 Side Quest"} • {selectedQuest.category}
                         </p>
@@ -529,7 +529,7 @@ export default function QuestsPage() {
             <div className="text-center py-16 xl:pr-4">
               <div className="text-4xl mb-4">🏜</div>
               <p className="text-body-sm text-[--parchment-dim]">No quests match your filters.</p>
-              <p className="font-pixel text-retro-gray text-[8px] mt-2">Try adjusting your search criteria.</p>
+              <p className="text-body-sm text-retro-gray mt-2">Try adjusting your search criteria.</p>
             </div>
           )}
 
@@ -589,7 +589,7 @@ export default function QuestsPage() {
             <p className="text-body-sm text-[--parchment-dim]">
               No quests match your filters.
             </p>
-            <p className="font-pixel text-retro-gray text-[8px] mt-2">
+            <p className="text-body-sm text-retro-gray mt-2">
               Try adjusting your search criteria.
             </p>
           </div>

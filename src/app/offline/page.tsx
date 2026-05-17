@@ -11,10 +11,10 @@ export default function OfflinePage() {
       <div className="text-5xl" aria-hidden="true">🍺</div>
 
       <div>
-        <h1 className="font-pixel text-tavern-gold text-[12px] leading-relaxed mb-4">
+        <h1 className="text-heading text-tavern-gold leading-snug mb-4">
           The Tavern is Dark
         </h1>
-        <p className="font-pixel text-tavern-smoke-light text-[8px] leading-loose max-w-sm">
+        <p className="text-body text-tavern-smoke-light leading-relaxed max-w-sm">
           You&apos;ve wandered beyond the reach of the signal fire.
           <br />
           Return to the village and reconnect to continue your quest.
@@ -23,7 +23,7 @@ export default function OfflinePage() {
 
       <Link
         href="/"
-        className="font-pixel text-[9px] px-6 py-3 bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle active:border-b-0 active:translate-y-1 transition-none"
+        className="text-body-sm font-medium px-6 py-3 min-h-[44px] bg-tavern-gold text-retro-black border-b-4 border-tavern-gold-dark hover:bg-tavern-candle active:border-b-0 active:translate-y-1 transition-none"
       >
         ▶ Try Again
       </Link>

@@ -27,7 +27,7 @@ export default function GuildsPage() {
         {/* Back Button & Header */}
         <button
           onClick={() => setSelectedCategory(null)}
-          className="font-pixel text-retro-lightgray text-[8px] hover:text-retro-white mb-4 inline-block"
+          className="text-body-sm text-retro-lightgray hover:text-retro-white mb-4 inline-block"
         >
           ← Back to Categories
         </button>
@@ -44,28 +44,28 @@ export default function GuildsPage() {
               {category.icon}
             </div>
             <div>
-              <h1 className="font-pixel text-retro-yellow text-xl">
+              <h1 className="text-heading text-retro-yellow">
                 {category.name}
               </h1>
-              <p className="font-pixel text-retro-lightgray text-[10px] mt-1">
+              <p className="text-body-sm text-retro-lightgray mt-1">
                 {category.quest_count} quests available
               </p>
             </div>
           </div>
-          <p className="font-pixel text-retro-lightgray text-[10px] leading-relaxed">
+          <p className="text-body text-retro-lightgray leading-relaxed">
             {category.description}
           </p>
         </div>
 
         {/* Quest Count */}
         <div className="flex items-center justify-between mb-4">
-          <span className="font-pixel text-retro-cyan text-[10px]">
+          <span className="text-body-sm text-retro-cyan">
             {categoryQuests.length} quests
           </span>
           <div className="flex gap-2">
             <button
               onClick={() => setViewMode("grid")}
-              className={`font-pixel text-[8px] px-3 py-1 ${
+              className={`text-body-sm font-medium px-3 py-1 min-h-[34px] ${
                 viewMode === "grid"
                   ? "bg-retro-darkpurple text-retro-white"
                   : "bg-retro-darkgray text-retro-lightgray"
@@ -75,7 +75,7 @@ export default function GuildsPage() {
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`font-pixel text-[8px] px-3 py-1 ${
+              className={`text-body-sm font-medium px-3 py-1 min-h-[34px] ${
                 viewMode === "list"
                   ? "bg-retro-darkpurple text-retro-white"
                   : "bg-retro-darkgray text-retro-lightgray"
@@ -102,7 +102,7 @@ export default function GuildsPage() {
         ) : (
           <div className="text-center py-16">
             <div className="text-4xl mb-4">🏜️</div>
-            <p className="font-pixel text-retro-lightgray text-xs">
+            <p className="text-body-sm text-retro-lightgray">
               No quests found in this category.
             </p>
           </div>
@@ -115,10 +115,10 @@ export default function GuildsPage() {
     <div className="tavrn-panel p-4 md:p-6">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="font-pixel text-retro-yellow text-xl mb-2">
+        <h1 className="text-heading text-retro-yellow mb-2">
           🗂️ Quest Categories
         </h1>
-        <p className="font-pixel text-retro-lightgray text-[10px] max-w-2xl mx-auto leading-loose">
+        <p className="text-body text-retro-lightgray max-w-2xl mx-auto leading-relaxed">
           Browse 120+ quests organized by category. Find adventures that match your interests and goals.
         </p>
       </div>
@@ -138,28 +138,28 @@ export default function GuildsPage() {
       <div className="mt-12 tavern-card p-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div>
-            <span className="font-pixel text-retro-yellow text-2xl block">
+            <span className="font-pixel text-retro-yellow text-2xl block leading-none mb-1">
               {ALL_QUESTS.length}
             </span>
-            <span className="font-pixel text-retro-gray text-[8px]">Total Quests</span>
+            <span className="kicker">Total Quests</span>
           </div>
           <div>
             <span className="font-pixel text-retro-cyan text-2xl block">
               {CATEGORIES.length}
             </span>
-            <span className="font-pixel text-retro-gray text-[8px]">Categories</span>
+            <span className="kicker">Categories</span>
           </div>
           <div>
             <span className="font-pixel text-retro-lime text-2xl block">
               {ALL_QUESTS.filter((q) => q.type === "main").length}
             </span>
-            <span className="font-pixel text-retro-gray text-[8px]">Main Quests</span>
+            <span className="kicker">Main Quests</span>
           </div>
           <div>
             <span className="font-pixel text-retro-orange text-2xl block">
               {ALL_QUESTS.filter((q) => q.type === "side").length}
             </span>
-            <span className="font-pixel text-retro-gray text-[8px]">Side Quests</span>
+            <span className="kicker">Side Quests</span>
           </div>
         </div>
       </div>
@@ -193,17 +193,17 @@ function CategoryCard({
           {category.icon}
         </div>
         <div>
-          <h3 className="font-pixel text-retro-yellow text-xs">{category.name}</h3>
-          <span className="font-pixel text-retro-gray text-[7px]">
+          <h3 className="text-body-sm font-semibold text-retro-yellow">{category.name}</h3>
+          <span className="text-body-sm text-retro-gray">
             {category.quest_count} quests
           </span>
         </div>
       </div>
-      <p className="font-pixel text-retro-lightgray text-[8px] leading-relaxed line-clamp-2">
+      <p className="text-body-sm text-retro-lightgray leading-relaxed line-clamp-2">
         {category.description}
       </p>
       <div className="mt-3 flex items-center justify-between">
-        <span className="font-pixel text-retro-cyan text-[8px]">
+        <span className="text-body-sm text-retro-cyan">
           Click to explore →
         </span>
       </div>

@@ -207,19 +207,19 @@ export default function AuthPage() {
     <div className="max-w-5xl mx-auto mt-4 md:mt-10 px-2">
       <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-6 md:gap-8">
         <section className="hidden lg:block bg-retro-darkgray border-4 border-retro-black shadow-pixel p-8">
-          <h1 className="font-pixel text-retro-yellow text-lg mb-4">Authenticate Your Adventure</h1>
-          <p className="font-pixel text-retro-lightgray text-[9px] leading-loose mb-6">
+          <h1 className="text-heading text-retro-yellow mb-4">Authenticate Your Adventure</h1>
+          <p className="text-body text-retro-lightgray leading-relaxed mb-6">
             Use one secure auth screen across desktop and mobile. Sign in with email or Google, reset your password anytime, and continue where you left off.
           </p>
 
           <div className="grid grid-cols-1 gap-4">
             <div className="bg-retro-black border-2 border-retro-darkpurple p-3">
-              <div className="font-pixel text-retro-cyan text-[8px] mb-1">Return URL</div>
-              <div className="font-pixel text-retro-lightgray text-[8px] break-all">{safeRedirect}</div>
+              <div className="kicker mb-1">Return URL</div>
+              <div className="text-body-sm text-retro-lightgray break-all">{safeRedirect}</div>
             </div>
             <div className="bg-retro-black border-2 border-retro-darkpurple p-3">
-              <div className="font-pixel text-retro-lime text-[8px] mb-1">Cross-device Ready</div>
-              <div className="font-pixel text-retro-lightgray text-[8px]">Optimized controls for touch and desktop keyboards.</div>
+              <div className="kicker text-retro-lime mb-1">Cross-device Ready</div>
+              <div className="text-body-sm text-retro-lightgray">Optimized controls for touch and desktop keyboards.</div>
             </div>
           </div>
         </section>
@@ -227,10 +227,10 @@ export default function AuthPage() {
         <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4 md:p-6" aria-busy={isLoading}>
           <div className="text-center mb-5">
             <div className="text-3xl md:text-4xl mb-3">🔐</div>
-            <h2 className="font-pixel text-retro-yellow text-sm md:text-base mb-2">
+            <h2 className="text-subhead text-retro-yellow mb-2">
               {mode === "login" ? "Welcome back" : mode === "signup" ? "Create your account" : "Reset your password"}
             </h2>
-            <p className="font-pixel text-retro-lightgray text-[8px] leading-relaxed">
+            <p className="text-body-sm text-retro-lightgray leading-relaxed">
               {mode === "login"
                 ? "Log in to continue your adventure."
                 : mode === "signup"
@@ -245,7 +245,7 @@ export default function AuthPage() {
               onClick={() => switchMode("login")}
               disabled={isLoading}
               aria-pressed={mode === "login"}
-              className={`font-pixel text-[8px] md:text-[9px] py-3 border-2 uppercase ${
+              className={`text-body-sm font-medium py-3 min-h-[44px] border-2 uppercase ${
                 mode === "login"
                   ? "bg-retro-blue text-retro-white border-retro-darkblue"
                   : "bg-retro-black text-retro-lightgray border-retro-darkgray"
@@ -258,7 +258,7 @@ export default function AuthPage() {
               onClick={() => switchMode("signup")}
               disabled={isLoading}
               aria-pressed={mode === "signup"}
-              className={`font-pixel text-[8px] md:text-[9px] py-3 border-2 uppercase ${
+              className={`text-body-sm font-medium py-3 min-h-[44px] border-2 uppercase ${
                 mode === "signup"
                   ? "bg-retro-green text-retro-white border-retro-darkgreen"
                   : "bg-retro-black text-retro-lightgray border-retro-darkgray"
@@ -273,7 +273,7 @@ export default function AuthPage() {
               type="button"
               onClick={handleGoogleAuth}
               disabled={isLoading}
-              className="w-full font-pixel text-[9px] bg-retro-white text-retro-black px-4 py-3 border-b-4 border-r-4 border-retro-lightgray border-t-2 border-l-2 hover:bg-retro-lightgray active:translate-x-[2px] active:translate-y-[2px] active:border-b-2 active:border-r-2 active:border-t-4 active:border-l-4 transition-none disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+              className="w-full text-body-sm font-medium bg-retro-white text-retro-black px-4 py-3 min-h-[44px] border-b-4 border-r-4 border-retro-lightgray border-t-2 border-l-2 hover:bg-retro-lightgray active:translate-x-[2px] active:translate-y-[2px] active:border-b-2 active:border-r-2 active:border-t-4 active:border-l-4 transition-none disabled:opacity-50 disabled:cursor-not-allowed mb-4"
             >
               G - Continue with Google
             </button>
@@ -282,7 +282,7 @@ export default function AuthPage() {
           {mode !== "forgot" && (
             <div className="flex items-center gap-4 mb-4">
               <div className="flex-1 h-[2px] bg-retro-gray" />
-              <span className="font-pixel text-retro-gray text-[7px]">OR</span>
+              <span className="kicker">OR</span>
               <div className="flex-1 h-[2px] bg-retro-gray" />
             </div>
           )}
@@ -290,7 +290,7 @@ export default function AuthPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {mode === "signup" && (
               <div>
-                <label className="font-pixel text-retro-lightgray text-[8px] block mb-2">Display Name</label>
+                <label className="text-body-sm text-retro-lightgray block mb-2">Display Name</label>
                 <input
                   type="text"
                   value={displayName}
@@ -304,7 +304,7 @@ export default function AuthPage() {
             )}
 
             <div>
-              <label className="font-pixel text-retro-lightgray text-[8px] block mb-2">Email</label>
+              <label className="text-body-sm text-retro-lightgray block mb-2">Email</label>
               <input
                 type="email"
                 value={email}
@@ -319,7 +319,7 @@ export default function AuthPage() {
 
             {mode !== "forgot" && (
               <div>
-                <label className="font-pixel text-retro-lightgray text-[8px] block mb-2">Password</label>
+                <label className="text-body-sm text-retro-lightgray block mb-2">Password</label>
                 <div className="flex gap-2 items-stretch">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -336,20 +336,20 @@ export default function AuthPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="font-pixel text-[8px] px-3 border-2 border-retro-darkgray bg-retro-black text-retro-lightgray hover:text-retro-white"
+                    className="text-body-sm px-3 border-2 border-retro-darkgray bg-retro-black text-retro-lightgray hover:text-retro-white"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
                 {isCapsLockOn && (
-                  <p className="mt-2 font-pixel text-retro-orange text-[7px]">
+                  <p className="mt-2 text-body-sm text-retro-orange">
                     Caps Lock is on.
                   </p>
                 )}
                 {mode === "signup" && <PasswordStrengthMeter password={password} />}
                 {mode === "signup" && (
-                  <p className="mt-2 font-pixel text-retro-gray text-[7px]">
+                  <p className="mt-2 text-body-sm text-retro-gray">
                     Use 8+ characters with letters, numbers, and symbols.
                   </p>
                 )}
@@ -357,13 +357,13 @@ export default function AuthPage() {
             )}
 
             {error && (
-              <p className="font-pixel text-retro-red text-[8px] leading-relaxed bg-retro-black border-2 border-retro-red p-2" role="alert" aria-live="assertive">
+              <p className="text-body-sm text-retro-red leading-relaxed bg-retro-black border-2 border-retro-red p-2" role="alert" aria-live="assertive">
                 {error}
               </p>
             )}
 
             {message && (
-              <p className="font-pixel text-retro-lime text-[8px] leading-relaxed bg-retro-black border-2 border-retro-green p-2" role="status" aria-live="polite">
+              <p className="text-body-sm text-retro-lime leading-relaxed bg-retro-black border-2 border-retro-green p-2" role="status" aria-live="polite">
                 {message}
               </p>
             )}
@@ -378,7 +378,7 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={() => switchMode("forgot")}
-                className="font-pixel text-retro-cyan text-[8px] hover:text-retro-lightblue"
+                className="text-body-sm text-retro-cyan hover:text-retro-lightblue"
               >
                 Forgot password?
               </button>
@@ -386,7 +386,7 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={() => switchMode("login")}
-                className="font-pixel text-retro-cyan text-[8px] hover:text-retro-lightblue"
+                className="text-body-sm text-retro-cyan hover:text-retro-lightblue"
               >
                 ← Back to login
               </button>
@@ -394,13 +394,13 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={() => switchMode("login")}
-                className="font-pixel text-retro-cyan text-[8px] hover:text-retro-lightblue"
+                className="text-body-sm text-retro-cyan hover:text-retro-lightblue"
               >
                 Already have an account?
               </button>
             )}
 
-            <Link href="/" className="font-pixel text-retro-gray text-[8px] hover:text-retro-lightgray">
+            <Link href="/" className="text-body-sm text-retro-gray hover:text-retro-lightgray">
               Home
             </Link>
           </div>

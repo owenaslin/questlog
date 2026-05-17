@@ -165,7 +165,7 @@ export default function EditHabitPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
         <div>
-          <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+          <label className="text-body-sm font-medium text-tavern-gold block mb-2">
             Habit Name
           </label>
           <input
@@ -179,7 +179,7 @@ export default function EditHabitPage() {
 
         {/* Description */}
         <div>
-          <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+          <label className="text-body-sm font-medium text-tavern-gold block mb-2">
             Description
           </label>
           <textarea
@@ -196,7 +196,7 @@ export default function EditHabitPage() {
         {/* Icon & Color */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+            <label className="text-body-sm font-medium text-tavern-gold block mb-2">
               Icon
             </label>
             <div className="grid grid-cols-5 gap-2">
@@ -220,7 +220,7 @@ export default function EditHabitPage() {
           </div>
 
           <div>
-            <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+            <label className="text-body-sm font-medium text-tavern-gold block mb-2">
               Color
             </label>
             <div className="grid grid-cols-5 gap-2">
@@ -254,7 +254,7 @@ export default function EditHabitPage() {
 
         {/* XP Reward */}
         <div>
-          <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+          <label className="text-body-sm font-medium text-tavern-gold block mb-2">
             XP Reward: {formData.xp_reward}
           </label>
           <input
@@ -268,7 +268,7 @@ export default function EditHabitPage() {
             }
             className="w-full h-2 bg-tavern-oak rounded-lg appearance-none cursor-pointer"
           />
-          <div className="flex justify-between text-[10px] text-tavern-parchment-dim mt-1">
+          <div className="flex justify-between text-body-sm text-tavern-parchment-dim mt-1">
             <span>5 XP</span>
             <span>15 XP</span>
             <span>25 XP</span>
@@ -277,7 +277,7 @@ export default function EditHabitPage() {
 
         {/* Active/Paused toggle */}
         <div>
-          <label className="font-pixel text-[9px] text-tavern-gold block mb-2">
+          <label className="text-body-sm font-medium text-tavern-gold block mb-2">
             Status
           </label>
           <div className="flex gap-2">
@@ -285,7 +285,7 @@ export default function EditHabitPage() {
               type="button"
               onClick={() => setFormData({ ...formData, is_active: true })}
               className={`
-                flex-1 py-2 rounded font-pixel text-[9px] transition-all
+                flex-1 py-2 rounded text-body-sm font-medium transition-all
                 ${formData.is_active
                   ? "bg-retro-lime text-tavern-smoke"
                   : "bg-tavern-oak/50 text-tavern-parchment-dim"
@@ -298,7 +298,7 @@ export default function EditHabitPage() {
               type="button"
               onClick={() => setFormData({ ...formData, is_active: false })}
               className={`
-                flex-1 py-2 rounded font-pixel text-[9px] transition-all
+                flex-1 py-2 rounded text-body-sm font-medium transition-all
                 ${!formData.is_active
                   ? "bg-tavern-ember text-tavern-parchment"
                   : "bg-tavern-oak/50 text-tavern-parchment-dim"

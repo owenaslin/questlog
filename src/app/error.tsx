@@ -12,14 +12,14 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   return (
     <div className="min-h-[50vh] flex flex-col items-center justify-center text-center px-4">
       <div className="text-4xl mb-4">💥</div>
-      <h2 className="font-pixel text-retro-red text-lg mb-4">
+      <h2 className="text-heading text-retro-red mb-4">
         Something went wrong!
       </h2>
-      <p className="font-pixel text-retro-lightgray text-[10px] mb-6 max-w-md leading-loose">
+      <p className="text-body text-retro-lightgray mb-6 max-w-md leading-relaxed">
         {error.message || "An unexpected error occurred while loading this quest."}
       </p>
       {error.digest && (
-        <p className="font-pixel text-retro-gray text-[8px] mb-6">
+        <p className="text-body-sm text-retro-gray mb-6">
           Error ID: {error.digest}
         </p>
       )}

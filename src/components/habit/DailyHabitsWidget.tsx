@@ -186,7 +186,7 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
                   {habit.title}
                 </p>
                 {habit.streak && habit.streak.current_streak > 0 && isStreakStillActive(habit.streak.last_completed_date) && (
-                  <p className="text-[10px] text-tavern-gold">{habit.streak.current_streak} day streak 🔥</p>
+                  <p className="text-body-sm text-tavern-gold">{habit.streak.current_streak} day streak 🔥</p>
                 )}
               </div>
               {xpAmount && (

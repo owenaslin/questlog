@@ -330,7 +330,7 @@ export default function HabitsPage() {
 
       {/* Info section */}
       <div className="mt-8 pt-6 border-t border-tavern-oak/30">
-        <h2 className="font-pixel text-tavern-gold text-xs mb-3">💡 How Habits Work</h2>
+        <h2 className="text-body-sm font-semibold text-tavern-gold mb-3">💡 How Habits Work</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-body-sm text-[--parchment-dim]">
           <div>
             <p className="text-tavern-parchment mb-1">Daily Check-ins</p>

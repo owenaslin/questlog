@@ -53,14 +53,14 @@ export default function QuestPacksPage() {
       <section className="bg-retro-darkgray border-4 border-retro-black shadow-pixel p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Time</p>
+            <p className="kicker mb-2">Time</p>
             <div className="grid grid-cols-2 gap-2">
               {TIME_OPTIONS.map((option) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => { setAvailableTimeMinutes(option.value); setSelectedPackId(null); }}
-                  className={`border-2 p-2 font-pixel text-[8px] ${
+                  className={`border-2 p-2 text-body-sm font-medium ${
                     availableTimeMinutes === option.value
                       ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
                       : "border-retro-black bg-retro-darkpurple text-retro-lightgray"
@@ -73,14 +73,14 @@ export default function QuestPacksPage() {
           </div>
 
           <div>
-            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Energy</p>
+            <p className="kicker mb-2">Energy</p>
             <div className="grid grid-cols-3 gap-2">
               {ENERGY_OPTIONS.map((option) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => { setEnergyLevel(option.value); setSelectedPackId(null); }}
-                  className={`border-2 p-2 font-pixel text-[8px] ${
+                  className={`border-2 p-2 text-body-sm font-medium ${
                     energyLevel === option.value
                       ? "border-tavern-gold bg-tavern-oak text-tavern-parchment"
                       : "border-retro-black bg-retro-darkpurple text-retro-lightgray"
@@ -93,7 +93,7 @@ export default function QuestPacksPage() {
           </div>
 
           <div>
-            <p className="font-pixel text-[8px] text-retro-lightgray mb-2">Vibe</p>
+            <p className="kicker mb-2">Vibe</p>
             <select
               value={vibe}
               onChange={(event) => { setVibe(event.target.value as QuestVibe); setSelectedPackId(null); }}
@@ -108,20 +108,20 @@ export default function QuestPacksPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="font-pixel text-retro-yellow text-sm mb-4">🎴 Your Three Drawn Quests</h2>
+        <h2 className="text-subhead text-retro-yellow mb-4">🎴 Your Three Drawn Quests</h2>
         {drawnQuests.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {drawnQuests.map((quest) => <QuestCard key={quest.id} quest={quest} />)}
           </div>
         ) : (
           <div className="bg-retro-darkgray border-4 border-retro-black p-4 text-center">
-            <p className="font-pixel text-retro-lightgray text-[8px]">No quests matched this draw. Try more time or a different vibe.</p>
+            <p className="text-body-sm text-retro-lightgray">No quests matched this draw. Try more time or a different vibe.</p>
           </div>
         )}
       </section>
 
       <section>
-        <h2 className="font-pixel text-retro-yellow text-sm mb-4">📦 Packs in the Tavern</h2>
+        <h2 className="text-subhead text-retro-yellow mb-4">📦 Packs in the Tavern</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {QUEST_PACKS.map((pack) => {
             const isSelected = selectedPackId === pack.id;
@@ -140,13 +140,13 @@ export default function QuestPacksPage() {
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-pixel text-tavern-gold text-[10px]">{pack.icon} {pack.title}</p>
-                  {isSelected && <span className="font-pixel text-[7px] text-tavern-gold">▶ Active</span>}
+                  <p className="text-body-sm font-semibold text-tavern-gold">{pack.icon} {pack.title}</p>
+                  {isSelected && <span className="badge badge-gold">▶ Active</span>}
                 </div>
-                <p className="text-[12px] text-retro-lightgray leading-relaxed mb-3">{pack.description}</p>
+                <p className="text-body-sm text-retro-lightgray leading-relaxed mb-3">{pack.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {pack.categories.slice(0, 4).map((category) => (
-                    <span key={category} className="font-pixel text-[7px] px-2 py-1 bg-retro-darkpurple text-retro-lightgray">
+                    <span key={category} className="badge badge-muted">
                       {category}
                     </span>
                   ))}
