@@ -72,7 +72,7 @@ function LinearProgress({
                 </div>
 
                 {step.is_unlocked && !step.is_completed && (
-                  <Link href={`/quests/${quest.id}`} className="mt-3 block">
+                  <Link href={`/board/${quest.id}`} className="mt-3 block">
                     <PixelButton variant="primary" size="sm">
                       Accept Quest
                     </PixelButton>

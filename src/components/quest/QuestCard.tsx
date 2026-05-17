@@ -69,7 +69,7 @@ function CategoryBadge({ category }: { category: string }) {
 
 export default function QuestCard({ quest }: QuestCardProps) {
   return (
-    <Link href={`/quests/${quest.id}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-blue active:scale-[0.98] transition-transform">
+    <Link href={`/board/${quest.id}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-blue active:scale-[0.98] transition-transform">
       <article
         className="
           tavern-card-wood

@@ -104,14 +104,14 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
           })}
           {steps.length > 4 && (
             <li className="text-body-sm text-tavern-oak">
-              +{steps.length - 4} more — <Link href={`/quests/${quest.id}`} className="underline hover:text-tavern-gold">view all</Link>
+              +{steps.length - 4} more — <Link href={`/board/${quest.id}`} className="underline hover:text-tavern-gold">view all</Link>
             </li>
           )}
         </ul>
       )}
 
       <Link
-        href={`/quests/${quest.id}`}
+        href={`/board/${quest.id}`}
         className="tavrn-btn tavrn-btn-primary w-full justify-center"
       >
         Continue Quest →
