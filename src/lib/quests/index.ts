@@ -1,5 +1,5 @@
 // Quest Library - Organized by Category
-// Total: 160+ quests across 14 categories
+// Total: 244 quests across 14 categories
 
 import { Quest } from "@/lib/types";
 
