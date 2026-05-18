@@ -8,6 +8,7 @@ import { createHabit, HABIT_ICON_OPTIONS, HABIT_COLOR_OPTIONS } from "@/lib/habi
 import { validateRecurrenceData } from "@/lib/habit-recurrence";
 import RecurrencePicker from "@/components/habit/RecurrencePicker";
 import { getSupabaseClient } from "@/lib/supabase";
+import { buildAuthUrl } from "@/lib/auth-redirect";
 
 const XP_TIERS = {
   small:  { xp: 25,  label: "Small",  description: "Quick habit (5-10 min)" },
@@ -22,7 +23,7 @@ export default function NewHabitPage() {
 
   useEffect(() => {
     getSupabaseClient().auth.getSession().then(({ data }) => {
-      if (!data.session) router.replace("/login");
+      if (!data.session) router.replace(buildAuthUrl("login", "/habits/new"));
     });
   }, [router]);
 

@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Quest } from "@/lib/types";
 import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
+import { QuestTypeBadge } from "@/components/quest/QuestCard";
 
 interface ActiveQuestPanelProps {
   quest: Quest;
@@ -23,9 +24,7 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
   return (
     <div className="tavern-card p-4 md:p-5">
       <div className="flex items-center gap-2 mb-3">
-        <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-          {quest.type === "main" ? "⚔ Main Quest" : "🗡 Side Quest"}
-        </span>
+        <QuestTypeBadge type={quest.type} />
         <span className="badge badge-lime ml-auto">+{quest.xp_reward} XP</span>
       </div>
 

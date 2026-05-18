@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Quest } from "@/lib/types";
 import { acceptQuest, abandonAndAccept } from "@/lib/quest-progress";
+import { QuestTypeBadge } from "@/components/quest/QuestCard";
 
 interface QuestPickerPanelProps {
   quests: Quest[];
@@ -111,9 +112,7 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
             <div key={quest.id} className="border border-tavern-oak/60 bg-black/20 p-3 flex items-start gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-                    {quest.type === "main" ? "⚔ Main" : "🗡 Side"}
-                  </span>
+                  <QuestTypeBadge type={quest.type} />
                   <span className="badge badge-lime">+{quest.xp_reward} XP</span>
                 </div>
                 <p className="text-body-sm font-medium text-tavern-parchment leading-snug mb-1">{quest.title}</p>
