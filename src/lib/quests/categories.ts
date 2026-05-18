@@ -119,6 +119,3 @@ export function getCategoryByKey(key: string): Category | undefined {
   return CATEGORIES.find((c) => c.key === key);
 }
 
-export function getCategoryColor(key: string): string {
-  return getCategoryByKey(key)?.color || "#6b7280";
-}

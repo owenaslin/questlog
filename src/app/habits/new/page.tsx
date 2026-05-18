@@ -4,28 +4,11 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HabitRecurrenceType, HabitRecurrenceData } from "@/lib/types";
-import { createHabit } from "@/lib/habits";
+import { createHabit, HABIT_ICON_OPTIONS, HABIT_COLOR_OPTIONS } from "@/lib/habits";
 import { validateRecurrenceData } from "@/lib/habit-recurrence";
 import RecurrencePicker from "@/components/habit/RecurrencePicker";
 import { getSupabaseClient } from "@/lib/supabase";
-
-const ICON_OPTIONS = [
-  "✓", "💪", "🧘", "📚", "💧", "🥗", "🏃", "💤", "🎨", "🎵",
-  "💻", "💰", "🧹", "📞", "✍️", "🌱", "🌅", "🌙", "❤️", "🦷",
-];
-
-const COLOR_OPTIONS = [
-  "#e8b864", // Gold (tavern)
-  "#c44a36", // Ember
-  "#a7f070", // Lime
-  "#38b764", // Green
-  "#257179", // Teal
-  "#3b5dc9", // Blue
-  "#5d275d", // Purple
-  "#b13e53", // Red
-  "#8b5a2b", // Brown
-  "#566c86", // Gray
-];
+import { buildAuthUrl } from "@/lib/auth-redirect";
 
 const XP_TIERS = {
   small:  { xp: 25,  label: "Small",  description: "Quick habit (5-10 min)" },
@@ -40,7 +23,7 @@ export default function NewHabitPage() {
 
   useEffect(() => {
     getSupabaseClient().auth.getSession().then(({ data }) => {
-      if (!data.session) router.replace("/login");
+      if (!data.session) router.replace(buildAuthUrl("login", "/habits/new"));
     });
   }, [router]);
 
@@ -169,7 +152,7 @@ export default function NewHabitPage() {
               Icon
             </label>
             <div className="grid grid-cols-5 gap-2">
-              {ICON_OPTIONS.map((icon) => (
+              {HABIT_ICON_OPTIONS.map((icon) => (
                 <button
                   key={icon}
                   type="button"
@@ -193,7 +176,7 @@ export default function NewHabitPage() {
               Color
             </label>
             <div className="grid grid-cols-5 gap-2">
-              {COLOR_OPTIONS.map((color) => (
+              {HABIT_COLOR_OPTIONS.map((color) => (
                 <button
                   key={color}
                   type="button"

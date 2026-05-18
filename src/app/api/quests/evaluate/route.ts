@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { kv } from "@vercel/kv";
+import { AppError, getAuthenticatedUserId, sanitize } from "@/lib/api-utils";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
 import { durationLabelToMinutes, calcQuestXP, clamp } from "@/lib/xp";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const preferredRegion = 'pdx1';
 
@@ -60,67 +60,6 @@ const aiResponseSchema = z.object({
   })).optional().default([]),
   evaluation_note: z.string().optional().default(""),
 });
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-class AppError extends Error {
-  constructor(message: string, public statusCode = 500) {
-    super(message);
-    this.name = "AppError";
-  }
-}
-
-function sanitize(s: string) {
-  return s.replace(/[<>]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
-}
-
-async function checkRateLimit(
-  key: string
-): Promise<{ isLimited: boolean; recentCount: number }> {
-  const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW_SECONDS * 1000;
-  try {
-    const timestamps = await kv.lrange<number>(key, 0, -1);
-    const recent = timestamps.filter((ts) => ts > windowStart);
-    if (recent.length >= RATE_LIMIT_MAX_REQ) {
-      return {
-        isLimited: true,
-        recentCount: recent.length,
-      };
-    }
-    await kv.lpush(key, now);
-    await kv.expire(key, RATE_LIMIT_WINDOW_SECONDS);
-    return {
-      isLimited: false,
-      recentCount: recent.length,
-    };
-  } catch (err) {
-    // In development without KV configured, fail open so local testing works.
-    // In production, fail closed to prevent abuse if KV becomes unavailable.
-    if (process.env.NODE_ENV === "development") {
-      console.warn("[rate-limit] KV unavailable in dev — allowing request:", err);
-      return { isLimited: false, recentCount: 0 };
-    }
-    return {
-      isLimited: true,
-      recentCount: RATE_LIMIT_MAX_REQ,
-    };
-  }
-}
-
-async function getAuthenticatedUserId(req: NextRequest): Promise<string | null> {
-  const authHeader = req.headers.get("authorization") ?? "";
-  const [scheme, token] = authHeader.split(" ");
-  if (scheme?.toLowerCase() !== "bearer" || !token) return null;
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-  const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data.user) return null;
-  return data.user.id;
-}
 
 // ── AI prompt builders ───────────────────────────────────────────────────────
 
@@ -208,7 +147,7 @@ export async function POST(req: NextRequest) {
     if (!userId) throw new AppError("Authentication required", 401);
 
     const rateLimitKey = `rate_limit:evaluate:${userId}`;
-    const rateLimitState = await checkRateLimit(rateLimitKey);
+    const rateLimitState = await checkRateLimit(rateLimitKey, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_MAX_REQ);
     if (rateLimitState.recentCount >= RATE_LIMIT_ALERT_THRESHOLD) {
       logSecurityEvent("rate_limit_pressure", {
         userId,

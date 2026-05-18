@@ -7,6 +7,7 @@ import { HabitWithStatus } from "@/lib/types";
 import { getUserHabits, toggleHabitActive, updateHabitOrder } from "@/lib/habits";
 import HabitCard from "@/components/habit/HabitCard";
 import { getSupabaseClient } from "@/lib/supabase";
+import { buildAuthUrl } from "@/lib/auth-redirect";
 
 function HabitCardWithReorder({
   habit,
@@ -154,7 +155,7 @@ export default function HabitsPage() {
       <div className="tavrn-panel p-8 text-center">
         <p className="text-body-sm font-semibold text-tavern-gold mb-3">📋 Habits</p>
         <p className="text-body text-tavern-parchment mb-4">Sign in to track your daily habits and build streaks.</p>
-        <Link href="/login" className="tavrn-btn tavrn-btn-primary inline-flex">Sign In</Link>
+        <Link href={buildAuthUrl("login", "/habits")} className="tavrn-btn tavrn-btn-primary inline-flex">Sign In</Link>
       </div>
     );
   }

@@ -23,7 +23,7 @@ function DifficultySwords({ difficulty }: { difficulty: number }) {
   );
 }
 
-function QuestTypeBadge({ type }: { type: string }) {
+export function QuestTypeBadge({ type }: { type: string }) {
   return (
     <span className={`badge ${type === "main" ? "badge-ember" : "badge-blue"}`}>
       {type === "main" ? "⚔ Main" : "🗡 Side"}

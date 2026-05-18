@@ -100,8 +100,7 @@ export default function JournalPage() {
           summary?.created_at || new Date().toISOString()
         );
         setSaga(sagaData);
-      } catch (err) {
-        console.error("Journal load error:", err);
+      } catch {
       } finally {
         if (alive) setIsLoading(false);
       }

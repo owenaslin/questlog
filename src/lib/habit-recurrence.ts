@@ -116,21 +116,6 @@ export function getWeekStartString(date: Date = new Date(), weekStartDay: number
 }
 
 /**
- * Get array of local-time date strings for the last N days (oldest first).
- */
-export function getLastNDays(n: number): string[] {
-  const dates: string[] = [];
-  const today = new Date();
-
-  for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
-    dates.push(localDateString(d));
-  }
-
-  return dates;
-}
-
-/**
  * Validate recurrence data based on type
  */
 export function validateRecurrenceData(

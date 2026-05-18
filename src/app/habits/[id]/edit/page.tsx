@@ -4,20 +4,11 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { HabitRecurrenceType, HabitRecurrenceData } from "@/lib/types";
-import { getHabitById, updateHabit, deleteHabit } from "@/lib/habits";
+import { getHabitById, updateHabit, deleteHabit, HABIT_ICON_OPTIONS, HABIT_COLOR_OPTIONS } from "@/lib/habits";
 import { validateRecurrenceData } from "@/lib/habit-recurrence";
 import RecurrencePicker from "@/components/habit/RecurrencePicker";
 import { getSupabaseClient } from "@/lib/supabase";
-
-const ICON_OPTIONS = [
-  "✓", "💪", "🧘", "📚", "💧", "🥗", "🏃", "💤", "🎨", "🎵",
-  "💻", "💰", "🧹", "📞", "✍️", "🌱", "🌅", "🌙", "❤️", "🦷",
-];
-
-const COLOR_OPTIONS = [
-  "#e8b864", "#c44a36", "#a7f070", "#38b764", "#257179",
-  "#3b5dc9", "#5d275d", "#b13e53", "#8b5a2b", "#566c86",
-];
+import { buildAuthUrl } from "@/lib/auth-redirect";
 
 export default function EditHabitPage() {
   const router = useRouter();
@@ -46,7 +37,7 @@ export default function EditHabitPage() {
     let mounted = true;
     const init = async () => {
       const { data } = await getSupabaseClient().auth.getSession();
-      if (!data.session) { router.replace("/login"); return; }
+      if (!data.session) { router.replace(buildAuthUrl("login", `/habits/${habitId}/edit`)); return; }
 
       const habit = await getHabitById(habitId);
       if (!mounted) return;
@@ -200,7 +191,7 @@ export default function EditHabitPage() {
               Icon
             </label>
             <div className="grid grid-cols-5 gap-2">
-              {ICON_OPTIONS.map((icon) => (
+              {HABIT_ICON_OPTIONS.map((icon) => (
                 <button
                   key={icon}
                   type="button"
@@ -224,7 +215,7 @@ export default function EditHabitPage() {
               Color
             </label>
             <div className="grid grid-cols-5 gap-2">
-              {COLOR_OPTIONS.map((color) => (
+              {HABIT_COLOR_OPTIONS.map((color) => (
                 <button
                   key={color}
                   type="button"
