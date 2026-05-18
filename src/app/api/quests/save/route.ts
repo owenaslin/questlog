@@ -3,21 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
 import { QUEST_CATEGORIES } from "@/lib/types";
-import { MAX_SIDE_QUEST_XP, MAX_MAIN_QUEST_XP } from "@/lib/constants";
+import { calcQuestXP, durationLabelToMinutes } from "@/lib/xp";
 import { AppError } from "@/lib/api-utils";
 
 export const preferredRegion = 'pdx1';
-
-// ── XP cap (defence in depth) ─────────────────────────────────────────────────
-// quest.type is client-supplied so we cannot fully prevent a user from claiming
-// "main" to access the higher ceiling. We intentionally omit the minimum floor
-// so that a legitimate low-XP side quest is never inflated by a type mismatch.
-// A full fix would require a server-side DB lookup of the original quest.
-const XP_MAX_BY_TYPE = { side: MAX_SIDE_QUEST_XP, main: MAX_MAIN_QUEST_XP } as const;
-
-function clampXP(xp: number, type: "main" | "side"): number {
-  return Math.min(XP_MAX_BY_TYPE[type], Math.max(1, Math.round(xp)));
-}
 
 // ── Rate limiting ─────────────────────────────────────────────────────────────
 
@@ -53,11 +42,14 @@ const bodySchema = z.object({
   duration_minutes: z.number().int().positive().optional().nullable(),
   steps:            z.array(z.object({
     id:       z.string(),
-    title:    z.string().max(200).transform((s: string) => s.replace(/[<>]/g, "").trim()),
+    title:    z.string().max(200).trim(),
     optional: z.boolean().optional(),
   })).optional().default([]),
   category:         z.enum(QUEST_CATEGORIES),
-  xp_reward:        z.number().int().positive(),
+  // xp_reward is ignored — recomputed server-side from type/duration/difficulty
+  // so a client can't inflate it by lying about quest type. Field is accepted
+  // for backward compatibility but never used.
+  xp_reward:        z.number().int().positive().optional(),
   location:         z.string().max(100).nullable().optional(),
   evaluation_note:  z.string().optional().default(""),
 });
@@ -102,7 +94,12 @@ export async function POST(req: NextRequest) {
     }
 
     const quest = parsed.data;
-    const safeXP = clampXP(quest.xp_reward, quest.type);
+
+    // Server-authoritative XP: always derived from type + duration + difficulty,
+    // never trusted from the client. calcQuestXP already clamps to each type's
+    // max (MAX_SIDE_QUEST_XP / MAX_MAIN_QUEST_XP).
+    const durationMinutes = quest.duration_minutes ?? durationLabelToMinutes(quest.duration_label);
+    const safeXP = calcQuestXP(quest.type, durationMinutes, quest.difficulty);
 
     // Create an authenticated Supabase client so RLS sees the user's identity
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";

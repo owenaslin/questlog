@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
-import { AppError, getAuthenticatedUserId, sanitize } from "@/lib/api-utils";
+import { AppError, getAuthenticatedUserId, sanitize, wrapUntrusted, UNTRUSTED_INPUT_NOTICE } from "@/lib/api-utils";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
 import { durationLabelToMinutes, calcQuestXP, clamp } from "@/lib/xp";
@@ -72,13 +72,18 @@ function buildAiPrompt(topic: string, location: string, questType: "main" | "sid
     ? `Good: "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`
     : `Good: "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you."`;
 
+  const safeLocation = sanitize(location);
+  const safeTopic = sanitize(topic);
+
   return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear, actionable objectives. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+
+${UNTRUSTED_INPUT_NOTICE}
 
 ${example}
 Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
-Location: ${sanitize(location) || "anywhere"}
-Topic / Interest: ${sanitize(topic)}
+Location: ${safeLocation ? wrapUntrusted(safeLocation) : "anywhere"}
+Topic / Interest: ${wrapUntrusted(safeTopic)}
 Quest type: ${typeLabel}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
@@ -110,12 +115,14 @@ function buildUserPrompt(
     : "Side Quest (hours to a weekend)";
   return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and make it clear and motivating while preserving the user's intent exactly.
 
+${UNTRUSTED_INPUT_NOTICE}
+
 Keep the adventure framing (quest structure, step-by-step objectives) — but write the description like you're telling a friend about a genuinely worthwhile thing to do, not narrating an epic saga. Avoid mystical language, invented names, or dramatic flourishes that obscure what the user actually needs to do.
 
 Quest type: ${typeLabel}
 Category: ${category}
-User's title: ${sanitize(title)}
-User's description: ${sanitize(description)}
+User's title: ${wrapUntrusted(sanitize(title, 200))}
+User's description: ${wrapUntrusted(sanitize(description, 1000))}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
 

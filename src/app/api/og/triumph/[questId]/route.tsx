@@ -4,6 +4,9 @@ import { SUPABASE_URL, ANON_KEY, fetchHeroByHandle, loadFont } from "@/lib/og-ut
 
 export const runtime = "edge";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const HANDLE_RE = /^[a-z0-9][a-z0-9-]{0,30}[a-z0-9]$/i;
+
 async function fetchQuest(questId: string) {
   try {
     const res = await fetch(
@@ -26,7 +29,12 @@ export async function GET(
 ) {
   const { questId } = await params;
   const { searchParams } = new URL(request.url);
-  const handle = searchParams.get("user") ?? "adventurer";
+  const rawHandle = searchParams.get("user") ?? "adventurer";
+  const handle = HANDLE_RE.test(rawHandle) ? rawHandle : "adventurer";
+
+  if (!UUID_RE.test(questId)) {
+    return new Response("Invalid quest id", { status: 400 });
+  }
 
   const [heroData, questData, fontData] = await Promise.all([
     fetchHeroByHandle(handle),
@@ -159,6 +167,9 @@ export async function GET(
       width: 1200,
       height: 630,
       fonts: fontConfig ? [fontConfig] : undefined,
+      headers: {
+        "Cache-Control": "public, max-age=300, s-maxage=86400, stale-while-revalidate=604800",
+      },
     }
   );
 }
