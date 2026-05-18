@@ -53,6 +53,7 @@ export default function DiscoveryForge({
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
   const [discoveredQuest, setDiscoveredQuest] = useState<NarrativeQuest | null>(null);
+  const [questToken, setQuestToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [remainingDaily, setRemainingDaily] = useState<number>(5);
   const [isAccepting, setIsAccepting] = useState(false);
@@ -117,6 +118,7 @@ export default function DiscoveryForge({
       }
       
       setDiscoveredQuest(data.quest);
+      setQuestToken(data.quest_token ?? null);
       setRemainingDaily(data.remaining_daily);
       
     } catch (err) {
@@ -130,6 +132,11 @@ export default function DiscoveryForge({
 
   const handleAccept = async () => {
     if (!discoveredQuest) return;
+    if (!questToken) {
+      setAcceptError('Quest preview expired — please discover again.');
+      setDiscoveredQuest(null);
+      return;
+    }
     setIsAccepting(true);
     setAcceptError(null);
     try {
@@ -143,6 +150,7 @@ export default function DiscoveryForge({
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authSession.access_token}`,
+          'X-Quest-Token': questToken,
         },
         body: JSON.stringify({
           title: discoveredQuest.title,
@@ -158,6 +166,12 @@ export default function DiscoveryForge({
       });
       const data = await res.json();
       if (!res.ok) {
+        if (res.status === 401 && /expired|token|re-evaluate|discover/i.test(data.error ?? '')) {
+          setAcceptError(data.error || 'Quest preview expired — please discover again.');
+          setDiscoveredQuest(null);
+          setQuestToken(null);
+          return;
+        }
         setAcceptError(data.error || 'Could not save quest.');
         return;
       }
@@ -172,6 +186,7 @@ export default function DiscoveryForge({
 
   const handleDismiss = () => {
     setDiscoveredQuest(null);
+    setQuestToken(null);
     if (onQuestDismissed) {
       onQuestDismissed();
     }

@@ -172,7 +172,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       const beforeSummary = beforeSnapshot?.profileSummary ?? null;
       const beforeLevel = beforeSummary?.level || calculateLevel(beforeSummary?.xp_total || 0);
 
-      const result = await completeQuest(quest.id, quest.xp_reward, quest.type, quest.category);
+      const result = await completeQuest(quest.id, quest.type, quest.category);
       if (!result.success) {
         setStatus(previousStatus);
         if (result.error?.toLowerCase().includes("log in")) {

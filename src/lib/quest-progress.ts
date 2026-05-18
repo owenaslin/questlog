@@ -318,14 +318,14 @@ export async function acceptQuest(
 }
 
 /**
- * Marks a quest complete and awards XP via the complete_quest_atomic RPC, then
- * separately updates weekly_activity. These are two distinct DB operations — if
- * the second fails the XP is still awarded (not rolled back). Acceptable for
- * this app's consistency requirements.
+ * Marks a quest complete via the complete_quest_atomic RPC, then separately
+ * updates weekly_activity. The XP value is no longer passed in — both RPCs
+ * now look it up from public.quests.xp_reward server-side (see migration
+ * 021), so a malicious client can't mint arbitrary XP by tampering with
+ * the call.
  */
 export async function completeQuest(
   questId: string,
-  xpReward: number,
   questType?: Quest["type"],
   questCategory?: string
 ): Promise<{ success: boolean; alreadyCompleted?: boolean; error?: string }> {
@@ -341,7 +341,6 @@ export async function completeQuest(
     {
       p_user_id: userId,
       p_quest_id: questId,
-      p_xp: xpReward,
       p_quest_type: questType ?? null,
       p_quest_category: questCategory ?? null,
     }
@@ -361,7 +360,7 @@ export async function completeQuest(
   if (questCategory) {
     const { error: weeklyError } = await supabase.rpc("update_weekly_activity", {
       p_user_id: userId,
-      p_xp: xpReward,
+      p_quest_id: questId,
       p_category: questCategory,
     });
 

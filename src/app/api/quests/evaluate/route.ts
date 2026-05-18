@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import { AppError, getAuthenticatedUserId, sanitize, wrapUntrusted, UNTRUSTED_INPUT_NOTICE } from "@/lib/api-utils";
+import { issueQuestToken } from "@/lib/quest-token";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
 import { durationLabelToMinutes, calcQuestXP, clamp } from "@/lib/xp";
@@ -229,6 +230,17 @@ export async function POST(req: NextRequest) {
     const duration_minutes = durationLabelToMinutes(data.duration_label);
     const xp_reward = calcQuestXP(input.questType, duration_minutes, data.difficulty);
 
+    const quest_token = issueQuestToken({
+      uid: userId,
+      src: input.mode,
+      typ: input.questType,
+      dur: duration_minutes,
+      dif: data.difficulty as 1 | 2 | 3 | 4 | 5,
+      cat: data.category,
+      title: data.title,
+      description: data.description,
+    });
+
     return NextResponse.json({
       title:           data.title,
       description:     data.description,
@@ -243,6 +255,7 @@ export async function POST(req: NextRequest) {
       location:        input.mode === "ai" ? (input.location || null) : null,
       evaluation_note: data.evaluation_note,
       status:          "available",
+      quest_token,
     });
   } catch (err) {
     if (err instanceof AppError) {
