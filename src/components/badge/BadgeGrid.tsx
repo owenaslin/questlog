@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Badge } from "@/lib/types";
-import { rarityBgClasses } from "@/lib/badge-utils";
+import { rarityBgClasses } from "@/lib/badges";
 import BadgeCard from "@/components/badge/BadgeCard";
 
 interface BadgeGridProps {

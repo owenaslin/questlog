@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
 import { QUEST_CATEGORIES } from "@/lib/types";
+import { MAX_SIDE_QUEST_XP, MAX_MAIN_QUEST_XP } from "@/lib/constants";
 
 export const preferredRegion = 'pdx1';
 
@@ -11,7 +12,7 @@ export const preferredRegion = 'pdx1';
 // "main" to access the higher ceiling. We intentionally omit the minimum floor
 // so that a legitimate low-XP side quest is never inflated by a type mismatch.
 // A full fix would require a server-side DB lookup of the original quest.
-const XP_MAX_BY_TYPE = { side: 2500, main: 8000 } as const;
+const XP_MAX_BY_TYPE = { side: MAX_SIDE_QUEST_XP, main: MAX_MAIN_QUEST_XP } as const;
 
 function clampXP(xp: number, type: "main" | "side"): number {
   return Math.min(XP_MAX_BY_TYPE[type], Math.max(1, Math.round(xp)));

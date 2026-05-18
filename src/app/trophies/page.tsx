@@ -5,7 +5,7 @@ import BadgeGrid from "@/components/badge/BadgeGrid";
 import { BADGES, getBadgesByRarity } from "@/lib/badges";
 import { Badge, BadgeRarity } from "@/lib/types";
 import { getUserEarnedBadgeIds } from "@/lib/quest-progress";
-import { getRequirementHint } from "@/lib/badge-utils";
+import { getRequirementHint } from "@/lib/badges";
 
 export default function TrophiesPage() {
   const [filter, setFilter] = useState<BadgeRarity | "all">("all");
