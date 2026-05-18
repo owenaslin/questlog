@@ -18,6 +18,7 @@ import { kv } from '@vercel/kv';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getBearerToken, getAuthenticatedUserId } from '@/lib/api-utils';
 
 import type { 
   OrchestratorResult,
@@ -76,39 +77,6 @@ const requestSchema = z.object({
 // ============================================
 // AUTH & RATE LIMITING
 // ============================================
-
-function getBearerToken(request: NextRequest): string | null {
-  const authHeader = request.headers.get('authorization') || '';
-  const [scheme, token] = authHeader.split(' ');
-  if (scheme?.toLowerCase() !== 'bearer' || !token) {
-    return null;
-  }
-  return token;
-}
-
-async function getAuthenticatedUserId(request: NextRequest): Promise<string | null> {
-  const token = getBearerToken(request);
-  if (!token) return null;
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
-                      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    console.error('[discover] Supabase config missing');
-    return null;
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data.user) {
-    return null;
-  }
-  return data.user.id;
-}
 
 async function checkRateLimit(userId: string): Promise<{ 
   allowed: boolean; 

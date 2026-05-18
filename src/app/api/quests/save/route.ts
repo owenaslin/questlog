@@ -4,6 +4,7 @@ import { z } from "zod";
 import { kv } from "@vercel/kv";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { MAX_SIDE_QUEST_XP, MAX_MAIN_QUEST_XP } from "@/lib/constants";
+import { AppError } from "@/lib/api-utils";
 
 export const preferredRegion = 'pdx1';
 
@@ -60,13 +61,6 @@ const bodySchema = z.object({
   location:         z.string().max(100).nullable().optional(),
   evaluation_note:  z.string().optional().default(""),
 });
-
-class AppError extends Error {
-  constructor(message: string, public statusCode = 500) {
-    super(message);
-    this.name = "AppError";
-  }
-}
 
 // ── Auth helper ───────────────────────────────────────────────────────────────
 

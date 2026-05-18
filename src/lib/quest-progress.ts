@@ -373,41 +373,6 @@ export async function completeQuest(
   return { success: true };
 }
 
-export async function getProfileProgressSummary(): Promise<ProfileProgressSummary | null> {
-  const userId = await getCurrentUserId();
-  if (!userId) {
-    return null;
-  }
-
-  const supabase = getSupabaseClient();
-
-  const [{ data: profile }, { count: completedCount }, { count: activeCount }] = await Promise.all([
-    supabase.from("profiles").select("xp_total,level,created_at").eq("id", userId).single(),
-    supabase
-      .from("user_quests")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .eq("status", "completed"),
-    supabase
-      .from("user_quests")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .eq("status", "active"),
-  ]);
-
-  if (!profile) {
-    return null;
-  }
-
-  return {
-    xp_total: profile.xp_total || 0,
-    level: profile.level || calculateLevel(profile.xp_total || 0),
-    completedCount: completedCount || 0,
-    activeCount: activeCount || 0,
-    created_at: profile.created_at || undefined,
-  };
-}
-
 export async function getRecentCompletedQuestIds(limit = 5): Promise<string[]> {
   const userId = await getCurrentUserId();
   if (!userId) {

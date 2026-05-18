@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
 import { getLatestFlashModel } from "@/lib/gemini";
+import { AppError, getAuthenticatedUserId, sanitize } from "@/lib/api-utils";
 
 export const preferredRegion = 'pdx1';
 
@@ -35,15 +35,6 @@ const responseSchema = z.object({
   ]),
 });
 
-class AppError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number = 500
-  ) {
-    super(message);
-    this.name = "AppError";
-  }
-}
 
 const RATE_LIMIT_WINDOW_MS = 60;
 const RATE_LIMIT_MAX_REQUESTS = 12;
@@ -107,50 +98,6 @@ async function checkRateLimit(
   }
 }
 
-function getBearerToken(request: NextRequest): string | null {
-  const authHeader = request.headers.get("authorization") || "";
-  const [scheme, token] = authHeader.split(" ");
-  if (scheme?.toLowerCase() !== "bearer" || !token) {
-    return null;
-  }
-  return token;
-}
-
-async function getAuthenticatedUserId(request: NextRequest): Promise<string | null> {
-  const token = getBearerToken(request);
-  if (!token) {
-    return null;
-  }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    throw new AppError("Supabase auth config is missing", 500);
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
-
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data.user) {
-    return null;
-  }
-
-  return data.user.id;
-}
-
-function sanitizeForPrompt(input: string): string {
-  return input
-    .replace(/[<>]/g, "")
-    .replace(/[\x00-\x1F\x7F]/g, "")
-    .slice(0, 100);
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -207,8 +154,8 @@ export async function POST(request: NextRequest) {
     const resolvedModel   = configuredModel || await getLatestFlashModel(apiKey);
     const modelCandidates = [resolvedModel];
 
-    const safeLocation = sanitizeForPrompt(location);
-    const safeTopic = sanitizeForPrompt(topic);
+    const safeLocation = sanitize(location);
+    const safeTopic = sanitize(topic);
 
     const prompt = `You are a quest generator for an 8-bit RPG-style task app. Generate a single quest based on these parameters:
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
+import { AppError, getAuthenticatedUserId, sanitize } from "@/lib/api-utils";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
 import { durationLabelToMinutes, calcQuestXP, clamp } from "@/lib/xp";
@@ -63,17 +63,6 @@ const aiResponseSchema = z.object({
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-class AppError extends Error {
-  constructor(message: string, public statusCode = 500) {
-    super(message);
-    this.name = "AppError";
-  }
-}
-
-function sanitize(s: string) {
-  return s.replace(/[<>]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
-}
-
 async function checkRateLimit(
   key: string
 ): Promise<{ isLimited: boolean; recentCount: number }> {
@@ -106,20 +95,6 @@ async function checkRateLimit(
       recentCount: RATE_LIMIT_MAX_REQ,
     };
   }
-}
-
-async function getAuthenticatedUserId(req: NextRequest): Promise<string | null> {
-  const authHeader = req.headers.get("authorization") ?? "";
-  const [scheme, token] = authHeader.split(" ");
-  if (scheme?.toLowerCase() !== "bearer" || !token) return null;
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-  const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data.user) return null;
-  return data.user.id;
 }
 
 // ── AI prompt builders ───────────────────────────────────────────────────────
