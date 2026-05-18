@@ -104,13 +104,8 @@ async function checkRateLimit(userId: string): Promise<{
       allowed: true, 
       remaining: RATE_LIMIT_MAX_REQUESTS - recent.length - 1 
     };
-  } catch (err) {
-    console.warn('[discover] Rate limit check failed:', err);
-    // Only fail open if explicitly configured
-    if (ALLOW_RATE_LIMIT_BYPASS) {
-      console.warn('[discover] Rate limit bypass enabled (ALLOW_RATE_LIMIT_BYPASS=true)');
-      return { allowed: true, remaining: 999 };
-    }
+  } catch {
+    if (ALLOW_RATE_LIMIT_BYPASS) return { allowed: true, remaining: 999 };
     return { allowed: false, remaining: 0 };
   }
 }
@@ -127,11 +122,8 @@ async function checkDailyLimit(userId: string): Promise<{ allowed: boolean; rema
     
     await kv.set(key, count + 1, { ex: 24 * 60 * 60 }); // Expire end of day
     return { allowed: true, remaining: DAILY_DISCOVERY_LIMIT - count - 1 };
-  } catch (err) {
-    console.warn('[discover] Daily limit check failed:', err);
-    // Only fail open if explicitly configured
+  } catch {
     if (ALLOW_RATE_LIMIT_BYPASS) {
-      console.warn('[discover] Rate limit bypass enabled (ALLOW_RATE_LIMIT_BYPASS=true)');
       return { allowed: true, remaining: 999 };
     }
     return { allowed: false, remaining: 0 };
@@ -421,7 +413,6 @@ export async function POST(request: NextRequest) {
     let fallbackLevel: 1 | 2 | 3 = 1;
     
     if (places.partial_results || places.places.length < 3) {
-      console.info('[discover] Insufficient results, expanding search...');
       places = await expandSearchRadius(searchParams, 2);
       
       if (places.places.length === 0) {

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
-import { kv } from "@vercel/kv";
 import { getLatestFlashModel } from "@/lib/gemini";
 import { AppError, getAuthenticatedUserId, sanitize } from "@/lib/api-utils";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const preferredRegion = 'pdx1';
 
@@ -51,54 +51,6 @@ function logSecurityEvent(
   });
 }
 
-/**
- * Check if user is rate limited using Vercel KV (distributed across instances)
- * Stores timestamps as a Redis list with automatic expiration
- */
-async function checkRateLimit(
-  key: string
-): Promise<{ isLimited: boolean; recentCount: number }> {
-  const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW_MS * 1000;
-  
-  try {
-    // Get existing timestamps for this key
-    const timestamps = await kv.lrange<number>(key, 0, -1);
-    
-    // Filter to only recent requests within window
-    const recent = timestamps.filter((ts) => ts > windowStart);
-    
-    if (recent.length >= RATE_LIMIT_MAX_REQUESTS) {
-      return {
-        isLimited: true,
-        recentCount: recent.length,
-      };
-    }
-    
-    // Add current timestamp
-    await kv.lpush(key, now);
-    await kv.expire(key, RATE_LIMIT_WINDOW_MS); // Auto-expire after window
-    
-    return {
-      isLimited: false,
-      recentCount: recent.length,
-    };
-  } catch (err) {
-    // In development without KV configured, fail open so local testing works.
-    // In production, fail closed to prevent abuse if KV becomes unavailable.
-    if (process.env.NODE_ENV === "development") {
-      console.warn("[rate-limit] KV unavailable in dev — allowing request:", err);
-      return { isLimited: false, recentCount: 0 };
-    }
-    console.error("Rate limit KV error:", err);
-    return {
-      isLimited: true,
-      recentCount: RATE_LIMIT_MAX_REQUESTS,
-    };
-  }
-}
-
-
 export async function POST(request: NextRequest) {
   try {
     const userId = await getAuthenticatedUserId(request);
@@ -107,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     const rateLimitKey = `rate_limit:generate:${userId}`;
-    const rateLimitState = await checkRateLimit(rateLimitKey);
+    const rateLimitState = await checkRateLimit(rateLimitKey, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS);
     if (rateLimitState.recentCount >= RATE_LIMIT_ALERT_THRESHOLD) {
       logSecurityEvent("rate_limit_pressure", {
         userId,
@@ -230,8 +182,6 @@ Respond with ONLY a JSON object (no markdown, no code fences) with these exact f
       status: "available",
     });
   } catch (error) {
-    console.error("Generation error:", error);
-
     if (error instanceof AppError) {
       const errorMessage =
         error.statusCode >= 500

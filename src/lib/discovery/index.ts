@@ -31,16 +31,9 @@ export type {
 export {
   getRegionalPlaces,
   setRegionalPlaces,
-  getRegionalPlacesStaleWhileRevalidate,
-  getTemporalEvents,
-  setTemporalEvents,
   getRecentSuggestions,
   addRecentSuggestion,
   getExcludedPlaceIds,
-  getCachedQuest,
-  setCachedQuest,
-  invalidateRegionalCache,
-  clearUserSessionCache,
   recordCacheHit,
   type RecentSuggestion,
 } from './cache';
