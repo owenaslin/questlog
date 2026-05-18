@@ -109,3 +109,14 @@ export function getMilestoneColor(rarity: Milestone["rarity"]): string {
       return "#22c55e"; // green
   }
 }
+
+export function getMilestoneEmoji(type: Milestone["type"]): string {
+  switch (type) {
+    case "streak": return "🔥";
+    case "category_mastery": return "🏆";
+    case "level_up": return "⬆️";
+    case "first_quest": return "⚔️";
+    case "total_quests": return "📜";
+    default: return "✨";
+  }
+}

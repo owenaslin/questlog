@@ -16,7 +16,7 @@ export async function getHeroByHandle(handle: string): Promise<HeroProfile | nul
   return row as HeroProfile;
 }
 
-export async function getHeroPinnedQuests(userId: string): Promise<PinnedQuest[]> {
+async function getHeroPinnedQuests(userId: string): Promise<PinnedQuest[]> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("pinned_quests")

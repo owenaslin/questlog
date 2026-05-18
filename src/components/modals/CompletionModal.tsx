@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Quest } from "@/lib/types";
-import { Milestone, getMilestoneColor } from "@/lib/milestones";
+import { Milestone, getMilestoneColor, getMilestoneEmoji } from "@/lib/milestones";
 import PixelButton from "@/components/ui/PixelButton";
 import XPBar from "@/components/ui/XPBar";
 import { QUESTLINES } from "@/lib/questlines";
@@ -394,21 +394,4 @@ export default function CompletionModal({
       `}</style>
     </div>
   );
-}
-
-function getMilestoneEmoji(type: Milestone["type"]): string {
-  switch (type) {
-    case "streak":
-      return "🔥";
-    case "category_mastery":
-      return "🏆";
-    case "level_up":
-      return "⬆️";
-    case "first_quest":
-      return "⚔️";
-    case "total_quests":
-      return "📜";
-    default:
-      return "✨";
-  }
 }

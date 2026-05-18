@@ -18,7 +18,7 @@ import { COMMUNITY_QUESTS_WITH_IDS } from "./community";
 import { CULTURE_QUESTS_WITH_IDS } from "./culture";
 import { PRODUCTIVITY_QUESTS_WITH_IDS } from "./productivity";
 
-export { CATEGORIES, getCategoryByKey, getCategoryColor } from "./categories";
+export { CATEGORIES, getCategoryByKey } from "./categories";
 
 // Combined quest library
 export const ALL_QUESTS: Quest[] = [
