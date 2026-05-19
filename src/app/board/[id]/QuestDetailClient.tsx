@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import PixelButton from "@/components/ui/PixelButton";
 import XPBar from "@/components/ui/XPBar";
-import CompletionModal from "@/components/modals/CompletionModal";
-import MilestoneCelebration from "@/components/modals/MilestoneCelebration";
-import AmbientScene from "@/components/ui/AmbientScene";
 import { Quest } from "@/lib/types";
 import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {
@@ -17,6 +14,7 @@ import {
   completeQuest,
   getCompletedCategoryCounts,
   getUserDashboardSnapshot,
+  invalidateDashboardSnapshot,
   updateStreakOnCompletion,
   getSuggestedNextQuests,
 } from "@/lib/quest-progress";
@@ -24,6 +22,10 @@ import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
 import { getOwnHeroProfile } from "@/lib/hero";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { calculateLevel } from "@/lib/types";
+
+const CompletionModal = React.lazy(() => import("@/components/modals/CompletionModal"));
+const MilestoneCelebration = React.lazy(() => import("@/components/modals/MilestoneCelebration"));
+const AmbientScene = React.lazy(() => import("@/components/ui/AmbientScene"));
 
 interface QuestDetailClientProps {
   quest: Quest;
@@ -183,8 +185,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       }
 
       if (result.alreadyCompleted) {
-        const summary = (await getUserDashboardSnapshot())?.profileSummary ?? null;
-        if (summary) setProfileXpTotal(summary.xp_total);
+        if (beforeSummary) setProfileXpTotal(beforeSummary.xp_total);
         setActionError("This quest is already completed. No additional XP awarded.");
         return;
       }
@@ -198,6 +199,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         setIsNewLongest(streakResult.isNewLongest ?? false);
       }
 
+      invalidateDashboardSnapshot();
       const [afterSnapshot, completedByCategory, suggested] = await Promise.all([
         getUserDashboardSnapshot(),
         getCompletedCategoryCounts(),
@@ -249,7 +251,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
 
   return (
     <div className="max-w-2xl mx-auto relative">
-      <AmbientScene scene="quest-alcove" />
+      <Suspense fallback={null}><AmbientScene scene="quest-alcove" /></Suspense>
 
       <button
         type="button"
@@ -514,30 +516,34 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       )}
 
 
-      {showMilestoneCelebration && milestones.length > 0 && (
-        <MilestoneCelebration
-          milestones={milestones}
-          onComplete={() => {
-            setShowMilestoneCelebration(false);
-            setShowCompletionModal(true);
-          }}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showMilestoneCelebration && milestones.length > 0 && (
+          <MilestoneCelebration
+            milestones={milestones}
+            onComplete={() => {
+              setShowMilestoneCelebration(false);
+              setShowCompletionModal(true);
+            }}
+          />
+        )}
+      </Suspense>
 
-      {showCompletionModal && profileXpTotal !== null && (
-        <CompletionModal
-          quest={quest}
-          xpEarned={xpEarned}
-          newXpTotal={profileXpTotal}
-          newLevel={newLevel ?? undefined}
-          newStreak={newStreak}
-          isNewLongest={isNewLongest}
-          heroHandle={heroHandle}
-          milestones={milestones}
-          suggestedQuests={suggestedQuests}
-          onClose={() => setShowCompletionModal(false)}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showCompletionModal && profileXpTotal !== null && (
+          <CompletionModal
+            quest={quest}
+            xpEarned={xpEarned}
+            newXpTotal={profileXpTotal}
+            newLevel={newLevel ?? undefined}
+            newStreak={newStreak}
+            isNewLongest={isNewLongest}
+            heroHandle={heroHandle}
+            milestones={milestones}
+            suggestedQuests={suggestedQuests}
+            onClose={() => setShowCompletionModal(false)}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

@@ -55,7 +55,27 @@ export async function getCurrentUserId(): Promise<string | null> {
   return data.session?.user.id ?? null;
 }
 
+let _snapshotPromise: Promise<DashboardSnapshot | null> | null = null;
+let _snapshotExpiry = 0;
+
+export function invalidateDashboardSnapshot(): void {
+  _snapshotPromise = null;
+  _snapshotExpiry = 0;
+}
+
 export async function getUserDashboardSnapshot(): Promise<DashboardSnapshot | null> {
+  const now = Date.now();
+  if (_snapshotPromise && now < _snapshotExpiry) return _snapshotPromise;
+
+  _snapshotExpiry = now + 30_000;
+  _snapshotPromise = _fetchDashboardSnapshot().then((result) => {
+    if (!result) { _snapshotPromise = null; _snapshotExpiry = 0; }
+    return result;
+  });
+  return _snapshotPromise;
+}
+
+async function _fetchDashboardSnapshot(): Promise<DashboardSnapshot | null> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase.rpc("get_user_dashboard_snapshot");
 
