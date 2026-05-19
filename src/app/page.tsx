@@ -397,7 +397,9 @@ export default function HomePage() {
 
           {/* Section B: Active Quests */}
           <div className="tavrn-panel p-4 md:p-5">
-            <p className="kicker mb-3">Active Quests</p>
+            <p className="kicker mb-3">
+              {!dataLoading && (activeMainQuest || activeSideQuests.length > 0) ? "Active Quests" : "Your Quest"}
+            </p>
             {dataLoading ? (
               <div className="animate-pulse space-y-2">
                 <div className="h-3 w-48 bg-tavern-oak/60 rounded" />
@@ -418,7 +420,7 @@ export default function HomePage() {
                   </>
                 )}
 
-                {activeSideQuests.length > 0 && (
+                {activeSideQuests.length > 0 ? (
                   <div className={activeMainQuest ? "mt-4 pt-4 border-t border-tavern-oak/30" : "mt-3"}>
                     <p className="kicker mb-2">Side Quests In Progress</p>
                     <div className="space-y-2">
@@ -439,7 +441,13 @@ export default function HomePage() {
                       ))}
                     </div>
                   </div>
-                )}
+                ) : activeMainQuest ? (
+                  <p className="text-[12px] text-tavern-parchment-dark mt-3">
+                    No active side quests.{" "}
+                    <Link href="/board" className="text-tavern-gold hover:underline">Browse the board</Link>{" "}
+                    to find one.
+                  </p>
+                ) : null}
               </>
             )}
           </div>

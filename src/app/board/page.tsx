@@ -15,6 +15,7 @@ import { Quest, QuestSource } from "@/lib/types";
 import {
   getCurrentUserId,
   getUserQuestProgressMap,
+  getUserCreatedActiveQuests,
   mergeQuestWithProgress,
   acceptQuest,
   abandonAndAccept,
@@ -182,6 +183,7 @@ export default function QuestsPage() {
   const [sourceFilter, setSourceFilter] = useState<QuestSource | "all">("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [questsWithProgress, setQuestsWithProgress] = useState<Quest[]>(allQuests);
+  const [customActiveQuests, setCustomActiveQuests] = useState<Quest[]>([]);
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
@@ -202,10 +204,14 @@ export default function QuestsPage() {
       }
 
       setIsAuthenticated(true);
-      const progressMap = await getUserQuestProgressMap();
+      const [progressMap, customActive] = await Promise.all([
+        getUserQuestProgressMap(),
+        getUserCreatedActiveQuests(),
+      ]);
       if (!mounted) return;
       if (!pendingWriteRef.current) {
         setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
+        setCustomActiveQuests(customActive);
       }
       setIsLoadingProgress(false);
     };
@@ -222,8 +228,12 @@ export default function QuestsPage() {
 
     setIsLoadingProgress(true);
 
-    const progressMap = await getUserQuestProgressMap();
+    const [progressMap, customActive] = await Promise.all([
+      getUserQuestProgressMap(),
+      getUserCreatedActiveQuests(),
+    ]);
     setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
+    setCustomActiveQuests(customActive);
 
     setIsLoadingProgress(false);
   }, [isAuthenticated]);
@@ -258,7 +268,11 @@ export default function QuestsPage() {
     () => questsWithProgress.filter((q) => q.status === "available" && q.type === "side"),
     [questsWithProgress]
   );
-  const todayPrimaryQuest = activeQuests[0] || availableSideQuests[0] || null;
+  const allActiveQuests = useMemo(
+    () => [...activeQuests, ...customActiveQuests],
+    [activeQuests, customActiveQuests]
+  );
+  const todayPrimaryQuest = availableSideQuests[0] || null;
   const todayQuickQuests = availableSideQuests.slice(0, 3);
 
   const selectedQuest = useMemo(
@@ -312,11 +326,11 @@ export default function QuestsPage() {
       </div>
 
       {/* Active Quests */}
-      {isAuthenticated && !isLoadingProgress && activeQuests.length > 0 && (
+      {isAuthenticated && !isLoadingProgress && allActiveQuests.length > 0 && (
         <div className="mb-6 tavern-card p-4 md:p-5 border-2 border-tavern-gold/40">
           <h2 className="kicker text-tavern-gold mb-3">▶ Active Quests</h2>
           <div className="flex flex-col gap-2">
-            {activeQuests.map((quest) => (
+            {allActiveQuests.map((quest) => (
               <Link
                 key={quest.id}
                 href={`/board/${quest.id}`}
@@ -613,7 +627,7 @@ export default function QuestsPage() {
 
             <div className="bg-retro-black border-2 border-retro-darkgray p-3">
               <p className="kicker mb-2">Quick Stats</p>
-              <p className="text-body-sm text-retro-cyan mb-1">Active: {activeQuests.length}</p>
+              <p className="text-body-sm text-retro-cyan mb-1">Active: {allActiveQuests.length}</p>
               <p className="text-body-sm text-retro-lime mb-1">Available Side: {availableSideQuests.length}</p>
               <p className="text-body-sm text-retro-lightblue">Filtered: {filteredQuests.length}</p>
             </div>
