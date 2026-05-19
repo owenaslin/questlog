@@ -126,6 +126,7 @@ export async function updateHeroProfile(
     .eq("id", userId);
 
   if (error) return { success: false, error: error.message };
+  invalidateOwnHeroProfile();
   return { success: true };
 }
 

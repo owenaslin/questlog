@@ -5,9 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import PixelButton from "@/components/ui/PixelButton";
 import XPBar from "@/components/ui/XPBar";
-const CompletionModal = React.lazy(() => import("@/components/modals/CompletionModal"));
-const MilestoneCelebration = React.lazy(() => import("@/components/modals/MilestoneCelebration"));
-const AmbientScene = React.lazy(() => import("@/components/ui/AmbientScene"));
 import { Quest } from "@/lib/types";
 import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {
@@ -25,6 +22,10 @@ import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
 import { getOwnHeroProfile } from "@/lib/hero";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { calculateLevel } from "@/lib/types";
+
+const CompletionModal = React.lazy(() => import("@/components/modals/CompletionModal"));
+const MilestoneCelebration = React.lazy(() => import("@/components/modals/MilestoneCelebration"));
+const AmbientScene = React.lazy(() => import("@/components/ui/AmbientScene"));
 
 interface QuestDetailClientProps {
   quest: Quest;
