@@ -63,7 +63,27 @@ export async function getHeroDashboard(userId: string): Promise<HeroDashboard> {
 
 /* ── Owner reads (auth required) ─────────────────────────────────────── */
 
+let _heroProfilePromise: Promise<HeroProfile | null> | null = null;
+let _heroProfileExpiry = 0;
+
+export function invalidateOwnHeroProfile(): void {
+  _heroProfilePromise = null;
+  _heroProfileExpiry = 0;
+}
+
 export async function getOwnHeroProfile(): Promise<HeroProfile | null> {
+  const now = Date.now();
+  if (_heroProfilePromise && now < _heroProfileExpiry) return _heroProfilePromise;
+
+  _heroProfileExpiry = now + 30_000;
+  _heroProfilePromise = _fetchOwnHeroProfile().then((result) => {
+    if (!result) { _heroProfilePromise = null; _heroProfileExpiry = 0; }
+    return result;
+  });
+  return _heroProfilePromise;
+}
+
+async function _fetchOwnHeroProfile(): Promise<HeroProfile | null> {
   const userId = await getCurrentUserId();
   if (!userId) return null;
 

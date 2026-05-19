@@ -42,11 +42,18 @@ export default function ViewModeProvider({ children }: { children: React.ReactNo
       setAutoDesktop(resolveDesktopFromViewport());
     };
 
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    const onResize = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(recompute, 150);
+    };
+
     recompute();
-    window.addEventListener("resize", recompute);
+    window.addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener("resize", recompute);
+      window.removeEventListener("resize", onResize);
+      clearTimeout(debounceTimer);
     };
   }, []);
 

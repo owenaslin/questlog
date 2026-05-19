@@ -47,8 +47,10 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
 
   useEffect(() => {
     loadData();
-    // Refresh every minute in case date changes
-    const interval = setInterval(loadData, 60000);
+    // Refresh every minute in case date changes, but skip when tab is hidden
+    const interval = setInterval(() => {
+      if (!document.hidden) loadData();
+    }, 60000);
     return () => clearInterval(interval);
   }, [loadData]);
 
@@ -56,12 +58,20 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
     if (loadingHabitId) return;
 
     setLoadingHabitId(habit.id);
+    const wasCompleted = habit.is_completed_today;
 
-    if (habit.is_completed_today) {
+    // Optimistic update
+    setHabits((prev) =>
+      prev.map((h) => h.id === habit.id ? { ...h, is_completed_today: !wasCompleted } : h)
+    );
+    setSummary((prev) => ({
+      ...prev,
+      completed: wasCompleted ? prev.completed - 1 : prev.completed + 1,
+    }));
+
+    if (wasCompleted) {
       const result = await uncompleteHabit(habit.id);
-      if (result.success) {
-        await loadData();
-      }
+      if (!result.success) await loadData(); // revert on failure
     } else {
       const result = await completeHabit(habit.id);
       if (result.success) {
@@ -74,7 +84,8 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
             setXpAnimations((prev) => prev.filter((a) => a.id !== habit.id));
           }, 2000);
         }
-        await loadData();
+      } else {
+        await loadData(); // revert on failure
       }
     }
 
