@@ -311,6 +311,35 @@ export default function QuestsPage() {
         </div>
       </div>
 
+      {/* Active Quests */}
+      {isAuthenticated && !isLoadingProgress && activeQuests.length > 0 && (
+        <div className="mb-6 tavern-card p-4 md:p-5 border-2 border-tavern-gold/40">
+          <h2 className="kicker text-tavern-gold mb-3">▶ Active Quests</h2>
+          <div className="flex flex-col gap-2">
+            {activeQuests.map((quest) => (
+              <Link
+                key={quest.id}
+                href={`/board/${quest.id}`}
+                className="flex items-center justify-between p-3 border border-tavern-oak/50 hover:border-tavern-gold/50 transition-none group"
+              >
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
+                      {quest.type === "main" ? "⚔ Main" : "🗡 Side"}
+                    </span>
+                    <p className="text-body-sm font-medium text-tavern-parchment group-hover:text-tavern-gold leading-snug">
+                      {quest.title}
+                    </p>
+                  </div>
+                  <p className="text-body-sm text-[--parchment-dim]">+{quest.xp_reward} XP · {quest.category}</p>
+                </div>
+                <span className="text-body-sm text-tavern-gold opacity-0 group-hover:opacity-100">→</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Today / Next Action */}
       <div className="mb-8 tavern-card p-4 md:p-5">
         <div className="flex items-center justify-between mb-3">

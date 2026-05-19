@@ -395,44 +395,32 @@ export default function HomePage() {
             <DailyHabitsWidget maxDisplay={20} />
           </Suspense>
 
-          {/* Section B: Your Quest (main quest focus) */}
+          {/* Section B: Active Quests */}
           <div className="tavrn-panel p-4 md:p-5">
-            <p className="kicker mb-3">Your Quest</p>
+            <p className="kicker mb-3">Active Quests</p>
             {dataLoading ? (
               <div className="animate-pulse space-y-2">
                 <div className="h-3 w-48 bg-tavern-oak/60 rounded" />
                 <div className="h-2 w-full bg-tavern-oak/40 rounded" />
                 <div className="h-2 w-5/6 bg-tavern-oak/40 rounded" />
               </div>
-            ) : activeMainQuest ? (
-              <ActiveQuestPanel quest={activeMainQuest} />
             ) : (
               <>
-                <p className="text-[12px] text-tavern-parchment-dark mb-3">Choose one long-term quest to anchor your adventure.</p>
-                <QuestPickerPanel
-                  quests={pickerQuests.filter((q) => q.type === "main").slice(0, 2)}
-                  onAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
-                />
-              </>
-            )}
-          </div>
+                {activeMainQuest ? (
+                  <ActiveQuestPanel quest={activeMainQuest} />
+                ) : (
+                  <>
+                    <p className="text-[12px] text-tavern-parchment-dark mb-3">Choose one long-term quest to anchor your adventure.</p>
+                    <QuestPickerPanel
+                      quests={pickerQuests.filter((q) => q.type === "main").slice(0, 2)}
+                      onAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
+                    />
+                  </>
+                )}
 
-          {/* Section C: Find Something To Do */}
-          <div className="tavrn-panel p-4 md:p-5">
-            <p className="kicker mb-4">Find Something To Do</p>
-
-            {dataLoading ? (
-              <div className="animate-pulse space-y-3">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="h-16 bg-tavern-oak/30 rounded" />
-                ))}
-              </div>
-            ) : (
-              <>
-                {/* In Progress */}
                 {activeSideQuests.length > 0 && (
-                  <div className="mb-5">
-                    <p className="kicker mb-2">In Progress</p>
+                  <div className={activeMainQuest ? "mt-4 pt-4 border-t border-tavern-oak/30" : "mt-3"}>
+                    <p className="kicker mb-2">Side Quests In Progress</p>
                     <div className="space-y-2">
                       {activeSideQuests.map((quest) => (
                         <Link
@@ -452,7 +440,22 @@ export default function HomePage() {
                     </div>
                   </div>
                 )}
+              </>
+            )}
+          </div>
 
+          {/* Section C: Find Something To Do */}
+          <div className="tavrn-panel p-4 md:p-5">
+            <p className="kicker mb-4">Find Something To Do</p>
+
+            {dataLoading ? (
+              <div className="animate-pulse space-y-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-16 bg-tavern-oak/30 rounded" />
+                ))}
+              </div>
+            ) : (
+              <>
                 {/* Today's drawn side quest — only shown if not already accepted */}
                 {showDrawnQuest && drawnSideQuest && (
                   <div className="mb-5">
