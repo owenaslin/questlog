@@ -179,7 +179,7 @@ export default function QuestsPage() {
   const { isDesktopActive } = useViewMode();
   const pendingWriteRef = useRef(false);
   const [forgeOpen, setForgeOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("open");
+  const [activeTab, setActiveTab] = useState<TabType>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<number>(0);
   const [sourceFilter, setSourceFilter] = useState<QuestSource | "all">("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -221,10 +221,10 @@ export default function QuestsPage() {
     return () => { mounted = false; };
   }, []);
 
-  // Default non-authenticated users to "all" tab since "open" will always be empty for them
+  // Once auth resolves and the user is logged in, default them to "My Quests"
   useEffect(() => {
-    if (!isLoadingProgress && !isAuthenticated) {
-      setActiveTab("all");
+    if (!isLoadingProgress && isAuthenticated) {
+      setActiveTab("open");
     }
   }, [isAuthenticated, isLoadingProgress]);
 
@@ -246,12 +246,18 @@ export default function QuestsPage() {
     setIsLoadingProgress(false);
   }, [isAuthenticated]);
 
+  // Hoisted above filteredQuests so the "open" tab can reference allActiveQuests directly
+  const activeQuests = useMemo(
+    () => questsWithProgress.filter((q) => q.status === "active"),
+    [questsWithProgress]
+  );
+  const allActiveQuests = useMemo(
+    () => [...activeQuests, ...customActiveQuests],
+    [activeQuests, customActiveQuests]
+  );
+
   const filteredQuests = useMemo(() => {
-    if (activeTab === "open") {
-      // "My Quests" tab: show all active quests (predefined + custom)
-      const predefinedActive = questsWithProgress.filter((q) => q.status === "active");
-      return [...predefinedActive, ...customActiveQuests];
-    }
+    if (activeTab === "open") return allActiveQuests;
     return questsWithProgress.filter((q) => {
       if (activeTab !== "all" && q.type !== activeTab) return false;
       if (difficultyFilter > 0 && q.difficulty !== difficultyFilter)
@@ -260,12 +266,7 @@ export default function QuestsPage() {
       if (statusFilter !== "all" && q.status !== statusFilter) return false;
       return true;
     });
-  }, [activeTab, difficultyFilter, sourceFilter, statusFilter, questsWithProgress, customActiveQuests]);
-
-  const activeQuests = useMemo(
-    () => questsWithProgress.filter((q) => q.status === "active"),
-    [questsWithProgress]
-  );
+  }, [activeTab, difficultyFilter, sourceFilter, statusFilter, questsWithProgress, allActiveQuests]);
 
   const activeMainQuestId = useMemo(
     () => questsWithProgress.find((q) => q.status === "active" && q.type === "main")?.id ?? null,
@@ -277,13 +278,10 @@ export default function QuestsPage() {
       prev.map((q) => q.id === questId ? { ...q, status: "active" as const } : q)
     );
   }, []);
+
   const availableSideQuests = useMemo(
     () => questsWithProgress.filter((q) => q.status === "available" && q.type === "side"),
     [questsWithProgress]
-  );
-  const allActiveQuests = useMemo(
-    () => [...activeQuests, ...customActiveQuests],
-    [activeQuests, customActiveQuests]
   );
   const todayPrimaryQuest = availableSideQuests[0] || null;
   const todayQuickQuests = availableSideQuests.slice(0, 3);
@@ -338,8 +336,8 @@ export default function QuestsPage() {
         </div>
       </div>
 
-      {/* Open Quests — always visible for logged-in users */}
-      {isAuthenticated && !isLoadingProgress && (
+      {/* Open Quests — always visible for logged-in users, hidden on the "My Quests" tab to avoid duplication */}
+      {isAuthenticated && !isLoadingProgress && activeTab !== "open" && (
         <div className="mb-6 tavern-card p-4 md:p-5 border-2 border-tavern-gold/40">
           <div className="flex items-center justify-between mb-3">
             <h2 className="kicker text-tavern-gold flex items-center gap-2">
@@ -482,7 +480,8 @@ export default function QuestsPage() {
       </div>
 
       {/* Filters — hidden on the "My Quests" tab since it always shows active-only */}
-      {activeTab !== "open" && <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
+      {activeTab !== "open" && (
+      <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
         <div>
           <label htmlFor="filter-difficulty" className="text-body-sm font-medium text-[--parchment-dim] block mb-2">
             Difficulty
@@ -546,7 +545,8 @@ export default function QuestsPage() {
             {filteredQuests.length !== 1 ? "s" : ""} found
           </span>
         </div>
-      </div>}
+      </div>
+      )}
 
       {isDesktopActive ? (
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6">

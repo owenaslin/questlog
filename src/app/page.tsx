@@ -417,11 +417,16 @@ export default function HomePage() {
                   <ActiveQuestPanel quest={activeMainQuest} />
                 ) : (
                   <>
-                    <p className="text-[12px] text-tavern-parchment-dark mb-3">No active main quest yet. Choose one long-term quest to anchor your adventure.</p>
+                    <p className="text-[12px] text-tavern-parchment-dark mb-3">No active quests yet. Choose a main quest below, or browse the board to find something.</p>
                     <QuestPickerPanel
                       quests={pickerQuests.filter((q) => q.type === "main").slice(0, 2)}
                       onAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
                     />
+                    <div className="mt-3 pt-3 border-t border-tavern-oak/30">
+                      <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
+                        📋 Browse the Board
+                      </Link>
+                    </div>
                   </>
                 )}
 
