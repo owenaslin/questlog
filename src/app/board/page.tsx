@@ -162,7 +162,11 @@ function QuickAcceptButton({
 
 const allQuests: Quest[] = ALL_QUESTS;
 
+type TabType = "open" | "all" | "main" | "side";
+type StatusFilter = "all" | "available" | "active" | "completed";
+
 const QUEST_TABS: { key: TabType; label: string; icon: string }[] = [
+  { key: "open", label: "My Quests", icon: "▶" },
   { key: "all", label: "All Quests", icon: "📜" },
   { key: "main", label: "Main Quests", icon: "⚔" },
   { key: "side", label: "Side Quests", icon: "🗡" },
@@ -171,14 +175,11 @@ const QUEST_TABS: { key: TabType; label: string; icon: string }[] = [
 const MAIN_QUEST_COUNT = getMainQuests().length;
 const SIDE_QUEST_COUNT = getSideQuests().length;
 
-type TabType = "all" | "main" | "side";
-type StatusFilter = "all" | "available" | "active" | "completed";
-
 export default function QuestsPage() {
   const { isDesktopActive } = useViewMode();
   const pendingWriteRef = useRef(false);
   const [forgeOpen, setForgeOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("all");
+  const [activeTab, setActiveTab] = useState<TabType>("open");
   const [difficultyFilter, setDifficultyFilter] = useState<number>(0);
   const [sourceFilter, setSourceFilter] = useState<QuestSource | "all">("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -220,6 +221,13 @@ export default function QuestsPage() {
     return () => { mounted = false; };
   }, []);
 
+  // Default non-authenticated users to "all" tab since "open" will always be empty for them
+  useEffect(() => {
+    if (!isLoadingProgress && !isAuthenticated) {
+      setActiveTab("all");
+    }
+  }, [isAuthenticated, isLoadingProgress]);
+
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
     if (!isAuthenticated) {
@@ -239,6 +247,11 @@ export default function QuestsPage() {
   }, [isAuthenticated]);
 
   const filteredQuests = useMemo(() => {
+    if (activeTab === "open") {
+      // "My Quests" tab: show all active quests (predefined + custom)
+      const predefinedActive = questsWithProgress.filter((q) => q.status === "active");
+      return [...predefinedActive, ...customActiveQuests];
+    }
     return questsWithProgress.filter((q) => {
       if (activeTab !== "all" && q.type !== activeTab) return false;
       if (difficultyFilter > 0 && q.difficulty !== difficultyFilter)
@@ -247,7 +260,7 @@ export default function QuestsPage() {
       if (statusFilter !== "all" && q.status !== statusFilter) return false;
       return true;
     });
-  }, [activeTab, difficultyFilter, sourceFilter, statusFilter, questsWithProgress]);
+  }, [activeTab, difficultyFilter, sourceFilter, statusFilter, questsWithProgress, customActiveQuests]);
 
   const activeQuests = useMemo(
     () => questsWithProgress.filter((q) => q.status === "active"),
@@ -325,32 +338,62 @@ export default function QuestsPage() {
         </div>
       </div>
 
-      {/* Active Quests */}
-      {isAuthenticated && !isLoadingProgress && allActiveQuests.length > 0 && (
+      {/* Open Quests — always visible for logged-in users */}
+      {isAuthenticated && !isLoadingProgress && (
         <div className="mb-6 tavern-card p-4 md:p-5 border-2 border-tavern-gold/40">
-          <h2 className="kicker text-tavern-gold mb-3">▶ Active Quests</h2>
-          <div className="flex flex-col gap-2">
-            {allActiveQuests.map((quest) => (
-              <Link
-                key={quest.id}
-                href={`/board/${quest.id}`}
-                className="flex items-center justify-between p-3 border border-tavern-oak/50 hover:border-tavern-gold/50 transition-none group"
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="kicker text-tavern-gold flex items-center gap-2">
+              ▶ Open Quests
+              {allActiveQuests.length > 0 && (
+                <span className="badge badge-lime">{allActiveQuests.length}</span>
+              )}
+            </h2>
+            {allActiveQuests.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("open")}
+                className="text-body-sm text-tavern-gold hover:underline"
               >
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-                      {quest.type === "main" ? "⚔ Main" : "🗡 Side"}
-                    </span>
-                    <p className="text-body-sm font-medium text-tavern-parchment group-hover:text-tavern-gold leading-snug">
-                      {quest.title}
-                    </p>
-                  </div>
-                  <p className="text-body-sm text-[--parchment-dim]">+{quest.xp_reward} XP · {quest.category}</p>
-                </div>
-                <span className="text-body-sm text-tavern-gold opacity-0 group-hover:opacity-100">→</span>
-              </Link>
-            ))}
+                View all →
+              </button>
+            )}
           </div>
+          {allActiveQuests.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {allActiveQuests.map((quest) => (
+                <Link
+                  key={quest.id}
+                  href={`/board/${quest.id}`}
+                  className="flex items-center justify-between p-3 border border-tavern-oak/50 hover:border-tavern-gold/50 transition-none group"
+                >
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
+                        {quest.type === "main" ? "⚔ Main" : "🗡 Side"}
+                      </span>
+                      <p className="text-body-sm font-medium text-tavern-parchment group-hover:text-tavern-gold leading-snug">
+                        {quest.title}
+                      </p>
+                    </div>
+                    <p className="text-body-sm text-[--parchment-dim]">+{quest.xp_reward} XP · {quest.category}</p>
+                  </div>
+                  <span className="text-body-sm text-tavern-gold opacity-0 group-hover:opacity-100">→</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-body-sm text-[--parchment-dim]">
+              No open quests yet.{" "}
+              <button
+                type="button"
+                onClick={() => setActiveTab("all")}
+                className="text-tavern-gold hover:underline"
+              >
+                Browse all quests
+              </button>{" "}
+              to find and accept one.
+            </p>
+          )}
         </div>
       )}
 
@@ -438,8 +481,8 @@ export default function QuestsPage() {
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
+      {/* Filters — hidden on the "My Quests" tab since it always shows active-only */}
+      {activeTab !== "open" && <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
         <div>
           <label htmlFor="filter-difficulty" className="text-body-sm font-medium text-[--parchment-dim] block mb-2">
             Difficulty
@@ -503,7 +546,7 @@ export default function QuestsPage() {
             {filteredQuests.length !== 1 ? "s" : ""} found
           </span>
         </div>
-      </div>
+      </div>}
 
       {isDesktopActive ? (
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6">
@@ -604,9 +647,26 @@ export default function QuestsPage() {
             </div>
           ) : (
             <div className="text-center py-16 xl:pr-4">
-              <div className="text-4xl mb-4">🏜</div>
-              <p className="text-body-sm text-[--parchment-dim]">No quests match your filters.</p>
-              <p className="text-body-sm text-retro-gray mt-2">Try adjusting your search criteria.</p>
+              {activeTab === "open" ? (
+                <>
+                  <div className="text-4xl mb-4">📜</div>
+                  <p className="text-body-sm text-[--parchment-dim] mb-3">No open quests yet.</p>
+                  <p className="text-body-sm text-retro-gray mb-6">Browse all quests to find something worth pursuing.</p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("all")}
+                    className="tavrn-btn tavrn-btn-primary"
+                  >
+                    📜 Browse All Quests
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="text-4xl mb-4">🏜</div>
+                  <p className="text-body-sm text-[--parchment-dim]">No quests match your filters.</p>
+                  <p className="text-body-sm text-retro-gray mt-2">Try adjusting your search criteria.</p>
+                </>
+              )}
             </div>
           )}
 
@@ -664,13 +724,30 @@ export default function QuestsPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className="text-4xl mb-4">🏜</div>
-            <p className="text-body-sm text-[--parchment-dim]">
-              No quests match your filters.
-            </p>
-            <p className="text-body-sm text-retro-gray mt-2">
-              Try adjusting your search criteria.
-            </p>
+            {activeTab === "open" ? (
+              <>
+                <div className="text-4xl mb-4">📜</div>
+                <p className="text-body-sm text-[--parchment-dim] mb-3">No open quests yet.</p>
+                <p className="text-body-sm text-retro-gray mb-6">Browse all quests to find something worth pursuing.</p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("all")}
+                  className="tavrn-btn tavrn-btn-primary"
+                >
+                  📜 Browse All Quests
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="text-4xl mb-4">🏜</div>
+                <p className="text-body-sm text-[--parchment-dim]">
+                  No quests match your filters.
+                </p>
+                <p className="text-body-sm text-retro-gray mt-2">
+                  Try adjusting your search criteria.
+                </p>
+              </>
+            )}
           </div>
         )
       )}
