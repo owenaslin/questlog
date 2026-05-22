@@ -178,6 +178,7 @@ const SIDE_QUEST_COUNT = getSideQuests().length;
 export default function QuestsPage() {
   const { isDesktopActive } = useViewMode();
   const pendingWriteRef = useRef(false);
+  const initialTabSetRef = useRef(false);
   const [forgeOpen, setForgeOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<number>(0);
@@ -221,10 +222,13 @@ export default function QuestsPage() {
     return () => { mounted = false; };
   }, []);
 
-  // Once auth resolves and the user is logged in, default them to "My Quests"
+  // Default authenticated users to "My Quests" on initial load only.
+  // Using a ref so pull-to-refresh (which also cycles isLoadingProgress) never
+  // overrides a tab the user has explicitly chosen.
   useEffect(() => {
-    if (!isLoadingProgress && isAuthenticated) {
+    if (!isLoadingProgress && isAuthenticated && !initialTabSetRef.current) {
       setActiveTab("open");
+      initialTabSetRef.current = true;
     }
   }, [isAuthenticated, isLoadingProgress]);
 
@@ -481,7 +485,7 @@ export default function QuestsPage() {
 
       {/* Filters — hidden on the "My Quests" tab since it always shows active-only */}
       {activeTab !== "open" && (
-      <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
+        <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
         <div>
           <label htmlFor="filter-difficulty" className="text-body-sm font-medium text-[--parchment-dim] block mb-2">
             Difficulty
@@ -545,7 +549,7 @@ export default function QuestsPage() {
             {filteredQuests.length !== 1 ? "s" : ""} found
           </span>
         </div>
-      </div>
+        </div>
       )}
 
       {isDesktopActive ? (
