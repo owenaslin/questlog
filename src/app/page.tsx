@@ -390,16 +390,21 @@ export default function HomePage() {
         {/* ── Main column ── */}
         <div className="flex flex-col gap-5">
 
-          {/* Section A: Daily Habits — first thing you see */}
-          <Suspense fallback={<div className="tavrn-panel p-4 h-32 animate-pulse" />}>
-            <DailyHabitsWidget maxDisplay={20} />
-          </Suspense>
-
-          {/* Section B: Active Quests */}
+          {/* Section A: Open Quests — first thing you see */}
           <div className="tavrn-panel p-4 md:p-5">
-            <p className="kicker mb-3">
-              {!dataLoading && (activeMainQuest || activeSideQuests.length > 0) ? "Active Quests" : "Your Quest"}
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="kicker flex items-center gap-2">
+                ⚔ Open Quests
+                {!dataLoading && (activeMainQuest || activeSideQuests.length > 0) && (
+                  <span className="badge badge-lime">
+                    {(activeMainQuest ? 1 : 0) + activeSideQuests.length}
+                  </span>
+                )}
+              </p>
+              <Link href="/board" className="text-body-sm text-tavern-gold hover:underline">
+                View Board →
+              </Link>
+            </div>
             {dataLoading ? (
               <div className="animate-pulse space-y-2">
                 <div className="h-3 w-48 bg-tavern-oak/60 rounded" />
@@ -412,11 +417,16 @@ export default function HomePage() {
                   <ActiveQuestPanel quest={activeMainQuest} />
                 ) : (
                   <>
-                    <p className="text-[12px] text-tavern-parchment-dark mb-3">Choose one long-term quest to anchor your adventure.</p>
+                    <p className="text-[12px] text-tavern-parchment-dark mb-3">No active quests yet. Choose a main quest below, or browse the board to find something.</p>
                     <QuestPickerPanel
                       quests={pickerQuests.filter((q) => q.type === "main").slice(0, 2)}
                       onAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
                     />
+                    <div className="mt-3 pt-3 border-t border-tavern-oak/30">
+                      <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
+                        📋 Browse the Board
+                      </Link>
+                    </div>
                   </>
                 )}
 
@@ -451,6 +461,11 @@ export default function HomePage() {
               </>
             )}
           </div>
+
+          {/* Section B: Daily Habits */}
+          <Suspense fallback={<div className="tavrn-panel p-4 h-32 animate-pulse" />}>
+            <DailyHabitsWidget maxDisplay={20} />
+          </Suspense>
 
           {/* Section C: Find Something To Do */}
           <div className="tavrn-panel p-4 md:p-5">
