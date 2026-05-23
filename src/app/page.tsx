@@ -24,8 +24,7 @@ import type { Quest } from "@/lib/types";
 import XPBar from "@/components/ui/XPBar";
 import StreakDisplay from "@/components/ui/StreakDisplay";
 const DailyHabitsWidget = lazy(() => import("@/components/habit/DailyHabitsWidget"));
-import ActiveQuestPanel from "@/components/quest/ActiveQuestPanel";
-import QuestPickerPanel from "@/components/quest/QuestPickerPanel";
+import ActiveQuestTracker from "@/components/quest/ActiveQuestTracker";
 
 const OnboardingModal = lazy(() => import("@/components/modals/OnboardingModal"));
 
@@ -346,7 +345,6 @@ export default function HomePage() {
   }
 
   // ── Logged-in view ────────────────────────────────────────────────────────
-  const sideQuestOptions = pickerQuests.filter((q) => q.type === "side");
   const drawnSideQuest = dailyLoadout?.sideQuest ?? null;
   const showDrawnQuest = drawnSideQuest !== null && !activeSideQuests.some((q) => q.id === drawnSideQuest.id);
   const rerollsUsed = dailyLoadout?.adventure.side_quest_rerolls_used ?? 0;
@@ -390,196 +388,112 @@ export default function HomePage() {
         {/* ── Main column ── */}
         <div className="flex flex-col gap-5">
 
-          {/* Section A: Open Quests — first thing you see */}
-          <div className="tavrn-panel p-4 md:p-5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="kicker flex items-center gap-2">
-                ⚔ Open Quests
-                {!dataLoading && (activeMainQuest || activeSideQuests.length > 0) && (
-                  <span className="badge badge-lime">
-                    {(activeMainQuest ? 1 : 0) + activeSideQuests.length}
-                  </span>
-                )}
-              </p>
-              <Link href="/board" className="text-body-sm text-tavern-gold hover:underline">
-                View Board →
-              </Link>
-            </div>
-            {dataLoading ? (
-              <div className="animate-pulse space-y-2">
-                <div className="h-3 w-48 bg-tavern-oak/60 rounded" />
-                <div className="h-2 w-full bg-tavern-oak/40 rounded" />
-                <div className="h-2 w-5/6 bg-tavern-oak/40 rounded" />
-              </div>
-            ) : (
-              <>
-                {activeMainQuest ? (
-                  <ActiveQuestPanel quest={activeMainQuest} />
-                ) : (
-                  <>
-                    <p className="text-[12px] text-tavern-parchment-dark mb-3">No active quests yet. Choose a main quest below, or browse the board to find something.</p>
-                    <QuestPickerPanel
-                      quests={pickerQuests.filter((q) => q.type === "main").slice(0, 2)}
-                      onAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
-                    />
-                    <div className="mt-3 pt-3 border-t border-tavern-oak/30">
-                      <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
-                        📋 Browse the Board
-                      </Link>
-                    </div>
-                  </>
-                )}
-
-                {activeSideQuests.length > 0 ? (
-                  <div className={activeMainQuest ? "mt-4 pt-4 border-t border-tavern-oak/30" : "mt-3"}>
-                    <p className="kicker mb-2">Side Quests In Progress</p>
-                    <div className="space-y-2">
-                      {activeSideQuests.map((quest) => (
-                        <Link
-                          key={quest.id}
-                          href={`/board/${quest.id}`}
-                          className="flex items-center justify-between p-3 border border-tavern-oak/50 hover:border-tavern-gold/50 transition-none group"
-                        >
-                          <div>
-                            <p className="text-body-sm font-medium text-tavern-parchment group-hover:text-tavern-gold leading-snug">
-                              {quest.title}
-                            </p>
-                            <p className="text-body-sm text-[--parchment-dim]">+{quest.xp_reward} XP · {quest.category}</p>
-                          </div>
-                          <span className="text-body-sm text-tavern-gold opacity-0 group-hover:opacity-100">→</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ) : activeMainQuest ? (
-                  <p className="text-[12px] text-tavern-parchment-dark mt-3">
-                    No active side quests.{" "}
-                    <Link href="/board" className="text-tavern-gold hover:underline">Browse the board</Link>{" "}
-                    to find one.
-                  </p>
-                ) : null}
-              </>
-            )}
-          </div>
+          {/* Section A: Active Quest Tracker — primary focus */}
+          <ActiveQuestTracker
+            mainQuest={activeMainQuest}
+            sideQuests={activeSideQuests}
+            loading={dataLoading}
+            pickerQuests={pickerQuests}
+            onMainQuestAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
+          />
 
           {/* Section B: Daily Habits */}
           <Suspense fallback={<div className="tavrn-panel p-4 h-32 animate-pulse" />}>
             <DailyHabitsWidget maxDisplay={20} />
           </Suspense>
+        </div>
 
-          {/* Section C: Find Something To Do */}
-          <div className="tavrn-panel p-4 md:p-5">
-            <p className="kicker mb-4">Find Something To Do</p>
+        {/* ── Sidebar column ── */}
+        <aside className="flex flex-col gap-4">
 
-            {dataLoading ? (
-              <div className="animate-pulse space-y-3">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="h-16 bg-tavern-oak/30 rounded" />
-                ))}
-              </div>
-            ) : (
-              <>
-                {/* Today's drawn side quest — only shown if not already accepted */}
-                {showDrawnQuest && drawnSideQuest && (
-                  <div className="mb-5">
-                    <p className="kicker text-tavern-gold mb-2">
-                      🗡 Today&apos;s Draw
-                      <span className="text-[--parchment-dim] ml-2 normal-case tracking-normal font-normal">
-                        ({rerollsUsed}/1 reroll)
-                      </span>
-                    </p>
-                    <div className="border border-tavern-oak/60 bg-black/20 p-3">
-                      <p className="text-body-sm font-medium text-tavern-parchment leading-snug mb-1">
-                        {drawnSideQuest.title}
-                      </p>
-                      <p className="text-body-sm text-[--parchment-dim] leading-relaxed mb-2">
-                        {drawnSideQuest.description}
-                      </p>
-                      <p className="text-body-sm text-[--parchment-dim] mb-3">
-                        +{drawnSideQuest.xp_reward} XP · {drawnSideQuest.category} · {drawnSideQuest.duration_label}
-                      </p>
-                      {drawMessage && (
-                        <p className="text-body-sm text-tavern-ember mb-2">{drawMessage}</p>
-                      )}
-                      <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={handleAcceptDailySideQuest} disabled={isDailyAccepting} aria-busy={isDailyAccepting} className="tavrn-btn tavrn-btn-primary tavrn-btn-sm disabled:opacity-50">
-                          {isDailyAccepting ? "…" : "Accept"}
-                        </button>
-                        <Link href={`/board/${drawnSideQuest.id}`} className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
-                          Details
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={handleRerollSideQuest}
-                          disabled={rerollsUsed >= 1 || isRerolling}
-                          className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm disabled:opacity-50"
-                        >
-                          {isRerolling ? "…" : rerollsUsed >= 1 ? "Rerolled" : "Surprise Me"}
-                        </button>
-                      </div>
-                    </div>
+          {/* Today's Draw — daily side quest suggestion */}
+          {!dataLoading && (showDrawnQuest || drawnSideQuest) && (
+            <div className="tavrn-panel p-4">
+              <p className="kicker mb-3">
+                🗡 Today&apos;s Draw
+                <span className="text-[--parchment-dim] ml-2 normal-case tracking-normal font-normal text-[11px]">
+                  ({rerollsUsed}/1 reroll)
+                </span>
+              </p>
+              {showDrawnQuest && drawnSideQuest ? (
+                <div className="border border-tavern-oak/60 bg-black/20 p-3">
+                  <p className="text-body-sm font-medium text-tavern-parchment leading-snug mb-1">
+                    {drawnSideQuest.title}
+                  </p>
+                  <p className="text-[11px] text-[--parchment-dim] mb-2">
+                    +{drawnSideQuest.xp_reward} XP · {drawnSideQuest.category} · {drawnSideQuest.duration_label}
+                  </p>
+                  {drawMessage && (
+                    <p className="text-body-sm text-tavern-ember mb-2">{drawMessage}</p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={handleAcceptDailySideQuest}
+                      disabled={isDailyAccepting}
+                      aria-busy={isDailyAccepting}
+                      className="tavrn-btn tavrn-btn-primary tavrn-btn-sm disabled:opacity-50"
+                    >
+                      {isDailyAccepting ? "…" : "Accept"}
+                    </button>
+                    <Link href={`/board/${drawnSideQuest.id}`} className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
+                      Details
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleRerollSideQuest}
+                      disabled={rerollsUsed >= 1 || isRerolling}
+                      className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm disabled:opacity-50"
+                    >
+                      {isRerolling ? "…" : rerollsUsed >= 1 ? "Rerolled" : "Surprise Me"}
+                    </button>
                   </div>
-                )}
-
-                {/* Additional side quest suggestions */}
-                {sideQuestOptions.length > 0 && (
-                  <div className="mb-4">
-                    <p className="kicker mb-2">More Options</p>
-                    <QuestPickerPanel
-                      quests={sideQuestOptions.slice(0, 2)}
-                      onAccepted={(quest) =>
-                        setActiveSideQuests((prev) =>
-                          prev.some((q) => q.id === quest.id) ? prev : [...prev, { ...quest, status: "active" }]
-                        )
-                      }
-                    />
-                  </div>
-                )}
-
-                {/* Browse links */}
-                <div className="flex flex-wrap gap-2 pt-3 border-t border-tavern-oak/30">
-                  <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
-                    📋 Browse Board
-                  </Link>
-                  <Link href="/discover" className="tavrn-btn tavrn-btn-mystic tavrn-btn-sm">
-                    ⚡ Discover
-                  </Link>
-                  <Link href="/packs" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
-                    🎴 Draw by Vibe
-                  </Link>
                 </div>
-              </>
-            )}
-          </div>
+              ) : (
+                <p className="text-[12px] text-[--parchment-dim]">Today&apos;s side quest has been accepted.</p>
+              )}
+              <div className="mt-3 pt-3 border-t border-tavern-oak/30 flex flex-wrap gap-2">
+                <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
+                  📋 Browse Board
+                </Link>
+                <Link href="/discover" className="tavrn-btn tavrn-btn-mystic tavrn-btn-sm">
+                  ⚡ Discover
+                </Link>
+                <Link href="/packs" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
+                  🎴 Draw by Vibe
+                </Link>
+              </div>
+            </div>
+          )}
 
-          {/* Section D: Today's Reflection */}
+          {/* Today's Reflection */}
           {dataLoading ? (
-            <div className="tavrn-panel p-4 md:p-5 animate-pulse">
-              <div className="h-3 w-36 bg-tavern-oak/60 rounded mb-3" />
+            <div className="tavrn-panel p-4 animate-pulse">
+              <div className="h-3 w-32 bg-tavern-oak/60 rounded mb-3" />
               <div className="h-2 w-full bg-tavern-oak/40 rounded mb-1" />
-              <div className="h-2 w-4/5 bg-tavern-oak/40 rounded mb-4" />
-              <div className="h-20 bg-tavern-oak/30 rounded mb-3" />
+              <div className="h-2 w-4/5 bg-tavern-oak/40 rounded mb-3" />
+              <div className="h-16 bg-tavern-oak/30 rounded mb-2" />
               <div className="flex gap-2">
-                <div className="h-6 w-28 bg-tavern-oak/50 rounded" />
-                <div className="h-6 w-28 bg-tavern-oak/50 rounded" />
+                <div className="h-6 w-16 bg-tavern-oak/50 rounded" />
+                <div className="h-6 w-24 bg-tavern-oak/50 rounded" />
               </div>
             </div>
           ) : (
-            <div className="tavrn-panel p-4 md:p-5">
+            <div className="tavrn-panel p-4">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <p className="kicker">Today&apos;s Reflection</p>
                 {dailyLoadout?.adventure.completed_at && (
                   <span className="badge badge-lime">Complete</span>
                 )}
               </div>
-              <p className="text-body-sm text-[--parchment-dim] mb-3">
+              <p className="text-[11px] text-[--parchment-dim] mb-2">
                 {dailyLoadout?.adventure.generated_prompt ?? "What should tomorrow's quest be?"}
               </p>
               <textarea
                 value={reflectionText}
                 onChange={(event) => setReflectionText(event.target.value)}
                 rows={3}
-                className="w-full bg-tavern-smoke border-2 border-tavern-oak rounded p-2 text-tavern-parchment text-sm mb-3"
+                className="w-full bg-tavern-smoke border-2 border-tavern-oak rounded p-2 text-tavern-parchment text-sm mb-2"
                 placeholder="Write a quick note before closing the tavern..."
                 disabled={!!dailyLoadout?.adventure.completed_at}
               />
@@ -590,7 +504,7 @@ export default function HomePage() {
                   disabled={!!dailyLoadout?.adventure.completed_at}
                   className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm disabled:opacity-50"
                 >
-                  Save Reflection
+                  Save
                 </button>
                 <button
                   type="button"
@@ -598,15 +512,13 @@ export default function HomePage() {
                   disabled={!!dailyLoadout?.adventure.completed_at}
                   className="tavrn-btn tavrn-btn-primary tavrn-btn-sm disabled:opacity-50"
                 >
-                  Complete Today
+                  Complete Day
                 </button>
               </div>
             </div>
           )}
-        </div>
 
-        {/* ── Sidebar column ── */}
-        <aside className="flex flex-col gap-4">
+          {/* Adventure Ledger */}
           {!dataLoading && dailyStats && (
             <div className="tavrn-panel p-4">
               <p className="kicker mb-3">Adventure Ledger</p>

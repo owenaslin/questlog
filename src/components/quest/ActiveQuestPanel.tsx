@@ -67,10 +67,10 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
         </div>
       )}
 
-      {/* Step checklist (first 4 steps inline) */}
+      {/* Step checklist */}
       {hydrated && steps.length > 0 && (
         <ul className="space-y-1.5 mb-4">
-          {steps.slice(0, 4).map((step) => {
+          {steps.map((step) => {
             const done = completedStepIds.has(step.id);
             const loading = loadingStepId === step.id;
             return (
@@ -101,11 +101,6 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
               </li>
             );
           })}
-          {steps.length > 4 && (
-            <li className="text-body-sm text-tavern-oak">
-              +{steps.length - 4} more — <Link href={`/board/${quest.id}`} className="underline hover:text-tavern-gold">view all</Link>
-            </li>
-          )}
         </ul>
       )}
 
