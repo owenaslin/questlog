@@ -394,7 +394,7 @@ export default function HomePage() {
             sideQuests={activeSideQuests}
             loading={dataLoading}
             pickerQuests={pickerQuests}
-            onQuestAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
+            onMainQuestAccepted={(quest) => setActiveMainQuest({ ...quest, status: "active" })}
           />
 
           {/* Section B: Daily Habits */}
@@ -459,12 +459,26 @@ export default function HomePage() {
                 <Link href="/discover" className="tavrn-btn tavrn-btn-mystic tavrn-btn-sm">
                   ⚡ Discover
                 </Link>
+                <Link href="/packs" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
+                  🎴 Draw by Vibe
+                </Link>
               </div>
             </div>
           )}
 
           {/* Today's Reflection */}
-          {!dataLoading && (
+          {dataLoading ? (
+            <div className="tavrn-panel p-4 animate-pulse">
+              <div className="h-3 w-32 bg-tavern-oak/60 rounded mb-3" />
+              <div className="h-2 w-full bg-tavern-oak/40 rounded mb-1" />
+              <div className="h-2 w-4/5 bg-tavern-oak/40 rounded mb-3" />
+              <div className="h-16 bg-tavern-oak/30 rounded mb-2" />
+              <div className="flex gap-2">
+                <div className="h-6 w-16 bg-tavern-oak/50 rounded" />
+                <div className="h-6 w-24 bg-tavern-oak/50 rounded" />
+              </div>
+            </div>
+          ) : (
             <div className="tavrn-panel p-4">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <p className="kicker">Today&apos;s Reflection</p>

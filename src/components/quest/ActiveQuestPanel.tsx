@@ -67,7 +67,7 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
         </div>
       )}
 
-      {/* Step checklist (first 4 steps inline) */}
+      {/* Step checklist */}
       {hydrated && steps.length > 0 && (
         <ul className="space-y-1.5 mb-4">
           {steps.map((step) => {

@@ -1,18 +1,21 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Quest } from "@/lib/types";
 import ActiveQuestPanel from "@/components/quest/ActiveQuestPanel";
 import SideQuestProgressCard from "@/components/quest/SideQuestProgressCard";
 import QuestPickerPanel from "@/components/quest/QuestPickerPanel";
 
+const SIDE_QUEST_INITIAL_DISPLAY = 3;
+
 interface ActiveQuestTrackerProps {
   mainQuest: Quest | null;
   sideQuests: Quest[];
   loading?: boolean;
   pickerQuests?: Quest[];
-  onQuestAccepted?: (quest: Quest) => void;
+  /** Called only when a main quest is accepted from the empty-state picker. */
+  onMainQuestAccepted?: (quest: Quest) => void;
 }
 
 export default function ActiveQuestTracker({
@@ -20,9 +23,15 @@ export default function ActiveQuestTracker({
   sideQuests,
   loading = false,
   pickerQuests = [],
-  onQuestAccepted,
+  onMainQuestAccepted,
 }: ActiveQuestTrackerProps) {
+  const [showAllSideQuests, setShowAllSideQuests] = useState(false);
   const totalActive = (mainQuest ? 1 : 0) + sideQuests.length;
+
+  const visibleSideQuests = showAllSideQuests
+    ? sideQuests
+    : sideQuests.slice(0, SIDE_QUEST_INITIAL_DISPLAY);
+  const hiddenCount = sideQuests.length - SIDE_QUEST_INITIAL_DISPLAY;
 
   return (
     <div className="tavrn-panel p-4 md:p-5">
@@ -58,12 +67,15 @@ export default function ActiveQuestTracker({
           {pickerQuests.filter((q) => q.type === "main").length > 0 && (
             <QuestPickerPanel
               quests={pickerQuests.filter((q) => q.type === "main").slice(0, 2)}
-              onAccepted={onQuestAccepted ?? (() => {})}
+              onAccepted={onMainQuestAccepted ?? (() => {})}
             />
           )}
-          <div className="mt-3 pt-3 border-t border-tavern-oak/30">
+          <div className="mt-3 pt-3 border-t border-tavern-oak/30 flex flex-wrap gap-2">
             <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
               📋 Browse the Board
+            </Link>
+            <Link href="/board?type=side" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
+              🗡 Browse Side Quests
             </Link>
           </div>
         </div>
@@ -84,18 +96,36 @@ export default function ActiveQuestTracker({
                 <p className="kicker mb-3">Side Quests In Progress</p>
               )}
               <div className="space-y-3">
-                {sideQuests.map((quest) => (
+                {visibleSideQuests.map((quest) => (
                   <SideQuestProgressCard key={quest.id} quest={quest} />
                 ))}
               </div>
+
+              {/* Show more / collapse toggle */}
+              {sideQuests.length > SIDE_QUEST_INITIAL_DISPLAY && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllSideQuests((v) => !v)}
+                  className="mt-2 text-body-sm text-tavern-gold hover:underline"
+                >
+                  {showAllSideQuests
+                    ? "Show fewer side quests ↑"
+                    : `+${hiddenCount} more side quest${hiddenCount === 1 ? "" : "s"} ↓`}
+                </button>
+              )}
             </div>
           )}
 
-          {/* Browse more link */}
-          <div className="pt-1 border-t border-tavern-oak/30">
+          {/* Footer — no active side quests hint + browse links */}
+          <div className="pt-1 border-t border-tavern-oak/30 flex flex-wrap gap-2">
             <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
               📋 Browse Board
             </Link>
+            {sideQuests.length === 0 && (
+              <Link href="/board?type=side" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
+                🗡 Find Side Quests
+              </Link>
+            )}
           </div>
         </div>
       )}
