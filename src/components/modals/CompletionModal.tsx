@@ -94,16 +94,19 @@ export default function CompletionModal({
       aria-labelledby="completion-title"
     >
       {/* ── Full-screen triumph burst (visible for first ~1.8 s, fades out as card fades in) ── */}
+      {/* aria-hidden: this is purely decorative — the modal card carries the accessible label */}
       <div
+        aria-hidden="true"
         className={`fixed inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-700 ${showContent ? "opacity-0" : "opacity-100"}`}
       >
-        <h2 className="font-pixel text-tavern-gold text-2xl tracking-widest text-gold-shimmer mb-6">
+        <p className="font-pixel text-tavern-gold text-2xl tracking-widest text-gold-shimmer mb-6">
           TRIUMPH!
-        </h2>
+        </p>
         <div className="font-pixel text-tavern-gold text-7xl text-gold-shimmer mb-2">
           +{xpEarned}
         </div>
         <p className="kicker text-[--parchment-dim]">XP EARNED</p>
+        {/* Mugs shown immediately in the burst; the detail card has its own showMugs gate */}
         <div className="flex justify-center gap-4 mt-8">
           {[0.1, 0, 0.15].map((delay, i) => (
             <Image
@@ -119,6 +122,10 @@ export default function CompletionModal({
             />
           ))}
         </div>
+        {/* Subtle skip hint — backdrop onClick will fire since this div is pointer-events-none */}
+        <p className="absolute bottom-8 text-body-sm text-[--parchment-dim] opacity-50 tracking-wide">
+          tap anywhere to skip
+        </p>
       </div>
 
       {/* ── XP particles floating up ── */}
@@ -165,13 +172,13 @@ export default function CompletionModal({
 
       {/* ── Modal panel ── */}
       <div className="min-h-full flex items-center justify-center p-4">
-      <div
-        className={`relative max-w-md w-full transition-all duration-500 ${
-          showContent ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
-        }`}
-        style={{ border: "4px solid #5c3a1a", boxShadow: "6px 6px 0 #5c3a1a", background: "#1a1208" }}
-        onClick={(e) => e.stopPropagation()}
-      >
+        <div
+          className={`relative max-w-md w-full transition-all duration-500 ${
+            showContent ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
+          }`}
+          style={{ border: "4px solid #5c3a1a", boxShadow: "6px 6px 0 #5c3a1a", background: "#1a1208" }}
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* ── Hearth backdrop strip ── */}
         <div
           className="flex items-center justify-between px-6 py-3 border-b-4"
@@ -413,7 +420,7 @@ export default function CompletionModal({
             </div>
           </div>
         </div>
-      </div>
+        </div>
       </div>
 
       <style jsx>{`
