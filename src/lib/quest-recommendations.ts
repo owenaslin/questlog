@@ -1,5 +1,6 @@
 import { Quest, RecommendationPreferences } from "@/lib/types";
 import { ALL_QUESTS } from "@/lib/quests";
+import { LONG_QUEST_THRESHOLD_MINUTES } from "@/lib/xp";
 
 // O(1) quest lookup by ID — avoids repeated O(n) ALL_QUESTS.find() calls.
 const questById = new Map(ALL_QUESTS.map((q) => [q.id, q]));
@@ -339,9 +340,15 @@ export function getRecommendedSideQuest(options: RecommendedSideQuestOptions = {
       (quest.duration_minutes ?? 9999) <= availableTime * 1.5
   );
 
+  // Fallback: any quest that isn't a long-term commitment, so the daily
+  // suggestion stays a quick win rather than a months-long project.
   const pool = candidates.length > 0
     ? candidates
-    : ALL_QUESTS.filter((quest) => !excluded.has(quest.id));
+    : ALL_QUESTS.filter(
+        (quest) =>
+          !excluded.has(quest.id) &&
+          (quest.duration_minutes ?? 9999) < LONG_QUEST_THRESHOLD_MINUTES
+      );
 
   if (!pool.length) return null;
 
