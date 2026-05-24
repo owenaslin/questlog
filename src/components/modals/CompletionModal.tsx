@@ -341,7 +341,7 @@ export default function CompletionModal({
                         <div className="flex-1 min-w-0">
                           <p className="text-body-sm font-medium text-tavern-parchment leading-snug truncate">{sq.title}</p>
                           <p className="text-body-sm text-[--parchment-dim]">
-                            {sq.type === "main" ? "Main" : "Side"} · +{sq.xp_reward} XP
+                            +{sq.xp_reward} XP
                           </p>
                         </div>
                         <button
@@ -351,7 +351,7 @@ export default function CompletionModal({
                           onClick={async () => {
                             setAcceptingId(sq.id);
                             setAcceptError(null);
-                            const result = await acceptQuest(sq.id, sq.type, sq.category);
+                            const result = await acceptQuest(sq.id, sq.category);
                             setAcceptingId(null);
                             if (result.success) {
                               onClose();

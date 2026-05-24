@@ -7,7 +7,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Sketch Daily Object",
     description: "Draw one everyday object in detail. Spend 20 minutes capturing its form, shadows, and texture.",
-    type: "side",
     difficulty: 1,
     duration_label: "20-30 min",
     category: "Creative",
@@ -15,7 +14,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Write a Poem",
     description: "Compose a poem about your day, a memory, or an emotion. Don't worry about perfection—just express.",
-    type: "side",
     difficulty: 1,
     duration_label: "30 min",
     category: "Creative",
@@ -23,7 +21,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Learn a Song on Guitar",
     description: "Pick a simple song and learn to play it on guitar or ukulele. Practice chords and strumming.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-3 hours",
@@ -32,7 +29,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Photo Walk",
     description: "Take 20 photos during a walk. Look for interesting compositions, colors, and moments.",
-    type: "side",
     difficulty: 1,
     duration_label: "1-2 hours",
     category: "Creative",
@@ -40,7 +36,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Try Watercolor",
     description: "Paint a simple landscape or abstract piece with watercolors. Experiment with wet-on-wet techniques.",
-    type: "side",
     difficulty: 2,
     duration_label: "1-2 hours",
     category: "Creative",
@@ -48,7 +43,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Create Digital Art",
     description: "Use Procreate, Photoshop, or free alternatives like Krita to create a digital illustration.",
-    type: "side",
     difficulty: 2,
     duration_label: "2-3 hours",
     category: "Creative",
@@ -56,7 +50,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Make a Short Video",
     description: "Film and edit a 1-minute video about your day or a hobby. Use your phone and free editing apps.",
-    type: "side",
     difficulty: 2,
     duration_label: "2-4 hours",
     category: "Creative",
@@ -65,7 +58,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "30-Day Drawing Challenge",
     description: "Draw something every day for 30 days using prompts. Share your progress and watch your skills grow.",
-    type: "main",
     difficulty: 3,
     duration_label: "30 days",
     category: "Creative",
@@ -73,7 +65,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Write 5 Short Stories",
     description: "Write five short stories (1000+ words each). Edit them and share with friends for feedback.",
-    type: "main",
     difficulty: 3,
     duration_label: "2 months",
     category: "Creative",
@@ -81,7 +72,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Learn an Instrument",
     description: "Choose piano, guitar, or another instrument. Practice 30 min daily for 2 months. Learn 5 songs.",
-    type: "main",
     difficulty: 4,
     duration_label: "2-3 months",
     category: "Creative",
@@ -89,7 +79,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Complete a Photography Series",
     description: "Create a 20-photo series on a theme. Edit consistently and create a portfolio or photo book.",
-    type: "main",
     difficulty: 3,
     duration_label: "1-2 months",
     category: "Creative",
@@ -97,7 +86,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Build a Craft Project",
     description: "Choose woodworking, knitting, pottery, or another craft. Complete a substantial project from start to finish.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1-2 months",
@@ -106,7 +94,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Create a YouTube Channel",
     description: "Start a YouTube channel on any topic. Create 10 videos, learn editing, and grow to 100 subscribers.",
-    type: "main",
     difficulty: 4,
     duration_label: "3-6 months",
     category: "Creative",
@@ -114,7 +101,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Write a Novel",
     description: "Write a 50,000+ word novel. Outline, draft, and do one round of revisions. Participate in NaNoWriMo or solo.",
-    type: "main",
     difficulty: 5,
     duration_label: "3-6 months",
     category: "Creative",
@@ -122,7 +108,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Master Digital Illustration",
     description: "Learn digital art fundamentals: anatomy, color theory, composition. Create a 10-piece portfolio.",
-    type: "main",
     difficulty: 4,
     duration_label: "3-4 months",
     category: "Creative",
@@ -130,7 +115,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Attend a Pottery Class",
     description: "Book and attend a pottery class. Try throwing clay on a wheel or hand-building. No prior experience needed.",
-    type: "side",
     difficulty: 1,
     duration_label: "2-3 hours",
     category: "Creative",
@@ -138,7 +122,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Make a Gift for Someone",
     description: "Handcraft a gift for someone you care about using any creative medium — painting, woodworking, knitting, ceramics. The effort is the point.",
-    type: "side",
     difficulty: 2,
     duration_label: "2-4 hours",
     category: "Creative",
@@ -146,7 +129,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Paint and Sip Night",
     description: "Attend a painting class or paint-and-sip event. Follow along with an instructor and walk home with something you made.",
-    type: "side",
     difficulty: 1,
     duration_label: "2-3 hours",
     category: "Creative",
@@ -154,7 +136,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Blind Contour Drawing",
     description: "Pick any object and draw it without looking at your paper — keep the pen moving continuously. Do 5 drawings in a row.",
-    type: "side",
     difficulty: 1,
     duration_label: "15-20 min",
     category: "Creative",
@@ -162,7 +143,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Make a Collage",
     description: "Cut images and text from old magazines or print outs. Arrange and glue them into a single striking composition on A3 paper.",
-    type: "side",
     difficulty: 1,
     duration_label: "1-2 hours",
     category: "Creative",
@@ -170,7 +150,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Write a Comedy Sketch",
     description: "Write a tight 2–3 minute comedy sketch or stand-up routine. Read it aloud to test the timing and laughs.",
-    type: "side",
     difficulty: 2,
     duration_label: "1-2 hours",
     category: "Creative",
@@ -178,7 +157,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Learn Calligraphy Basics",
     description: "Watch a beginner calligraphy tutorial and practise the basic strokes and alphabet for the full session. Focus on consistency.",
-    type: "side",
     difficulty: 2,
     duration_label: "45-60 min",
     category: "Creative",
@@ -186,7 +164,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Learn to Knit or Crochet",
     description: "Master the basics of knitting or crochet over 2 months. Complete a finished project: scarf, beanie, or amigurumi.",
-    type: "main",
     difficulty: 3,
     duration_label: "2 months",
     category: "Creative",
@@ -194,7 +171,6 @@ const CREATIVE_QUESTS = [
   defineQuest({
     title: "Create a Comic Strip Series",
     description: "Write and illustrate 10+ original comic strips. Develop recurring characters, a consistent style, and publish online.",
-    type: "main",
     difficulty: 4,
     duration_label: "2-3 months",
     category: "Creative",

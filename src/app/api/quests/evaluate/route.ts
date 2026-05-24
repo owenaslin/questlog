@@ -9,10 +9,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 
 export const preferredRegion = 'pdx1';
 
-const XP_CAPS = {
-  side: { min: 25,  max: 2500  },
-  main: { min: 100, max: 8000 },
-} as const;
+const XP_CAP = { min: 25, max: 8000 } as const;
 
 const RATE_LIMIT_WINDOW_SECONDS  = 60;
 const RATE_LIMIT_MAX_REQ         = 12;
@@ -36,13 +33,11 @@ const requestSchema = z.discriminatedUnion("mode", [
     mode:      z.literal("ai"),
     topic:     z.string().trim().min(1).max(100), // trim before min so " " is rejected
     location:  z.string().trim().max(100).optional().default(""),
-    questType: z.enum(["main", "side"]),
   }),
   z.object({
     mode:        z.literal("user"),
     title:       z.string().trim().min(5).max(80),
     description: z.string().trim().min(20).max(400),
-    questType:   z.enum(["main", "side"]),
     category:    z.enum(QUEST_CATEGORIES),
   }),
 ]);
@@ -63,23 +58,16 @@ const aiResponseSchema = z.object({
 
 // ── AI prompt builders ───────────────────────────────────────────────────────
 
-function buildAiPrompt(topic: string, location: string, questType: "main" | "side"): string {
-  const typeLabel = questType === "main"
-    ? "Main Quest (a meaningful goal taking weeks to months)"
-    : "Side Quest (a focused task taking an hour to a weekend)";
+function buildAiPrompt(topic: string, location: string): string {
+  const example = `Good (short): "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you." Good (longer): "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`;
 
-  const example = questType === "main"
-    ? `Good: "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`
-    : `Good: "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you."`;
-
-  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear, actionable objectives. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear, actionable objectives. Pick whatever scope fits the topic — anything from a focused hour to a multi-month goal. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
 
 ${example}
 Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
 Location: ${sanitize(location) || "anywhere"}
 Topic / Interest: ${sanitize(topic)}
-Quest type: ${typeLabel}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
 
@@ -102,17 +90,12 @@ Respond with ONLY a JSON object — no markdown, no code fences:
 function buildUserPrompt(
   title: string,
   description: string,
-  category: string,
-  questType: "main" | "side"
+  category: string
 ): string {
-  const typeLabel = questType === "main"
-    ? "Main Quest (weeks to months of commitment)"
-    : "Side Quest (hours to a weekend)";
   return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and make it clear and motivating while preserving the user's intent exactly.
 
 Keep the adventure framing (quest structure, step-by-step objectives) — but write the description like you're telling a friend about a genuinely worthwhile thing to do, not narrating an epic saga. Avoid mystical language, invented names, or dramatic flourishes that obscure what the user actually needs to do.
 
-Quest type: ${typeLabel}
 Category: ${category}
 User's title: ${sanitize(title)}
 User's description: ${sanitize(description)}
@@ -184,8 +167,8 @@ export async function POST(req: NextRequest) {
     const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = input.mode === "ai"
-      ? buildAiPrompt(input.topic, input.location, input.questType)
-      : buildUserPrompt(input.title, input.description, input.category, input.questType);
+      ? buildAiPrompt(input.topic, input.location)
+      : buildUserPrompt(input.title, input.description, input.category);
 
     let resultText: string;
     try {
@@ -220,18 +203,17 @@ export async function POST(req: NextRequest) {
     const data = validated.data;
 
     const duration_minutes = durationLabelToMinutes(data.duration_label);
-    const xp_reward = calcQuestXP(input.questType, duration_minutes, data.difficulty);
+    const xp_reward = calcQuestXP(duration_minutes, data.difficulty);
 
     return NextResponse.json({
       title:           data.title,
       description:     data.description,
-      type:            input.questType,
       source:          input.mode === "ai" ? "ai" : "user",
       difficulty:      data.difficulty,
       duration_label:  data.duration_label,
       duration_minutes,
       category:        data.category,
-      xp_reward:       clamp(xp_reward, XP_CAPS[input.questType as keyof typeof XP_CAPS].min, XP_CAPS[input.questType as keyof typeof XP_CAPS].max),
+      xp_reward:       clamp(xp_reward, XP_CAP.min, XP_CAP.max),
       steps:           data.steps,
       location:        input.mode === "ai" ? (input.location || null) : null,
       evaluation_note: data.evaluation_note,

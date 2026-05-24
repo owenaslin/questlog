@@ -43,7 +43,6 @@ export async function GET(
   const quest = questData ?? {
     title: "Unknown Quest",
     xp_reward: 0,
-    type: "side",
   };
 
   const portrait = AVATAR_PORTRAITS[hero.avatar_sprite as AvatarKey] ?? AVATAR_PORTRAITS.wizard;

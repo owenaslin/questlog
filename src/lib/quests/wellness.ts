@@ -7,7 +7,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "10-Minute Meditation",
     description: "Sit quietly and meditate for 10 minutes. Focus on your breath. Use an app if you're new.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "10-15 min",
@@ -16,7 +15,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Digital Detox Day",
     description: "Go 24 hours without social media. Notice how you feel and what you do with your time instead.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1 day",
@@ -25,7 +23,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Journal Your Thoughts",
     description: "Write three pages of stream-of-consciousness journaling. Don't edit—just let thoughts flow.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "30 min",
@@ -34,7 +31,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Gratitude List",
     description: "Write down 10 things you're grateful for. Be specific and reflect on why each matters.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "15-20 min",
@@ -43,7 +39,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Perfect Sleep Night",
     description: "Create a sleep ritual: no screens 1 hour before bed, cool room, and 8 hours of sleep.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1 night",
@@ -53,7 +48,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "30-Day Meditation Challenge",
     description: "Meditate for at least 10 minutes every day for 30 days. Track your mood and focus improvements.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -62,7 +56,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Establish Morning Routine",
     description: "Create and stick to a morning routine for 30 days. Include movement, mindfulness, and planning.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -71,7 +64,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Therapy Journey",
     description: "Attend 10+ therapy sessions. Work on specific goals with a licensed therapist.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3 months",
@@ -80,7 +72,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Fix Your Sleep Schedule",
     description: "Maintain consistent sleep/wake times for 60 days. Aim for 7-8 hours. Track energy levels.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2 months",
@@ -89,7 +80,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Year of Mindfulness",
     description: "Practice mindfulness daily for a year. Mix meditation, mindful eating, walking, and breathing.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "12 months",
@@ -98,7 +88,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Screen-Free Evening",
     description: "Spend 3–4 hours before bed with no screens at all. Read, draw, journal, stretch, or just talk. Participate only in non-digital activities.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "3-5 hours",
@@ -107,7 +96,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Breathwork Session",
     description: "Try a structured breathing practice: box breathing (4-4-4-4) or the Physiological Sigh. Do 10 full rounds and notice the shift in your nervous system.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "15-20 min",
@@ -116,7 +104,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Forest Bathing",
     description: "Spend 60–90 minutes in a forest or park, moving slowly and deliberately. No podcasts, no phone — just your senses and the trees.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "1-2 hours",
@@ -125,7 +112,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Cold Shower Challenge",
     description: "End your shower with 2+ minutes of cold water. Focus on slow, controlled breathing throughout. Note how you feel immediately after.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "10-15 min",
@@ -134,7 +120,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Phone-Free Morning",
     description: "Don't touch your phone for the first 90 minutes after waking. Eat, move, think — in any order. Notice what that space feels like.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1-2 hours",
@@ -143,7 +128,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Develop a New Skincare Habit",
     description: "Pick a skincare step you don't currently do — SPF, retinol, a weekly mask — and implement it consistently for 30 days. Observe how your skin responds.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -152,7 +136,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "30-Day No Alcohol Challenge",
     description: "Go alcohol-free for 30 consecutive days. Track your sleep, energy, and mood daily. Reflect on what changes and what you miss.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -161,7 +144,6 @@ const WELLNESS_QUESTS = [
   defineQuest({
     title: "Build an Evening Wind-Down Routine",
     description: "Design and follow a consistent pre-sleep ritual for 30 days: no screens, light stretching, reading, or journaling. Track your sleep quality throughout.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",

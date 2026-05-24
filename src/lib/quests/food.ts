@@ -7,7 +7,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Cook a New Recipe",
     description: "Try a recipe you've never made before. Bonus if it's from a cuisine you're unfamiliar with.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -16,7 +15,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Bake Something from Scratch",
     description: "Bake bread, cookies, or cake from scratch—no mixes. Enjoy the smell of fresh baking.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-4 hours",
@@ -25,7 +23,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Try a New Restaurant",
     description: "Visit a restaurant you've never been to. Order something adventurous from the menu.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -34,7 +31,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Meal Prep Sunday",
     description: "Prepare a week's worth of lunches or dinners. Portion them out for easy grab-and-go.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "3-4 hours",
@@ -43,7 +39,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Make Homemade Pasta",
     description: "Create pasta from scratch. Mix dough, roll it out, and cook with your favorite sauce.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-3 hours",
@@ -53,7 +48,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Cook 30 New Recipes",
     description: "Make 30 different recipes over 3 months. Document with photos and notes on what you learned.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3 months",
@@ -62,7 +56,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Master a Cuisine",
     description: "Deep dive into one cuisine: Italian, Thai, Mexican, etc. Learn 10+ dishes and their techniques.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2-3 months",
@@ -71,7 +64,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "30-Day No Restaurant Challenge",
     description: "Cook every meal at home for 30 days. Plan groceries, prep ingredients, and save money.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -80,7 +72,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Start a Garden",
     description: "Grow vegetables or herbs. Plant seeds, tend them for 3 months, and cook with your harvest.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3-6 months",
@@ -89,7 +80,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Fermentation Project",
     description: "Make sourdough starter, kimchi, kombucha, or kraut. Maintain it for 30+ days.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1-2 months",
@@ -98,7 +88,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Well-Rounded Meal",
     description: "Plan and cook a single meal that hits 4–5 food groups: protein, dairy, fruit, vegetable, and a grain. No delivery, no shortcuts.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1-2 hours",
@@ -107,7 +96,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Master a Classic Cocktail",
     description: "Pick one classic cocktail — Negroni, Old Fashioned, or Martini. Make three back-to-back batches refining the balance each time until it's perfect.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1-2 hours",
@@ -116,7 +104,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Cook a 3-Course Meal from Scratch",
     description: "Plan and cook a proper three-course dinner: starter, main, and dessert. Everything made from scratch, no shortcuts. Invite someone to eat it with you.",
-    type: "side",
     difficulty: 3,
     xp_reward: 250,
     duration_label: "2-4 hours",
@@ -125,7 +112,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Bake a Sourdough Loaf",
     description: "Make a sourdough loaf from an active starter. If you don't have a starter, make one first — it takes 5 days. Score, bake, and enjoy the crunch.",
-    type: "side",
     difficulty: 3,
     xp_reward: 200,
     duration_label: "2-3 hours",
@@ -134,7 +120,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Spice Rack Deep Dive",
     description: "Pick 5 spices you've never used. Research each one, taste them raw, then cook a dish that features each. Learn what makes them special.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-3 hours",
@@ -143,7 +128,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Cook the World in 12 Weeks",
     description: "Each week, cook one traditional dish from a different country. No repeats, no easy ones. Document each dish with a photo and brief note on the cuisine.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3 months",
@@ -152,7 +136,6 @@ const FOOD_QUESTS = [
   defineQuest({
     title: "Perfect Your Signature Dish",
     description: "Choose a dish you love and make it 8+ times over 1 month, tweaking something each iteration. Document every change until you've nailed your definitive version.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1 month",

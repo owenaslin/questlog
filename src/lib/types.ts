@@ -1,4 +1,3 @@
-export type QuestType = "main" | "side";
 export type QuestSource = "predefined" | "user" | "ai";
 export type QuestStatus = "available" | "active" | "completed";
 
@@ -19,7 +18,6 @@ export interface Quest {
   id: string;
   title: string;
   description: string;
-  type: QuestType;
   source: QuestSource;
   difficulty: number; // 1-5
   xp_reward: number;
@@ -49,7 +47,6 @@ export interface PinnedQuest {
   id: string;
   quest_id: string;
   quest_title: string;
-  quest_type: QuestType;
   quest_xp_reward: number;
   position: number;
   pinned_at: string;
@@ -244,12 +241,8 @@ export interface DailyAdventure {
   id: string;
   user_id: string;
   adventure_date: string;
-  main_quest_id: string | null;
-  side_quest_id: string | null;
-  generated_prompt: string;
-  reflection_answer: string | null;
+  suggested_quest_id: string | null;
   side_quest_rerolls_used: number;
-  completed_at: string | null;
   created_at: string;
   updated_at: string;
 }

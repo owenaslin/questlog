@@ -7,7 +7,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Declutter a Room",
     description: "Choose one room and remove 20+ items you don't need. Donate or discard responsibly.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-4 hours",
@@ -16,7 +15,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Organize Your Digital Files",
     description: "Clean up your computer: organize folders, delete duplicates, and clear your desktop.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-3 hours",
@@ -25,7 +23,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Create a Budget",
     description: "Track your spending for a month and create a realistic budget with savings goals.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "3-4 hours",
@@ -34,7 +31,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "No-Spend Weekend",
     description: "Spend no money for 48 hours. Find free activities and use what you already have.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2 days",
@@ -43,7 +39,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Deep Clean Your Space",
     description: "Thoroughly clean your home: scrub, vacuum, dust, and organize every corner.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "4-6 hours",
@@ -53,7 +48,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "30-Day Minimalism Challenge",
     description: "Remove one item on day 1, two on day 2, etc. Declutter 465+ items total.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -62,7 +56,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Build an Emergency Fund",
     description: "Save 3 months of expenses. Set up automatic transfers and track progress monthly.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "6-12 months",
@@ -71,7 +64,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Organize Entire Home",
     description: "Systematically organize every room. Create storage systems and maintain them for 3 months.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1-2 months",
@@ -80,7 +72,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Wake Up Early for 30 Days",
     description: "Wake up at 6 AM (or 1 hour earlier than usual) for 30 days. Build a morning routine.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -89,7 +80,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Year of No Shopping",
     description: "Buy nothing non-essential for a year. Only replace worn-out necessities.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "12 months",
@@ -98,7 +88,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Build a Capsule Wardrobe",
     description: "Pare your wardrobe down to 30–35 versatile items that all work together. Donate everything that doesn't make the cut.",
-    type: "side",
     difficulty: 2,
     xp_reward: 150,
     duration_label: "2-4 hours",
@@ -107,7 +96,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Become a Plant Parent",
     description: "Buy three houseplants suited to your space and light conditions. Research their care needs and set a watering reminder. Keep them alive for 30 days.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "30 min",
@@ -116,7 +104,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Make One Sustainable Swap",
     description: "Identify one disposable item you use daily and find a durable, eco-friendly alternative. Research, buy it, and commit to using it for 30 days.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "15-20 min",
@@ -125,7 +112,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Make Your First Investment",
     description: "Research index funds, ETFs, or a brokerage of your choice. Open an account and invest your first £/$/€500 with a clear rationale. Check in monthly for 3 months.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1 month",
@@ -134,7 +120,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "30-Day Screen Time Reduction",
     description: "Reduce daily screen time by at least 1 hour. Use Screen Time or Digital Wellbeing to track it. Replace the time with something physical, creative, or social.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -143,7 +128,6 @@ const LIFESTYLE_QUESTS = [
   defineQuest({
     title: "Build a Daily Journalling Practice",
     description: "Write in a journal every single day for 60 days. No minimum length — one sentence counts. What matters is the consistency and the habit of reflection.",
-    type: "main",
     difficulty: 2,
     xp_reward: 600,
     duration_label: "2 months",

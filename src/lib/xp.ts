@@ -36,12 +36,20 @@ export function calcHabitXP(duration_minutes: number, difficulty: number): numbe
   return Math.max(5, Math.min(300, roundTo(raw, 5)));
 }
 
+/**
+ * Duration-driven XP. Month-scale commitments use the gentler long-quest curve;
+ * shorter quests use the steeper short-session curve. The threshold sits in the
+ * gap between the longest short quest (~1 week of effort) and the shortest
+ * long-term quest (~1 month), so every existing quest keeps its previous reward
+ * without needing an explicit main/side type.
+ */
+export const LONG_QUEST_THRESHOLD_MINUTES = 2400;
+
 export function calcQuestXP(
-  type: "main" | "side",
   duration_minutes: number,
   difficulty: number
 ): number {
-  return type === "main"
+  return duration_minutes >= LONG_QUEST_THRESHOLD_MINUTES
     ? calcMainQuestXP(duration_minutes, difficulty)
     : calcSideQuestXP(duration_minutes, difficulty);
 }
