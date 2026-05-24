@@ -24,22 +24,22 @@ export default function TrophiesPage() {
     loadBadges();
   }, []);
 
+  const earnedIdSet = useMemo(() => new Set(earnedBadgeIds), [earnedBadgeIds]);
+
   const filteredBadges = useMemo(() => {
-    const earnedIdSet = new Set(earnedBadgeIds);
     const badges = filter === "all" ? BADGES : getBadgesByRarity(filter);
     return [...badges].sort((a, b) => {
       const aEarned = earnedIdSet.has(a.id) ? 0 : 1;
       const bEarned = earnedIdSet.has(b.id) ? 0 : 1;
       return aEarned - bEarned;
     });
-  }, [filter, earnedBadgeIds]);
+  }, [filter, earnedIdSet]);
 
   const earnedCount = earnedBadgeIds.length;
   const totalCount = BADGES.length;
   const progressPercent = totalCount > 0 ? (earnedCount / totalCount) * 100 : 0;
 
   const rarityCounts = useMemo(() => {
-    const earnedIdSet = new Set(earnedBadgeIds);
     const byRarity = {
       common: getBadgesByRarity("common"),
       rare: getBadgesByRarity("rare"),
