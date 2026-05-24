@@ -21,11 +21,13 @@
 --   • Add CHECK (xp_awarded >= 0) constraint on habit_completions to close the
 --     direct-API exploit: an authenticated user could POST a negative xp_awarded
 --     value, driving xp_total and level to 0 / negative via the trigger.
---   • Wrap all three statements in an explicit transaction so a mid-run back-fill
---     failure can't leave the functions replaced but the level column partially
---     updated.
---   • Use SET lock_timeout to avoid blocking the live table indefinitely if the
---     back-fill encounters a hot lock.
+--     Added with NOT VALID + idempotency guard because schema.sql already defines
+--     an anonymous inline CHECK on the column, so the live DB may already have
+--     the constraint and a duplicate ADD CONSTRAINT would error.
+--   • Wrap all statements in an explicit transaction so a mid-run failure can't
+--     leave the functions replaced but the level column partially updated.
+--   • SET LOCAL lock_timeout to fail loudly rather than silently blocking
+--     production writes if a lock cannot be acquired within 30 s.
 --
 -- Everything is wrapped in a single transaction.
 
@@ -38,9 +40,29 @@ SET LOCAL lock_timeout = '30s';
 -- 1. Add non-negative constraint on habit_completions.xp_awarded ---------------
 --    Prevents a direct-API insert with a negative value from driving profiles
 --    into a negative xp_total / zero level state.
-ALTER TABLE public.habit_completions
-  ADD CONSTRAINT habit_completions_xp_awarded_non_negative
-  CHECK (xp_awarded >= 0);
+--
+--    The table was originally bootstrapped from schema.sql which already has an
+--    anonymous inline CHECK (xp_awarded >= 0). On a live DB created that way the
+--    constraint is already present, so we must guard for idempotency. If it is
+--    missing (fresh migration-only setup) we add it with NOT VALID to skip the
+--    full-table validation scan — existing rows were already protected by the
+--    inline check or by app-level validation, and a blocking ACCESS EXCLUSIVE
+--    scan over a table that may already have the constraint would be wasteful.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM   pg_constraint
+    WHERE  conrelid = 'public.habit_completions'::regclass
+      AND  contype  = 'c'
+      AND  pg_get_constraintdef(oid) LIKE '%xp_awarded >= 0%'
+  ) THEN
+    ALTER TABLE public.habit_completions
+      ADD CONSTRAINT habit_completions_xp_awarded_non_negative
+      CHECK (xp_awarded >= 0) NOT VALID;
+  END IF;
+END;
+$$;
 
 -- 2. Fix award_habit_xp -------------------------------------------------------
 --    Formula: GREATEST(1, FLOOR(new_xp_total / 500) + 1)
