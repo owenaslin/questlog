@@ -223,18 +223,22 @@ CREATE UNIQUE INDEX idx_unique_daily_completion
   ON public.habit_completions(habit_id, completion_date);
 
 -- Function to award XP on habit completion
+-- Uses the same linear level formula as calculateLevel() in TypeScript:
+--   level = FLOOR(xp_total / 500) + 1
 CREATE OR REPLACE FUNCTION public.award_habit_xp()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
-  -- Update user's total XP
   UPDATE public.profiles
   SET xp_total = xp_total + NEW.xp_awarded,
-      level = GREATEST(1, FLOOR(SQRT((xp_total + NEW.xp_awarded) / 100)::INTEGER) + 1)
+      level    = FLOOR((xp_total + NEW.xp_awarded) / 500) + 1
   WHERE id = NEW.user_id;
-  
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_habit_completion_xp
   AFTER INSERT ON public.habit_completions
@@ -242,15 +246,19 @@ CREATE TRIGGER on_habit_completion_xp
 
 -- Function to deduct XP when a habit completion is removed (uncomplete)
 CREATE OR REPLACE FUNCTION public.revoke_habit_xp()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   UPDATE public.profiles
   SET xp_total = GREATEST(0, xp_total - OLD.xp_awarded),
-      level = GREATEST(1, FLOOR(SQRT(GREATEST(0, xp_total - OLD.xp_awarded) / 100.0)::INTEGER) + 1)
+      level    = FLOOR(GREATEST(0, xp_total - OLD.xp_awarded) / 500) + 1
   WHERE id = OLD.user_id;
   RETURN OLD;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_habit_completion_revoke_xp
   AFTER DELETE ON public.habit_completions
