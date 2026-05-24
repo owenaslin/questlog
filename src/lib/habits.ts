@@ -291,16 +291,11 @@ export async function uncompleteHabit(habitId: string): Promise<{
     return { success: false, error: "Not authenticated" };
   }
 
-  // Fetch xp_awarded before deleting so we can deduct it from the profile.
-  // The DB trigger `on_habit_completion_revoke_xp` handles this automatically
-  // once the schema migration is applied; this client-side path is the fallback.
-  const { data: existing } = await supabase
-    .from("habit_completions")
-    .select("xp_awarded")
-    .eq("habit_id", habitId)
-    .eq("completion_date", today)
-    .single();
-
+  // Deleting the completion row fires the `on_habit_completion_revoke_xp`
+  // trigger which atomically deducts xp_awarded from profiles.xp_total and
+  // recomputes profiles.level. No client-side XP adjustment is needed or safe
+  // here — a client-side deduction would double-count because the trigger has
+  // already committed the change by the time any subsequent SELECT runs.
   const { error } = await supabase
     .from("habit_completions")
     .delete()
@@ -309,21 +304,6 @@ export async function uncompleteHabit(habitId: string): Promise<{
 
   if (error) {
     return { success: false, error: error.message };
-  }
-
-  // Deduct XP from profile (fallback if trigger not yet applied to live DB)
-  if (existing?.xp_awarded) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("xp_total")
-      .eq("id", userId)
-      .single();
-    if (profile) {
-      await supabase
-        .from("profiles")
-        .update({ xp_total: Math.max(0, profile.xp_total - existing.xp_awarded) })
-        .eq("id", userId);
-    }
   }
 
   return { success: true };
