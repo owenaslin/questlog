@@ -63,8 +63,8 @@ export default function CompletionModal({
 
   useEffect(() => {
     const t1 = setTimeout(() => setShowParticles(true), 100);
-    const t2 = setTimeout(() => setShowContent(true), 350);
-    const t3 = setTimeout(() => setShowMugs(true), 700);
+    const t2 = setTimeout(() => setShowContent(true), 1800);
+    const t3 = setTimeout(() => setShowMugs(true), 2300);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
@@ -86,16 +86,44 @@ export default function CompletionModal({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 z-50 overflow-y-auto"
       style={{ background: "rgba(10,8,5,0.92)" }}
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="completion-title"
     >
+      {/* ── Full-screen triumph burst (visible for first ~1.8 s, fades out as card fades in) ── */}
+      <div
+        className={`fixed inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-700 ${showContent ? "opacity-0" : "opacity-100"}`}
+      >
+        <h2 className="font-pixel text-tavern-gold text-2xl tracking-widest text-gold-shimmer mb-6">
+          TRIUMPH!
+        </h2>
+        <div className="font-pixel text-tavern-gold text-7xl text-gold-shimmer mb-2">
+          +{xpEarned}
+        </div>
+        <p className="kicker text-[--parchment-dim]">XP EARNED</p>
+        <div className="flex justify-center gap-4 mt-8">
+          {[0.1, 0, 0.15].map((delay, i) => (
+            <Image
+              key={i}
+              src="/tavern/mug.svg"
+              alt=""
+              width={36}
+              height={36}
+              style={{
+                animation: `bounce8bit 0.5s step-end ${delay}s infinite`,
+                imageRendering: "pixelated",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
       {/* ── XP particles floating up ── */}
       {showParticles && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
           {PARTICLE_POSITIONS.map((left, i) => (
             <div
               key={i}
@@ -116,7 +144,7 @@ export default function CompletionModal({
 
       {/* ── Ember pixel confetti ── */}
       {showParticles && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
           {Array.from({ length: 18 }).map((_, i) => (
             <div
               key={i}
@@ -136,9 +164,10 @@ export default function CompletionModal({
       )}
 
       {/* ── Modal panel ── */}
+      <div className="min-h-full flex items-center justify-center p-4">
       <div
         className={`relative max-w-md w-full transition-all duration-500 ${
-          showContent ? "scale-100 opacity-100" : "scale-95 opacity-0"
+          showContent ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
         }`}
         style={{ border: "4px solid #5c3a1a", boxShadow: "6px 6px 0 #5c3a1a", background: "#1a1208" }}
         onClick={(e) => e.stopPropagation()}
@@ -384,6 +413,7 @@ export default function CompletionModal({
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       <style jsx>{`
