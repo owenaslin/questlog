@@ -100,7 +100,7 @@ CREATE TABLE public.habit_completions (
   habit_id UUID REFERENCES public.habits(id) ON DELETE CASCADE NOT NULL,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   completed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  xp_awarded INTEGER NOT NULL DEFAULT 0,
+  xp_awarded INTEGER NOT NULL DEFAULT 0 CHECK (xp_awarded >= 0),
   completion_date DATE NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -222,35 +222,46 @@ CREATE TRIGGER on_habit_completion
 CREATE UNIQUE INDEX idx_unique_daily_completion 
   ON public.habit_completions(habit_id, completion_date);
 
--- Function to award XP on habit completion
+-- Function to award XP on habit completion.
+-- Uses the same linear level formula as calculateLevel() in TypeScript:
+--   GREATEST(1, FLOOR(new_xp_total / 500) + 1)
+-- xp_total on the RHS is the pre-update value; adding NEW.xp_awarded gives the
+-- correct new total. GREATEST(1, ...) keeps level >= 1 as a defensive floor.
 CREATE OR REPLACE FUNCTION public.award_habit_xp()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
-  -- Update user's total XP
   UPDATE public.profiles
   SET xp_total = xp_total + NEW.xp_awarded,
-      level = GREATEST(1, FLOOR(SQRT((xp_total + NEW.xp_awarded) / 100)::INTEGER) + 1)
+      level    = GREATEST(1, FLOOR((xp_total + NEW.xp_awarded) / 500) + 1)
   WHERE id = NEW.user_id;
-  
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_habit_completion_xp
   AFTER INSERT ON public.habit_completions
   FOR EACH ROW EXECUTE FUNCTION public.award_habit_xp();
 
--- Function to deduct XP when a habit completion is removed (uncomplete)
+-- Function to deduct XP when a habit completion is removed (uncomplete).
+-- GREATEST(0, ...) clamps xp_total; GREATEST(1, ...) keeps level >= 1.
 CREATE OR REPLACE FUNCTION public.revoke_habit_xp()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   UPDATE public.profiles
   SET xp_total = GREATEST(0, xp_total - OLD.xp_awarded),
-      level = GREATEST(1, FLOOR(SQRT(GREATEST(0, xp_total - OLD.xp_awarded) / 100.0)::INTEGER) + 1)
+      level    = GREATEST(1, FLOOR(GREATEST(0, xp_total - OLD.xp_awarded) / 500) + 1)
   WHERE id = OLD.user_id;
   RETURN OLD;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_habit_completion_revoke_xp
   AFTER DELETE ON public.habit_completions
