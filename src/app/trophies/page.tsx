@@ -25,9 +25,14 @@ export default function TrophiesPage() {
   }, []);
 
   const filteredBadges = useMemo(() => {
-    if (filter === "all") return BADGES;
-    return getBadgesByRarity(filter);
-  }, [filter]);
+    const earnedIdSet = new Set(earnedBadgeIds);
+    const badges = filter === "all" ? BADGES : getBadgesByRarity(filter);
+    return [...badges].sort((a, b) => {
+      const aEarned = earnedIdSet.has(a.id) ? 0 : 1;
+      const bEarned = earnedIdSet.has(b.id) ? 0 : 1;
+      return aEarned - bEarned;
+    });
+  }, [filter, earnedBadgeIds]);
 
   const earnedCount = earnedBadgeIds.length;
   const totalCount = BADGES.length;
@@ -73,21 +78,21 @@ export default function TrophiesPage() {
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-        <div className="grid grid-cols-4 gap-2 text-center">
-          <div className="bg-retro-gray bg-opacity-30 p-2">
-            <span className="kicker block mb-0.5">Common</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+          <div className="bg-retro-gray bg-opacity-30 p-2 overflow-hidden min-w-0">
+            <span className="kicker block mb-0.5 truncate">Common</span>
             <span className="text-body-sm text-retro-lightgray">{rarityCounts.common.earned}/{rarityCounts.common.total}</span>
           </div>
-          <div className="bg-retro-blue bg-opacity-30 p-2">
-            <span className="kicker text-retro-blue block mb-0.5">Rare</span>
+          <div className="bg-retro-blue bg-opacity-30 p-2 overflow-hidden min-w-0">
+            <span className="kicker text-retro-blue block mb-0.5 truncate">Rare</span>
             <span className="text-body-sm text-retro-lightgray">{rarityCounts.rare.earned}/{rarityCounts.rare.total}</span>
           </div>
-          <div className="bg-retro-purple bg-opacity-30 p-2">
-            <span className="kicker text-retro-purple block mb-0.5">Epic</span>
+          <div className="bg-retro-purple bg-opacity-30 p-2 overflow-hidden min-w-0">
+            <span className="kicker text-retro-purple block mb-0.5 truncate">Epic</span>
             <span className="text-body-sm text-retro-lightgray">{rarityCounts.epic.earned}/{rarityCounts.epic.total}</span>
           </div>
-          <div className="bg-retro-yellow bg-opacity-30 p-2">
-            <span className="kicker text-retro-yellow block mb-0.5">Legendary</span>
+          <div className="bg-retro-yellow bg-opacity-30 p-2 overflow-hidden min-w-0">
+            <span className="kicker text-retro-yellow block mb-0.5 truncate">Legendary</span>
             <span className="text-body-sm text-retro-lightgray">{rarityCounts.legendary.earned}/{rarityCounts.legendary.total}</span>
           </div>
         </div>
