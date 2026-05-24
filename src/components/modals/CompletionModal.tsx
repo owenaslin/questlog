@@ -68,6 +68,16 @@ export default function CompletionModal({
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
+  /** Tapping the backdrop during the burst skips to the detail card; after that it closes. */
+  const handleBackdropClick = () => {
+    if (!showContent) {
+      setShowContent(true);
+      setShowMugs(true);
+    } else {
+      onClose();
+    }
+  };
+
   const handleShare = () => {
     const heroPageUrl = heroHandle
       ? `https://tarvn.xyz/hero/${heroHandle}`
@@ -88,13 +98,13 @@ export default function CompletionModal({
     <div
       className="fixed inset-0 z-50 overflow-y-auto"
       style={{ background: "rgba(10,8,5,0.92)" }}
-      onClick={onClose}
+      onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="completion-title"
     >
       {/* ── Full-screen triumph burst (visible for first ~1.8 s, fades out as card fades in) ── */}
-      {/* aria-hidden: this is purely decorative — the modal card carries the accessible label */}
+      {/* aria-hidden: purely decorative — the modal card carries the accessible label */}
       <div
         aria-hidden="true"
         className={`fixed inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-700 ${showContent ? "opacity-0" : "opacity-100"}`}
@@ -122,7 +132,8 @@ export default function CompletionModal({
             />
           ))}
         </div>
-        {/* Subtle skip hint — backdrop onClick will fire since this div is pointer-events-none */}
+        {/* Tapping anywhere passes through (pointer-events-none) to handleBackdropClick,
+            which skips to the detail card rather than closing the modal entirely. */}
         <p className="absolute bottom-8 text-body-sm text-[--parchment-dim] opacity-50 tracking-wide">
           tap anywhere to skip
         </p>
@@ -179,247 +190,247 @@ export default function CompletionModal({
           style={{ border: "4px solid #5c3a1a", boxShadow: "6px 6px 0 #5c3a1a", background: "#1a1208" }}
           onClick={(e) => e.stopPropagation()}
         >
-        {/* ── Hearth backdrop strip ── */}
-        <div
-          className="flex items-center justify-between px-6 py-3 border-b-4"
-          style={{ borderColor: "#5c3a1a", background: "#2a1a0a" }}
-        >
-          <Image src="/tavern/hearth.svg" alt="" width={40} height={35} className="opacity-80" />
-          <h2 id="completion-title" className="font-pixel text-tavern-gold text-[10px] tracking-wider text-gold-shimmer">
-            TRIUMPH!
-          </h2>
-          <Image src="/tavern/hearth.svg" alt="" width={40} height={35} className="opacity-80 scale-x-[-1]" />
-        </div>
-
-        <div className="p-6">
-          {/* Quest name */}
-          <p className="text-body text-tavern-parchment text-center mb-5">
-            {quest.title}
-          </p>
-
-          {/* ── Milestones ── */}
-          {milestones.length > 0 && (
-            <div className="mb-4 space-y-2">
-              {milestones.map((milestone, idx) => (
-                <div
-                  key={idx}
-                  className="text-center p-2 animate-pulse"
-                  style={{
-                    border: `2px solid ${getMilestoneColor(milestone.rarity)}`,
-                    background: "#1a0d05",
-                  }}
-                >
-                  <div className="text-body-sm font-medium" style={{ color: getMilestoneColor(milestone.rarity) }}>
-                    {getMilestoneEmoji(milestone.type)} {milestone.title}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* ── XP earned ── */}
+          {/* ── Hearth backdrop strip ── */}
           <div
-            className="text-center py-4 mb-4 relative overflow-hidden"
-            style={{ border: "4px solid #c4a85a", background: "#0f0d07" }}
+            className="flex items-center justify-between px-6 py-3 border-b-4"
+            style={{ borderColor: "#5c3a1a", background: "#2a1a0a" }}
           >
-            <div className="kicker text-[--parchment-dim] mb-1">
-              XP Earned
-            </div>
-            <div className="font-pixel text-tavern-gold text-4xl text-gold-shimmer">
-              +{xpEarned}
-            </div>
-            {/* warm glow underlay */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(232,184,100,0.12) 0%, transparent 70%)" }}
-            />
+            <Image src="/tavern/hearth.svg" alt="" width={40} height={35} className="opacity-80" />
+            <h2 id="completion-title" className="font-pixel text-tavern-gold text-[10px] tracking-wider text-gold-shimmer">
+              TRIUMPH!
+            </h2>
+            <Image src="/tavern/hearth.svg" alt="" width={40} height={35} className="opacity-80 scale-x-[-1]" />
           </div>
 
-          {/* ── Level up ── */}
-          {newLevel && (
-            <div
-              className="text-center p-3 mb-4 animate-pulse"
-              style={{ border: "4px solid #e8b864", background: "#2a1a0a" }}
-            >
-              <div className="font-pixel text-tavern-gold text-[11px]">🎉 LEVEL UP!</div>
-              <div className="text-body-sm text-tavern-parchment mt-1">
-                You are now Level {newLevel}
-              </div>
-            </div>
-          )}
+          <div className="p-6">
+            {/* Quest name */}
+            <p className="text-body text-tavern-parchment text-center mb-5">
+              {quest.title}
+            </p>
 
-          {/* ── Streak ── */}
-          {newStreak !== undefined && newStreak > 0 && (
-            <div
-              className="flex items-center gap-3 p-3 mb-4"
-              style={{ border: "2px solid #c44a36", background: "#1a0d05" }}
-            >
-              <span className="text-xl">🔥</span>
-              <div>
-                <div className="text-body-sm font-medium text-tavern-ember">
-                  {newStreak} day streak{isNewLongest ? " — NEW RECORD!" : " kept alive!"}
-                </div>
-                {isNewLongest && (
-                  <div className="text-body-sm text-tavern-gold mt-0.5">
-                    Your longest yet, adventurer.
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ── XP bar ── */}
-          <div className="mb-5">
-            <div className="flex justify-between mb-1">
-              <span className="text-body-sm text-[--parchment-dim]">Total XP</span>
-              <span className="text-body-sm text-tavern-gold">{newXpTotal} XP</span>
-            </div>
-            <XPBar xpTotal={newXpTotal} showLabel={false} />
-          </div>
-
-          {/* ── Mug cheer ── */}
-          {showMugs && (
-            <div className="flex justify-center gap-3 mb-5">
-              {[0.1, 0, 0.15].map((delay, i) => (
-                <Image
-                  key={i}
-                  src="/tavern/mug.svg"
-                  alt=""
-                  width={28}
-                  height={28}
-                  style={{
-                    animation: `bounce8bit 0.5s step-end ${delay}s infinite`,
-                    imageRendering: "pixelated",
-                  }}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* ── What's Next? ── */}
-          {(nextQuestlineQuest || suggestedQuests.length > 0) && (
-            <div
-              className="mb-5 p-3"
-              style={{ border: "2px solid #3a2a10", background: "#110e06" }}
-            >
-              <p className="kicker text-[--parchment-dim] mb-3">
-                What&apos;s Next?
-              </p>
-              <div className="space-y-2">
-                {nextQuestlineQuest && (
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-body-sm font-semibold text-tavern-gold leading-snug truncate">
-                        {nextQuestlineQuest.title}
-                      </p>
-                      <p className="text-body-sm text-[--parchment-dim]">Questline · +{nextQuestlineQuest.xp_reward} XP</p>
+            {/* ── Milestones ── */}
+            {milestones.length > 0 && (
+              <div className="mb-4 space-y-2">
+                {milestones.map((milestone, idx) => (
+                  <div
+                    key={idx}
+                    className="text-center p-2 animate-pulse"
+                    style={{
+                      border: `2px solid ${getMilestoneColor(milestone.rarity)}`,
+                      background: "#1a0d05",
+                    }}
+                  >
+                    <div className="text-body-sm font-medium" style={{ color: getMilestoneColor(milestone.rarity) }}>
+                      {getMilestoneEmoji(milestone.type)} {milestone.title}
                     </div>
-                    <Link
-                      href={`/quests/${nextQuestlineQuest.id}`}
-                      onClick={onClose}
-                      className="tavrn-btn tavrn-btn-primary tavrn-btn-sm flex-shrink-0"
-                    >
-                      Continue →
-                    </Link>
                   </div>
-                )}
-                {!nextQuestlineQuest && suggestedQuests.map((sq) => {
-                  const isAccepting = acceptingId === sq.id;
-                  return (
-                    <div key={sq.id} className="flex items-center justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-body-sm font-medium text-tavern-parchment leading-snug truncate">{sq.title}</p>
-                        <p className="text-body-sm text-[--parchment-dim]">
-                          {sq.type === "main" ? "Main" : "Side"} · +{sq.xp_reward} XP
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        disabled={!!acceptingId}
-                        aria-busy={isAccepting}
-                        onClick={async () => {
-                          setAcceptingId(sq.id);
-                          setAcceptError(null);
-                          const result = await acceptQuest(sq.id, sq.type, sq.category);
-                          setAcceptingId(null);
-                          if (result.success) {
-                            onClose();
-                            router.push("/");
-                          } else {
-                            setAcceptError(result.error || "Could not accept quest. Please try again.");
-                          }
-                        }}
-                        className="tavrn-btn tavrn-btn-primary tavrn-btn-sm flex-shrink-0 disabled:opacity-50"
-                      >
-                        {isAccepting ? "…" : "Accept"}
-                      </button>
-                    </div>
-                  );
-                })}
-                {acceptError && (
-                  <p className="text-body-sm text-tavern-ember mt-2">{acceptError}</p>
-                )}
+                ))}
               </div>
-            </div>
-          )}
-
-          {/* ── Actions ── */}
-          <div className="flex flex-col gap-3">
-            {/* Primary: browse board */}
-            {nextQuestlineQuest ? (
-              <Link href={`/quests/${nextQuestlineQuest.id}`} className="block" onClick={onClose}>
-                <PixelButton variant="success" size="lg" className="w-full">
-                  ⚔ Continue Questline
-                </PixelButton>
-              </Link>
-            ) : (
-              <Link href="/board" className="block" onClick={onClose}>
-                <PixelButton variant="success" size="lg" className="w-full">
-                  ⚔ Browse Quest Board
-                </PixelButton>
-              </Link>
             )}
 
-            {/* Secondary row: pin + share */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setPinned((p) => !p)}
-                className={`tavrn-btn tavrn-btn-sm ${
-                  pinned
-                    ? "tavrn-btn-ghost border-tavern-gold text-tavern-gold"
-                    : "tavrn-btn-ghost"
-                }`}
-              >
-                {pinned ? "✓ Pinned" : "📌 Pin to Hero"}
-              </button>
-              <button
-                type="button"
-                onClick={handleShare}
-                className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
-              >
-                🔗 Share Triumph
-              </button>
+            {/* ── XP earned ── */}
+            <div
+              className="text-center py-4 mb-4 relative overflow-hidden"
+              style={{ border: "4px solid #c4a85a", background: "#0f0d07" }}
+            >
+              <div className="kicker text-[--parchment-dim] mb-1">
+                XP Earned
+              </div>
+              <div className="font-pixel text-tavern-gold text-4xl text-gold-shimmer">
+                +{xpEarned}
+              </div>
+              {/* warm glow underlay */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(232,184,100,0.12) 0%, transparent 70%)" }}
+              />
             </div>
 
-            {/* Tertiary: journal link + close */}
-            <div className="flex items-center justify-between mt-1">
-              <Link
-                href="/journal"
-                className="text-body-sm text-tavern-gold hover:text-tavern-candle"
+            {/* ── Level up ── */}
+            {newLevel && (
+              <div
+                className="text-center p-3 mb-4 animate-pulse"
+                style={{ border: "4px solid #e8b864", background: "#2a1a0a" }}
               >
-                View Journal →
-              </Link>
-              <button
-                onClick={onClose}
-                className="text-body-sm text-[--parchment-dim] hover:text-tavern-parchment"
-                aria-label="Close"
+                <div className="font-pixel text-tavern-gold text-[11px]">🎉 LEVEL UP!</div>
+                <div className="text-body-sm text-tavern-parchment mt-1">
+                  You are now Level {newLevel}
+                </div>
+              </div>
+            )}
+
+            {/* ── Streak ── */}
+            {newStreak !== undefined && newStreak > 0 && (
+              <div
+                className="flex items-center gap-3 p-3 mb-4"
+                style={{ border: "2px solid #c44a36", background: "#1a0d05" }}
               >
-                Close
-              </button>
+                <span className="text-xl">🔥</span>
+                <div>
+                  <div className="text-body-sm font-medium text-tavern-ember">
+                    {newStreak} day streak{isNewLongest ? " — NEW RECORD!" : " kept alive!"}
+                  </div>
+                  {isNewLongest && (
+                    <div className="text-body-sm text-tavern-gold mt-0.5">
+                      Your longest yet, adventurer.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── XP bar ── */}
+            <div className="mb-5">
+              <div className="flex justify-between mb-1">
+                <span className="text-body-sm text-[--parchment-dim]">Total XP</span>
+                <span className="text-body-sm text-tavern-gold">{newXpTotal} XP</span>
+              </div>
+              <XPBar xpTotal={newXpTotal} showLabel={false} />
+            </div>
+
+            {/* ── Mug cheer ── */}
+            {showMugs && (
+              <div className="flex justify-center gap-3 mb-5">
+                {[0.1, 0, 0.15].map((delay, i) => (
+                  <Image
+                    key={i}
+                    src="/tavern/mug.svg"
+                    alt=""
+                    width={28}
+                    height={28}
+                    style={{
+                      animation: `bounce8bit 0.5s step-end ${delay}s infinite`,
+                      imageRendering: "pixelated",
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* ── What's Next? ── */}
+            {(nextQuestlineQuest || suggestedQuests.length > 0) && (
+              <div
+                className="mb-5 p-3"
+                style={{ border: "2px solid #3a2a10", background: "#110e06" }}
+              >
+                <p className="kicker text-[--parchment-dim] mb-3">
+                  What&apos;s Next?
+                </p>
+                <div className="space-y-2">
+                  {nextQuestlineQuest && (
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-body-sm font-semibold text-tavern-gold leading-snug truncate">
+                          {nextQuestlineQuest.title}
+                        </p>
+                        <p className="text-body-sm text-[--parchment-dim]">Questline · +{nextQuestlineQuest.xp_reward} XP</p>
+                      </div>
+                      <Link
+                        href={`/quests/${nextQuestlineQuest.id}`}
+                        onClick={onClose}
+                        className="tavrn-btn tavrn-btn-primary tavrn-btn-sm flex-shrink-0"
+                      >
+                        Continue →
+                      </Link>
+                    </div>
+                  )}
+                  {!nextQuestlineQuest && suggestedQuests.map((sq) => {
+                    const isAccepting = acceptingId === sq.id;
+                    return (
+                      <div key={sq.id} className="flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-body-sm font-medium text-tavern-parchment leading-snug truncate">{sq.title}</p>
+                          <p className="text-body-sm text-[--parchment-dim]">
+                            {sq.type === "main" ? "Main" : "Side"} · +{sq.xp_reward} XP
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={!!acceptingId}
+                          aria-busy={isAccepting}
+                          onClick={async () => {
+                            setAcceptingId(sq.id);
+                            setAcceptError(null);
+                            const result = await acceptQuest(sq.id, sq.type, sq.category);
+                            setAcceptingId(null);
+                            if (result.success) {
+                              onClose();
+                              router.push("/");
+                            } else {
+                              setAcceptError(result.error || "Could not accept quest. Please try again.");
+                            }
+                          }}
+                          className="tavrn-btn tavrn-btn-primary tavrn-btn-sm flex-shrink-0 disabled:opacity-50"
+                        >
+                          {isAccepting ? "…" : "Accept"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                  {acceptError && (
+                    <p className="text-body-sm text-tavern-ember mt-2">{acceptError}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── Actions ── */}
+            <div className="flex flex-col gap-3">
+              {/* Primary: browse board */}
+              {nextQuestlineQuest ? (
+                <Link href={`/quests/${nextQuestlineQuest.id}`} className="block" onClick={onClose}>
+                  <PixelButton variant="success" size="lg" className="w-full">
+                    ⚔ Continue Questline
+                  </PixelButton>
+                </Link>
+              ) : (
+                <Link href="/board" className="block" onClick={onClose}>
+                  <PixelButton variant="success" size="lg" className="w-full">
+                    ⚔ Browse Quest Board
+                  </PixelButton>
+                </Link>
+              )}
+
+              {/* Secondary row: pin + share */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPinned((p) => !p)}
+                  className={`tavrn-btn tavrn-btn-sm ${
+                    pinned
+                      ? "tavrn-btn-ghost border-tavern-gold text-tavern-gold"
+                      : "tavrn-btn-ghost"
+                  }`}
+                >
+                  {pinned ? "✓ Pinned" : "📌 Pin to Hero"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
+                >
+                  🔗 Share Triumph
+                </button>
+              </div>
+
+              {/* Tertiary: journal link + close */}
+              <div className="flex items-center justify-between mt-1">
+                <Link
+                  href="/journal"
+                  className="text-body-sm text-tavern-gold hover:text-tavern-candle"
+                >
+                  View Journal →
+                </Link>
+                <button
+                  onClick={onClose}
+                  className="text-body-sm text-[--parchment-dim] hover:text-tavern-parchment"
+                  aria-label="Close"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
 
