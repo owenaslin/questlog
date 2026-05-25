@@ -30,7 +30,7 @@ export const BADGE_DEFINITIONS: Omit<Badge, "id" | "earned_at">[] = [
     description: "Complete 3 quests in one weekend",
     icon: "🏃",
     rarity: "common",
-    requirement_type: "weekend_quests",
+    requirement_type: "weekend_warrior",
     requirement_value: 3,
   },
   {
@@ -181,7 +181,7 @@ export const BADGE_DEFINITIONS: Omit<Badge, "id" | "earned_at">[] = [
     description: "Complete 3 full questlines",
     icon: "🗺️",
     rarity: "epic",
-    requirement_type: "questlines_completed",
+    requirement_type: "questline_complete",
     requirement_value: 3,
   },
   {
@@ -348,7 +348,7 @@ export const BADGE_RARITY_LABELS = {
 const requirementFormatters: Record<string, (b: Badge) => string> = {
   total_quests: (b) => `Complete ${b.requirement_value} quests`,
   category_count: (b) => `Complete ${b.requirement_value} ${b.requirement_category || ""} quests`.trim(),
-  questlines_completed: (b) => `Complete ${b.requirement_value} questline${b.requirement_value > 1 ? "s" : ""}`,
+  questline_complete: (b) => `Complete ${b.requirement_value} questline${b.requirement_value > 1 ? "s" : ""}`,
   level_reached: (b) => `Reach Level ${b.requirement_value}`,
   unique_categories: (b) => `Try quests from ${b.requirement_value} different categories`,
   weekend_warrior: () => "Complete 3 quests during a weekend",
