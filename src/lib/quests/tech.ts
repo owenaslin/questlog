@@ -7,7 +7,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Fix a Bug in Open Source",
     description: "Find a beginner-friendly issue on GitHub, fork the repo, fix it, and submit a pull request.",
-    type: "side",
     difficulty: 3,
     xp_reward: 150,
     duration_label: "2-4 hours",
@@ -16,7 +15,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Build a Calculator App",
     description: "Create a calculator with HTML, CSS, and JavaScript. Support basic operations and a clean UI.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-3 hours",
@@ -25,7 +23,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Learn Git Basics",
     description: "Master init, add, commit, push, pull, branch, and merge. Create a repo and practice the workflow.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-4 hours",
@@ -34,7 +31,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Create a Personal API",
     description: "Build a simple REST API with Node.js or Python. Include GET, POST, PUT, DELETE endpoints.",
-    type: "side",
     difficulty: 3,
     xp_reward: 150,
     duration_label: "3-5 hours",
@@ -43,7 +39,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Automate a Task",
     description: "Write a script to automate a repetitive task. Could be file organization, data processing, or notifications.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-4 hours",
@@ -52,7 +47,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Deploy a Website",
     description: "Build a simple site and deploy it to Vercel, Netlify, or GitHub Pages. Set up CI/CD if possible.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-3 hours",
@@ -61,7 +55,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Create a Discord Bot",
     description: "Build a bot that responds to commands, sends messages, or moderates. Host it on a free tier.",
-    type: "side",
     difficulty: 3,
     xp_reward: 150,
     duration_label: "4-6 hours",
@@ -71,7 +64,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Build a Portfolio Website",
     description: "Design and develop a personal portfolio with projects, blog, and contact. Use React or Next.js.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2-4 weeks",
@@ -80,7 +72,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Complete a Coding Bootcamp",
     description: "Finish freeCodeCamp's JavaScript curriculum, or The Odin Project. Build all required projects.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-6 months",
@@ -89,7 +80,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Create a Mobile App",
     description: "Build and publish a mobile app using React Native or Flutter. Include 3+ features and get 10 downloads.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "2-3 months",
@@ -98,7 +88,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Learn Machine Learning Basics",
     description: "Complete an ML course. Build a project using scikit-learn or TensorFlow. Train and evaluate a model.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "2-3 months",
@@ -107,7 +96,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Build a SaaS Product",
     description: "Create a web app with auth, database, and payments. Launch it and get 5 paying or 100 free users.",
-    type: "main",
     difficulty: 5,
     xp_reward: 1000,
     duration_label: "3-6 months",
@@ -116,7 +104,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Get AWS Certified",
     description: "Study for and pass the AWS Certified Cloud Practitioner or Developer Associate exam.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "2-3 months",
@@ -125,7 +112,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Contribute to Major Open Source",
     description: "Make 5 meaningful contributions to a major open-source project. Includes docs, tests, or features.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-6 months",
@@ -134,7 +120,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Build a Game",
     description: "Create a complete game with Unity, Godot, or web technologies. Include menus, gameplay, and sound.",
-    type: "main",
     difficulty: 5,
     xp_reward: 1000,
     duration_label: "3-6 months",
@@ -143,7 +128,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Master the Command Line",
     description: "Learn 20 essential terminal commands: navigation, file manipulation, piping, grep, and permissions. Complete a beginner CLI course.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1-2 hours",
@@ -152,7 +136,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Set Up a Raspberry Pi",
     description: "Flash an OS, SSH in, and complete a beginner project: weather display, retro gaming console, or home media server.",
-    type: "side",
     difficulty: 3,
     xp_reward: 250,
     duration_label: "2-4 hours",
@@ -161,7 +144,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Build a Browser Extension",
     description: "Create a simple Chrome or Firefox extension that does one useful thing: tab manager, focus timer, or custom new-tab page.",
-    type: "side",
     difficulty: 3,
     xp_reward: 250,
     duration_label: "2-4 hours",
@@ -170,7 +152,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Scrape and Visualise Data",
     description: "Use Python or JavaScript to scrape a public dataset, clean it, and produce one compelling chart. Post it somewhere.",
-    type: "side",
     difficulty: 3,
     xp_reward: 200,
     duration_label: "2-3 hours",
@@ -179,7 +160,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Cybersecurity Fundamentals",
     description: "Complete a cybersecurity course (TryHackMe, Hack The Box, or similar). Finish 3 beginner CTF challenges and write a summary of what you learned.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "2 months",
@@ -188,7 +168,6 @@ const TECH_QUESTS = [
   defineQuest({
     title: "Learn 3D Modelling",
     description: "Work through a Blender beginner course over 2 months. Create and render at least 5 original models — one of which is animated.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2 months",

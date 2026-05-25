@@ -7,7 +7,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Learn 10 Phrases in a New Language",
     description: "Pick any language and learn 10 useful phrases. Practice pronunciation with an app or video.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -16,7 +15,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Read a Short Book",
     description: "Read a book under 200 pages in one sitting or over a weekend. Fiction or non-fiction.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "4-6 hours",
@@ -25,7 +23,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Watch a Documentary",
     description: "Watch an educational documentary on history, science, or nature. Take notes on key facts.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -34,7 +31,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Complete an Online Course Module",
     description: "Finish one full module from a free online course on Coursera, edX, or Khan Academy.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-4 hours",
@@ -43,7 +39,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Visit a Museum",
     description: "Spend at least 2 hours at a museum. Read the plaques and learn about 5 exhibits in detail.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "Half day",
@@ -52,7 +47,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Research a Topic",
     description: "Pick a topic you're curious about. Research it for 3+ hours and write a summary.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "3-4 hours",
@@ -61,7 +55,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Attend a Lecture or Talk",
     description: "Go to a local lecture, TED talk viewing, or university open lecture. Take notes.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-3 hours",
@@ -71,7 +64,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Read 12 Books in a Year",
     description: "Read one book per month. Mix genres: fiction, non-fiction, biography, science.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "12 months",
@@ -80,7 +72,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Learn a New Language",
     description: "Study a language to conversational level. Use apps, tutors, and practice 30 min daily for 6 months.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "6 months",
@@ -89,7 +80,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Complete a College Course",
     description: "Take and pass a full college-level course online. Includes lectures, assignments, and exams.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-4 months",
@@ -98,7 +88,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Learn to Speed Read",
     description: "Practice speed reading techniques. Double your reading speed while maintaining comprehension.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1-2 months",
@@ -107,7 +96,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Master a Historical Era",
     description: "Deep dive into one historical period. Read 5+ books, watch documentaries, visit sites if possible.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2-3 months",
@@ -116,7 +104,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Get a Professional Certification",
     description: "Earn a certification relevant to your field: PMP, CFA, CPA, or industry-specific credentials.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-6 months",
@@ -125,7 +112,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Learn a Scientific Subject",
     description: "Study physics, chemistry, biology, or astronomy at college level. Complete problem sets and labs.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-4 months",
@@ -134,7 +120,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Become a Subject Expert",
     description: "Choose a niche topic. Read 20+ books/papers, follow experts, and give a presentation on it.",
-    type: "main",
     difficulty: 5,
     xp_reward: 1000,
     duration_label: "6-12 months",
@@ -143,7 +128,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Learn CPR or First Aid",
     description: "Take a certified CPR and first aid class in person. A skill worth having — and one you'll hopefully never need.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-3 hours",
@@ -152,7 +136,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Binge a Podcast Series",
     description: "Pick a documentary or narrative podcast series and listen to the whole series. Write down the most surprising thing you learned.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "2-3 hours",
@@ -161,7 +144,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Read a Philosophy Essay",
     description: "Choose a classic essay — Montaigne, Camus, Russell, or de Beauvoir. Read carefully and write a one-page response in your own words.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "30-45 min",
@@ -170,7 +152,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Study Chess Openings",
     description: "Learn 5 fundamental chess openings and the ideas behind each one. Play 10 games applying what you studied.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1-2 hours",
@@ -179,7 +160,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Teach Someone Something",
     description: "Pick a skill or topic you know well and spend 20+ minutes teaching it to someone else. Explaining deepens understanding more than any textbook.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "30-45 min",
@@ -188,7 +168,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Nonfiction Topic Challenge",
     description: "Read one book from each of 5 different nonfiction genres — e.g., history, business, philosophy, science, and memoir. Each book should come from a genre you don't normally read.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3-4 months",
@@ -197,7 +176,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Study a New Field for 30 Days",
     description: "Pick a subject outside your expertise — economics, psychology, astronomy, or philosophy. Spend 30 minutes each day reading or listening for 30 consecutive days. Write a summary at the end.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -206,7 +184,6 @@ const EDUCATION_QUESTS = [
   defineQuest({
     title: "Reach 1000+ Chess Rating",
     description: "Improve your chess to 1000+ on Lichess or Chess.com. Study tactics, endgames, and openings. Play and analyse games regularly over 3 months.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3 months",

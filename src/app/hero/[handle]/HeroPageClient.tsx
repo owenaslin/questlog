@@ -221,9 +221,6 @@ export default function HeroPageClient() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className={`badge ${pq.quest_type === "main" ? "badge-ember" : "badge-blue"}`}>
-                    {pq.quest_type === "main" ? "Main" : "Side"}
-                  </span>
                   <span className="badge badge-gold">+{pq.quest_xp_reward} XP</span>
                 </div>
               </div>

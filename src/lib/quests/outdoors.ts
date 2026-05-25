@@ -7,7 +7,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Explore a New Trail",
     description: "Find a hiking or walking trail you've never been to. Spend at least an hour exploring.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-3 hours",
@@ -16,7 +15,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Sunrise Watch",
     description: "Wake up early and watch the sunrise from a scenic outdoor location. Bring coffee.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2 hours",
@@ -25,7 +23,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Stargazing Night",
     description: "Find a dark spot away from city lights and identify 5 constellations using an app.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-3 hours",
@@ -34,7 +31,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Geocaching Adventure",
     description: "Try geocaching. Find at least 3 caches using GPS coordinates. It's like a real-world treasure hunt!",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "Half day",
@@ -43,7 +39,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Kayaking or Canoeing",
     description: "Rent a kayak or canoe and spend 2+ hours on the water. Explore a lake or gentle river.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "3-4 hours",
@@ -53,7 +48,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Camp for a Weekend",
     description: "Spend two nights camping. Set up a tent, cook over a fire, and disconnect from technology.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2-3 days",
@@ -62,7 +56,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Summit a Mountain",
     description: "Hike to the summit of a significant peak. Plan the route, pack properly, and enjoy the view.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1-2 days",
@@ -71,7 +64,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Multi-Day Backpacking",
     description: "Complete a 3+ day backpacking trip. Carry everything you need and camp in the wilderness.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-5 days",
@@ -80,7 +72,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Learn Rock Climbing",
     description: "Take a course and climb both indoors and outdoors. Learn belaying, knots, and safety.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "2-3 months",
@@ -89,7 +80,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Plan a Road Trip",
     description: "Plan and execute a 500+ mile road trip with multiple stops. Document the journey.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1 week",
@@ -98,7 +88,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Visit a New National Park",
     description: "Visit a national park you've never been to. Hike a trail, learn about the ecosystem, and take in the scale of it.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1-2 days",
@@ -107,7 +96,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Visit a New State Park",
     description: "Find a state park near you that you've never explored. Spend at least a few hours hiking, swimming, or just being outside.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "Half day",
@@ -116,7 +104,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Wild Swimming",
     description: "Find a safe, accessible natural body of water — lake, river, or sea — and swim in it. No pool walls, no lanes, just nature.",
-    type: "side",
     difficulty: 3,
     xp_reward: 200,
     duration_label: "1-2 hours",
@@ -125,7 +112,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Birdwatching Session",
     description: "Head outside with a field guide or app (Merlin works great). Spot and identify at least 10 different bird species. No binoculars required — just patience.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "1-2 hours",
@@ -134,7 +120,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Foraging Walk",
     description: "Join a guided foraging walk or use a trusted app to identify 5+ edible wild plants or fungi in your area. Do not eat anything you can't 100% identify.",
-    type: "side",
     difficulty: 2,
     xp_reward: 150,
     duration_label: "2-3 hours",
@@ -143,7 +128,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Catch a Sunrise",
     description: "Set your alarm, travel to a good vantage point, and watch the sunrise from start to finish. Bring tea. Leave your phone in your pocket.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "1-2 hours",
@@ -152,7 +136,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Complete a Cycling Tour",
     description: "Plan and ride a multi-day cycling tour between two or more towns. Navigate, camp or stay in hostels, and cover at least 150 miles total.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "1-2 weeks",
@@ -161,7 +144,6 @@ const OUTDOORS_QUESTS = [
   defineQuest({
     title: "Learn to Surf",
     description: "Take lessons and practise regularly for 3 months until you can paddle out, pop up consistently, and ride green waves on your own.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3 months",

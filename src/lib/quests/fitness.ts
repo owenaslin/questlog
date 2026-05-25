@@ -7,7 +7,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Morning Stretch Routine",
     description: "Start your day with a 10-minute full-body stretch. Focus on neck, shoulders, back, and legs to wake up your muscles.",
-    type: "side",
     difficulty: 1,
     duration_label: "10-15 min",
     category: "Fitness",
@@ -15,7 +14,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "7-Day Step Challenge",
     description: "Walk 8,000 steps every day for a week. Use a fitness tracker or phone app to count.",
-    type: "side",
     difficulty: 2,
     duration_label: "7 days",
     category: "Fitness",
@@ -23,7 +21,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Plank Challenge",
     description: "Hold a plank position for as long as you can. Start with 30 seconds and build up over 5 days.",
-    type: "side",
     difficulty: 2,
     duration_label: "5 days",
     category: "Fitness",
@@ -31,7 +28,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Yoga Flow Session",
     description: "Complete a 30-minute yoga flow video. Focus on breathing and smooth transitions between poses.",
-    type: "side",
     difficulty: 2,
     duration_label: "30-45 min",
     category: "Fitness",
@@ -39,7 +35,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "HIIT Workout",
     description: "Do a high-intensity interval training session: 30 seconds work, 30 seconds rest, for 20 minutes.",
-    type: "side",
     difficulty: 3,
     duration_label: "20-30 min",
     category: "Fitness",
@@ -47,7 +42,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Swim 20 Laps",
     description: "Swim 20 laps at your local pool. Take breaks as needed and focus on form.",
-    type: "side",
     difficulty: 3,
     duration_label: "45-60 min",
     category: "Fitness",
@@ -55,7 +49,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Bike 20 Miles",
     description: "Go for a 20-mile bike ride. Choose a scenic route and enjoy the journey.",
-    type: "side",
     difficulty: 3,
     duration_label: "2-3 hours",
     category: "Fitness",
@@ -64,7 +57,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "30-Day Fitness Habit",
     description: "Exercise for at least 20 minutes every day for 30 days. Mix cardio, strength, and flexibility.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -73,7 +65,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Couch to 5K",
     description: "Follow a structured program to run a 5K. Start with walk-run intervals and build endurance over 8 weeks.",
-    type: "main",
     difficulty: 3,
     duration_label: "8 weeks",
     category: "Fitness",
@@ -81,7 +72,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Strength Training Mastery",
     description: "Learn proper form for squats, deadlifts, bench press, and overhead press. Train 3x/week for 2 months.",
-    type: "main",
     difficulty: 4,
     duration_label: "2 months",
     category: "Fitness",
@@ -89,7 +79,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Complete a Half Marathon",
     description: "Train systematically for 12 weeks and complete a 13.1 mile race. Follow a training plan with rest days.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3 months",
@@ -98,7 +87,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "30-Day Yoga Journey",
     description: "Practice yoga daily for 30 days. Progress from beginner to intermediate poses. Document your flexibility gains.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "30 days",
@@ -107,7 +95,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Learn a Martial Art",
     description: "Take classes in karate, judo, bjj, or boxing twice a week for 3 months. Learn forms and sparring basics.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3 months",
@@ -116,7 +103,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Master a Sport",
     description: "Choose tennis, basketball, soccer, or rock climbing. Practice 2-3x/week for 3 months and join a local league.",
-    type: "main",
     difficulty: 4,
     duration_label: "3-6 months",
     category: "Fitness",
@@ -124,7 +110,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Complete a Triathlon",
     description: "Train for and complete a sprint triathlon. Balance swimming, cycling, and running training over 4 months.",
-    type: "main",
     difficulty: 5,
     duration_label: "4-6 months",
     category: "Fitness",
@@ -132,7 +117,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Jump Rope Blitz",
     description: "Grab a jump rope and aim for 100 consecutive jumps without stopping. Take breaks and retry until you hit it.",
-    type: "side",
     difficulty: 1,
     duration_label: "10-15 min",
     category: "Fitness",
@@ -140,7 +124,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Dance Cardio Session",
     description: "Follow a 30-minute dance cardio video on YouTube. No partner or experience needed — just move and have fun.",
-    type: "side",
     difficulty: 2,
     duration_label: "30-45 min",
     category: "Fitness",
@@ -148,7 +131,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Bodyweight Circuit",
     description: "Complete 3 rounds: 20 squats, 15 push-ups, 10 lunges each leg, 30-second wall sit. Rest 90 seconds between rounds.",
-    type: "side",
     difficulty: 2,
     duration_label: "20-30 min",
     category: "Fitness",
@@ -156,7 +138,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Sunset Run",
     description: "Lace up and run 3 miles at whatever pace feels good — no GPS stress, no PB chasing. Just you and the evening air.",
-    type: "side",
     difficulty: 2,
     duration_label: "30-45 min",
     category: "Fitness",
@@ -164,7 +145,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Learn to Handstand",
     description: "Practice 10–15 minutes of handstand drills daily for 2 months: wall holds, kick-ups, shoulder conditioning. Goal: 5-second freestanding handstand.",
-    type: "main",
     difficulty: 4,
     duration_label: "2 months",
     category: "Fitness",
@@ -172,7 +152,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Daily Pushup Challenge",
     description: "For 14 days, add 1 pushup to your daily set — day 1 is 1 pushup, day 14 is 14. Simple progression, real results.",
-    type: "side",
     difficulty: 2,
     xp_reward: 150,
     duration_label: "1-2 weeks",
@@ -181,7 +160,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Run a 5K",
     description: "Sign up for or run a 5K. Whether it's your first or your fiftieth, complete the full 3.1 miles.",
-    type: "side",
     difficulty: 2,
     xp_reward: 125,
     duration_label: "30-45 min",
@@ -190,7 +168,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Pilates Session",
     description: "Follow a 30–60 minute pilates class video online. Focus on core control, posture, and breath.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "45-60 min",
@@ -199,7 +176,6 @@ const FITNESS_QUESTS = [
   defineQuest({
     title: "Mobility & Flexibility Overhaul",
     description: "Stretch and mobilise daily for 2 months. Target hips, hamstrings, spine, and shoulders. Document progress photos each week.",
-    type: "main",
     difficulty: 3,
     duration_label: "2 months",
     category: "Fitness",

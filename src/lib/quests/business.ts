@@ -7,7 +7,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Write Your Business Idea",
     description: "Spend an hour writing down a business idea: the problem it solves, who it's for, and how it makes money. One page max.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -16,7 +15,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Research Your Target Market",
     description: "Identify the customers for a business idea. Find 3 real competitors, read their reviews, and summarise the gap.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-3 hours",
@@ -25,7 +23,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Send 5 Cold Outreach Messages",
     description: "Write and send 5 personalised messages to potential customers, collaborators, or mentors. Track who responds.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-4 hours",
@@ -34,7 +31,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Set Up a Professional Profile",
     description: "Create or fully optimise a LinkedIn profile: headshot, compelling headline, 3 experience entries, and 5 skills.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -43,7 +39,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Calculate a Break-Even Point",
     description: "Pick a product or service idea, estimate costs and price, then calculate how many units you need to sell to break even.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1-2 hours",
@@ -52,7 +47,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Read a Business Memoir",
     description: "Read the autobiography or business story of a founder you admire. Take notes on 3 lessons you can apply.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 weeks",
@@ -61,7 +55,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Validate an Idea with 10 People",
     description: "Ask 10 real people for feedback on a business idea. Use a short script, record their reactions, and iterate.",
-    type: "side",
     difficulty: 3,
     xp_reward: 150,
     duration_label: "1 week",
@@ -71,7 +64,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Launch a Side Business",
     description: "Identify a product or service, write a simple business plan, build a minimal version, and make your first sale.",
-    type: "main",
     difficulty: 5,
     xp_reward: 1000,
     duration_label: "3-6 months",
@@ -80,7 +72,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Build an MVP in 30 Days",
     description: "Design and ship a minimum viable product for a business idea in one month. Get at least 3 real users to try it.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "1 month",
@@ -89,7 +80,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Complete a Business Course",
     description: "Finish a structured business course (entrepreneurship, finance, marketing, or strategy). Pass any assessments with 80%+.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "6-8 weeks",
@@ -98,7 +88,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Create a One-Page Business Plan",
     description: "Summarise your idea on a single page: problem, solution, target customer, revenue model, and one key metric. Keep it honest and tight.",
-    type: "side",
     difficulty: 2,
     xp_reward: 150,
     duration_label: "2-3 hours",
@@ -107,7 +96,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Run 5 Customer Discovery Interviews",
     description: "Talk to 5 real potential customers about the problem you're solving. Listen more than you talk. Write up what surprised you.",
-    type: "side",
     difficulty: 2,
     xp_reward: 150,
     duration_label: "2-3 hours",
@@ -116,7 +104,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Build a Simple Landing Page",
     description: "Create a one-page site for your idea with a headline, value proposition, and email capture. Ship it — even if it's not perfect.",
-    type: "side",
     difficulty: 3,
     xp_reward: 250,
     duration_label: "2-4 hours",
@@ -125,7 +112,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Publish a Paid Digital Product",
     description: "Create and sell a digital product: eBook, template pack, mini-course, or Notion dashboard. Get at least 5 paying customers.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "2 months",
@@ -134,7 +120,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Get Your First 100 Email Subscribers",
     description: "Build an email list from zero to 100 real subscribers. Use a lead magnet, consistent content, and genuine outreach. No bought lists.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2 months",
@@ -143,7 +128,6 @@ export const BUSINESS_QUESTS = [
   defineQuest({
     title: "Launch on Product Hunt",
     description: "Build something worth shipping, prep your assets, line up your community, and launch on Product Hunt. Aim for Top 10 of the day.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "1 month",

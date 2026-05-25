@@ -23,14 +23,6 @@ function DifficultySwords({ difficulty }: { difficulty: number }) {
   );
 }
 
-export function QuestTypeBadge({ type }: { type: string }) {
-  return (
-    <span className={`badge ${type === "main" ? "badge-ember" : "badge-blue"}`}>
-      {type === "main" ? "⚔ Main" : "🗡 Side"}
-    </span>
-  );
-}
-
 function SourceBadge({ source }: { source: string }) {
   const labels: Record<string, string> = {
     predefined: "★ Curated",
@@ -81,8 +73,7 @@ export default function QuestCard({ quest }: QuestCardProps) {
         "
       >
         {/* Top badge row */}
-        <div className="flex items-start justify-between gap-2">
-          <QuestTypeBadge type={quest.type} />
+        <div className="flex items-start justify-end gap-2">
           <SourceBadge source={quest.source} />
         </div>
 
