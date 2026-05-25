@@ -105,6 +105,10 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
           router.push(buildAuthUrl("login", pathname || `/board/${quest.id}`));
         }
         setActionError(result.error || "Could not accept quest.");
+      } else {
+        // Bust the snapshot cache so navigating away and back immediately
+        // still shows the quest as active (not stale "available").
+        invalidateDashboardSnapshot();
       }
     } catch (err) {
       setStatus(previousStatus);
