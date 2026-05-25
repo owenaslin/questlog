@@ -431,9 +431,9 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 ▶ Quest In Progress
               </div>
 
-              {/* Desktop Complete button — hidden on mobile (sticky version handles that) */}
+              {/* Complete button — visible on all screen sizes */}
               {!showAbandonConfirm && !conflictQuest && (
-                <div className="hidden md:flex w-full justify-center">
+                <div className="flex w-full justify-center">
                   <PixelButton
                     variant="primary"
                     size="lg"
