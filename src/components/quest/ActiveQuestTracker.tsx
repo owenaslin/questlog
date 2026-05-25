@@ -7,31 +7,28 @@ import ActiveQuestPanel from "@/components/quest/ActiveQuestPanel";
 import SideQuestProgressCard from "@/components/quest/SideQuestProgressCard";
 import QuestPickerPanel from "@/components/quest/QuestPickerPanel";
 
-const SIDE_QUEST_INITIAL_DISPLAY = 3;
+const ACTIVE_QUEST_INITIAL_DISPLAY = 4;
 
 interface ActiveQuestTrackerProps {
-  mainQuest: Quest | null;
-  sideQuests: Quest[];
+  activeQuests: Quest[];
   loading?: boolean;
   pickerQuests?: Quest[];
-  /** Called only when a main quest is accepted from the empty-state picker. */
-  onMainQuestAccepted?: (quest: Quest) => void;
+  /** Called when a quest is accepted from the empty-state picker. */
+  onQuestAccepted?: (quest: Quest) => void;
 }
 
 export default function ActiveQuestTracker({
-  mainQuest,
-  sideQuests,
+  activeQuests,
   loading = false,
   pickerQuests = [],
-  onMainQuestAccepted,
+  onQuestAccepted,
 }: ActiveQuestTrackerProps) {
-  const [showAllSideQuests, setShowAllSideQuests] = useState(false);
-  const totalActive = (mainQuest ? 1 : 0) + sideQuests.length;
+  const [showAll, setShowAll] = useState(false);
+  const totalActive = activeQuests.length;
 
-  const visibleSideQuests = showAllSideQuests
-    ? sideQuests
-    : sideQuests.slice(0, SIDE_QUEST_INITIAL_DISPLAY);
-  const hiddenCount = sideQuests.length - SIDE_QUEST_INITIAL_DISPLAY;
+  const [primaryQuest, ...restQuests] = activeQuests;
+  const visibleRest = showAll ? restQuests : restQuests.slice(0, ACTIVE_QUEST_INITIAL_DISPLAY);
+  const hiddenCount = restQuests.length - ACTIVE_QUEST_INITIAL_DISPLAY;
 
   return (
     <div className="tavrn-panel p-4 md:p-5">
@@ -62,20 +59,17 @@ export default function ActiveQuestTracker({
       {!loading && totalActive === 0 && (
         <div>
           <p className="text-[12px] text-[--parchment-dim] mb-4">
-            No quests in progress. Choose a main quest below, or browse the board to begin your adventure.
+            No quests in progress. Pick one below, or browse the board to begin your adventure.
           </p>
-          {pickerQuests.filter((q) => q.type === "main").length > 0 && (
+          {pickerQuests.length > 0 && (
             <QuestPickerPanel
-              quests={pickerQuests.filter((q) => q.type === "main").slice(0, 2)}
-              onAccepted={onMainQuestAccepted ?? (() => {})}
+              quests={pickerQuests.slice(0, 2)}
+              onAccepted={onQuestAccepted ?? (() => {})}
             />
           )}
           <div className="mt-3 pt-3 border-t border-tavern-oak/30 flex flex-wrap gap-2">
             <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
               📋 Browse the Board
-            </Link>
-            <Link href="/board?type=side" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
-              🗡 Browse Side Quests
             </Link>
           </div>
         </div>
@@ -84,48 +78,37 @@ export default function ActiveQuestTracker({
       {/* Active quests */}
       {!loading && totalActive > 0 && (
         <div className="space-y-4">
-          {/* Main quest — full panel */}
-          {mainQuest && (
-            <ActiveQuestPanel quest={mainQuest} />
-          )}
+          {/* Primary quest — full panel with inline steps */}
+          {primaryQuest && <ActiveQuestPanel quest={primaryQuest} />}
 
-          {/* Side quests — compact progress cards */}
-          {sideQuests.length > 0 && (
-            <div className={mainQuest ? "pt-1" : ""}>
-              {mainQuest && (
-                <p className="kicker mb-3">Side Quests In Progress</p>
-              )}
+          {/* Remaining quests — compact progress cards */}
+          {restQuests.length > 0 && (
+            <div className="pt-1">
               <div className="space-y-3">
-                {visibleSideQuests.map((quest) => (
+                {visibleRest.map((quest) => (
                   <SideQuestProgressCard key={quest.id} quest={quest} />
                 ))}
               </div>
 
-              {/* Show more / collapse toggle */}
-              {sideQuests.length > SIDE_QUEST_INITIAL_DISPLAY && (
+              {restQuests.length > ACTIVE_QUEST_INITIAL_DISPLAY && (
                 <button
                   type="button"
-                  onClick={() => setShowAllSideQuests((v) => !v)}
+                  onClick={() => setShowAll((v) => !v)}
                   className="mt-2 text-body-sm text-tavern-gold hover:underline"
                 >
-                  {showAllSideQuests
-                    ? "Show fewer side quests ↑"
-                    : `+${hiddenCount} more side quest${hiddenCount === 1 ? "" : "s"} ↓`}
+                  {showAll
+                    ? "Show fewer quests ↑"
+                    : `+${hiddenCount} more quest${hiddenCount === 1 ? "" : "s"} ↓`}
                 </button>
               )}
             </div>
           )}
 
-          {/* Footer — no active side quests hint + browse links */}
+          {/* Footer — browse link */}
           <div className="pt-1 border-t border-tavern-oak/30 flex flex-wrap gap-2">
             <Link href="/board" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
               📋 Browse Board
             </Link>
-            {sideQuests.length === 0 && (
-              <Link href="/board?type=side" className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm">
-                🗡 Find Side Quests
-              </Link>
-            )}
           </div>
         </div>
       )}

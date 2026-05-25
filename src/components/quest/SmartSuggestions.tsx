@@ -148,15 +148,6 @@ export default function SmartSuggestions({
                   <span className="badge badge-lime block mb-1">
                     +{rec.quest.xp_reward} XP
                   </span>
-                  <span
-                    className={`badge ${
-                      rec.quest.type === "main"
-                        ? "badge-ember"
-                        : "badge-blue"
-                    }`}
-                  >
-                    {rec.quest.type === "main" ? "Main" : "Side"}
-                  </span>
                 </div>
               </div>
             </Link>

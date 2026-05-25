@@ -256,9 +256,7 @@ export default function JournalPage() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-                      {quest.type === "main" ? "⚔" : "🗡"}
-                    </span>
+                    <span className="badge badge-blue">📜</span>
                     <span className="text-body-sm font-medium text-tavern-parchment leading-snug truncate">
                       {quest.title}
                     </span>
@@ -320,9 +318,6 @@ export default function JournalPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-                    {quest.type === "main" ? "Main" : "Side"}
-                  </span>
                   <span className="text-body-sm text-tavern-gold">+{quest.xp_reward} XP</span>
                 </div>
               </div>

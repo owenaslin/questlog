@@ -20,7 +20,7 @@ async function getHeroPinnedQuests(userId: string): Promise<PinnedQuest[]> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("pinned_quests")
-    .select("id,quest_id,quest_title,quest_type,quest_xp_reward,position,pinned_at")
+    .select("id,quest_id,quest_title,quest_xp_reward,position,pinned_at")
     .eq("user_id", userId)
     .order("position", { ascending: true })
     .limit(5);
@@ -133,7 +133,6 @@ export async function updateHeroProfile(
 export async function pinQuest(
   questId: string,
   questTitle: string,
-  questType: "main" | "side",
   questXpReward: number
 ): Promise<{ success: boolean; error?: string }> {
   const userId = await getCurrentUserId();
@@ -158,7 +157,8 @@ export async function pinQuest(
         user_id: userId,
         quest_id: questId,
         quest_title: questTitle,
-        quest_type: questType,
+        // Vestigial NOT NULL column kept for legacy schema; quest type is no longer used.
+        quest_type: "side",
         quest_xp_reward: questXpReward,
         position: nextPos,
       },

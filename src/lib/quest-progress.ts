@@ -158,36 +158,6 @@ export function mergeQuestWithProgress(
   });
 }
 
-export async function getActiveMainQuest(userId: string): Promise<(Quest & { accepted_at: string | null }) | null> {
-  const supabase = getSupabaseClient();
-  const { data, error } = await supabase
-    .from("user_quests")
-    .select("quest_id,accepted_at,quest_type,quest_category")
-    .eq("user_id", userId)
-    .eq("status", "active")
-    .eq("quest_type", "main")
-    .limit(1)
-    .maybeSingle();
-
-  if (error || !data) return null;
-
-  const questId = data.quest_id as string;
-  const predefined = ALL_QUESTS.find((q) => q.id === questId);
-  if (predefined) {
-    return { ...predefined, status: "active", accepted_at: data.accepted_at };
-  }
-
-  // Custom/AI quest — fetch from DB
-  const { data: customQuest } = await supabase
-    .from("quests")
-    .select("id,title,description,type,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status")
-    .eq("id", questId)
-    .maybeSingle();
-
-  if (!customQuest) return null;
-  return { ...(customQuest as Quest), status: "active", accepted_at: data.accepted_at };
-}
-
 export async function abandonQuest(questId: string): Promise<{ success: boolean; error?: string }> {
   const userId = await getCurrentUserId();
   if (!userId) return { success: false, error: "Please log in." };
@@ -210,17 +180,6 @@ export async function abandonQuest(questId: string): Promise<{ success: boolean;
   if (updateError) return { success: false, error: updateError.message };
   if (stepsError) return { success: false, error: stepsError.message };
   return { success: true };
-}
-
-export async function abandonAndAccept(
-  abandonQuestId: string,
-  newQuestId: string,
-  newQuestType?: Quest["type"],
-  newQuestCategory?: string
-): Promise<{ success: boolean; error?: string; conflict?: { questId: string; title: string } }> {
-  const abandonResult = await abandonQuest(abandonQuestId);
-  if (!abandonResult.success) return abandonResult;
-  return acceptQuest(newQuestId, newQuestType, newQuestCategory);
 }
 
 export async function markQuestStep(questId: string, stepId: string): Promise<{ success: boolean; error?: string }> {
@@ -294,23 +253,11 @@ export async function getSuggestedNextQuests(completedQuestId: string): Promise<
 
 export async function acceptQuest(
   questId: string,
-  questType?: Quest["type"],
   questCategory?: string
-): Promise<{ success: boolean; error?: string; conflict?: { questId: string; title: string } }> {
+): Promise<{ success: boolean; error?: string }> {
   const userId = await getCurrentUserId();
   if (!userId) {
     return { success: false, error: "Please log in to accept quests." };
-  }
-
-  // Enforce 1 active main quest at a time
-  if (questType === "main") {
-    const activeMain = await getActiveMainQuest(userId);
-    if (activeMain && activeMain.id !== questId) {
-      return {
-        success: false,
-        conflict: { questId: activeMain.id, title: activeMain.title },
-      };
-    }
   }
 
   const supabase = getSupabaseClient();
@@ -322,7 +269,6 @@ export async function acceptQuest(
       {
         user_id: userId,
         quest_id: questId,
-        quest_type: questType,
         quest_category: questCategory,
         status: "active",
         accepted_at: now,
@@ -346,7 +292,6 @@ export async function acceptQuest(
 export async function completeQuest(
   questId: string,
   xpReward: number,
-  questType?: Quest["type"],
   questCategory?: string
 ): Promise<{ success: boolean; alreadyCompleted?: boolean; error?: string }> {
   const userId = await getCurrentUserId();
@@ -362,7 +307,7 @@ export async function completeQuest(
       p_user_id: userId,
       p_quest_id: questId,
       p_xp: xpReward,
-      p_quest_type: questType ?? null,
+      p_quest_type: null,
       p_quest_category: questCategory ?? null,
     }
   );
@@ -460,7 +405,7 @@ export async function getCompletedQuestsForSaga(): Promise<CompletedQuestForSaga
   const { data: customQuests, error: customError } = await supabase
     .from("quests")
     .select(
-      "id,title,description,type,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
+      "id,title,description,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
     )
     .in("id", customIds);
 
@@ -740,7 +685,7 @@ export async function getUserCreatedActiveQuests(): Promise<Quest[]> {
   const { data: quests, error } = await supabase
     .from("quests")
     .select(
-      "id,title,description,type,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
+      "id,title,description,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
     )
     .in("id", customIds);
 

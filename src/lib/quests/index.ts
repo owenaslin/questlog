@@ -38,23 +38,11 @@ export const ALL_QUESTS: Quest[] = [
   ...PRODUCTIVITY_QUESTS_WITH_IDS,
 ];
 
-// Get main quests only
-export function getMainQuests(): Quest[] {
-  return ALL_QUESTS.filter((q) => q.type === "main");
-}
-
-// Get side quests only
-export function getSideQuests(): Quest[] {
-  return ALL_QUESTS.filter((q) => q.type === "side");
-}
-
 /**
  * Returns three quests for "Tonight's Hand", seeded by today's date so the
  * same three appear all day and rotate at midnight (UTC — users in other
  * timezones will see the new set at their local equivalent of UTC midnight).
  * Completed quests are excluded so returning users always see fresh options.
- *
- * Layout: side · main · side (main quest in the centre card).
  */
 export function getDailyQuests(excludeCompletedIds: string[] = []): Quest[] {
   const today = new Date().toISOString().slice(0, 10); // e.g. "2026-04-21" (UTC)
@@ -63,18 +51,12 @@ export function getDailyQuests(excludeCompletedIds: string[] = []): Quest[] {
   const rand  = (i: number) => { const x = Math.sin(i + seed) * 10000; return x - Math.floor(x); };
 
   const excluded = new Set(excludeCompletedIds);
-  const eligible = ALL_QUESTS.filter((q) => !excluded.has(q.id));
-  const shuffled = [...eligible]
+  return ALL_QUESTS
+    .filter((q) => !excluded.has(q.id))
     .map((q, i) => ({ q, sort: rand(i) }))
     .sort((a, b) => a.sort - b.sort)
-    .map(({ q }) => q);
-
-  // Aim for variety: one main flanked by two sides. Fall back to first 3 if
-  // the user has completed too many of one type to satisfy the layout.
-  const mains = shuffled.filter((q) => q.type === "main").slice(0, 1);
-  const sides = shuffled.filter((q) => q.type === "side").slice(0, 2);
-  if (mains.length && sides.length >= 2) return [sides[0], mains[0], sides[1]];
-  return shuffled.slice(0, 3);
+    .map(({ q }) => q)
+    .slice(0, 3);
 }
 
 /**
@@ -89,16 +71,11 @@ export function getRandomQuests(excludeIds: string[] = []): Quest[] {
   };
 
   const excluded = new Set(excludeIds);
-  const eligible = ALL_QUESTS.filter((q) => !excluded.has(q.id));
-  const shuffled = [...eligible]
+  return ALL_QUESTS
+    .filter((q) => !excluded.has(q.id))
     .map((q, i) => ({ q, sort: rand(i) }))
     .sort((a, b) => a.sort - b.sort)
-    .map(({ q }) => q);
-
-  // Same layout logic: side · main · side
-  const mains = shuffled.filter((q) => q.type === "main").slice(0, 1);
-  const sides = shuffled.filter((q) => q.type === "side").slice(0, 2);
-  if (mains.length && sides.length >= 2) return [sides[0], mains[0], sides[1]];
-  return shuffled.slice(0, 3);
+    .map(({ q }) => q)
+    .slice(0, 3);
 }
 

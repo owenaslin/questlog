@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import { Quest } from "@/lib/types";
 import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
-import { QuestTypeBadge } from "@/components/quest/QuestCard";
 
 interface SideQuestProgressCardProps {
   quest: Quest;
@@ -26,7 +25,6 @@ export default function SideQuestProgressCard({ quest }: SideQuestProgressCardPr
     >
       {/* Badges row */}
       <div className="flex items-center gap-2 mb-2">
-        <QuestTypeBadge type={quest.type} />
         <span className="badge badge-lime ml-auto">+{quest.xp_reward} XP</span>
       </div>
 

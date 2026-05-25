@@ -10,7 +10,7 @@ import PullToRefresh from "@/components/ui/PullToRefresh";
 import QuestForge from "@/components/quest/QuestForge";
 import AmbientScene from "@/components/ui/AmbientScene";
 import { useViewMode } from "@/components/ui/ViewModeProvider";
-import { ALL_QUESTS, getMainQuests, getSideQuests } from "@/lib/quests";
+import { ALL_QUESTS } from "@/lib/quests";
 import { Quest, QuestSource } from "@/lib/types";
 import {
   getCurrentUserId,
@@ -18,52 +18,39 @@ import {
   getUserCreatedActiveQuests,
   mergeQuestWithProgress,
   acceptQuest,
-  abandonAndAccept,
 } from "@/lib/quest-progress";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 
 function QuickAcceptButton({
   quest,
-  activeMainQuestId,
   onAccepted,
   onAcceptStart,
   onAcceptEnd,
   inline = false,
 }: {
   quest: Quest;
-  activeMainQuestId: string | null;
   onAccepted: (questId: string) => void;
   onAcceptStart?: () => void;
   onAcceptEnd?: () => void;
   inline?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
-  const [showConflict, setShowConflict] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (quest.status !== "available") return null;
-
-  const isMainBlocked = quest.type === "main" && activeMainQuestId !== null;
 
   const handleAccept = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (loading) return;
 
-    if (isMainBlocked) {
-      setShowConflict(true);
-      return;
-    }
-
     onAcceptStart?.();
     setLoading(true);
     setError(null);
     try {
-      const result = await acceptQuest(quest.id, quest.type, quest.category);
+      const result = await acceptQuest(quest.id, quest.category);
       if (result.success) {
         onAccepted(quest.id);
-      } else if (result.conflict) {
-        setShowConflict(true);
       } else {
         setError(result.error || 'Could not accept quest.');
       }
@@ -73,62 +60,7 @@ function QuickAcceptButton({
     }
   };
 
-  const handleAbandonAndAccept = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!activeMainQuestId) return;
-    onAcceptStart?.();
-    setLoading(true);
-    setShowConflict(false);
-    try {
-      const result = await abandonAndAccept(activeMainQuestId, quest.id, quest.type, quest.category);
-      if (result.success) onAccepted(quest.id);
-    } finally {
-      setLoading(false);
-      onAcceptEnd?.();
-    }
-  };
-
-  if (showConflict) {
-    const conflictContent = (
-      <div onClick={(e) => e.preventDefault()}>
-        <p className="text-body-sm text-tavern-ember mb-2 leading-snug">
-          Abandon your current main quest and start this one?
-        </p>
-        <div className="flex gap-1">
-          <button
-            type="button"
-            onClick={handleAbandonAndAccept}
-            disabled={loading}
-            className="tavrn-btn tavrn-btn-danger tavrn-btn-sm disabled:opacity-50"
-          >
-            Abandon &amp; Accept
-          </button>
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowConflict(false); setError(null); }}
-            className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    );
-
-    return inline ? (
-      <div className="mt-2 p-2 border border-tavern-ember bg-black/60">{conflictContent}</div>
-    ) : (
-      <div className="absolute bottom-0 left-0 right-0 z-10 bg-black/90 border-t-2 border-tavern-ember p-2">
-        {conflictContent}
-      </div>
-    );
-  }
-
-  const btnClass = `text-body-sm px-2 py-1 border transition-none disabled:opacity-50 rounded ${
-    isMainBlocked
-      ? "border-tavern-oak/50 text-tavern-parchment-dim cursor-not-allowed bg-black/40"
-      : "border-tavern-gold bg-black/80 text-tavern-gold hover:bg-tavern-gold hover:text-black"
-  }`;
+  const btnClass = "text-body-sm px-2 py-1 border transition-none disabled:opacity-50 rounded border-tavern-gold bg-black/80 text-tavern-gold hover:bg-tavern-gold hover:text-black";
 
   return inline ? (
     <>
@@ -137,10 +69,9 @@ function QuickAcceptButton({
         onClick={handleAccept}
         disabled={loading}
         aria-busy={loading}
-        title={isMainBlocked ? "Finish your current main quest first" : undefined}
         className={btnClass}
       >
-        {loading ? "…" : isMainBlocked ? "🔒 Blocked" : "⚡ Accept"}
+        {loading ? "…" : "⚡ Accept"}
       </button>
       {error && (
         <p className="text-body-sm text-tavern-ember mt-1">{error}</p>
@@ -152,28 +83,23 @@ function QuickAcceptButton({
       onClick={handleAccept}
       disabled={loading}
       aria-busy={loading}
-      title={isMainBlocked ? "Finish your current main quest first" : `Accept "${quest.title}"`}
+      title={`Accept "${quest.title}"`}
       className={`absolute bottom-2 right-2 z-10 ${btnClass}`}
     >
-      {loading ? "…" : isMainBlocked ? "🔒" : "⚡ Accept"}
+      {loading ? "…" : "⚡ Accept"}
     </button>
   );
 }
 
 const allQuests: Quest[] = ALL_QUESTS;
 
-type TabType = "open" | "all" | "main" | "side";
+type TabType = "open" | "all";
 type StatusFilter = "all" | "available" | "active" | "completed";
 
 const QUEST_TABS: { key: TabType; label: string; icon: string }[] = [
   { key: "open", label: "My Quests", icon: "▶" },
   { key: "all", label: "All Quests", icon: "📜" },
-  { key: "main", label: "Main Quests", icon: "⚔" },
-  { key: "side", label: "Side Quests", icon: "🗡" },
 ];
-
-const MAIN_QUEST_COUNT = getMainQuests().length;
-const SIDE_QUEST_COUNT = getSideQuests().length;
 
 export default function QuestsPage() {
   const { isDesktopActive } = useViewMode();
@@ -263,7 +189,6 @@ export default function QuestsPage() {
   const filteredQuests = useMemo(() => {
     if (activeTab === "open") return allActiveQuests;
     return questsWithProgress.filter((q) => {
-      if (activeTab !== "all" && q.type !== activeTab) return false;
       if (difficultyFilter > 0 && q.difficulty !== difficultyFilter)
         return false;
       if (sourceFilter !== "all" && q.source !== sourceFilter) return false;
@@ -272,23 +197,18 @@ export default function QuestsPage() {
     });
   }, [activeTab, difficultyFilter, sourceFilter, statusFilter, questsWithProgress, allActiveQuests]);
 
-  const activeMainQuestId = useMemo(
-    () => questsWithProgress.find((q) => q.status === "active" && q.type === "main")?.id ?? null,
-    [questsWithProgress]
-  );
-
   const handleQuickAccepted = useCallback((questId: string) => {
     setQuestsWithProgress((prev) =>
       prev.map((q) => q.id === questId ? { ...q, status: "active" as const } : q)
     );
   }, []);
 
-  const availableSideQuests = useMemo(
-    () => questsWithProgress.filter((q) => q.status === "available" && q.type === "side"),
+  const availableQuests = useMemo(
+    () => questsWithProgress.filter((q) => q.status === "available"),
     [questsWithProgress]
   );
-  const todayPrimaryQuest = availableSideQuests[0] || null;
-  const todayQuickQuests = availableSideQuests.slice(0, 3);
+  const todayPrimaryQuest = availableQuests[0] || null;
+  const todayQuickQuests = availableQuests.slice(0, 3);
 
   const selectedQuest = useMemo(
     () => filteredQuests.find((quest) => quest.id === selectedQuestId) ?? filteredQuests[0] ?? null,
@@ -320,7 +240,7 @@ export default function QuestsPage() {
             ⚔ Quest Board
           </h1>
           <p className="text-body-sm text-[--parchment-dim]">
-            {MAIN_QUEST_COUNT} Main Quests • {SIDE_QUEST_COUNT} Side Quests • {allQuests.length} Total
+            {allQuests.length} Quests
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -370,9 +290,6 @@ export default function QuestsPage() {
                 >
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-                        {quest.type === "main" ? "⚔ Main" : "🗡 Side"}
-                      </span>
                       <p className="text-body-sm font-medium text-tavern-parchment group-hover:text-tavern-gold leading-snug">
                         {quest.title}
                       </p>
@@ -433,7 +350,7 @@ export default function QuestsPage() {
 
             {todayQuickQuests.length > 0 && (
               <div>
-                <p className="kicker mb-2">Quick Side Quests</p>
+                <p className="kicker mb-2">Quick Quests</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   {todayQuickQuests.map((quest) => (
                     <Link
@@ -604,7 +521,7 @@ export default function QuestsPage() {
                       <div>
                         <h3 className="text-subhead text-tavern-gold leading-snug mb-2">{selectedQuest.title}</h3>
                         <p className="kicker">
-                          {selectedQuest.type === "main" ? "⚔ Main Quest" : "🗡 Side Quest"} • {selectedQuest.category}
+                          {selectedQuest.category}
                         </p>
                       </div>
                       <span className="badge badge-lime">+{selectedQuest.xp_reward} XP</span>
@@ -635,7 +552,6 @@ export default function QuestsPage() {
                       {isAuthenticated && selectedQuest.status === "available" && (
                         <QuickAcceptButton
                           quest={selectedQuest}
-                          activeMainQuestId={activeMainQuestId}
                           onAccepted={handleQuickAccepted}
                           onAcceptStart={() => { pendingWriteRef.current = true; }}
                           onAcceptEnd={() => { pendingWriteRef.current = false; }}
@@ -692,7 +608,7 @@ export default function QuestsPage() {
             <div className="bg-retro-black border-2 border-retro-darkgray p-3">
               <p className="kicker mb-2">Quick Stats</p>
               <p className="text-body-sm text-retro-cyan mb-1">Active: {allActiveQuests.length}</p>
-              <p className="text-body-sm text-retro-lime mb-1">Available Side: {availableSideQuests.length}</p>
+              <p className="text-body-sm text-retro-lime mb-1">Available: {availableQuests.length}</p>
               <p className="text-body-sm text-retro-lightblue">Filtered: {filteredQuests.length}</p>
             </div>
 
@@ -717,7 +633,6 @@ export default function QuestsPage() {
                 {isAuthenticated && (
                   <QuickAcceptButton
                     quest={quest}
-                    activeMainQuestId={activeMainQuestId}
                     onAccepted={handleQuickAccepted}
                     onAcceptStart={() => { pendingWriteRef.current = true; }}
                     onAcceptEnd={() => { pendingWriteRef.current = false; }}

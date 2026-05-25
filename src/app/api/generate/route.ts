@@ -4,13 +4,13 @@ import { z } from "zod";
 import { getLatestFlashModel } from "@/lib/gemini";
 import { AppError, getAuthenticatedUserId, sanitize } from "@/lib/api-utils";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { calcQuestXP, durationLabelToMinutes } from "@/lib/xp";
 
 export const preferredRegion = 'pdx1';
 
 const requestSchema = z.object({
   location: z.string().trim().min(1).max(100), // trim before min so " " is rejected
   topic: z.string().trim().min(1).max(100),
-  questType: z.enum(["main", "side"]),
 });
 
 const responseSchema = z.object({
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { location, topic, questType } = parseResult.data;
+    const { location, topic } = parseResult.data;
 
     const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
     if (!apiKey) {
@@ -109,18 +109,15 @@ export async function POST(request: NextRequest) {
     const safeLocation = sanitize(location);
     const safeTopic = sanitize(topic);
 
-    const goodExample = questType === "main"
-      ? `Good: "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`
-      : `Good: "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you."`;
+    const goodExample = `Good (short): "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you." Good (longer): "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`;
 
-    const prompt = `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest based on these parameters. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+    const prompt = `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest based on these parameters. Pick whatever scope fits the topic — anything from a focused hour to a multi-month goal. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
 
 ${goodExample}
 Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
 Location: ${safeLocation}
 Topic/Interest: ${safeTopic}
-Quest Type: ${questType === "main" ? "Main Quest (takes months to complete)" : "Side Quest (takes 1 day to a weekend)"}
 
 Respond with ONLY a JSON object (no markdown, no code fences) with these exact fields:
 {
@@ -177,14 +174,14 @@ Respond with ONLY a JSON object (no markdown, no code fences) with these exact f
     }
 
     const validatedData = validateResult.data;
-    const baseXP = questType === "main" ? 200 : 50;
-    const xpReward = validatedData.difficulty * baseXP;
+    const duration_minutes = durationLabelToMinutes(validatedData.duration_label);
+    const xpReward = calcQuestXP(duration_minutes, validatedData.difficulty);
 
     return NextResponse.json({
       ...validatedData,
-      type: questType,
       source: "ai",
       xp_reward: xpReward,
+      duration_minutes,
       location: safeLocation,
       status: "available",
     });
