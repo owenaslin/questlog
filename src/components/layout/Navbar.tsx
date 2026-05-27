@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase";
 import { buildAuthUrl } from "@/lib/auth-redirect";
-import { getUserDashboardSnapshot } from "@/lib/quest-progress";
+import { getUserDashboardSnapshot, invalidateDashboardSnapshot, invalidateUserId } from "@/lib/quest-progress";
 import { getOwnHeroProfile } from "@/lib/hero";
 import { useViewMode } from "@/components/ui/ViewModeProvider";
 import { getTimeOfDayLabel } from "@/lib/time-of-day";
@@ -67,6 +67,9 @@ export default function Navbar() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        // Drop cached auth/dashboard state so a user switch never serves stale data.
+        invalidateUserId();
+        invalidateDashboardSnapshot();
         setIsAuthenticated(Boolean(session));
         if (!session) { setHeroLevel(null); setHeroXp(null); setHeroHandle(null); }
       }

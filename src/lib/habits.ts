@@ -12,6 +12,7 @@ import {
   isHabitScheduledForDate,
 } from "@/lib/habit-recurrence";
 import { getUserSettings } from "@/lib/settings";
+import { getCurrentUserId } from "@/lib/quest-progress";
 
 // ============================================
 // HABIT FORM CONSTANTS (shared by new + edit pages)
@@ -52,8 +53,7 @@ export async function createHabit(input: CreateHabitInput): Promise<{
 }> {
   const supabase = getSupabaseClient();
 
-  const { data: userData } = await supabase.auth.getUser();
-  const userId = userData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { success: false, error: "Not authenticated" };
@@ -232,12 +232,11 @@ export async function completeHabit(habitId: string): Promise<{
   const supabase = getSupabaseClient();
   const today = getTodayString();
 
-  const [{ data: userData }, { data: habit, error: habitError }] = await Promise.all([
-    supabase.auth.getUser(),
+  const [userId, { data: habit, error: habitError }] = await Promise.all([
+    getCurrentUserId(),
     supabase.from("habits").select("xp_reward").eq("id", habitId).single(),
   ]);
 
-  const userId = userData?.user?.id;
   if (!userId) {
     console.error("[habits] no authenticated user");
     return { success: false, error: "Not authenticated" };
@@ -284,8 +283,7 @@ export async function uncompleteHabit(habitId: string): Promise<{
   const supabase = getSupabaseClient();
   const today = getTodayString();
 
-  const { data: userData } = await supabase.auth.getUser();
-  const userId = userData?.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) {
     console.error("[habits] no authenticated user");
     return { success: false, error: "Not authenticated" };

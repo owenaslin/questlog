@@ -1,7 +1,7 @@
 import { getTodayString } from "@/lib/habit-recurrence";
 import { getSupabaseClient } from "@/lib/supabase";
 import { ALL_QUESTS } from "@/lib/quests";
-import { getUserDashboardSnapshot, getUserCreatedActiveQuests } from "@/lib/quest-progress";
+import { getCurrentUserId, getUserDashboardSnapshot, getUserCreatedActiveQuests } from "@/lib/quest-progress";
 import { getUserSettings } from "@/lib/settings";
 import { DailyAdventure, Quest } from "@/lib/types";
 import { getRecommendedSideQuest } from "@/lib/quest-recommendations";
@@ -16,12 +16,6 @@ function normalizeDailyAdventure(row: Record<string, unknown>): DailyAdventure {
     created_at: String(row.created_at ?? ""),
     updated_at: String(row.updated_at ?? ""),
   };
-}
-
-async function getCurrentUserId(): Promise<string | null> {
-  const supabase = getSupabaseClient();
-  const { data: authData } = await supabase.auth.getUser();
-  return authData.user?.id ?? null;
 }
 
 export interface DailyAdventureLoadout {
@@ -167,6 +161,15 @@ export async function rerollTodaySideQuest(): Promise<{ success: boolean; loadou
     return { success: false, error: error?.message || "Reroll already used." };
   }
 
-  const refreshed = await getOrCreateTodayAdventure();
-  return refreshed ? { success: true, loadout: refreshed } : { success: false, error: "Could not reload adventure." };
+  // Reuse data already fetched above — only the adventure row and suggestion changed,
+  // so there's no need to re-run the full getOrCreateTodayAdventure query set.
+  return {
+    success: true,
+    loadout: {
+      adventure: normalizeDailyAdventure(updated as Record<string, unknown>),
+      activeQuests: loadout.activeQuests,
+      suggestedQuest: recommendation.quest,
+      completedQuestIds: loadout.completedQuestIds,
+    },
+  };
 }
