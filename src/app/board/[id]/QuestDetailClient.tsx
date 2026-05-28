@@ -13,7 +13,7 @@ import {
   completeQuest,
   getCompletedCategoryCounts,
   getUserDashboardSnapshot,
-  invalidateDashboardSnapshot,
+  invalidateProgressCaches,
   updateStreakOnCompletion,
   getSuggestedNextQuests,
 } from "@/lib/quest-progress";
@@ -168,7 +168,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         setIsNewLongest(streakResult.isNewLongest ?? false);
       }
 
-      invalidateDashboardSnapshot();
+      invalidateProgressCaches();
       const [afterSnapshot, completedByCategory, suggested] = await Promise.all([
         getUserDashboardSnapshot(),
         getCompletedCategoryCounts(),

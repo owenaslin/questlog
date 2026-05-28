@@ -80,6 +80,7 @@ export async function createHabit(input: CreateHabitInput): Promise<{
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true, habit: data as Habit };
 }
 
@@ -101,6 +102,7 @@ export async function updateHabit(
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true };
 }
 
@@ -116,6 +118,7 @@ export async function deleteHabit(habitId: string): Promise<{ success: boolean; 
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true };
 }
 
@@ -134,6 +137,7 @@ export async function toggleHabitActive(
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true };
 }
 
@@ -154,10 +158,38 @@ export async function getHabitById(habitId: string): Promise<Habit | null> {
   return data as Habit;
 }
 
+const _habitsCache = new Map<string, { promise: Promise<HabitWithStatus[]>; expiry: number }>();
+
+export function invalidateHabits(): void {
+  _habitsCache.clear();
+}
+
+// Memoized (20s, keyed by the option shape) so the daily widget, routines
+// section, and /habits page share one snapshot RPC instead of each refetching.
 export async function getUserHabits(options?: {
   activeOnly?: boolean;
   includeStreaks?: boolean;
 }): Promise<HabitWithStatus[]> {
+  const activeOnly = options?.activeOnly !== false;
+  const includeStreaks = options?.includeStreaks !== false;
+  const key = `${activeOnly}:${includeStreaks}`;
+
+  const now = Date.now();
+  const cached = _habitsCache.get(key);
+  if (cached && now < cached.expiry) return cached.promise;
+
+  const promise = _fetchUserHabits(activeOnly, includeStreaks).then((result) => {
+    if (result === null) { _habitsCache.delete(key); return []; }
+    return result;
+  });
+  _habitsCache.set(key, { promise, expiry: now + 20_000 });
+  return promise;
+}
+
+async function _fetchUserHabits(
+  activeOnly: boolean,
+  includeStreaks: boolean
+): Promise<HabitWithStatus[] | null> {
   const supabase = getSupabaseClient();
   const today = getTodayString();
   const { settings } = await getUserSettings();
@@ -165,12 +197,12 @@ export async function getUserHabits(options?: {
   const { data, error } = await supabase.rpc("get_user_habits_snapshot", {
     p_today: today,
     p_week_start: weekStart,
-    p_active_only: options?.activeOnly !== false,
+    p_active_only: activeOnly,
   });
 
   if (error || !data) {
     console.error("Error fetching habits snapshot:", error);
-    return [];
+    return null;
   }
 
   return (data as Array<Record<string, unknown>>).map((row) => {
@@ -191,7 +223,7 @@ export async function getUserHabits(options?: {
     };
 
     const streak: HabitStreak | null =
-      options?.includeStreaks === false || !row.streak_id
+      !includeStreaks || !row.streak_id
         ? null
         : {
             id: row.streak_id as string,
@@ -226,7 +258,6 @@ export async function getHabitsForToday(): Promise<HabitWithStatus[]> {
 export async function completeHabit(habitId: string): Promise<{
   success: boolean;
   xpAwarded?: number;
-  newStreak?: number;
   error?: string;
 }> {
   const supabase = getSupabaseClient();
@@ -262,17 +293,10 @@ export async function completeHabit(habitId: string): Promise<{
     return { success: false, error: error.message };
   }
 
-  // Get updated streak
-  const { data: streak } = await supabase
-    .from("habit_streaks")
-    .select("current_streak")
-    .eq("habit_id", habitId)
-    .single();
-
+  invalidateHabits();
   return {
     success: true,
     xpAwarded: habit.xp_reward,
-    newStreak: streak?.current_streak || 1,
   };
 }
 
@@ -304,6 +328,7 @@ export async function uncompleteHabit(habitId: string): Promise<{
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true };
 }
 
@@ -331,5 +356,6 @@ export async function updateHabitOrder(
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true };
 }

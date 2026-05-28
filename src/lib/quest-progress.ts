@@ -83,6 +83,14 @@ export function invalidateDashboardSnapshot(): void {
   _snapshotExpiry = 0;
 }
 
+// Clears all per-user progress caches together. Call after a mutation that can
+// change progress (quest completion) or on sign-in/out.
+export function invalidateProgressCaches(): void {
+  invalidateDashboardSnapshot();
+  invalidateWeeklyRecap();
+  invalidateQuestlineProgress();
+}
+
 export async function getUserDashboardSnapshot(): Promise<DashboardSnapshot | null> {
   const now = Date.now();
   if (_snapshotPromise && now < _snapshotExpiry) return _snapshotPromise;
@@ -499,10 +507,32 @@ export interface QuestlineProgressRow {
   started_at: string;
 }
 
+let _questlineProgressPromise: Promise<Record<string, QuestlineProgressRow>> | null = null;
+let _questlineProgressExpiry = 0;
+
+export function invalidateQuestlineProgress(): void {
+  _questlineProgressPromise = null;
+  _questlineProgressExpiry = 0;
+}
+
+// Memoized (30s) so the duplicate SmartSuggestions instances on the board page
+// share one fetch instead of each issuing this query on mount.
 export async function getQuestlineProgressMap(): Promise<Record<string, QuestlineProgressRow>> {
+  const now = Date.now();
+  if (_questlineProgressPromise && now < _questlineProgressExpiry) return _questlineProgressPromise;
+
+  _questlineProgressExpiry = now + 30_000;
+  _questlineProgressPromise = _fetchQuestlineProgressMap().then((result) => {
+    if (!result) { _questlineProgressPromise = null; _questlineProgressExpiry = 0; }
+    return result ?? {};
+  });
+  return _questlineProgressPromise;
+}
+
+async function _fetchQuestlineProgressMap(): Promise<Record<string, QuestlineProgressRow> | null> {
   const userId = await getCurrentUserId();
   if (!userId) {
-    return {};
+    return null;
   }
 
   const supabase = getSupabaseClient();
@@ -512,7 +542,7 @@ export async function getQuestlineProgressMap(): Promise<Record<string, Questlin
     .eq("user_id", userId);
 
   if (error || !data) {
-    return {};
+    return null;
   }
 
   return data.reduce<Record<string, QuestlineProgressRow>>((acc, row) => {
@@ -618,7 +648,28 @@ export interface WeeklyRecap {
   categories: string[];
 }
 
+const _weeklyRecapCache = new Map<number, { promise: Promise<WeeklyRecap | null>; expiry: number }>();
+
+export function invalidateWeeklyRecap(): void {
+  _weeklyRecapCache.clear();
+}
+
+// Memoized (30s, keyed by weeksAgo) so duplicate SmartSuggestions instances
+// don't each re-query weekly_activity on mount.
 export async function getWeeklyRecap(weeksAgo: number = 0): Promise<WeeklyRecap | null> {
+  const now = Date.now();
+  const cached = _weeklyRecapCache.get(weeksAgo);
+  if (cached && now < cached.expiry) return cached.promise;
+
+  const promise = _fetchWeeklyRecap(weeksAgo).then((result) => {
+    if (!result) _weeklyRecapCache.delete(weeksAgo);
+    return result;
+  });
+  _weeklyRecapCache.set(weeksAgo, { promise, expiry: now + 30_000 });
+  return promise;
+}
+
+async function _fetchWeeklyRecap(weeksAgo: number): Promise<WeeklyRecap | null> {
   const userId = await getCurrentUserId();
   if (!userId) {
     return null;
