@@ -49,10 +49,30 @@ export interface DashboardSnapshot {
   badgeIds: string[];
 }
 
+let _userIdPromise: Promise<string | null> | null = null;
+let _userIdExpiry = 0;
+
+export function invalidateUserId(): void {
+  _userIdPromise = null;
+  _userIdExpiry = 0;
+}
+
+// Resolves the signed-in user's id from the locally stored session (no auth-server
+// round trip). Memoized briefly so the many data helpers that need the id during a
+// single page load share one lookup instead of each re-reading the session.
 export async function getCurrentUserId(): Promise<string | null> {
-  const supabase = getSupabaseClient();
-  const { data } = await supabase.auth.getSession();
-  return data.session?.user.id ?? null;
+  const now = Date.now();
+  if (_userIdPromise && now < _userIdExpiry) return _userIdPromise;
+
+  _userIdExpiry = now + 30_000;
+  _userIdPromise = getSupabaseClient()
+    .auth.getSession()
+    .then(({ data }) => {
+      const id = data.session?.user.id ?? null;
+      if (!id) { _userIdPromise = null; _userIdExpiry = 0; }
+      return id;
+    });
+  return _userIdPromise;
 }
 
 let _snapshotPromise: Promise<DashboardSnapshot | null> | null = null;

@@ -1,4 +1,5 @@
 import { getSupabaseClient } from "@/lib/supabase";
+import { getCurrentUserId } from "@/lib/quest-progress";
 import {
   DiscoveryPreference,
   EnergyLevel,
@@ -72,8 +73,7 @@ function normalizeSettingsRow(row: Record<string, unknown>): UserSettings {
 export async function getUserSettings(): Promise<{ settings: UserSettings | null; error?: string }> {
   const supabase = getSupabaseClient();
 
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { settings: null, error: "Not authenticated" };
@@ -116,8 +116,7 @@ export async function upsertUserSettings(
 ): Promise<{ settings: UserSettings | null; error?: string }> {
   const supabase = getSupabaseClient();
 
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { settings: null, error: "Not authenticated" };
@@ -183,8 +182,7 @@ export async function updateProfileSettings(input: {
 }): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
 
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { success: false, error: "Not authenticated" };
@@ -223,8 +221,7 @@ export async function getOwnProfileSettings(): Promise<{
 }> {
   const supabase = getSupabaseClient();
 
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { profile: null, error: "Not authenticated" };
