@@ -15,65 +15,19 @@
 --   3. Functions with a mutable search_path (Supabase linter 0011).
 -- ============================================================================
 
--- ── 1. Add owner-only authorization guards to RLS-bypassing RPCs ─────────────
--- These run as SECURITY DEFINER (bypass RLS). They are intended to operate only
--- on the caller's own data. The guard allows service-role calls (auth.uid() IS
--- NULL) and the owner, and rejects authenticated/anon callers passing another
--- user's id.
-
-CREATE OR REPLACE FUNCTION public.get_hero_dashboard(p_user_id uuid)
- RETURNS TABLE(pinned_quests jsonb, badge_ids uuid[], completed_count bigint, longest_streak integer)
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-BEGIN
-    IF auth.uid() IS NOT NULL AND p_user_id <> auth.uid() THEN
-        RAISE EXCEPTION 'not authorized' USING ERRCODE = '42501';
-    END IF;
-
-    RETURN QUERY
-    WITH
-    pinned AS (
-        SELECT jsonb_agg(
-            jsonb_build_object(
-                'id', id,
-                'quest_id', quest_id,
-                'quest_title', quest_title,
-                'quest_type', quest_type,
-                'quest_xp_reward', quest_xp_reward,
-                'position', position,
-                'pinned_at', pinned_at
-            ) ORDER BY position
-        ) as data
-        FROM public.pinned_quests
-        WHERE user_id = p_user_id
-        LIMIT 5
-    ),
-    badges AS (
-        SELECT array_agg(badge_id) as data
-        FROM public.user_badges
-        WHERE user_id = p_user_id
-    ),
-    completed AS (
-        SELECT COUNT(*) as cnt
-        FROM public.user_quests
-        WHERE user_id = p_user_id AND status = 'completed'
-    ),
-    streak AS (
-        SELECT longest_streak
-        FROM public.user_streaks
-        WHERE user_id = p_user_id
-        LIMIT 1
-    )
-    SELECT
-        COALESCE(pinned.data, '[]'::jsonb) as pinned_quests,
-        COALESCE(badges.data, ARRAY[]::UUID[]) as badge_ids,
-        COALESCE(completed.cnt, 0) as completed_count,
-        COALESCE(streak.longest_streak, 0) as longest_streak
-    FROM pinned, badges, completed, streak;
-END;
-$function$;
+-- ── 1. Add owner-only authorization guard to an RLS-bypassing write RPC ──────
+-- check_and_increment_discovery_count is SECURITY DEFINER (bypasses RLS), is
+-- EXECUTE-able by anon via PostgREST, and WRITES to public.profiles. It is keyed
+-- to a single user and has no public/cross-user use case, so an arbitrary caller
+-- could exhaust another user's daily discovery quota by passing their id. The
+-- guard allows service-role calls (auth.uid() IS NULL) and the owner, and rejects
+-- authenticated/anon callers passing another user's id.
+--
+-- NOTE: get_hero_dashboard(p_user_id) is intentionally NOT guarded here. The
+-- public hero page (/hero/[handle]) calls it with the *viewed* hero's id from an
+-- anonymous or third-party-authenticated browser client, so it is public-by-design
+-- (it returns a curated public subset). Guarding it on auth.uid() would break
+-- viewing other users' public profiles. See SECURITY_AUDIT_2026-05.md, finding #2.
 
 CREATE OR REPLACE FUNCTION public.check_and_increment_discovery_count(p_user_id uuid)
  RETURNS boolean

@@ -30,7 +30,7 @@ function mapAuthErrorMessage(error: unknown): string {
   if (msg.includes("already registered")) {
     return "This email is already registered. Log in instead.";
   }
-  if (msg.includes("password") && (msg.includes("characters") || msg.includes("short") || /\b[0-9]+\b/.test(msg))) {
+  if (msg.includes("password") && (msg.includes("character") || msg.includes("at least") || msg.includes("too short"))) {
     return "Password must be at least 8 characters.";
   }
   if (msg.includes("network") || msg.includes("fetch")) {

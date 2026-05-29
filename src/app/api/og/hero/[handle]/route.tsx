@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { AVATAR_PORTRAITS, AvatarKey, deriveTitle } from "@/lib/types";
-import { fetchHeroByHandle, loadFont } from "@/lib/og-utils";
+import { fetchHeroByHandle, loadFont, isValidHandle } from "@/lib/og-utils";
 
 export const runtime = "edge";
 
@@ -11,8 +11,11 @@ export async function GET(
   const { handle } = await params;
   const [heroData, fontData] = await Promise.all([fetchHeroByHandle(handle), loadFont()]);
 
+  // Fail closed: never reflect a malformed handle into the rendered card.
+  const safeHandle = isValidHandle(handle) ? handle : "adventurer";
+
   const hero = heroData ?? {
-    display_name: handle,
+    display_name: safeHandle,
     avatar_sprite: "wizard",
     level: 1,
     xp_total: 0,
@@ -141,7 +144,7 @@ export async function GET(
             zIndex: 1,
           }}
         >
-          🍺 tarvn.xyz/hero/{handle}
+          🍺 tarvn.xyz/hero/{safeHandle}
         </div>
       </div>
     ),

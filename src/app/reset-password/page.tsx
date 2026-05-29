@@ -145,7 +145,7 @@ export default function ResetPasswordPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyUp={handlePasswordKeyState}
                 onKeyDown={handlePasswordKeyState}
-                minLength={6}
+                minLength={8}
                 required
                 placeholder="••••••••"
                 autoComplete="new-password"
@@ -172,7 +172,7 @@ export default function ResetPasswordPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onKeyUp={handlePasswordKeyState}
                 onKeyDown={handlePasswordKeyState}
-                minLength={6}
+                minLength={8}
                 required
                 placeholder="••••••••"
                 autoComplete="new-password"

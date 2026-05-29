@@ -14,7 +14,7 @@ Supabase project (`get_advisors`, `list_tables`, read-only `execute_sql`) +
 | # | Finding | Severity | CWE | Status |
 |---|---------|----------|-----|--------|
 | 1 | PostgREST filter injection via unescaped `questId` in OG route | High | CWE-89 / CWE-943 | **Fixed (code)** |
-| 2 | IDOR: `get_hero_dashboard(p_user_id)` SECURITY DEFINER, no `auth.uid()` check | Medium | CWE-639 | **Fix provided (migration 023)** |
+| 2 | `get_hero_dashboard(p_user_id)` SECURITY DEFINER exposes hero data without `auth.uid()` check | Info | CWE-639 | **Not a vuln — public-by-design (verify fields)** |
 | 3 | IDOR/abuse: `check_and_increment_discovery_count(p_user_id)` no `auth.uid()` check | Medium | CWE-639 | **Fix provided (migration 023)** |
 | 4 | Trigger-only SECURITY DEFINER functions EXECUTE-able by anon/authenticated | Low | CWE-732 | **Fix provided (migration 023)** |
 | 5 | Weak password policy (6-char minimum) | Medium | CWE-521 | **Fixed (code)** |
@@ -56,20 +56,22 @@ and `encodeURIComponent()` the value. The shared validators live in
 `src/lib/api-utils.ts`. The companion `user`/`handle` param is now validated in
 `fetchHeroByHandle()`.
 
-### 2. IDOR in `get_hero_dashboard(p_user_id)` — MEDIUM (migration 023)
+### 2. `get_hero_dashboard(p_user_id)` exposes hero data without `auth.uid()` check — INFO (not a vuln)
 
-The RPC is `SECURITY DEFINER` (bypasses RLS), is executable by `anon` via
-`/rest/v1/rpc/get_hero_dashboard`, and contained **no `auth.uid()` check**. Any
-caller supplying an arbitrary user UUID could read that user's pinned quests
-(incl. titles), badge IDs, completed-quest count, and longest streak — bypassing
-the RLS that protects those tables. Confirmed via live inspection of the function
-body.
+The RPC is `SECURITY DEFINER` (bypasses RLS), executable by `anon`, and contains
+no `auth.uid()` check, so any caller can read a given user's pinned quests, badge
+IDs, completed-quest count, and longest streak. Initially flagged as IDOR, but
+this is **public-by-design**: the public hero page (`src/app/hero/[handle]/...`)
+calls `getHeroDashboard(heroData.id)` with the *viewed* hero's id from an
+anonymous/third-party browser client (`HeroPageClient.tsx:59`). The function
+deliberately exposes a curated public subset of otherwise RLS-protected tables.
 
-**Fix (migration 023):** owner-only guard
-`IF auth.uid() IS NOT NULL AND p_user_id <> auth.uid() THEN RAISE EXCEPTION ...`.
-The guard permits service-role calls and the owner; it rejects authenticated/anon
-callers passing someone else's id, and does not change the legitimate app flow
-(the client passes its own id).
+An earlier draft of migration 023 added an `auth.uid()` guard here — that guard
+was **removed**, because it would break a logged-in user viewing *another* user's
+public hero page (`auth.uid() <> p_user_id → RAISE`). No code fix is applied.
+**Action:** confirm every field returned is intended to be public; if any (e.g.
+in-progress quest titles) should be private, scope them in the function instead
+of adding an auth check that breaks public viewing.
 
 ### 3. IDOR/abuse in `check_and_increment_discovery_count(p_user_id)` — MEDIUM (migration 023)
 
@@ -107,9 +109,12 @@ are rejected. Pairs with finding #5.
 `src/app/hero/[handle]/page.tsx` used the URL `handle` in PostgREST calls and OG
 meta tags without app-layer validation (the DB enforced the format, the app did
 not). Added `isValidHandle()` (mirrors the DB regex
-`^[a-z0-9][a-z0-9-]{1,18}[a-z0-9]$`): `generateMetadata` returns a neutral title
-and the page calls `notFound()` for malformed handles, and `fetchHeroByHandle`
-rejects them before issuing a request.
+`^[a-z0-9][a-z0-9-]{1,18}[a-z0-9]$`, case-insensitive since handles are stored
+lowercase and `get_profile_by_handle` lower()s its input, so mixed-case URLs must
+still resolve): `generateMetadata` returns a neutral title and the page calls
+`notFound()` for malformed handles, `fetchHeroByHandle` rejects them before
+issuing a request, and the OG image routes fall back to a safe handle rather than
+reflecting a malformed one.
 
 ### 8. Prompt-injection surface in AI endpoints — LOW (Hardened)
 
@@ -155,7 +160,8 @@ tests for the routes fixed here.
 
 - **Applied in code (this branch):** #1, #5, #7, #8.
 - **Migration provided (`supabase/migrations/023_security_audit_hardening.sql`,
-  review before applying — not auto-applied):** #2, #3, #4, #10.
+  review before applying — not auto-applied):** #3, #4, #10.
+- **Reclassified as not-a-vuln after review:** #2 (public-by-design).
 - **Operational / dashboard:** #6 (leaked-password protection), #5 server-side
   minimum, #9 decision, #11 `npm audit fix`, #12 CI hardening.
 

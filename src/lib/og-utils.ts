@@ -12,10 +12,12 @@ export function isUuid(value: string): boolean {
 /**
  * Validate a public profile handle. Mirrors the DB-side constraint in
  * supabase/migrations/007_security_hardening.sql so invalid handles are rejected
- * before being interpolated into URLs or sent to PostgREST.
+ * before being interpolated into URLs or sent to PostgREST. Case-insensitive:
+ * handles are stored lowercase and get_profile_by_handle lower()s its input, so
+ * mixed-case URLs (e.g. /hero/JohnDoe) must still resolve.
  */
 export function isValidHandle(value: string): boolean {
-  return /^[a-z0-9][a-z0-9-]{1,18}[a-z0-9]$/.test(value);
+  return /^[a-z0-9][a-z0-9-]{1,18}[a-z0-9]$/i.test(value);
 }
 
 export async function fetchHeroByHandle(handle: string) {
