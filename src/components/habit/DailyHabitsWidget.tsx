@@ -54,11 +54,19 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onVisible);
 
-    // Reload once at local midnight so the list rolls over to the new day.
-    const now = new Date();
-    const midnight = new Date(now);
-    midnight.setHours(24, 0, 0, 0);
-    const midnightTimer = setTimeout(loadData, midnight.getTime() - now.getTime());
+    // Reload at each local midnight so the list rolls over to the new day,
+    // rescheduling so sessions left open across several days keep rolling over.
+    let midnightTimer: ReturnType<typeof setTimeout>;
+    const scheduleMidnight = () => {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+      midnightTimer = setTimeout(() => {
+        loadData();
+        scheduleMidnight();
+      }, midnight.getTime() - now.getTime());
+    };
+    scheduleMidnight();
 
     return () => {
       document.removeEventListener("visibilitychange", onVisible);
