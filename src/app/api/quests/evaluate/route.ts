@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
-import { AppError, getAuthenticatedUserId, sanitize } from "@/lib/api-utils";
+import { AppError, getAuthenticatedUserId, sanitize, sanitizePromptInput } from "@/lib/api-utils";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
 import { durationLabelToMinutes, calcQuestXP, clamp } from "@/lib/xp";
@@ -66,8 +66,8 @@ function buildAiPrompt(topic: string, location: string): string {
 ${example}
 Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
-Location: ${sanitize(location) || "anywhere"}
-Topic / Interest: ${sanitize(topic)}
+Location: ${sanitizePromptInput(location) || "anywhere"}
+Topic / Interest: ${sanitizePromptInput(topic)}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
 
@@ -97,7 +97,7 @@ function buildUserPrompt(
 Keep the adventure framing (quest structure, step-by-step objectives) — but write the description like you're telling a friend about a genuinely worthwhile thing to do, not narrating an epic saga. Avoid mystical language, invented names, or dramatic flourishes that obscure what the user actually needs to do.
 
 Category: ${category}
-User's title: ${sanitize(title)}
+User's title: ${sanitizePromptInput(title)}
 User's description: ${sanitize(description)}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.

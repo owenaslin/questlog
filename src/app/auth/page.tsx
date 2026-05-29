@@ -30,8 +30,8 @@ function mapAuthErrorMessage(error: unknown): string {
   if (msg.includes("already registered")) {
     return "This email is already registered. Log in instead.";
   }
-  if (msg.includes("password") && msg.includes("6")) {
-    return "Password must be at least 6 characters.";
+  if (msg.includes("password") && (msg.includes("characters") || msg.includes("short") || /\b[0-9]+\b/.test(msg))) {
+    return "Password must be at least 8 characters.";
   }
   if (msg.includes("network") || msg.includes("fetch")) {
     return "Network issue detected. Check your connection and try again.";
@@ -329,7 +329,7 @@ export default function AuthPage() {
                     onKeyDown={handlePasswordKeyState}
                     placeholder="••••••••"
                     required
-                    minLength={6}
+                    minLength={mode === "signup" ? 8 : 6}
                     autoComplete={mode === "signup" ? "new-password" : "current-password"}
                     className="w-full"
                   />

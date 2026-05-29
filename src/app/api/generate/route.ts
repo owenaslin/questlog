@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import { getLatestFlashModel } from "@/lib/gemini";
-import { AppError, getAuthenticatedUserId, sanitize } from "@/lib/api-utils";
+import { AppError, getAuthenticatedUserId, sanitizePromptInput } from "@/lib/api-utils";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { calcQuestXP, durationLabelToMinutes } from "@/lib/xp";
 
@@ -106,8 +106,8 @@ export async function POST(request: NextRequest) {
     const resolvedModel   = configuredModel || await getLatestFlashModel(apiKey);
     const modelCandidates = [resolvedModel];
 
-    const safeLocation = sanitize(location);
-    const safeTopic = sanitize(topic);
+    const safeLocation = sanitizePromptInput(location);
+    const safeTopic = sanitizePromptInput(topic);
 
     const goodExample = `Good (short): "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you." Good (longer): "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`;
 
