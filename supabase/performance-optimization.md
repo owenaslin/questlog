@@ -151,3 +151,28 @@ Run `REINDEX` after significant cleanup:
 REINDEX INDEX CONCURRENTLY idx_user_quests_user_id;
 -- etc for other active indexes
 ```
+
+---
+
+## Round 2: RLS init-plan, permissive policies & FK index
+
+### `023_rls_initplan_and_fk_index.sql`
+
+Tables added after the first RLS cleanup (`quest_discoveries`,
+`user_settings`, `daily_adventures`, `user_quest_steps`) still had policies
+that re-evaluated `auth.uid()` once per row, and `user_quest_steps` had a
+redundant `FOR ALL` policy overlapping three granular ones. This migration
+clears all of the WARN-level linter findings:
+
+| Linter check | Count | Fix |
+|--------------|-------|-----|
+| `unindexed_foreign_keys` | 1 | Added `idx_quest_discoveries_quest_id` on `quest_discoveries(quest_id)` |
+| `auth_rls_initplan` | 14 | Wrapped `auth.uid()` in `(select auth.uid())` so it's evaluated once per query instead of once per row |
+| `multiple_permissive_policies` | 15 | Collapsed the overlapping `user_quest_steps` policies into the single `FOR ALL` policy (which already covers SELECT/INSERT/UPDATE/DELETE) |
+
+Policy semantics are unchanged — every policy still scopes rows to the
+owning user. After applying, only INFO-level "unused index" notices remain.
+
+The newly added `idx_quest_discoveries_quest_id` will itself show up as
+"unused" until the location-discovery feature exercises the FK; it is
+required for `ON DELETE CASCADE` performance and should be kept.
