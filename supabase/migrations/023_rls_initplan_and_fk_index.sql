@@ -11,6 +11,13 @@
 --      overhead (each permissive policy is otherwise executed for every row).
 --
 -- Semantics are unchanged: every policy still restricts rows to the owning user.
+--
+-- Wrapped in a transaction so a manual replay (e.g. via psql) is atomic: the
+-- DROP/CREATE policy swaps never expose a window where a table has RLS enabled
+-- but no policy. (None of the statements use CREATE INDEX CONCURRENTLY, which
+-- would be incompatible with a transaction block.)
+
+BEGIN;
 
 -- ============================================================
 -- 1. Unindexed foreign key: quest_discoveries.quest_id
@@ -77,3 +84,5 @@ CREATE POLICY "Users manage own quest steps" ON public.user_quest_steps
   FOR ALL
   USING ((select auth.uid()) = user_id)
   WITH CHECK ((select auth.uid()) = user_id);
+
+COMMIT;
