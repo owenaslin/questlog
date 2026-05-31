@@ -11,10 +11,12 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSpring, animated } from '@react-spring/web';
-import type { 
-  DiscoveryRequest, 
-  DiscoveryResponse, 
+import { getSupabaseClient } from '@/lib/supabase';
+import type {
+  DiscoveryRequest,
+  DiscoveryResponse,
   NarrativeQuest,
   DiscoveryIntent,
 } from '@/lib/discovery/types';
@@ -51,8 +53,13 @@ export default function DiscoveryForge({
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
   const [discoveredQuest, setDiscoveredQuest] = useState<NarrativeQuest | null>(null);
+  const [questToken, setQuestToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [remainingDaily, setRemainingDaily] = useState<number>(5);
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [acceptError, setAcceptError] = useState<string | null>(null);
+
+  const router = useRouter();
 
   // Animated progress bar
   const progressSpring = useSpring({
@@ -92,11 +99,9 @@ export default function DiscoveryForge({
         exclude_recent: true,
       };
       
-      // Get auth token from local storage or context (SSR-safe)
-      const token = typeof window !== 'undefined' 
-        ? localStorage.getItem('supabase.auth.token') 
-        : null;
-      
+      const { data: { session: authSession } } = await getSupabaseClient().auth.getSession();
+      const token = authSession?.access_token ?? null;
+
       const response = await fetch('/api/discover', {
         method: 'POST',
         headers: {
@@ -113,6 +118,7 @@ export default function DiscoveryForge({
       }
       
       setDiscoveredQuest(data.quest);
+      setQuestToken(data.quest_token ?? null);
       setRemainingDaily(data.remaining_daily);
       
     } catch (err) {
@@ -124,15 +130,63 @@ export default function DiscoveryForge({
     }
   }, [selectedIntent, theme]);
 
-  const handleAccept = () => {
-    if (discoveredQuest && onQuestAccepted) {
-      onQuestAccepted(discoveredQuest);
+  const handleAccept = async () => {
+    if (!discoveredQuest) return;
+    if (!questToken) {
+      setAcceptError('Quest preview expired — please discover again.');
+      setDiscoveredQuest(null);
+      return;
     }
-    setDiscoveredQuest(null);
+    setIsAccepting(true);
+    setAcceptError(null);
+    try {
+      const { data: { session: authSession } } = await getSupabaseClient().auth.getSession();
+      if (!authSession) {
+        setAcceptError('Please log in to accept quests.');
+        return;
+      }
+      const res = await fetch('/api/quests/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authSession.access_token}`,
+          'X-Quest-Token': questToken,
+        },
+        body: JSON.stringify({
+          title: discoveredQuest.title,
+          description: discoveredQuest.description,
+          type: 'side',
+          source: 'ai',
+          difficulty: discoveredQuest.difficulty,
+          duration_label: discoveredQuest.duration_label,
+          category: discoveredQuest.category,
+          xp_reward: discoveredQuest.xp_reward,
+          location: discoveredQuest.discovery.place_name,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 401 && /expired|token|re-evaluate|discover/i.test(data.error ?? '')) {
+          setAcceptError(data.error || 'Quest preview expired — please discover again.');
+          setDiscoveredQuest(null);
+          setQuestToken(null);
+          return;
+        }
+        setAcceptError(data.error || 'Could not save quest.');
+        return;
+      }
+      onQuestAccepted?.(discoveredQuest);
+      router.push(`/board/${data.questId}`);
+    } catch (err) {
+      setAcceptError(err instanceof Error ? err.message : 'An unexpected error occurred.');
+    } finally {
+      setIsAccepting(false);
+    }
   };
 
   const handleDismiss = () => {
     setDiscoveredQuest(null);
+    setQuestToken(null);
     if (onQuestDismissed) {
       onQuestDismissed();
     }
@@ -253,19 +307,25 @@ export default function DiscoveryForge({
         </div>
         
         {/* Actions */}
-        <div className="p-6 bg-slate-800/50 flex gap-3">
-          <button
-            onClick={handleAccept}
-            className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-slate-900 font-bold rounded-lg hover:from-amber-500 hover:to-amber-400 transition-all transform hover:scale-105"
-          >
-            Accept Quest (+{discoveredQuest.xp_reward} XP)
-          </button>
-          <button
-            onClick={handleDismiss}
-            className="px-4 py-3 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors"
-          >
-            Dismiss
-          </button>
+        <div className="p-6 bg-slate-800/50 flex flex-col gap-3">
+          <div className="flex gap-3">
+            <button
+              onClick={handleAccept}
+              disabled={isAccepting}
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-slate-900 font-bold rounded-lg hover:from-amber-500 hover:to-amber-400 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {isAccepting ? 'Saving Quest…' : `Accept Quest (+${discoveredQuest.xp_reward} XP)`}
+            </button>
+            <button
+              onClick={handleDismiss}
+              className="px-4 py-3 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors"
+            >
+              Dismiss
+            </button>
+          </div>
+          {acceptError && (
+            <p className="text-center text-sm text-red-400">{acceptError}</p>
+          )}
         </div>
         
         {/* Remaining counter */}

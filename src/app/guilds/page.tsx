@@ -136,7 +136,7 @@ export default function GuildsPage() {
 
       {/* Stats */}
       <div className="mt-12 tavern-card p-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div className="grid grid-cols-2 gap-4 text-center">
           <div>
             <span className="font-pixel text-retro-yellow text-2xl block leading-none mb-1">
               {ALL_QUESTS.length}
@@ -148,18 +148,6 @@ export default function GuildsPage() {
               {CATEGORIES.length}
             </span>
             <span className="kicker">Categories</span>
-          </div>
-          <div>
-            <span className="font-pixel text-retro-lime text-2xl block">
-              {ALL_QUESTS.filter((q) => q.type === "main").length}
-            </span>
-            <span className="kicker">Main Quests</span>
-          </div>
-          <div>
-            <span className="font-pixel text-retro-orange text-2xl block">
-              {ALL_QUESTS.filter((q) => q.type === "side").length}
-            </span>
-            <span className="kicker">Side Quests</span>
           </div>
         </div>
       </div>

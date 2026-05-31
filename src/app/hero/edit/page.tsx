@@ -182,7 +182,7 @@ export default function HeroEditPage() {
           return;
         }
 
-        const result = await pinQuest(quest.id, quest.title, quest.type, quest.xp_reward);
+        const result = await pinQuest(quest.id, quest.title, quest.xp_reward);
         if (!result.success) {
           setSaveError(result.error ?? "Could not pin quest.");
           return;
@@ -194,7 +194,6 @@ export default function HeroEditPage() {
             id: `tmp-${quest.id}`,
             quest_id: quest.id,
             quest_title: quest.title,
-            quest_type: quest.type,
             quest_xp_reward: quest.xp_reward,
             position: prev.length,
             pinned_at: new Date().toISOString(),

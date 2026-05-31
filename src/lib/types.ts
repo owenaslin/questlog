@@ -1,4 +1,3 @@
-export type QuestType = "main" | "side";
 export type QuestSource = "predefined" | "user" | "ai";
 export type QuestStatus = "available" | "active" | "completed";
 
@@ -19,7 +18,6 @@ export interface Quest {
   id: string;
   title: string;
   description: string;
-  type: QuestType;
   source: QuestSource;
   difficulty: number; // 1-5
   xp_reward: number;
@@ -49,7 +47,6 @@ export interface PinnedQuest {
   id: string;
   quest_id: string;
   quest_title: string;
-  quest_type: QuestType;
   quest_xp_reward: number;
   position: number;
   pinned_at: string;
@@ -151,7 +148,7 @@ export function xpForNextLevel(currentXP: number): {
 // HABITS SYSTEM TYPES
 // ============================================
 
-export type HabitRecurrenceType = "daily" | "weekdays" | "interval" | "weekly";
+export type HabitRecurrenceType = "daily" | "weekdays" | "interval" | "weekly" | "weekly_x_days";
 
 export interface HabitRecurrenceData {
   // For 'weekdays': array of day indices (0=Sun, 1=Mon, etc.)
@@ -160,6 +157,8 @@ export interface HabitRecurrenceData {
   intervalDays?: number;
   // For 'weekly': day of week (0-6)
   dayOfWeek?: number;
+  // For 'weekly_x_days': target completions per week (1-7)
+  timesPerWeek?: number;
 }
 
 export interface Habit {
@@ -242,12 +241,8 @@ export interface DailyAdventure {
   id: string;
   user_id: string;
   adventure_date: string;
-  main_quest_id: string | null;
-  side_quest_id: string | null;
-  generated_prompt: string;
-  reflection_answer: string | null;
+  suggested_quest_id: string | null;
   side_quest_rerolls_used: number;
-  completed_at: string | null;
   created_at: string;
   updated_at: string;
 }

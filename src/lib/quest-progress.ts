@@ -49,13 +49,61 @@ export interface DashboardSnapshot {
   badgeIds: string[];
 }
 
+let _userIdPromise: Promise<string | null> | null = null;
+let _userIdExpiry = 0;
+
+export function invalidateUserId(): void {
+  _userIdPromise = null;
+  _userIdExpiry = 0;
+}
+
+// Resolves the signed-in user's id from the locally stored session (no auth-server
+// round trip). Memoized briefly so the many data helpers that need the id during a
+// single page load share one lookup instead of each re-reading the session.
 export async function getCurrentUserId(): Promise<string | null> {
-  const supabase = getSupabaseClient();
-  const { data } = await supabase.auth.getSession();
-  return data.session?.user.id ?? null;
+  const now = Date.now();
+  if (_userIdPromise && now < _userIdExpiry) return _userIdPromise;
+
+  _userIdExpiry = now + 30_000;
+  _userIdPromise = getSupabaseClient()
+    .auth.getSession()
+    .then(({ data }) => {
+      const id = data.session?.user.id ?? null;
+      if (!id) { _userIdPromise = null; _userIdExpiry = 0; }
+      return id;
+    });
+  return _userIdPromise;
+}
+
+let _snapshotPromise: Promise<DashboardSnapshot | null> | null = null;
+let _snapshotExpiry = 0;
+
+export function invalidateDashboardSnapshot(): void {
+  _snapshotPromise = null;
+  _snapshotExpiry = 0;
+}
+
+// Clears all per-user progress caches together. Call after a mutation that can
+// change progress (quest completion) or on sign-in/out.
+export function invalidateProgressCaches(): void {
+  invalidateDashboardSnapshot();
+  invalidateWeeklyRecap();
+  invalidateQuestlineProgress();
 }
 
 export async function getUserDashboardSnapshot(): Promise<DashboardSnapshot | null> {
+  const now = Date.now();
+  if (_snapshotPromise && now < _snapshotExpiry) return _snapshotPromise;
+
+  _snapshotExpiry = now + 30_000;
+  _snapshotPromise = _fetchDashboardSnapshot().then((result) => {
+    if (!result) { _snapshotPromise = null; _snapshotExpiry = 0; }
+    return result;
+  });
+  return _snapshotPromise;
+}
+
+async function _fetchDashboardSnapshot(): Promise<DashboardSnapshot | null> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase.rpc("get_user_dashboard_snapshot");
 
@@ -138,36 +186,6 @@ export function mergeQuestWithProgress(
   });
 }
 
-export async function getActiveMainQuest(userId: string): Promise<(Quest & { accepted_at: string | null }) | null> {
-  const supabase = getSupabaseClient();
-  const { data, error } = await supabase
-    .from("user_quests")
-    .select("quest_id,accepted_at,quest_type,quest_category")
-    .eq("user_id", userId)
-    .eq("status", "active")
-    .eq("quest_type", "main")
-    .limit(1)
-    .maybeSingle();
-
-  if (error || !data) return null;
-
-  const questId = data.quest_id as string;
-  const predefined = ALL_QUESTS.find((q) => q.id === questId);
-  if (predefined) {
-    return { ...predefined, status: "active", accepted_at: data.accepted_at };
-  }
-
-  // Custom/AI quest — fetch from DB
-  const { data: customQuest } = await supabase
-    .from("quests")
-    .select("id,title,description,type,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status")
-    .eq("id", questId)
-    .maybeSingle();
-
-  if (!customQuest) return null;
-  return { ...(customQuest as Quest), status: "active", accepted_at: data.accepted_at };
-}
-
 export async function abandonQuest(questId: string): Promise<{ success: boolean; error?: string }> {
   const userId = await getCurrentUserId();
   if (!userId) return { success: false, error: "Please log in." };
@@ -190,17 +208,6 @@ export async function abandonQuest(questId: string): Promise<{ success: boolean;
   if (updateError) return { success: false, error: updateError.message };
   if (stepsError) return { success: false, error: stepsError.message };
   return { success: true };
-}
-
-export async function abandonAndAccept(
-  abandonQuestId: string,
-  newQuestId: string,
-  newQuestType?: Quest["type"],
-  newQuestCategory?: string
-): Promise<{ success: boolean; error?: string; conflict?: { questId: string; title: string } }> {
-  const abandonResult = await abandonQuest(abandonQuestId);
-  if (!abandonResult.success) return abandonResult;
-  return acceptQuest(newQuestId, newQuestType, newQuestCategory);
 }
 
 export async function markQuestStep(questId: string, stepId: string): Promise<{ success: boolean; error?: string }> {
@@ -274,23 +281,11 @@ export async function getSuggestedNextQuests(completedQuestId: string): Promise<
 
 export async function acceptQuest(
   questId: string,
-  questType?: Quest["type"],
   questCategory?: string
-): Promise<{ success: boolean; error?: string; conflict?: { questId: string; title: string } }> {
+): Promise<{ success: boolean; error?: string }> {
   const userId = await getCurrentUserId();
   if (!userId) {
     return { success: false, error: "Please log in to accept quests." };
-  }
-
-  // Enforce 1 active main quest at a time
-  if (questType === "main") {
-    const activeMain = await getActiveMainQuest(userId);
-    if (activeMain && activeMain.id !== questId) {
-      return {
-        success: false,
-        conflict: { questId: activeMain.id, title: activeMain.title },
-      };
-    }
   }
 
   const supabase = getSupabaseClient();
@@ -302,7 +297,6 @@ export async function acceptQuest(
       {
         user_id: userId,
         quest_id: questId,
-        quest_type: questType,
         quest_category: questCategory,
         status: "active",
         accepted_at: now,
@@ -318,15 +312,15 @@ export async function acceptQuest(
 }
 
 /**
- * Marks a quest complete and awards XP via the complete_quest_atomic RPC, then
- * separately updates weekly_activity. These are two distinct DB operations — if
- * the second fails the XP is still awarded (not rolled back). Acceptable for
- * this app's consistency requirements.
+ * Marks a quest complete via the complete_quest_atomic RPC, then separately
+ * updates weekly_activity. The XP value is no longer passed in — both RPCs
+ * now look it up from public.quests.xp_reward server-side (see migration
+ * 021), so a malicious client can't mint arbitrary XP by tampering with
+ * the call.
  */
 export async function completeQuest(
   questId: string,
-  xpReward: number,
-  questType?: Quest["type"],
+  questType?: string,
   questCategory?: string
 ): Promise<{ success: boolean; alreadyCompleted?: boolean; error?: string }> {
   const userId = await getCurrentUserId();
@@ -341,7 +335,6 @@ export async function completeQuest(
     {
       p_user_id: userId,
       p_quest_id: questId,
-      p_xp: xpReward,
       p_quest_type: questType ?? null,
       p_quest_category: questCategory ?? null,
     }
@@ -361,7 +354,7 @@ export async function completeQuest(
   if (questCategory) {
     const { error: weeklyError } = await supabase.rpc("update_weekly_activity", {
       p_user_id: userId,
-      p_xp: xpReward,
+      p_quest_id: questId,
       p_category: questCategory,
     });
 
@@ -371,41 +364,6 @@ export async function completeQuest(
   }
 
   return { success: true };
-}
-
-export async function getProfileProgressSummary(): Promise<ProfileProgressSummary | null> {
-  const userId = await getCurrentUserId();
-  if (!userId) {
-    return null;
-  }
-
-  const supabase = getSupabaseClient();
-
-  const [{ data: profile }, { count: completedCount }, { count: activeCount }] = await Promise.all([
-    supabase.from("profiles").select("xp_total,level,created_at").eq("id", userId).single(),
-    supabase
-      .from("user_quests")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .eq("status", "completed"),
-    supabase
-      .from("user_quests")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .eq("status", "active"),
-  ]);
-
-  if (!profile) {
-    return null;
-  }
-
-  return {
-    xp_total: profile.xp_total || 0,
-    level: profile.level || calculateLevel(profile.xp_total || 0),
-    completedCount: completedCount || 0,
-    activeCount: activeCount || 0,
-    created_at: profile.created_at || undefined,
-  };
 }
 
 export async function getRecentCompletedQuestIds(limit = 5): Promise<string[]> {
@@ -475,7 +433,7 @@ export async function getCompletedQuestsForSaga(): Promise<CompletedQuestForSaga
   const { data: customQuests, error: customError } = await supabase
     .from("quests")
     .select(
-      "id,title,description,type,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
+      "id,title,description,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
     )
     .in("id", customIds);
 
@@ -549,10 +507,32 @@ export interface QuestlineProgressRow {
   started_at: string;
 }
 
+let _questlineProgressPromise: Promise<Record<string, QuestlineProgressRow>> | null = null;
+let _questlineProgressExpiry = 0;
+
+export function invalidateQuestlineProgress(): void {
+  _questlineProgressPromise = null;
+  _questlineProgressExpiry = 0;
+}
+
+// Memoized (30s) so the duplicate SmartSuggestions instances on the board page
+// share one fetch instead of each issuing this query on mount.
 export async function getQuestlineProgressMap(): Promise<Record<string, QuestlineProgressRow>> {
+  const now = Date.now();
+  if (_questlineProgressPromise && now < _questlineProgressExpiry) return _questlineProgressPromise;
+
+  _questlineProgressExpiry = now + 30_000;
+  _questlineProgressPromise = _fetchQuestlineProgressMap().then((result) => {
+    if (!result) { _questlineProgressPromise = null; _questlineProgressExpiry = 0; }
+    return result ?? {};
+  });
+  return _questlineProgressPromise;
+}
+
+async function _fetchQuestlineProgressMap(): Promise<Record<string, QuestlineProgressRow> | null> {
   const userId = await getCurrentUserId();
   if (!userId) {
-    return {};
+    return null;
   }
 
   const supabase = getSupabaseClient();
@@ -562,7 +542,7 @@ export async function getQuestlineProgressMap(): Promise<Record<string, Questlin
     .eq("user_id", userId);
 
   if (error || !data) {
-    return {};
+    return null;
   }
 
   return data.reduce<Record<string, QuestlineProgressRow>>((acc, row) => {
@@ -668,7 +648,28 @@ export interface WeeklyRecap {
   categories: string[];
 }
 
+const _weeklyRecapCache = new Map<number, { promise: Promise<WeeklyRecap | null>; expiry: number }>();
+
+export function invalidateWeeklyRecap(): void {
+  _weeklyRecapCache.clear();
+}
+
+// Memoized (30s, keyed by weeksAgo) so duplicate SmartSuggestions instances
+// don't each re-query weekly_activity on mount.
 export async function getWeeklyRecap(weeksAgo: number = 0): Promise<WeeklyRecap | null> {
+  const now = Date.now();
+  const cached = _weeklyRecapCache.get(weeksAgo);
+  if (cached && now < cached.expiry) return cached.promise;
+
+  const promise = _fetchWeeklyRecap(weeksAgo).then((result) => {
+    if (!result) _weeklyRecapCache.delete(weeksAgo);
+    return result;
+  });
+  _weeklyRecapCache.set(weeksAgo, { promise, expiry: now + 30_000 });
+  return promise;
+}
+
+async function _fetchWeeklyRecap(weeksAgo: number): Promise<WeeklyRecap | null> {
   const userId = await getCurrentUserId();
   if (!userId) {
     return null;
@@ -755,7 +756,7 @@ export async function getUserCreatedActiveQuests(): Promise<Quest[]> {
   const { data: quests, error } = await supabase
     .from("quests")
     .select(
-      "id,title,description,type,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
+      "id,title,description,source,difficulty,xp_reward,duration_label,category,location,user_id,created_at,status"
     )
     .in("id", customIds);
 

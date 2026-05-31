@@ -12,6 +12,21 @@ import {
   isHabitScheduledForDate,
 } from "@/lib/habit-recurrence";
 import { getUserSettings } from "@/lib/settings";
+import { getCurrentUserId } from "@/lib/quest-progress";
+
+// ============================================
+// HABIT FORM CONSTANTS (shared by new + edit pages)
+// ============================================
+
+export const HABIT_ICON_OPTIONS = [
+  "✓", "💪", "🧘", "📚", "💧", "🥗", "🏃", "💤", "🎨", "🎵",
+  "💻", "💰", "🧹", "📞", "✍️", "🌱", "🌅", "🌙", "❤️", "🦷",
+];
+
+export const HABIT_COLOR_OPTIONS = [
+  "#e8b864", "#c44a36", "#a7f070", "#38b764", "#257179",
+  "#3b5dc9", "#5d275d", "#b13e53", "#8b5a2b", "#566c86",
+];
 
 // ============================================
 // HABIT CRUD OPERATIONS
@@ -38,8 +53,7 @@ export async function createHabit(input: CreateHabitInput): Promise<{
 }> {
   const supabase = getSupabaseClient();
 
-  const { data: userData } = await supabase.auth.getUser();
-  const userId = userData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { success: false, error: "Not authenticated" };
@@ -66,6 +80,7 @@ export async function createHabit(input: CreateHabitInput): Promise<{
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true, habit: data as Habit };
 }
 
@@ -87,6 +102,7 @@ export async function updateHabit(
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true };
 }
 
@@ -102,6 +118,7 @@ export async function deleteHabit(habitId: string): Promise<{ success: boolean; 
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true };
 }
 
@@ -120,6 +137,7 @@ export async function toggleHabitActive(
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true };
 }
 
@@ -140,10 +158,38 @@ export async function getHabitById(habitId: string): Promise<Habit | null> {
   return data as Habit;
 }
 
+const _habitsCache = new Map<string, { promise: Promise<HabitWithStatus[]>; expiry: number }>();
+
+export function invalidateHabits(): void {
+  _habitsCache.clear();
+}
+
+// Memoized (20s, keyed by the option shape) so the daily widget, routines
+// section, and /habits page share one snapshot RPC instead of each refetching.
 export async function getUserHabits(options?: {
   activeOnly?: boolean;
   includeStreaks?: boolean;
 }): Promise<HabitWithStatus[]> {
+  const activeOnly = options?.activeOnly !== false;
+  const includeStreaks = options?.includeStreaks !== false;
+  const key = `${activeOnly}:${includeStreaks}`;
+
+  const now = Date.now();
+  const cached = _habitsCache.get(key);
+  if (cached && now < cached.expiry) return cached.promise;
+
+  const promise = _fetchUserHabits(activeOnly, includeStreaks).then((result) => {
+    if (result === null) { _habitsCache.delete(key); return []; }
+    return result;
+  });
+  _habitsCache.set(key, { promise, expiry: now + 20_000 });
+  return promise;
+}
+
+async function _fetchUserHabits(
+  activeOnly: boolean,
+  includeStreaks: boolean
+): Promise<HabitWithStatus[] | null> {
   const supabase = getSupabaseClient();
   const today = getTodayString();
   const { settings } = await getUserSettings();
@@ -151,12 +197,12 @@ export async function getUserHabits(options?: {
   const { data, error } = await supabase.rpc("get_user_habits_snapshot", {
     p_today: today,
     p_week_start: weekStart,
-    p_active_only: options?.activeOnly !== false,
+    p_active_only: activeOnly,
   });
 
   if (error || !data) {
     console.error("Error fetching habits snapshot:", error);
-    return [];
+    return null;
   }
 
   return (data as Array<Record<string, unknown>>).map((row) => {
@@ -177,7 +223,7 @@ export async function getUserHabits(options?: {
     };
 
     const streak: HabitStreak | null =
-      options?.includeStreaks === false || !row.streak_id
+      !includeStreaks || !row.streak_id
         ? null
         : {
             id: row.streak_id as string,
@@ -212,18 +258,16 @@ export async function getHabitsForToday(): Promise<HabitWithStatus[]> {
 export async function completeHabit(habitId: string): Promise<{
   success: boolean;
   xpAwarded?: number;
-  newStreak?: number;
   error?: string;
 }> {
   const supabase = getSupabaseClient();
   const today = getTodayString();
 
-  const [{ data: userData }, { data: habit, error: habitError }] = await Promise.all([
-    supabase.auth.getUser(),
+  const [userId, { data: habit, error: habitError }] = await Promise.all([
+    getCurrentUserId(),
     supabase.from("habits").select("xp_reward").eq("id", habitId).single(),
   ]);
 
-  const userId = userData?.user?.id;
   if (!userId) {
     console.error("[habits] no authenticated user");
     return { success: false, error: "Not authenticated" };
@@ -249,17 +293,10 @@ export async function completeHabit(habitId: string): Promise<{
     return { success: false, error: error.message };
   }
 
-  // Get updated streak
-  const { data: streak } = await supabase
-    .from("habit_streaks")
-    .select("current_streak")
-    .eq("habit_id", habitId)
-    .single();
-
+  invalidateHabits();
   return {
     success: true,
     xpAwarded: habit.xp_reward,
-    newStreak: streak?.current_streak || 1,
   };
 }
 
@@ -270,23 +307,17 @@ export async function uncompleteHabit(habitId: string): Promise<{
   const supabase = getSupabaseClient();
   const today = getTodayString();
 
-  const { data: userData } = await supabase.auth.getUser();
-  const userId = userData?.user?.id;
+  const userId = await getCurrentUserId();
   if (!userId) {
     console.error("[habits] no authenticated user");
     return { success: false, error: "Not authenticated" };
   }
 
-  // Fetch xp_awarded before deleting so we can deduct it from the profile.
-  // The DB trigger `on_habit_completion_revoke_xp` handles this automatically
-  // once the schema migration is applied; this client-side path is the fallback.
-  const { data: existing } = await supabase
-    .from("habit_completions")
-    .select("xp_awarded")
-    .eq("habit_id", habitId)
-    .eq("completion_date", today)
-    .single();
-
+  // Deleting the completion row fires the `on_habit_completion_revoke_xp`
+  // trigger which atomically deducts xp_awarded from profiles.xp_total and
+  // recomputes profiles.level. No client-side XP adjustment is needed or safe
+  // here — a client-side deduction would double-count because the trigger has
+  // already committed the change by the time any subsequent SELECT runs.
   const { error } = await supabase
     .from("habit_completions")
     .delete()
@@ -297,21 +328,7 @@ export async function uncompleteHabit(habitId: string): Promise<{
     return { success: false, error: error.message };
   }
 
-  // Deduct XP from profile (fallback if trigger not yet applied to live DB)
-  if (existing?.xp_awarded) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("xp_total")
-      .eq("id", userId)
-      .single();
-    if (profile) {
-      await supabase
-        .from("profiles")
-        .update({ xp_total: Math.max(0, profile.xp_total - existing.xp_awarded) })
-        .eq("id", userId);
-    }
-  }
-
+  invalidateHabits();
   return { success: true };
 }
 
@@ -339,5 +356,6 @@ export async function updateHabitOrder(
     return { success: false, error: error.message };
   }
 
+  invalidateHabits();
   return { success: true };
 }

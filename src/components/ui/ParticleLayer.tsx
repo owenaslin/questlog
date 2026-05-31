@@ -76,7 +76,7 @@ function buildParticles(particles: ParticleConfig[], mobileCap: number): Particl
   });
 }
 
-export default function ParticleLayer({
+const ParticleLayer = React.memo(function ParticleLayer({
   particles,
   opacity = 1,
   className = "",
@@ -126,4 +126,6 @@ export default function ParticleLayer({
       ))}
     </div>
   );
-}
+});
+
+export default ParticleLayer;

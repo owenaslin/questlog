@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { MouseEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useRequireAuth } from "@/lib/auth-hooks";
+import { buildAuthUrl } from "@/lib/auth-redirect";
 import { DiscoveryPreference, EnergyLevel, ThemeMode } from "@/lib/types";
 import { useUserSettings } from "@/lib/hooks/useUserSettings";
 import { CATEGORIES } from "@/lib/quests";
@@ -251,7 +252,7 @@ export default function SettingsPage() {
           <p className="text-body-sm text-retro-red mb-4">{authError}</p>
           <button
             type="button"
-            onClick={() => router.replace(`/login?redirect=${encodeURIComponent(pathname || "/settings")}`)}
+            onClick={() => router.replace(buildAuthUrl("login", pathname || "/settings"))}
             className="tavrn-btn tavrn-btn-ghost"
           >
             Go to Login
