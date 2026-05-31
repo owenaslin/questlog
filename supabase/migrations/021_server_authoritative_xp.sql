@@ -1,5 +1,5 @@
 -- ============================================
--- SERVER-AUTHORITATIVE XP ON COMPLETION
+-- SERVER-AUTHORITATIVE XP ON COMPLETION (ZERO-DOWNTIME)
 -- ============================================
 -- Closes the H3 residual: complete_quest_atomic and update_weekly_activity
 -- previously accepted XP as a client-supplied parameter, so an attacker
@@ -7,10 +7,18 @@
 -- ever touching /api/quests/save. Both functions now look the XP up from
 -- public.quests.xp_reward, which the save route already writes
 -- authoritatively (see /api/quests/save and the HMAC quest token).
+--
+-- ZERO-DOWNTIME STRATEGY (Option B):
+-- The old 5-arg complete_quest_atomic(UUID, UUID, INTEGER, TEXT, TEXT) and
+-- 3-arg update_weekly_activity(UUID, INTEGER, TEXT) are NOT dropped here.
+-- Postgres resolves overloads by argument list, so the currently-deployed
+-- production code continues to hit the old signatures while new code
+-- targets the new signatures. Run migration 022 to drop the old signatures
+-- once all deployments are confirmed on the new code.
 -- ============================================
 
-DROP FUNCTION IF EXISTS public.complete_quest_atomic(UUID, UUID, INTEGER, TEXT, TEXT);
-
+-- New 4-arg complete_quest_atomic: XP looked up server-side from quests.xp_reward.
+-- Coexists with old 5-arg signature until 022 drops it.
 CREATE FUNCTION public.complete_quest_atomic(
   p_user_id UUID,
   p_quest_id UUID,
@@ -41,6 +49,8 @@ BEGIN
   FROM public.quests
   WHERE id = p_quest_id;
 
+  -- Quest not found: treat as 0 XP rather than erroring, so a missing quest
+  -- row doesn't block the completion flow.
   IF v_award_xp IS NULL THEN
     v_award_xp := 0;
   END IF;
@@ -103,8 +113,8 @@ BEGIN
 END;
 $$;
 
-DROP FUNCTION IF EXISTS public.update_weekly_activity(UUID, INTEGER, TEXT);
-
+-- New 3-arg update_weekly_activity: second param is p_quest_id (UUID), not p_xp (INTEGER).
+-- Coexists with old (UUID, INTEGER, TEXT) signature until 022 drops it.
 CREATE FUNCTION public.update_weekly_activity(
   p_user_id UUID,
   p_quest_id UUID,
@@ -148,6 +158,7 @@ BEGIN
 END;
 $$;
 
+-- Grant execute on new signatures. Old signatures retain their existing grants.
 REVOKE ALL ON FUNCTION public.complete_quest_atomic(UUID, UUID, TEXT, TEXT) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.update_weekly_activity(UUID, UUID, TEXT)      FROM PUBLIC, anon;
 
