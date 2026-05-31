@@ -32,7 +32,7 @@ export default function BountyBoard() {
       if (!mountedRef.current) return;
       // Filter out any quests that are not user-created side quests (our Bounties)
       const userBounties = activeUserQuests.filter(
-        (q) => q.source === "user" && q.type === "side"
+        (q) => q.source === "user" && q.category === "Productivity"
       );
       setBounties(userBounties);
     } catch (err) {
@@ -78,8 +78,7 @@ export default function BountyBoard() {
     try {
       const result = await completeQuest(
         quest.id,
-        quest.xp_reward,
-        quest.type,
+        "side",
         quest.category
       );
 

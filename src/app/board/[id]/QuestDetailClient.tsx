@@ -209,7 +209,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 const nextQuest = activeExp.quests.find((q: any) => q.stage === completedStage + 1);
                 if (nextQuest) {
                   // Automatically accept the next stage quest in user_quests
-                  const acceptRes = await acceptQuest(nextQuest.id, "side", nextQuest.category);
+                  const acceptRes = await acceptQuest(nextQuest.id, nextQuest.category);
                   if (acceptRes.success) {
                     activeExp.currentStage = completedStage + 1;
                     nextStageTitle = nextQuest.title;

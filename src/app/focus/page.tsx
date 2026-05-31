@@ -403,7 +403,6 @@ export default function FocusArenaPage() {
       // 2. Complete it atomically
       const result = await completeQuest(
         questData.id,
-        xpReward,
         "side",
         "Productivity"
       );
