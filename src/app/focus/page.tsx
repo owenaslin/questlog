@@ -41,14 +41,15 @@ const HERO_ATTACKS = [
   "unleashes a Pomodoro Slash",
 ];
 
-const TRIVIAL_BREAK_SECONDS = 5 * 60; // 5 minute standard break
+const TRIVIAL_BREAK_SECONDS = 5 * 60;
 
 export default function FocusArenaPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [avatarEmoji, setAvatarEmoji] = useState<string>("🧙");
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Focus Modes: 'setup' | 'combat' | 'break'
+  // Focus stages: 'setup' | 'combat' | 'break'
   const [stage, setStage] = useState<"setup" | "combat" | "break">("setup");
 
   // Setup Form
@@ -78,8 +79,26 @@ export default function FocusArenaPage() {
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const breakTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const shakeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const combatLogEndRef = useRef<HTMLDivElement | null>(null);
   const mountedRef = useRef(true);
+  // Prevents double-fire of handleVictory in React Strict Mode (effects run twice in dev)
+  const victoryFiredRef = useRef(false);
+
+  // Live refs — assigned inline so interval callbacks always read the latest state
+  // without stale closure issues, regardless of when the interval was created.
+  const timerSecondsRef = useRef(timerSeconds);
+  timerSecondsRef.current = timerSeconds;
+  const totalSecondsRef = useRef(totalSeconds);
+  totalSecondsRef.current = totalSeconds;
+  const durationPresetRef = useRef(durationPreset);
+  durationPresetRef.current = durationPreset;
+  const userIdRef = useRef(userId);
+  userIdRef.current = userId;
+  const objectiveRef = useRef(objective);
+  objectiveRef.current = objective;
+  const currentMonsterRef = useRef(currentMonster);
+  currentMonsterRef.current = currentMonster;
 
   useEffect(() => {
     mountedRef.current = true;
@@ -87,6 +106,7 @@ export default function FocusArenaPage() {
       mountedRef.current = false;
       if (timerRef.current) clearInterval(timerRef.current);
       if (breakTimerRef.current) clearInterval(breakTimerRef.current);
+      if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current);
     };
   }, []);
 
@@ -102,9 +122,7 @@ export default function FocusArenaPage() {
           const profile = await getOwnHeroProfile();
           if (profile && mountedRef.current) {
             const portrait = AVATAR_PORTRAITS[profile.avatar_sprite as keyof typeof AVATAR_PORTRAITS];
-            if (portrait) {
-              setAvatarEmoji(portrait.emoji);
-            }
+            if (portrait) setAvatarEmoji(portrait.emoji);
           }
         } catch (err) {
           console.error("Failed to load hero profile:", err);
@@ -121,7 +139,6 @@ export default function FocusArenaPage() {
     const supabase = getSupabaseClient();
 
     try {
-      // Fetch custom quests from this user that contain "Focus Arena:" in the title
       const { data: quests, error: questErr } = await supabase
         .from("quests")
         .select("id, title, difficulty, xp_reward, duration_minutes")
@@ -135,7 +152,6 @@ export default function FocusArenaPage() {
 
       const questIds = quests.map((q) => q.id);
 
-      // Verify which ones were completed by the user
       const { data: completions, error: compErr } = await supabase
         .from("user_quests")
         .select("quest_id")
@@ -151,8 +167,6 @@ export default function FocusArenaPage() {
       const completedIds = new Set(completions.map((c) => c.quest_id as string));
       const completedQuests = quests.filter((q) => completedIds.has(q.id));
 
-      // Aggregate counts by the custom objective name
-      // e.g., "Focus Arena: Coding a widget" -> "Coding a widget"
       const aggregationMap: Record<string, FocusHistoryItem> = {};
 
       completedQuests.forEach((q) => {
@@ -176,9 +190,7 @@ export default function FocusArenaPage() {
       });
 
       const historyList = Object.values(aggregationMap).sort((a, b) => b.victories - a.victories);
-      if (mountedRef.current) {
-        setHistory(historyList);
-      }
+      if (mountedRef.current) setHistory(historyList);
     } catch (err) {
       console.error("Failed to load focus history:", err);
     } finally {
@@ -187,9 +199,7 @@ export default function FocusArenaPage() {
   }, [userId]);
 
   useEffect(() => {
-    if (userId && stage === "setup") {
-      fetchFocusHistory();
-    }
+    if (userId && stage === "setup") fetchFocusHistory();
   }, [userId, stage, fetchFocusHistory]);
 
   // Scroll to bottom of combat log
@@ -209,16 +219,109 @@ export default function FocusArenaPage() {
       const newEmoji = {
         id: Date.now() + Math.random(),
         char: chars[Math.floor(Math.random() * chars.length)],
-        left: Math.random() * 80 + 10, // Left % offset (10% to 90%)
+        left: Math.random() * 80 + 10,
       };
-
-      setFloatingEmojis((prev) => [...prev, newEmoji].slice(-15)); // Keep last 15
+      setFloatingEmojis((prev) => [...prev, newEmoji].slice(-15));
     }, 1500);
 
     return () => clearInterval(emojiInterval);
   }, [stage, breakActive]);
 
-  // Core Combat Timer Ticker
+  // Combat log appender — reads monster from ref to avoid stale closure
+  const appendRandomCombatLog = useCallback((elapsedSeconds: number) => {
+    const monster = currentMonsterRef.current;
+    const minutesElapsed = Math.floor(elapsedSeconds / 60);
+
+    if (Math.random() > 0.5) {
+      const attack = HERO_ATTACKS[Math.floor(Math.random() * HERO_ATTACKS.length)];
+      const damage = Math.floor(Math.random() * 10) + 5;
+      setCombatLog((prev) => [
+        ...prev,
+        `⚔️ [${minutesElapsed}m] Hero ${attack}, dealing ${damage} damage to ${monster.name}!`,
+      ]);
+      setShakeScreen(true);
+      if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current);
+      shakeTimerRef.current = setTimeout(() => {
+        if (mountedRef.current) setShakeScreen(false);
+      }, 200);
+    } else {
+      const attack = monster.attacks[Math.floor(Math.random() * monster.attacks.length)];
+      setCombatLog((prev) => [
+        ...prev,
+        `⚠️ [${minutesElapsed}m] ${monster.name} unleashes ${attack}! Concentration holds strong.`,
+      ]);
+    }
+  }, []);
+
+  // Victory handler — reads combat context from refs, not stale closure state
+  const handleVictory = useCallback(async () => {
+    if (!mountedRef.current) return;
+    setIsActive(false);
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    const preset = durationPresetRef.current;
+    const uid = userIdRef.current;
+    const obj = objectiveRef.current;
+    const monster = currentMonsterRef.current;
+
+    const xpReward = preset === 15 ? 15 : preset === 25 ? 25 : 50;
+    const diffVal = preset === 15 ? 1 : preset === 25 ? 2 : 3;
+
+    if (!uid) {
+      setXpAwarded(xpReward);
+      setStage("break");
+      setBreakSeconds(TRIVIAL_BREAK_SECONDS);
+      setBreakActive(true);
+      return;
+    }
+
+    try {
+      const supabase = getSupabaseClient();
+
+      const { data: questData, error: questErr } = await supabase
+        .from("quests")
+        .insert({
+          title: `Focus Arena: ${obj.trim()}`,
+          description: `Focused for ${preset} minutes on "${obj.trim()}" and vanquished ${monster.name}.`,
+          type: "side",
+          source: "user",
+          difficulty: diffVal,
+          xp_reward: xpReward,
+          duration_label: `${preset} mins`,
+          duration_minutes: preset,
+          category: "Productivity",
+          user_id: uid,
+          status: "available",
+        })
+        .select("id")
+        .single();
+
+      if (questErr || !questData) {
+        console.error("Quest insert error:", questErr);
+        if (mountedRef.current) setErrorMsg("Failed to register victory in DB.");
+        return;
+      }
+
+      const result = await completeQuest(questData.id, xpReward, "side", "Productivity");
+
+      if (!mountedRef.current) return;
+      if (result.success) {
+        setXpAwarded(xpReward);
+        setStage("break");
+        setBreakSeconds(TRIVIAL_BREAK_SECONDS);
+        setBreakActive(true);
+      } else {
+        setErrorMsg(result.error || "Failed to award focus XP.");
+      }
+    } catch (err) {
+      console.error("Focus victory write error:", err);
+      if (mountedRef.current) setErrorMsg("An unexpected database error occurred.");
+    }
+  }, []);
+
+  // Core Combat Timer Ticker — ticks the clock and updates HP/combat log.
+  // Does NOT call handleVictory directly; the victory effect below handles that
+  // so we never call an async side effect from inside a setState call.
   useEffect(() => {
     if (stage !== "combat" || !isActive || isPaused) {
       if (timerRef.current) {
@@ -229,33 +332,35 @@ export default function FocusArenaPage() {
     }
 
     timerRef.current = setInterval(() => {
-      setTimerSeconds((prevSeconds) => {
-        if (prevSeconds <= 1) {
-          // Timer finished! Victory!
-          handleVictory();
-          return 0;
-        }
+      const current = timerSecondsRef.current;
+      if (current <= 0) return;
 
-        const nextSeconds = prevSeconds - 1;
-        const elapsedSeconds = totalSeconds - nextSeconds;
+      const next = current - 1;
+      const elapsed = totalSecondsRef.current - next;
 
-        // Visual HP drains
-        const pctLeft = (nextSeconds / totalSeconds) * 100;
-        setMonsterHp(Math.ceil(pctLeft));
+      setTimerSeconds(next);
+      setMonsterHp(Math.ceil((next / totalSecondsRef.current) * 100));
 
-        // Periodic combat logs (every 60 seconds / or simulated for quickness)
-        if (elapsedSeconds % 60 === 0 && elapsedSeconds > 0) {
-          appendRandomCombatLog();
-        }
-
-        return nextSeconds;
-      });
+      if (elapsed > 0 && elapsed % 60 === 0) {
+        appendRandomCombatLog(elapsed);
+      }
     }, 1000);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [stage, isActive, isPaused, totalSeconds]);
+  }, [stage, isActive, isPaused, appendRandomCombatLog]);
+
+  // Fire victory when timer reaches 0 — separate from the tick so handleVictory
+  // (which is async and writes to Supabase) is never called from inside setState.
+  useEffect(() => {
+    if (timerSeconds === 0 && stage === "combat" && isActive) {
+      if (!victoryFiredRef.current) {
+        victoryFiredRef.current = true;
+        handleVictory();
+      }
+    }
+  }, [timerSeconds, stage, isActive, handleVictory]);
 
   // Break Timer Ticker
   useEffect(() => {
@@ -283,31 +388,6 @@ export default function FocusArenaPage() {
     };
   }, [stage, breakActive]);
 
-  // Combat Log Appenders
-  const appendRandomCombatLog = () => {
-    const elapsed = totalSeconds - timerSeconds;
-    const minutesElapsed = Math.floor(elapsed / 60);
-
-    if (Math.random() > 0.5) {
-      // Hero attack
-      const attack = HERO_ATTACKS[Math.floor(Math.random() * HERO_ATTACKS.length)];
-      const damage = Math.floor(Math.random() * 10) + 5;
-      setCombatLog((prev) => [
-        ...prev,
-        `⚔️ [${minutesElapsed}m] Hero ${attack}, dealing ${damage} damage to ${currentMonster.name}!`,
-      ]);
-      setShakeScreen(true);
-      setTimeout(() => setShakeScreen(false), 200);
-    } else {
-      // Monster counter
-      const attack = currentMonster.attacks[Math.floor(Math.random() * currentMonster.attacks.length)];
-      setCombatLog((prev) => [
-        ...prev,
-        `⚠️ [${minutesElapsed}m] ${currentMonster.name} unleashes ${attack}! Concentration holds strong.`,
-      ]);
-    }
-  };
-
   // Start Focus Combat
   const handleStartCombat = (objectiveText: string, durationMin: number) => {
     if (!objectiveText.trim()) return;
@@ -323,6 +403,7 @@ export default function FocusArenaPage() {
     setXpAwarded(null);
     setShakeScreen(false);
     setErrorMsg(null);
+    victoryFiredRef.current = false;
 
     setCombatLog([
       `⚔️ Battle began! You engage ${chosenMonster.name} in deep focus combat.`,
@@ -347,8 +428,6 @@ export default function FocusArenaPage() {
   };
 
   // Retreat / Quit
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const handleRetreat = () => {
     setIsActive(false);
     setIsPaused(false);
@@ -356,77 +435,10 @@ export default function FocusArenaPage() {
     setStage("setup");
   };
 
-  // Victory Sign-off
-  const handleVictory = async () => {
-    setIsActive(false);
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    const xpReward = durationPreset === 15 ? 15 : durationPreset === 25 ? 25 : 50;
-    const diffVal = durationPreset === 15 ? 1 : durationPreset === 25 ? 2 : 3;
-
-    if (!userId) {
-      // Guest victory
-      setXpAwarded(xpReward);
-      setStage("break");
-      setBreakSeconds(TRIVIAL_BREAK_SECONDS);
-      setBreakActive(true);
-      return;
-    }
-
-    try {
-      const supabase = getSupabaseClient();
-
-      // 1. Create a productivity quest row representing this victory
-      const { data: questData, error: questErr } = await supabase
-        .from("quests")
-        .insert({
-          title: `Focus Arena: ${objective.trim()}`,
-          description: `Focused for ${durationPreset} minutes on "${objective.trim()}" and vanquished ${currentMonster.name}.`,
-          type: "side",
-          source: "user",
-          difficulty: diffVal,
-          xp_reward: xpReward,
-          duration_label: `${durationPreset} mins`,
-          category: "Productivity",
-          user_id: userId,
-          status: "available",
-        })
-        .select("id")
-        .single();
-
-      if (questErr || !questData) {
-        console.error("Quest insert error:", questErr);
-        setErrorMsg("Failed to register victory in DB.");
-        return;
-      }
-
-      // 2. Complete it atomically
-      const result = await completeQuest(
-        questData.id,
-        xpReward,
-        "side",
-        "Productivity"
-      );
-
-      if (result.success) {
-        setXpAwarded(xpReward);
-        setStage("break");
-        setBreakSeconds(TRIVIAL_BREAK_SECONDS);
-        setBreakActive(true);
-      } else {
-        setErrorMsg(result.error || "Failed to award focus XP.");
-      }
-    } catch (err) {
-      console.error("Focus victory write error:", err);
-      setErrorMsg("An unexpected database error occurred.");
-    }
-  };
-
-  // Helper to format ticking timer
-  const formatTime = (totalSeconds: number) => {
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  const formatTime = (secs: number) => {
+    const mins = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${String(mins).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
   if (loading) {
@@ -579,8 +591,6 @@ export default function FocusArenaPage() {
   // ──────────────────────────────────────────────── COMBAT ARENA
   if (stage === "combat") {
     const elapsedSeconds = totalSeconds - timerSeconds;
-    const heroHPMultiplier = heroHp / 100;
-    const monsterHPMultiplier = monsterHp / 100;
 
     return (
       <div className={`max-w-4xl mx-auto flex flex-col gap-6 relative overflow-hidden ${shakeScreen ? "animate-shake" : ""}`}>
@@ -709,11 +719,11 @@ export default function FocusArenaPage() {
             </div>
           ))}
 
-          {/* Hearth Hearth Visual Overlay */}
+          {/* Hearth Visual Overlay */}
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 z-10">
             {/* Cozy fireplace */}
             <div className="mb-4">
-              <LivingFlame streakDays={30} size="lg" />
+              <LivingFlame streakDays={0} size="lg" />
             </div>
 
             {/* Resting Stats */}
