@@ -73,7 +73,7 @@ export default function BountyBoard() {
     setErrorMsg(null);
 
     try {
-      const result = await completeQuest(quest.id, quest.category);
+      const result = await completeQuest(quest.id, "side", quest.category);
 
       if (result.success) {
         // Trigger +XP float animation

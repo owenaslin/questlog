@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import PixelButton from "@/components/ui/PixelButton";
 import XPBar from "@/components/ui/XPBar";
+import { getSupabaseClient } from "@/lib/supabase";
 import { Quest } from "@/lib/types";
 import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {
@@ -17,6 +18,19 @@ import {
   updateStreakOnCompletion,
   getSuggestedNextQuests,
 } from "@/lib/quest-progress";
+
+interface ActiveExpedition {
+  title: string;
+  city: string;
+  currentStage: number;
+  quests: Array<{
+    id: string;
+    stage: number;
+    completed: boolean;
+    category: string;
+    title: string;
+  }>;
+}
 import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
 import { getOwnHeroProfile } from "@/lib/hero";
 import { buildAuthUrl } from "@/lib/auth-redirect";
@@ -187,6 +201,63 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         setNewLevel(afterLevel > beforeLevel ? afterLevel : null);
       }
 
+      // Sequential Stage Unlocker
+      let nextStageTitle = "";
+      let completedStage = 0;
+      let expeditionFinished = false;
+      let activeExp: ActiveExpedition | null = null;
+
+      if (typeof window !== "undefined") {
+        const activeExpRaw = localStorage.getItem("tavrn_active_expedition");
+        if (activeExpRaw) {
+          try {
+            activeExp = JSON.parse(activeExpRaw) as ActiveExpedition;
+            const questIndex = activeExp.quests.findIndex((q) => q.id === quest.id);
+            if (questIndex !== -1 && !activeExp.quests[questIndex].completed) {
+              activeExp.quests[questIndex].completed = true;
+              completedStage = activeExp.quests[questIndex].stage;
+
+              if (completedStage < 3) {
+                const nextQuest = activeExp.quests.find((q) => q.stage === completedStage + 1);
+                if (nextQuest) {
+                  const acceptRes = await acceptQuest(nextQuest.id, nextQuest.category);
+                  if (acceptRes.success) {
+                    activeExp.currentStage = completedStage + 1;
+                    nextStageTitle = nextQuest.title;
+                  }
+                }
+                localStorage.setItem("tavrn_active_expedition", JSON.stringify(activeExp));
+              } else if (completedStage === 3) {
+                activeExp.currentStage = 4;
+                localStorage.setItem("tavrn_active_expedition", JSON.stringify(activeExp));
+                expeditionFinished = true;
+
+                // Award +50 XP bonus via server route — XP value is server-controlled,
+                // preventing client-side inflation. Fire-and-forget; UI is updated optimistically.
+                const session = await getSupabaseClient().auth.getSession();
+                const accessToken = session.data.session?.access_token;
+                if (accessToken) {
+                  fetch("/api/expeditions/complete", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                      lastStageQuestId: quest.id,
+                      expeditionTitle: activeExp.title || "Travel Expedition",
+                      city: activeExp.city || "the region",
+                    }),
+                  }).catch((e) => console.error("Expedition bonus award failed:", e));
+                }
+              }
+            }
+          } catch (e) {
+            console.error("Error updating expedition state:", e);
+          }
+        }
+      }
+
       const detectedMilestones = detectMilestones({
         questJustCompleted: quest,
         newStreak: streakResult.newStreak ?? 0,
@@ -197,6 +268,30 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         completedByCategory,
         isFirstQuest: totalCompleted === 1,
       });
+
+      // Inject custom expedition stage/finish milestones
+      if (completedStage > 0) {
+        if (completedStage < 3) {
+          detectedMilestones.push({
+            type: "first_quest",
+            value: completedStage,
+            title: `Stage ${completedStage} Cleared! 🧭`,
+            description: `Stage ${completedStage} of your Travel Expedition is complete. Next stage "${nextStageTitle}" is now active on your dashboard!`,
+            rarity: "epic",
+          });
+        } else if (completedStage === 3) {
+          detectedMilestones.push({
+            type: "category_mastery",
+            value: 3,
+            title: `Expedition Victorious! 🏆`,
+            description: `Congratulations! You completed all 3 stages of "${activeExp?.title || "Expedition"}" in ${activeExp?.city || "the region"}! Awarded +50 XP bonus!`,
+            rarity: "legendary",
+          });
+          // Update local profile summary view with the +50 XP
+          setProfileXpTotal(prev => (prev !== null ? prev + 50 : 50));
+        }
+      }
+
       setMilestones(detectedMilestones);
 
       setTimeout(() => {

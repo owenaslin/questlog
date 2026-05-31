@@ -2,11 +2,10 @@ import { notFound } from "next/navigation";
 import { ALL_QUESTS } from "@/lib/quests";
 import { Quest } from "@/lib/types";
 import { createClient } from "@/utils/supabase/server";
+import { isUuid } from "@/lib/api-utils";
 import QuestDetailClient from "@/app/board/[id]/QuestDetailClient";
 
 export const dynamicParams = true;
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function generateStaticParams() {
   return ALL_QUESTS.map((quest) => ({ id: quest.id }));
@@ -22,7 +21,7 @@ export default async function BoardQuestDetailPage({ params }: PageProps) {
   const predefined = ALL_QUESTS.find((q) => q.id === id);
   if (predefined) return <QuestDetailClient quest={predefined} />;
 
-  if (!UUID_RE.test(id)) notFound();
+  if (!isUuid(id)) notFound();
 
   // Cookie-bound SSR client so RLS enforces ownership: the quests policy is
   // `source = 'predefined' OR user_id = auth.uid()`, which means anon sees

@@ -6,7 +6,7 @@
  */
 
 import { Metadata } from 'next';
-import DiscoveryForge from '@/components/quest/DiscoveryForge';
+import DiscoverDashboardClient from '@/components/quest/DiscoverDashboardClient';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
@@ -119,8 +119,8 @@ export default async function DiscoverPage() {
           </div>
         </div>
         
-        {/* Discovery Forge */}
-        <DiscoveryForge />
+        {/* Discovery Forge Client Tab Switcher */}
+        <DiscoverDashboardClient />
         
         {/* How It Works */}
         <div className="mt-12 border-t border-slate-800 pt-8">

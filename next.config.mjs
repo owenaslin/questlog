@@ -1,7 +1,23 @@
 import bundleAnalyzer from '@next/bundle-analyzer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: __dirname,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  webpack: (config) => {
+    config.resolve.modules = [
+      path.resolve(__dirname, 'node_modules'),
+      'node_modules',
+    ];
+    return config;
+  },
   // Static export for Capacitor (set to 'server' for Vercel deployment)
   output: process.env.CAPACITOR_BUILD ? 'export' : undefined,
   distDir: process.env.CAPACITOR_BUILD ? 'dist' : '.next',

@@ -4,8 +4,6 @@ import { SUPABASE_URL, ANON_KEY, fetchHeroByHandle, loadFont, isUuid, isValidHan
 
 export const runtime = "edge";
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 async function fetchQuest(questId: string) {
   // Reject anything that isn't a UUID so attacker-controlled filter operators
   // (e.g. "0&id=neq.0", "(or(...))") can't be smuggled into the PostgREST query.
@@ -35,7 +33,7 @@ export async function GET(
   // Fail closed: never reflect a malformed handle into the rendered card.
   const handle = isValidHandle(rawHandle) ? rawHandle : "adventurer";
 
-  if (!UUID_RE.test(questId)) {
+  if (!isUuid(questId)) {
     return new Response("Invalid quest id", { status: 400 });
   }
 

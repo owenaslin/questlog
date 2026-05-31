@@ -25,6 +25,19 @@ import BountyBoard from "@/components/quest/BountyBoard";
 
 const OnboardingModal = lazy(() => import("@/components/modals/OnboardingModal"));
 
+interface ActiveExpedition {
+  title: string;
+  city: string;
+  currentStage: number;
+  quests: Array<{
+    id: string;
+    stage: number;
+    completed: boolean;
+    category: string;
+    title: string;
+  }>;
+}
+
 export default function HomePage() {
   const [heroName,       setHeroName]       = useState<string | null>(null);
   const [authChecked,    setAuthChecked]    = useState(false);
@@ -40,6 +53,7 @@ export default function HomePage() {
   const [dataLoading,    setDataLoading]    = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [timeLabel, setTimeLabel] = useState<"Morning" | "Afternoon" | "Tonight">("Tonight");
+  const [activeExpedition, setActiveExpedition] = useState<ActiveExpedition | null>(null);
   const [isDailyAccepting, setIsDailyAccepting] = useState(false);
   const [isRerolling, setIsRerolling] = useState(false);
   const [drawMessage, setDrawMessage] = useState<string | null>(null);
@@ -58,6 +72,18 @@ export default function HomePage() {
       const session = data.session;
 
       if (!mounted.current) return;
+
+      if (typeof window !== "undefined") {
+        const activeExpRaw = localStorage.getItem("tavrn_active_expedition");
+        if (activeExpRaw) {
+          try {
+            const parsed = JSON.parse(activeExpRaw);
+            setActiveExpedition(parsed);
+          } catch (e) {
+            console.error("Error parsing stashed expedition:", e);
+          }
+        }
+      }
 
       if (session) {
         const meta = session.user.user_metadata;
@@ -339,6 +365,62 @@ export default function HomePage() {
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-6">
         {/* ── Main column: open tasks ── */}
         <div className="flex flex-col gap-5">
+
+          {/* Active Voyage Banner */}
+          {activeExpedition && activeExpedition.currentStage <= 3 && (
+            <div className="tavrn-panel p-4 border-2 border-tavern-gold bg-tavern-oak/10 relative overflow-hidden">
+              {/* warm gold glow overlay */}
+              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(232,184,100,0.06) 0%, transparent 80%)" }} />
+
+              <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🧭</span>
+                    <span className="kicker text-[10px] text-tavern-gold uppercase tracking-wider font-pixel">Active Voyage</span>
+                    <span className="badge badge-amber font-pixel text-[9px] uppercase">Stage {activeExpedition.currentStage}/3</span>
+                  </div>
+                  <h3 className="text-body font-bold text-tavern-parchment leading-snug font-pixel">
+                    {activeExpedition.title} in {activeExpedition.city}
+                  </h3>
+                  <p className="text-[12px] text-tavern-parchment-dim leading-relaxed">
+                    Active Objective: <span className="text-tavern-gold">"{activeExpedition.quests.find((q) => q.stage === activeExpedition.currentStage)?.title}"</span>
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 self-start md:self-center">
+                  <div className="flex gap-1.5 mr-2">
+                    {[1, 2, 3].map((stageNum) => {
+                      const stageQuest = activeExpedition.quests.find((q) => q.stage === stageNum);
+                      const isCompleted = stageQuest?.completed || activeExpedition.currentStage > stageNum;
+                      const isActiveSt = activeExpedition.currentStage === stageNum;
+                      return (
+                        <div
+                          key={stageNum}
+                          className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold border ${
+                            isCompleted
+                              ? "bg-retro-lime/20 border-retro-lime text-retro-lime"
+                              : isActiveSt
+                              ? "bg-tavern-gold/20 border-tavern-gold text-tavern-gold animate-pulse"
+                              : "bg-tavern-smoke border-tavern-oak text-tavern-oak"
+                          }`}
+                          title={stageQuest?.title}
+                        >
+                          {isCompleted ? "✓" : stageNum}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <Link
+                    href={`/board/${activeExpedition.quests.find((q) => q.stage === activeExpedition.currentStage)?.id}`}
+                    className="tavrn-btn tavrn-btn-primary tavrn-btn-sm"
+                  >
+                    Launch Stage ⚔
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
 
           {/* Active quests — close steps here */}
           <ActiveQuestTracker
