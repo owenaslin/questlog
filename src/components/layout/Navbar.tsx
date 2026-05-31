@@ -12,6 +12,7 @@ import { getTimeOfDayLabel } from "@/lib/time-of-day";
 
 const navLinks = [
   { href: "/", label: "Home" },
+  { href: "/focus", label: "Focus Arena" },
   { href: "/board", label: "The Board" },
   { href: "/profile", label: "My Saga" },
   { href: "/settings", label: "Settings" },
