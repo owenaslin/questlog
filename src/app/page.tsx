@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabase";
 import {
@@ -23,9 +23,11 @@ import { getDailyQuests, getRandomQuests } from "@/lib/quests";
 import type { Quest } from "@/lib/types";
 import XPBar from "@/components/ui/XPBar";
 import StreakDisplay from "@/components/ui/StreakDisplay";
-const DailyHabitsWidget = lazy(() => import("@/components/habit/DailyHabitsWidget"));
+import DailyHabitsWidget from "@/components/habit/DailyHabitsWidget";
 import ActiveQuestPanel from "@/components/quest/ActiveQuestPanel";
 import QuestPickerPanel from "@/components/quest/QuestPickerPanel";
+import BountyBoard from "@/components/quest/BountyBoard";
+import { lazy, Suspense } from "react";
 
 const OnboardingModal = lazy(() => import("@/components/modals/OnboardingModal"));
 
@@ -331,9 +333,11 @@ export default function HomePage() {
             <p className="text-subhead text-tavern-gold mb-1">
               {dataLoading ? "…" : heroName}
             </p>
-            {!dataLoading && profile && (
+            {dataLoading ? (
+              <div className="h-4 w-48 bg-tavern-oak/30 rounded animate-pulse mt-1" />
+            ) : profile ? (
               <XPBar xpTotal={profile.xp_total} showLabel />
-            )}
+            ) : null}
           </div>
           <div className="flex items-center gap-4">
             {!dataLoading && streak && streak.current_streak > 0 && isStreakStillActive(streak.last_activity_date) && (
@@ -362,9 +366,10 @@ export default function HomePage() {
         <div className="flex flex-col gap-5">
 
           {/* Section A: Daily Habits — first thing you see */}
-          <Suspense fallback={<div className="tavrn-panel p-4 h-32 animate-pulse" />}>
-            <DailyHabitsWidget maxDisplay={20} />
-          </Suspense>
+          <DailyHabitsWidget maxDisplay={20} />
+
+          {/* Guild Bounty Board — quick one-off tasks */}
+          <BountyBoard />
 
           {/* Section B: Your Quest (main quest focus) */}
           <div className="tavrn-panel p-4 md:p-5">
