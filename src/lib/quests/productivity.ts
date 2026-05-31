@@ -7,7 +7,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Organise Your Workspace",
     description: "Declutter, clean, and reorganise your desk or home office. Remove everything that doesn't belong and set up a system to keep it tidy.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -16,7 +15,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Do a Weekly Review",
     description: "Block 30 minutes to review the past week: what you completed, what stalled, and what's next. Write it down and commit to 3 priorities for the coming week.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "30-45 min",
@@ -25,7 +23,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Reach Inbox Zero",
     description: "Process your email inbox until it's completely empty. Archive, reply, delete, or delegate every message.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1-3 hours",
@@ -34,7 +31,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Set Up a Task Management System",
     description: "Choose a task manager (Notion, Todoist, Things, pen & paper) and set it up with your active projects and recurring tasks. Use it every day for one week.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1 week",
@@ -43,7 +39,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Time-Block Your Day",
     description: "Schedule every hour of one working day in advance. Block time for focused work, meetings, breaks, and admin. Reflect at the end on how it went.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1 day",
@@ -52,7 +47,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Do a Digital Declutter",
     description: "Delete unused apps, clear your desktop, organise your downloads folder, and unsubscribe from 10+ email lists.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-3 hours",
@@ -61,7 +55,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Build a Morning Routine",
     description: "Design and stick to a morning routine for 7 consecutive days. Include at least: movement, intention-setting, and a no-phone window.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "7 days",
@@ -71,7 +64,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Master a Productivity Method",
     description: "Pick a proven productivity system (GTD, Zettelkasten, Time Blocking, Deep Work) and implement it fully for 30 days. Document what changes.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1 month",
@@ -80,7 +72,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "30-Day No Social Media Challenge",
     description: "Go 30 days without passive social media scrolling. Replace that time deliberately: reading, learning, creating. Track how you feel each week.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "1 month",
@@ -89,7 +80,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Complete a 12-Week Deep Work Sprint",
     description: "Identify your most important project. Dedicate 3+ hours of focused deep work to it every weekday for 12 weeks. Produce a tangible deliverable at the end.",
-    type: "main",
     difficulty: 5,
     xp_reward: 1000,
     duration_label: "3 months",
@@ -98,7 +88,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Run a Time Audit",
     description: "Track every 30-minute block of one full day. At the end, tally how your time actually split across work, rest, distraction, and everything else. Face the truth.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1 day",
@@ -107,7 +96,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Values Clarification",
     description: "Work through a values clarification exercise. From a list of 50+ values, narrow to your top 5. Write a sentence on why each one made the cut.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "30-45 min",
@@ -116,7 +104,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Do a Full Brain Dump",
     description: "Set a timer for 25 minutes and write down every task, worry, idea, and commitment rattling around in your head. Then sort it into a trusted system.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "30-45 min",
@@ -125,7 +112,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Single-Tasking Day",
     description: "For one full work day, do only one thing at a time. No tab switching while on calls, no phone during focus blocks. Log how many times you resist the urge.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1 day",
@@ -134,7 +120,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "Build a Second Brain",
     description: "Set up a personal knowledge management system in Notion, Obsidian, or similar over 2 months. Capture, organise, and connect notes until it genuinely saves you time.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "2 months",
@@ -143,7 +128,6 @@ export const PRODUCTIVITY_QUESTS = [
   defineQuest({
     title: "30-Day Distraction-Free Work",
     description: "For 30 days, use a site blocker during focus hours, keep your phone in another room, and do at least one 90-minute deep work block per day. Track output daily.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "30 days",

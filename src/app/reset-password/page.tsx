@@ -60,8 +60,8 @@ export default function ResetPasswordPage() {
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
       return;
     }
 
@@ -145,7 +145,7 @@ export default function ResetPasswordPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyUp={handlePasswordKeyState}
                 onKeyDown={handlePasswordKeyState}
-                minLength={6}
+                minLength={8}
                 required
                 placeholder="••••••••"
                 autoComplete="new-password"
@@ -172,7 +172,7 @@ export default function ResetPasswordPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onKeyUp={handlePasswordKeyState}
                 onKeyDown={handlePasswordKeyState}
-                minLength={6}
+                minLength={8}
                 required
                 placeholder="••••••••"
                 autoComplete="new-password"

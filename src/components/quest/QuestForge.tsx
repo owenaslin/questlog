@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabase";
-import { QuestType, QUEST_CATEGORIES } from "@/lib/types";
+import { QUEST_CATEGORIES } from "@/lib/types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -13,7 +13,6 @@ type Stage = "form" | "loading" | "preview" | "saving" | "done";
 interface EvaluatedQuest {
   title: string;
   description: string;
-  type: QuestType;
   source: "ai" | "user";
   difficulty: number;
   duration_label: string;
@@ -38,56 +37,16 @@ const AI_TOPICS = [
   "History", "Crafts", "Language Learning", "Meditation",
 ];
 
-// ── Shared type toggle ─────────────────────────────────────────────────────────
-
-function QuestTypeToggle({
-  value,
-  onChange,
-}: {
-  value: QuestType;
-  onChange: (v: QuestType) => void;
-}) {
-  return (
-    <div>
-      <label className="kicker block mb-2">
-        Quest Type
-      </label>
-      <div className="flex gap-3">
-        {(["main", "side"] as QuestType[]).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => onChange(t)}
-            className={`text-body-sm font-medium px-4 py-2 min-h-[40px] transition-none ${
-              value === t
-                ? t === "main"
-                  ? "bg-tavern-ember text-retro-white border-b-4 border-tavern-ember-dark"
-                  : "bg-retro-blue text-retro-white border-b-4 border-retro-darkblue"
-                : "bg-retro-darkgray text-tavern-smoke-light border-b-4 border-retro-black hover:border-tavern-oak"
-            }`}
-          >
-            {t === "main" ? "⚔ Main" : "🗡 Side"}
-          </button>
-        ))}
-      </div>
-      <p className="text-body-sm text-tavern-smoke-light mt-1.5 opacity-70">
-        {value === "main" ? "Weeks–months of commitment" : "Hours to a weekend"}
-      </p>
-    </div>
-  );
-}
-
 // ── AI Mode form ──────────────────────────────────────────────────────────────
 
 function AiForm({
   onSubmit,
 }: {
-  onSubmit: (data: { topic: string; location: string; questType: QuestType }) => void;
+  onSubmit: (data: { topic: string; location: string }) => void;
 }) {
   const [topic, setTopic]       = useState("");
   const [custom, setCustom]     = useState("");
   const [location, setLocation] = useState("");
-  const [questType, setType]    = useState<QuestType>("side");
 
   const activeTopic = custom.trim() || topic;
   const canSubmit = activeTopic.length > 0;
@@ -95,7 +54,7 @@ function AiForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
-    onSubmit({ topic: activeTopic, location: location.trim(), questType });
+    onSubmit({ topic: activeTopic, location: location.trim() });
   };
 
   return (
@@ -138,8 +97,6 @@ function AiForm({
         />
       </div>
 
-      <QuestTypeToggle value={questType} onChange={setType} />
-
       <button
         type="submit"
         disabled={!canSubmit}
@@ -164,20 +121,18 @@ function UserForm({
     title: string;
     description: string;
     category: string;
-    questType: QuestType;
   }) => void;
 }) {
   const [title, setTitle]         = useState("");
   const [description, setDesc]    = useState("");
   const [category, setCategory]   = useState("");
-  const [questType, setType]      = useState<QuestType>("side");
 
   const canSubmit = title.trim().length >= 5 && description.trim().length >= 20 && category;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
-    onSubmit({ title: title.trim(), description: description.trim(), category, questType });
+    onSubmit({ title: title.trim(), description: description.trim(), category });
   };
 
   return (
@@ -238,8 +193,6 @@ function UserForm({
         </select>
       </div>
 
-      <QuestTypeToggle value={questType} onChange={setType} />
-
       <button
         type="submit"
         disabled={!canSubmit}
@@ -298,7 +251,7 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
   };
 
   const handleEvaluate = async (
-    payload: Record<string, unknown> & { questType: QuestType }
+    payload: Record<string, unknown>
   ) => {
     setError(null);
     setStage("loading");
@@ -441,15 +394,15 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
           {/* ── Form stage ───────────────────────────────────────── */}
           {stage === "form" && mode === "ai" && (
             <AiForm
-              onSubmit={({ topic, location, questType }) =>
-                handleEvaluate({ mode: "ai", topic, location, questType })
+              onSubmit={({ topic, location }) =>
+                handleEvaluate({ mode: "ai", topic, location })
               }
             />
           )}
           {stage === "form" && mode === "user" && (
             <UserForm
-              onSubmit={({ title, description, category, questType }) =>
-                handleEvaluate({ mode: "user", title, description, category, questType })
+              onSubmit={({ title, description, category }) =>
+                handleEvaluate({ mode: "user", title, description, category })
               }
             />
           )}
@@ -512,9 +465,8 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
               </p>
 
               {/* Meta row */}
-              <div className="grid grid-cols-3 gap-2 mb-6">
+              <div className="grid grid-cols-2 gap-2 mb-6">
                 {[
-                  { label: "Type",     value: preview.type === "main" ? "⚔ Main" : "🗡 Side" },
                   { label: "Duration", value: preview.duration_label },
                   { label: "Category", value: preview.category },
                 ].map(({ label, value }) => (

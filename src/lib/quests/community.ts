@@ -7,7 +7,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Do a Park Cleanup",
     description: "Grab a bag and spend an hour picking up litter at a local park or public space. Small actions create big change.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -16,7 +15,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Attend a Community Meeting",
     description: "Show up to a local council, neighbourhood association, or town hall meeting. Stay engaged and ask a question.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -25,7 +23,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Help a Neighbour",
     description: "Offer practical help to a neighbour — carry groceries, watch their pet, mow their lawn, or share homemade food.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-3 hours",
@@ -34,7 +31,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Volunteer at a Food Bank",
     description: "Sign up for a 3-4 hour shift at a local food bank or pantry. Sort donations, pack boxes, or assist visitors.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "Half day",
@@ -43,7 +39,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Donate Unused Items",
     description: "Go through your home and gather 20+ items you no longer need. Drop them at a charity shop or shelter.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-3 hours",
@@ -52,7 +47,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Start a Little Free Library",
     description: "Set up a small book-sharing box on your street or at a community centre. Stock it with 10+ books to start.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "Half day",
@@ -61,7 +55,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Join a Community Garden",
     description: "Sign up to tend a plot or help maintain a community garden for at least one season. Grow something edible.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "4-6 weeks",
@@ -71,7 +64,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Volunteer 100 Hours",
     description: "Give back to your community through 100 hours of volunteer work across one or more organisations. Log every session.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-6 months",
@@ -80,7 +72,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Launch a Community Project",
     description: "Identify a gap in your neighbourhood and take action. Organise a project — a cleanup campaign, skill-sharing circle, or support group — and run it for at least 3 months.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3 months",
@@ -89,7 +80,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Run a Charity Fundraiser",
     description: "Plan and execute a fundraiser for a cause you care about. Set a goal, promote it, collect donations, and hit your target.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "6-8 weeks",
@@ -98,7 +88,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Donate Blood",
     description: "Book a slot at your nearest blood donation centre and donate. Takes about an hour. Eat well beforehand and stay hydrated.",
-    type: "side",
     difficulty: 1,
     xp_reward: 100,
     duration_label: "1-2 hours",
@@ -107,7 +96,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Teach a Free 1-Hour Workshop",
     description: "Pick a skill you have and offer a free hour-long session to your community, neighbourhood, or online. Anything counts: cooking, coding, photography, budgeting.",
-    type: "side",
     difficulty: 2,
     xp_reward: 150,
     duration_label: "2-3 hours",
@@ -116,7 +104,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Plant Trees",
     description: "Join a local tree-planting event or plant 5+ trees in your own green space. Research which species are native to your area before you dig.",
-    type: "side",
     difficulty: 1,
     xp_reward: 100,
     duration_label: "2-4 hours",
@@ -125,7 +112,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Start a Community Group",
     description: "Launch a recurring local group around any interest — book club, running crew, repair café, skill swap. Get 10+ regular members and run it for 3 months.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3 months",
@@ -134,7 +120,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Run a Food Drive",
     description: "Organise a food donation drive in your building, workplace, or neighbourhood. Collect 100+ non-perishable items and deliver them to a local food bank.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "1 month",
@@ -143,7 +128,6 @@ export const COMMUNITY_QUESTS = [
   defineQuest({
     title: "Youth Mentorship Programme",
     description: "Connect with a young person through a formal mentorship programme. Meet monthly for 6 months with a specific goal — school, skills, or confidence.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "6 months",

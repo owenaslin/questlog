@@ -58,12 +58,12 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
 
     const pool = ALL_QUESTS.filter(
       (q) =>
-        q.type === "side" &&
+        (q.duration_minutes ?? 9999) <= 120 &&
         q.difficulty >= minD &&
         q.difficulty <= maxD &&
         (selectedCategories.length === 0 || selectedCategories.includes(q.category))
     );
-    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : ALL_QUESTS.find((q) => q.type === "side") ?? null;
+    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : ALL_QUESTS[0] ?? null;
     setSuggestedQuest(pick);
     setStep("quest");
   };
@@ -73,7 +73,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
     setIsAccepting(true);
     setAcceptError(null);
     try {
-      const result = await acceptQuest(suggestedQuest.id, suggestedQuest.type, suggestedQuest.category);
+      const result = await acceptQuest(suggestedQuest.id, suggestedQuest.category);
       if (result.success) {
         setAcceptedQuestId(suggestedQuest.id);
         setStep("done");
@@ -227,9 +227,6 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                 style={{ border: "2px solid #c4a85a", background: "#0f0d07" }}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={`badge ${suggestedQuest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-                    {suggestedQuest.type === "main" ? "⚔ Main" : "🗡 Side"}
-                  </span>
                   <span className="text-body-sm text-[--parchment-dim]">{suggestedQuest.category}</span>
                 </div>
                 <h3 className="text-subhead text-tavern-gold leading-snug mb-2">

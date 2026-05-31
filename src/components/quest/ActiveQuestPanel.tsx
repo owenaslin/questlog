@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import { Quest } from "@/lib/types";
 import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
-import { QuestTypeBadge } from "@/components/quest/QuestCard";
 
 interface ActiveQuestPanelProps {
   quest: Quest;
@@ -24,7 +23,6 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
   return (
     <div className="tavern-card p-4 md:p-5">
       <div className="flex items-center gap-2 mb-3">
-        <QuestTypeBadge type={quest.type} />
         <span className="badge badge-lime ml-auto">+{quest.xp_reward} XP</span>
       </div>
 
@@ -38,12 +36,10 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
         <span className="text-body-sm text-[--parchment-dim]">{quest.duration_label}</span>
       </div>
 
-      {quest.type === "main" && (
+      {steps.length > 0 && (
         <div className="mb-3 p-3 border border-tavern-oak/60 bg-black/20">
           <p className="kicker text-tavern-gold mb-2">Today&apos;s Action</p>
-          {steps.length === 0 ? (
-            <p className="text-body-sm text-[--parchment-dim] leading-relaxed">Open the quest and choose the smallest next step.</p>
-          ) : nextStep ? (
+          {nextStep ? (
             <p className="text-body text-tavern-parchment leading-relaxed">{nextStep.title}</p>
           ) : (
             <p className="text-body text-retro-lime leading-relaxed">All steps are checked. Finish the quest when you&apos;re ready.</p>
@@ -67,10 +63,10 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
         </div>
       )}
 
-      {/* Step checklist (first 4 steps inline) */}
+      {/* Step checklist */}
       {hydrated && steps.length > 0 && (
         <ul className="space-y-1.5 mb-4">
-          {steps.slice(0, 4).map((step) => {
+          {steps.map((step) => {
             const done = completedStepIds.has(step.id);
             const loading = loadingStepId === step.id;
             return (
@@ -101,11 +97,6 @@ export default function ActiveQuestPanel({ quest }: ActiveQuestPanelProps) {
               </li>
             );
           })}
-          {steps.length > 4 && (
-            <li className="text-body-sm text-tavern-oak">
-              +{steps.length - 4} more — <Link href={`/board/${quest.id}`} className="underline hover:text-tavern-gold">view all</Link>
-            </li>
-          )}
         </ul>
       )}
 

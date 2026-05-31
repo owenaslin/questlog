@@ -7,7 +7,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Update Your Resume",
     description: "Refresh your resume with recent accomplishments. Tailor it for your next target role.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-3 hours",
@@ -16,7 +15,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "LinkedIn Profile Polish",
     description: "Update your LinkedIn headline, summary, and experience. Add a professional photo.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -25,7 +23,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Informational Interview",
     description: "Reach out to someone in a role you want. Ask for 20 minutes to learn about their path.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "30 min",
@@ -34,7 +31,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Learn a Work Skill",
     description: "Pick one skill that would help at work: Excel, public speaking, or project management basics.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "4-6 hours",
@@ -44,7 +40,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Get Promoted",
     description: "Work toward and achieve a promotion. Document wins, take on stretch projects, and make your case.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "6-12 months",
@@ -53,7 +48,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Switch Careers",
     description: "Successfully transition to a new field. Network, learn skills, and land a job in your new industry.",
-    type: "main",
     difficulty: 5,
     xp_reward: 1000,
     duration_label: "6-12 months",
@@ -62,7 +56,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Start a Side Business",
     description: "Launch a product or service on the side. Get your first paying customer.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-6 months",
@@ -71,7 +64,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Earn a Certification",
     description: "Get a professional certification relevant to your field. Study and pass the exam.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2-4 months",
@@ -80,7 +72,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Speak at a Conference",
     description: "Submit a talk proposal and present at a professional conference or meetup.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-6 months",
@@ -89,7 +80,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Build Personal Brand",
     description: "Create consistent content in your field for 6 months. Blog, podcast, or video series.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "6 months",
@@ -98,7 +88,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Write Your Professional Bio",
     description: "Draft a compelling 150-word third-person bio that captures what you do, what makes you distinctive, and what you're working toward. Polish it until you're proud of it.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "30-45 min",
@@ -107,7 +96,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Research Salary Ranges",
     description: "Use LinkedIn Salary, Glassdoor, and Levels.fyi to benchmark your current role and two next steps. Write down what you find and what it means for your next negotiation.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "1-2 hours",
@@ -116,7 +104,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Record a 2-Minute Pitch Video",
     description: "Film yourself delivering a confident 2-minute pitch: who you are, what you do, and what opportunity you're looking for. Watch it back and notice what to improve.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "30-45 min",
@@ -125,7 +112,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Launch a Professional Newsletter",
     description: "Choose your niche, set up a Substack or Beehiiv, and publish consistently for 12 weeks. Aim for 100+ subscribers by the end.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3 months",
@@ -134,7 +120,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Deliver Your First Talk",
     description: "Submit a proposal, get accepted, and deliver a talk at a conference, meetup, or podcast. Prep slides, rehearse 5+ times, and record the final version.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3 months",
@@ -143,7 +128,6 @@ const CAREER_QUESTS = [
   defineQuest({
     title: "Complete Your First Freelance Project",
     description: "Find a client, scope the work, deliver on time, and get paid. It doesn't matter how small — the first project is what breaks the seal.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "1-2 months",

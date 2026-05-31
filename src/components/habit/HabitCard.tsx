@@ -209,7 +209,7 @@ export default function HabitCard({
       {/* Edit link */}
       <Link
         href={`/habits/${habit.id}/edit`}
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-2 right-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
       >
         <span className="text-body-sm text-tavern-parchment-dim hover:text-tavern-gold">
           Edit

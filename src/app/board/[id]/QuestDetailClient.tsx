@@ -1,22 +1,19 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import PixelButton from "@/components/ui/PixelButton";
 import XPBar from "@/components/ui/XPBar";
-import CompletionModal from "@/components/modals/CompletionModal";
-import MilestoneCelebration from "@/components/modals/MilestoneCelebration";
-import AmbientScene from "@/components/ui/AmbientScene";
 import { Quest } from "@/lib/types";
 import { detectMilestones, type Milestone } from "@/lib/milestones";
 import {
   acceptQuest,
   abandonQuest,
-  abandonAndAccept,
   completeQuest,
   getCompletedCategoryCounts,
   getUserDashboardSnapshot,
+  invalidateProgressCaches,
   updateStreakOnCompletion,
   getSuggestedNextQuests,
 } from "@/lib/quest-progress";
@@ -24,6 +21,10 @@ import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
 import { getOwnHeroProfile } from "@/lib/hero";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 import { calculateLevel } from "@/lib/types";
+
+const CompletionModal = React.lazy(() => import("@/components/modals/CompletionModal"));
+const MilestoneCelebration = React.lazy(() => import("@/components/modals/MilestoneCelebration"));
+const AmbientScene = React.lazy(() => import("@/components/ui/AmbientScene"));
 
 interface QuestDetailClientProps {
   quest: Quest;
@@ -63,7 +64,6 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
 
   // Abandon confirmation
   const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
-  const [conflictQuest, setConflictQuest] = useState<{ questId: string; title: string } | null>(null);
 
   const completedStepsCount = stepChecked.size;
   const allStepsDone = steps.length > 0 && completedStepsCount >= steps.length;
@@ -97,42 +97,13 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
     setStatus("active");
 
     try {
-      const result = await acceptQuest(quest.id, quest.type, quest.category);
-
-      if (result.conflict) {
-        setStatus(previousStatus);
-        setConflictQuest(result.conflict);
-        return;
-      }
+      const result = await acceptQuest(quest.id, quest.category);
 
       if (!result.success) {
         setStatus(previousStatus);
         if (result.error?.toLowerCase().includes("log in")) {
           router.push(buildAuthUrl("login", pathname || `/board/${quest.id}`));
         }
-        setActionError(result.error || "Could not accept quest.");
-      }
-    } catch (err) {
-      setStatus(previousStatus);
-      setActionError(err instanceof Error ? err.message : "An unexpected error occurred.");
-    } finally {
-      pendingWriteRef.current = false;
-      setIsWorking(false);
-    }
-  };
-
-  const handleAbandonAndAccept = async () => {
-    if (!conflictQuest) return;
-    pendingWriteRef.current = true;
-    setIsWorking(true);
-    setConflictQuest(null);
-    const previousStatus = status;
-    setStatus("active");
-
-    try {
-      const result = await abandonAndAccept(conflictQuest.questId, quest.id, quest.type, quest.category);
-      if (!result.success) {
-        setStatus(previousStatus);
         setActionError(result.error || "Could not accept quest.");
       }
     } catch (err) {
@@ -172,7 +143,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       const beforeSummary = beforeSnapshot?.profileSummary ?? null;
       const beforeLevel = beforeSummary?.level || calculateLevel(beforeSummary?.xp_total || 0);
 
-      const result = await completeQuest(quest.id, quest.type, quest.category);
+      const result = await completeQuest(quest.id, undefined, quest.category);
       if (!result.success) {
         setStatus(previousStatus);
         if (result.error?.toLowerCase().includes("log in")) {
@@ -183,8 +154,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       }
 
       if (result.alreadyCompleted) {
-        const summary = (await getUserDashboardSnapshot())?.profileSummary ?? null;
-        if (summary) setProfileXpTotal(summary.xp_total);
+        if (beforeSummary) setProfileXpTotal(beforeSummary.xp_total);
         setActionError("This quest is already completed. No additional XP awarded.");
         return;
       }
@@ -198,6 +168,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
         setIsNewLongest(streakResult.isNewLongest ?? false);
       }
 
+      invalidateProgressCaches();
       const [afterSnapshot, completedByCategory, suggested] = await Promise.all([
         getUserDashboardSnapshot(),
         getCompletedCategoryCounts(),
@@ -249,7 +220,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
 
   return (
     <div className="max-w-2xl mx-auto relative">
-      <AmbientScene scene="quest-alcove" />
+      <Suspense fallback={null}><AmbientScene scene="quest-alcove" /></Suspense>
 
       <button
         type="button"
@@ -261,11 +232,8 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       </button>
 
       <div className="bg-retro-darkgray border-4 border-retro-black shadow-pixel-lg p-8">
-        {/* Type & Source badges */}
+        {/* Source badge */}
         <div className="flex items-center gap-3 mb-6">
-          <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-            {quest.type === "main" ? "⚔ Main Quest" : "🗡 Side Quest"}
-          </span>
           <span className="badge badge-muted">
             {quest.source === "predefined" ? "★ Curated" : quest.source === "ai" ? "⚡ AI" : "✎ Custom"}
           </span>
@@ -394,25 +362,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
             </div>
           )}
 
-          {/* Conflict: already have a main quest */}
-          {conflictQuest && (
-            <div className="bg-retro-black border-2 border-retro-orange p-4 mb-4">
-              <p className="text-body-sm text-retro-orange leading-relaxed mb-3">
-                You&apos;re already on <span className="text-retro-yellow">{conflictQuest.title}</span>.
-                Abandon it and start this one? Your progress and XP are kept.
-              </p>
-              <div className="flex gap-2">
-                <PixelButton variant="danger" size="sm" onClick={handleAbandonAndAccept} disabled={isWorking}>
-                  Abandon &amp; Switch
-                </PixelButton>
-                <PixelButton variant="secondary" size="sm" onClick={() => setConflictQuest(null)} disabled={isWorking}>
-                  Keep Current
-                </PixelButton>
-              </div>
-            </div>
-          )}
-
-          {status === "available" && !conflictQuest && (
+          {status === "available" && (
             <div className="flex flex-col items-center gap-4">
               <p className="text-body-sm text-retro-lightgray">Ready to begin this quest?</p>
               <PixelButton variant="success" size="lg" onClick={handleAccept} disabled={isWorking} aria-busy={isWorking}>
@@ -429,9 +379,9 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 ▶ Quest In Progress
               </div>
 
-              {/* Desktop Complete button — hidden on mobile (sticky version handles that) */}
-              {!showAbandonConfirm && !conflictQuest && (
-                <div className="hidden md:flex w-full justify-center">
+              {/* Complete button — visible on all screen sizes */}
+              {!showAbandonConfirm && (
+                <div className="flex w-full justify-center">
                   <PixelButton
                     variant="primary"
                     size="lg"
@@ -495,7 +445,7 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       </div>
 
       {/* Sticky Complete button on mobile — floats above bottom nav */}
-      {status === "active" && !showAbandonConfirm && !conflictQuest && (
+      {status === "active" && !showAbandonConfirm && (
         <div className="fixed bottom-16 left-0 right-0 px-4 pb-2 md:hidden z-40 pointer-events-none">
           <PixelButton
             variant="primary"
@@ -514,30 +464,34 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       )}
 
 
-      {showMilestoneCelebration && milestones.length > 0 && (
-        <MilestoneCelebration
-          milestones={milestones}
-          onComplete={() => {
-            setShowMilestoneCelebration(false);
-            setShowCompletionModal(true);
-          }}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showMilestoneCelebration && milestones.length > 0 && (
+          <MilestoneCelebration
+            milestones={milestones}
+            onComplete={() => {
+              setShowMilestoneCelebration(false);
+              setShowCompletionModal(true);
+            }}
+          />
+        )}
+      </Suspense>
 
-      {showCompletionModal && profileXpTotal !== null && (
-        <CompletionModal
-          quest={quest}
-          xpEarned={xpEarned}
-          newXpTotal={profileXpTotal}
-          newLevel={newLevel ?? undefined}
-          newStreak={newStreak}
-          isNewLongest={isNewLongest}
-          heroHandle={heroHandle}
-          milestones={milestones}
-          suggestedQuests={suggestedQuests}
-          onClose={() => setShowCompletionModal(false)}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showCompletionModal && profileXpTotal !== null && (
+          <CompletionModal
+            quest={quest}
+            xpEarned={xpEarned}
+            newXpTotal={profileXpTotal}
+            newLevel={newLevel ?? undefined}
+            newStreak={newStreak}
+            isNewLongest={isNewLongest}
+            heroHandle={heroHandle}
+            milestones={milestones}
+            suggestedQuests={suggestedQuests}
+            onClose={() => setShowCompletionModal(false)}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

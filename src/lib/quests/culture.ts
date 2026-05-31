@@ -7,7 +7,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Visit a Museum or Gallery",
     description: "Spend a few hours at a museum, art gallery, or historical site you've never been to. Read the descriptions and reflect.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "Half day",
@@ -16,7 +15,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Watch a Foreign Language Film",
     description: "Watch a critically acclaimed film in a language you don't speak. No English dubbing — subtitles only. Reflect on what you noticed.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-3 hours",
@@ -25,7 +23,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Attend a Live Performance",
     description: "Go to a live concert, theatre show, stand-up set, dance performance, or spoken word event. Experience art in real time.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-4 hours",
@@ -34,7 +31,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Try a Traditional Dish",
     description: "Cook or eat a dish from a culture other than your own that you've never tried. Learn a little about its origin.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-3 hours",
@@ -43,7 +39,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Learn 20 Phrases in a New Language",
     description: "Pick a language and learn 20 useful everyday phrases. Practise pronunciation and use them in a real or simulated conversation.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1 week",
@@ -52,7 +47,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Read a Classic Novel",
     description: "Read a classic novel from the 20th century or earlier. Write a short reflection on what surprised you most.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-4 weeks",
@@ -61,7 +55,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Attend a Cultural Festival",
     description: "Go to a cultural festival, street fair, or community celebration that highlights a culture you're curious about.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "Half day",
@@ -71,7 +64,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Reach Conversational Level in a Language",
     description: "Commit to learning a new language to conversational level. Use daily practice, apps, classes, and speaking with native speakers. Pass a self-assessment test at the end.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "3-6 months",
@@ -80,7 +72,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Deep Dive into a Historical Period",
     description: "Study one historical period or civilisation in depth. Read 3 books, watch 2 documentaries, and write a 1-page summary of your key insights.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2-3 months",
@@ -89,7 +80,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Read 5 Classic Novels",
     description: "Read five classic works of literature from different eras or cultures. Journal your thoughts after each one.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3-5 months",
@@ -98,7 +88,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Read a Nonfiction Book About a Country You'd Like to Visit",
     description: "Choose a country you've always wanted to travel to but haven't visited yet. Read a nonfiction book — history, culture, travel writing — that brings it to life.",
-    type: "side",
     difficulty: 1,
     xp_reward: 100,
     duration_label: "2-4 weeks",
@@ -107,7 +96,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Architecture Walk",
     description: "Pick a neighbourhood with interesting buildings and walk it slowly. Research the styles, eras, and stories behind at least 5 structures you find.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "1-2 hours",
@@ -116,7 +104,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Attend a Poetry Slam",
     description: "Find a local open-mic or poetry slam event and go. If you're brave, sign up to perform one piece yourself.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "2-3 hours",
@@ -125,7 +112,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Cook a New Culture's Dish",
     description: "Pick a cuisine you've never cooked from. Find a traditional recipe (not fusion), source the authentic ingredients, and make it from scratch.",
-    type: "side",
     difficulty: 2,
     xp_reward: 150,
     duration_label: "2-3 hours",
@@ -134,7 +120,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Explore a Music Genre You've Ignored",
     description: "Pick a genre you've always dismissed — jazz, classical, K-pop, bluegrass, afrobeat. Listen to 5 landmark albums and read about its history.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "2-3 hours",
@@ -143,7 +128,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Learn a Traditional Dance Style",
     description: "Take lessons in salsa, tango, swing, or bharatanatyam over 3 months. Attend classes weekly and practise at home. Perform once for someone.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3 months",
@@ -152,7 +136,6 @@ const CULTURE_QUESTS = [
   defineQuest({
     title: "Visit 10 Cultural Sites",
     description: "Plan and visit 10 cultural destinations over 3 months: museums, historical sites, galleries, heritage buildings, or cultural festivals. Write a short reflection on each.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3 months",

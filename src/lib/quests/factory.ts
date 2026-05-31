@@ -4,7 +4,6 @@ import { Quest } from "@/lib/types";
 type QuestInput = {
   title: string;
   description: string;
-  type: "main" | "side";
   difficulty: number;
   duration_label: string;
   category: string;
@@ -19,6 +18,6 @@ export function defineQuest(input: QuestInput): Omit<Quest, "id" | "created_at" 
     location: null,
     status: "available",
     duration_minutes,
-    xp_reward: input.xp_reward ?? calcQuestXP(input.type, duration_minutes, input.difficulty),
+    xp_reward: input.xp_reward ?? calcQuestXP(duration_minutes, input.difficulty),
   };
 }

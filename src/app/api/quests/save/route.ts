@@ -51,7 +51,6 @@ async function checkSaveRateLimit(userId: string): Promise<boolean> {
 const bodySchema = z.object({
   title:            z.string().min(1).max(80),
   description:      z.string().min(1).max(500),
-  type:             z.enum(["main", "side"]),
   source:           z.enum(["ai", "user"]),
   difficulty:       z.number().int().min(1).max(5),
   duration_label:   z.string().min(1).max(60),
@@ -139,7 +138,7 @@ export async function POST(req: NextRequest) {
       throw new AppError(message, status);
     }
 
-    const safeXP = calcQuestXP(claims.typ, claims.dur, claims.dif);
+    const safeXP = calcQuestXP(claims.dur, claims.dif);
 
     // Create an authenticated Supabase client so RLS sees the user's identity
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";

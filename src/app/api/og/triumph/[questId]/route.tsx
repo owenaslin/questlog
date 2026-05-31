@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { AVATAR_PORTRAITS, AvatarKey } from "@/lib/types";
-import { SUPABASE_URL, ANON_KEY, fetchHeroByHandle, loadFont } from "@/lib/og-utils";
+import { SUPABASE_URL, ANON_KEY, fetchHeroByHandle, loadFont, isUuid, isValidHandle } from "@/lib/og-utils";
 
 export const runtime = "edge";
 
@@ -8,9 +8,12 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const HANDLE_RE = /^[a-z0-9][a-z0-9-]{0,30}[a-z0-9]$/i;
 
 async function fetchQuest(questId: string) {
+  // Reject anything that isn't a UUID so attacker-controlled filter operators
+  // (e.g. "0&id=neq.0", "(or(...))") can't be smuggled into the PostgREST query.
+  if (!isUuid(questId)) return null;
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/quests?id=eq.${questId}&select=*`,
+      `${SUPABASE_URL}/rest/v1/quests?id=eq.${encodeURIComponent(questId)}&select=*`,
       {
         headers: { apikey: ANON_KEY, "Content-Type": "application/json" },
       }
@@ -30,6 +33,7 @@ export async function GET(
   const { questId } = await params;
   const { searchParams } = new URL(request.url);
   const rawHandle = searchParams.get("user") ?? "adventurer";
+  // Fail closed: never reflect a malformed handle into the rendered card.
   const handle = HANDLE_RE.test(rawHandle) ? rawHandle : "adventurer";
 
   if (!UUID_RE.test(questId)) {
@@ -51,7 +55,6 @@ export async function GET(
   const quest = questData ?? {
     title: "Unknown Quest",
     xp_reward: 0,
-    type: "side",
   };
 
   const portrait = AVATAR_PORTRAITS[hero.avatar_sprite as AvatarKey] ?? AVATAR_PORTRAITS.wizard;

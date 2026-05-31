@@ -22,7 +22,7 @@ export default function NearbyPage() {
   const nearbyQuests = ALL_QUESTS.filter(
     (quest) =>
       NEARBY_CATEGORIES.includes(quest.category) &&
-      quest.type === "side" &&
+      (quest.duration_minutes ?? 9999) <= 240 &&
       quest.difficulty <= 3
   ).slice(0, 9);
 

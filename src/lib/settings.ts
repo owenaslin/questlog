@@ -1,4 +1,5 @@
 import { getSupabaseClient } from "@/lib/supabase";
+import { getCurrentUserId } from "@/lib/quest-progress";
 import {
   DiscoveryPreference,
   EnergyLevel,
@@ -69,11 +70,34 @@ function normalizeSettingsRow(row: Record<string, unknown>): UserSettings {
   };
 }
 
-export async function getUserSettings(): Promise<{ settings: UserSettings | null; error?: string }> {
+type UserSettingsResult = { settings: UserSettings | null; error?: string };
+
+let _settingsPromise: Promise<UserSettingsResult> | null = null;
+let _settingsExpiry = 0;
+
+export function invalidateUserSettings(): void {
+  _settingsPromise = null;
+  _settingsExpiry = 0;
+}
+
+// Memoized briefly so the many helpers that read settings during a single page
+// load (daily adventure, every habits snapshot, packs, nearby) share one fetch.
+export async function getUserSettings(): Promise<UserSettingsResult> {
+  const now = Date.now();
+  if (_settingsPromise && now < _settingsExpiry) return _settingsPromise;
+
+  _settingsExpiry = now + 30_000;
+  _settingsPromise = _fetchUserSettings().then((result) => {
+    if (!result.settings) { _settingsPromise = null; _settingsExpiry = 0; }
+    return result;
+  });
+  return _settingsPromise;
+}
+
+async function _fetchUserSettings(): Promise<UserSettingsResult> {
   const supabase = getSupabaseClient();
 
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { settings: null, error: "Not authenticated" };
@@ -116,8 +140,7 @@ export async function upsertUserSettings(
 ): Promise<{ settings: UserSettings | null; error?: string }> {
   const supabase = getSupabaseClient();
 
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { settings: null, error: "Not authenticated" };
@@ -174,6 +197,7 @@ export async function upsertUserSettings(
     return { settings: null, error: error?.message || "Failed to save settings" };
   }
 
+  invalidateUserSettings();
   return { settings: normalizeSettingsRow(data as Record<string, unknown>) };
 }
 
@@ -183,8 +207,7 @@ export async function updateProfileSettings(input: {
 }): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
 
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { success: false, error: "Not authenticated" };
@@ -223,8 +246,7 @@ export async function getOwnProfileSettings(): Promise<{
 }> {
   const supabase = getSupabaseClient();
 
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData?.user?.id;
+  const userId = await getCurrentUserId();
 
   if (!userId) {
     return { profile: null, error: "Not authenticated" };

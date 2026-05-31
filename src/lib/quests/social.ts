@@ -7,7 +7,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Attend a Meetup",
     description: "Go to a local meetup about a topic you're interested in. Talk to at least 3 new people.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "2-3 hours",
@@ -16,7 +15,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Host a Dinner Party",
     description: "Invite 4+ friends over for a home-cooked meal. Plan the menu and create a welcoming atmosphere.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "4-6 hours",
@@ -25,7 +23,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Volunteer for a Day",
     description: "Spend 4+ hours volunteering at a local charity, shelter, or community event.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "Half day",
@@ -34,7 +31,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Reconnect with an Old Friend",
     description: "Reach out to someone you haven't spoken to in 6+ months. Have a meaningful conversation.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "1-2 hours",
@@ -43,7 +39,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Join a Club",
     description: "Sign up for a local club: book club, hiking group, board game night, or sports league.",
-    type: "side",
     difficulty: 1,
     xp_reward: 50,
     duration_label: "2-3 hours",
@@ -53,7 +48,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Volunteer 50 Hours",
     description: "Give back to your community through 50 hours of volunteer work across various organizations.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3-6 months",
@@ -62,7 +56,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Organize a Community Event",
     description: "Plan and execute a local event: cleanup, fundraiser, or social gathering. Get 20+ people to attend.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "2-3 months",
@@ -71,7 +64,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Build a Professional Network",
     description: "Attend 10 networking events. Connect with 50 professionals on LinkedIn. Have 5 coffee chats.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3 months",
@@ -80,7 +72,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Mentor Someone",
     description: "Guide someone junior in your field. Meet bi-weekly for 3 months. Help them achieve a specific goal.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3 months",
@@ -89,7 +80,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Join a Board or Committee",
     description: "Become a member of a non-profit board or community committee. Attend meetings for 6 months.",
-    type: "main",
     difficulty: 4,
     xp_reward: 800,
     duration_label: "6 months",
@@ -98,7 +88,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Write 5 Appreciation Letters",
     description: "Handwrite (or type) a heartfelt thank-you note to 5 people who've positively shaped your life. Send them all.",
-    type: "side",
     difficulty: 1,
     xp_reward: 75,
     duration_label: "1-2 hours",
@@ -107,7 +96,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Host a Games Night",
     description: "Invite 4+ friends over for a board game, card game, or quiz night. You host, you pick the games, you supply the snacks.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "3-4 hours",
@@ -116,7 +104,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Strike Up 5 Conversations with Strangers",
     description: "In one day, genuinely chat with 5 people you don't know — a café barista, someone in a queue, a neighbour. Real conversation, not small talk.",
-    type: "side",
     difficulty: 2,
     xp_reward: 100,
     duration_label: "1 day",
@@ -125,7 +112,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Take an Improv Comedy Course",
     description: "Enrol in a beginner improv course and attend all sessions over 6–8 weeks. Perform in the end-of-course show.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "2 months",
@@ -134,7 +120,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Join Toastmasters for a Term",
     description: "Attend a Toastmasters club weekly for 3 months. Deliver at least 5 prepared speeches and take on a meeting role each session.",
-    type: "main",
     difficulty: 3,
     xp_reward: 600,
     duration_label: "3 months",
@@ -143,7 +128,6 @@ const SOCIAL_QUESTS = [
   defineQuest({
     title: "Find a Pen Pal",
     description: "Connect with someone in another country through a pen pal platform and exchange at least 12 letters or emails over 6 months. Build a real cross-cultural friendship.",
-    type: "main",
     difficulty: 2,
     xp_reward: 600,
     duration_label: "6 months",

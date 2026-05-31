@@ -10,59 +10,47 @@ import PullToRefresh from "@/components/ui/PullToRefresh";
 import QuestForge from "@/components/quest/QuestForge";
 import AmbientScene from "@/components/ui/AmbientScene";
 import { useViewMode } from "@/components/ui/ViewModeProvider";
-import { ALL_QUESTS, getMainQuests, getSideQuests } from "@/lib/quests";
+import { ALL_QUESTS } from "@/lib/quests";
 import { Quest, QuestSource } from "@/lib/types";
 import {
   getCurrentUserId,
   getUserQuestProgressMap,
+  getUserCreatedActiveQuests,
   mergeQuestWithProgress,
   acceptQuest,
-  abandonAndAccept,
 } from "@/lib/quest-progress";
 import { buildAuthUrl } from "@/lib/auth-redirect";
 
 function QuickAcceptButton({
   quest,
-  activeMainQuestId,
   onAccepted,
   onAcceptStart,
   onAcceptEnd,
   inline = false,
 }: {
   quest: Quest;
-  activeMainQuestId: string | null;
   onAccepted: (questId: string) => void;
   onAcceptStart?: () => void;
   onAcceptEnd?: () => void;
   inline?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
-  const [showConflict, setShowConflict] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (quest.status !== "available") return null;
-
-  const isMainBlocked = quest.type === "main" && activeMainQuestId !== null;
 
   const handleAccept = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (loading) return;
 
-    if (isMainBlocked) {
-      setShowConflict(true);
-      return;
-    }
-
     onAcceptStart?.();
     setLoading(true);
     setError(null);
     try {
-      const result = await acceptQuest(quest.id, quest.type, quest.category);
+      const result = await acceptQuest(quest.id, quest.category);
       if (result.success) {
         onAccepted(quest.id);
-      } else if (result.conflict) {
-        setShowConflict(true);
       } else {
         setError(result.error || 'Could not accept quest.');
       }
@@ -72,62 +60,7 @@ function QuickAcceptButton({
     }
   };
 
-  const handleAbandonAndAccept = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!activeMainQuestId) return;
-    onAcceptStart?.();
-    setLoading(true);
-    setShowConflict(false);
-    try {
-      const result = await abandonAndAccept(activeMainQuestId, quest.id, quest.type, quest.category);
-      if (result.success) onAccepted(quest.id);
-    } finally {
-      setLoading(false);
-      onAcceptEnd?.();
-    }
-  };
-
-  if (showConflict) {
-    const conflictContent = (
-      <div onClick={(e) => e.preventDefault()}>
-        <p className="text-body-sm text-tavern-ember mb-2 leading-snug">
-          Abandon your current main quest and start this one?
-        </p>
-        <div className="flex gap-1">
-          <button
-            type="button"
-            onClick={handleAbandonAndAccept}
-            disabled={loading}
-            className="tavrn-btn tavrn-btn-danger tavrn-btn-sm disabled:opacity-50"
-          >
-            Abandon &amp; Accept
-          </button>
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowConflict(false); setError(null); }}
-            className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    );
-
-    return inline ? (
-      <div className="mt-2 p-2 border border-tavern-ember bg-black/60">{conflictContent}</div>
-    ) : (
-      <div className="absolute bottom-0 left-0 right-0 z-10 bg-black/90 border-t-2 border-tavern-ember p-2">
-        {conflictContent}
-      </div>
-    );
-  }
-
-  const btnClass = `text-body-sm px-2 py-1 border transition-none disabled:opacity-50 rounded ${
-    isMainBlocked
-      ? "border-tavern-oak/50 text-tavern-parchment-dim cursor-not-allowed bg-black/40"
-      : "border-tavern-gold bg-black/80 text-tavern-gold hover:bg-tavern-gold hover:text-black"
-  }`;
+  const btnClass = "text-body-sm px-2 py-1 border transition-none disabled:opacity-50 rounded border-tavern-gold bg-black/80 text-tavern-gold hover:bg-tavern-gold hover:text-black";
 
   return inline ? (
     <>
@@ -136,10 +69,9 @@ function QuickAcceptButton({
         onClick={handleAccept}
         disabled={loading}
         aria-busy={loading}
-        title={isMainBlocked ? "Finish your current main quest first" : undefined}
         className={btnClass}
       >
-        {loading ? "…" : isMainBlocked ? "🔒 Blocked" : "⚡ Accept"}
+        {loading ? "…" : "⚡ Accept"}
       </button>
       {error && (
         <p className="text-body-sm text-tavern-ember mt-1">{error}</p>
@@ -151,37 +83,35 @@ function QuickAcceptButton({
       onClick={handleAccept}
       disabled={loading}
       aria-busy={loading}
-      title={isMainBlocked ? "Finish your current main quest first" : `Accept "${quest.title}"`}
+      title={`Accept "${quest.title}"`}
       className={`absolute bottom-2 right-2 z-10 ${btnClass}`}
     >
-      {loading ? "…" : isMainBlocked ? "🔒" : "⚡ Accept"}
+      {loading ? "…" : "⚡ Accept"}
     </button>
   );
 }
 
 const allQuests: Quest[] = ALL_QUESTS;
 
-const QUEST_TABS: { key: TabType; label: string; icon: string }[] = [
-  { key: "all", label: "All Quests", icon: "📜" },
-  { key: "main", label: "Main Quests", icon: "⚔" },
-  { key: "side", label: "Side Quests", icon: "🗡" },
-];
-
-const MAIN_QUEST_COUNT = getMainQuests().length;
-const SIDE_QUEST_COUNT = getSideQuests().length;
-
-type TabType = "all" | "main" | "side";
+type TabType = "open" | "all";
 type StatusFilter = "all" | "available" | "active" | "completed";
+
+const QUEST_TABS: { key: TabType; label: string; icon: string }[] = [
+  { key: "open", label: "My Quests", icon: "▶" },
+  { key: "all", label: "All Quests", icon: "📜" },
+];
 
 export default function QuestsPage() {
   const { isDesktopActive } = useViewMode();
   const pendingWriteRef = useRef(false);
+  const initialTabSetRef = useRef(false);
   const [forgeOpen, setForgeOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<number>(0);
   const [sourceFilter, setSourceFilter] = useState<QuestSource | "all">("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [questsWithProgress, setQuestsWithProgress] = useState<Quest[]>(allQuests);
+  const [customActiveQuests, setCustomActiveQuests] = useState<Quest[]>([]);
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
@@ -202,10 +132,14 @@ export default function QuestsPage() {
       }
 
       setIsAuthenticated(true);
-      const progressMap = await getUserQuestProgressMap();
+      const [progressMap, customActive] = await Promise.all([
+        getUserQuestProgressMap(),
+        getUserCreatedActiveQuests(),
+      ]);
       if (!mounted) return;
       if (!pendingWriteRef.current) {
         setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
+        setCustomActiveQuests(customActive);
       }
       setIsLoadingProgress(false);
     };
@@ -213,6 +147,16 @@ export default function QuestsPage() {
     hydrateProgress();
     return () => { mounted = false; };
   }, []);
+
+  // Default authenticated users to "My Quests" on initial load only.
+  // Using a ref so pull-to-refresh (which also cycles isLoadingProgress) never
+  // overrides a tab the user has explicitly chosen.
+  useEffect(() => {
+    if (!isLoadingProgress && isAuthenticated && !initialTabSetRef.current) {
+      setActiveTab("open");
+      initialTabSetRef.current = true;
+    }
+  }, [isAuthenticated, isLoadingProgress]);
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
@@ -222,44 +166,49 @@ export default function QuestsPage() {
 
     setIsLoadingProgress(true);
 
-    const progressMap = await getUserQuestProgressMap();
+    const [progressMap, customActive] = await Promise.all([
+      getUserQuestProgressMap(),
+      getUserCreatedActiveQuests(),
+    ]);
     setQuestsWithProgress(mergeQuestWithProgress(allQuests, progressMap));
+    setCustomActiveQuests(customActive);
 
     setIsLoadingProgress(false);
   }, [isAuthenticated]);
 
+  // Hoisted above filteredQuests so the "open" tab can reference allActiveQuests directly
+  const activeQuests = useMemo(
+    () => questsWithProgress.filter((q) => q.status === "active"),
+    [questsWithProgress]
+  );
+  const allActiveQuests = useMemo(
+    () => [...activeQuests, ...customActiveQuests],
+    [activeQuests, customActiveQuests]
+  );
+
   const filteredQuests = useMemo(() => {
+    if (activeTab === "open") return allActiveQuests;
     return questsWithProgress.filter((q) => {
-      if (activeTab !== "all" && q.type !== activeTab) return false;
       if (difficultyFilter > 0 && q.difficulty !== difficultyFilter)
         return false;
       if (sourceFilter !== "all" && q.source !== sourceFilter) return false;
       if (statusFilter !== "all" && q.status !== statusFilter) return false;
       return true;
     });
-  }, [activeTab, difficultyFilter, sourceFilter, statusFilter, questsWithProgress]);
-
-  const activeQuests = useMemo(
-    () => questsWithProgress.filter((q) => q.status === "active"),
-    [questsWithProgress]
-  );
-
-  const activeMainQuestId = useMemo(
-    () => questsWithProgress.find((q) => q.status === "active" && q.type === "main")?.id ?? null,
-    [questsWithProgress]
-  );
+  }, [activeTab, difficultyFilter, sourceFilter, statusFilter, questsWithProgress, allActiveQuests]);
 
   const handleQuickAccepted = useCallback((questId: string) => {
     setQuestsWithProgress((prev) =>
       prev.map((q) => q.id === questId ? { ...q, status: "active" as const } : q)
     );
   }, []);
-  const availableSideQuests = useMemo(
-    () => questsWithProgress.filter((q) => q.status === "available" && q.type === "side"),
+
+  const availableQuests = useMemo(
+    () => questsWithProgress.filter((q) => q.status === "available"),
     [questsWithProgress]
   );
-  const todayPrimaryQuest = activeQuests[0] || availableSideQuests[0] || null;
-  const todayQuickQuests = availableSideQuests.slice(0, 3);
+  const todayPrimaryQuest = availableQuests[0] || null;
+  const todayQuickQuests = availableQuests.slice(0, 3);
 
   const selectedQuest = useMemo(
     () => filteredQuests.find((quest) => quest.id === selectedQuestId) ?? filteredQuests[0] ?? null,
@@ -291,7 +240,7 @@ export default function QuestsPage() {
             ⚔ Quest Board
           </h1>
           <p className="text-body-sm text-[--parchment-dim]">
-            {MAIN_QUEST_COUNT} Main Quests • {SIDE_QUEST_COUNT} Side Quests • {allQuests.length} Total
+            {allQuests.length} Quests
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -310,6 +259,62 @@ export default function QuestsPage() {
           </Link>
         </div>
       </div>
+
+      {/* Open Quests — always visible for logged-in users, hidden on the "My Quests" tab to avoid duplication */}
+      {isAuthenticated && !isLoadingProgress && activeTab !== "open" && (
+        <div className="mb-6 tavern-card p-4 md:p-5 border-2 border-tavern-gold/40">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="kicker text-tavern-gold flex items-center gap-2">
+              ▶ Open Quests
+              {allActiveQuests.length > 0 && (
+                <span className="badge badge-lime">{allActiveQuests.length}</span>
+              )}
+            </h2>
+            {allActiveQuests.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("open")}
+                className="text-body-sm text-tavern-gold hover:underline"
+              >
+                View all →
+              </button>
+            )}
+          </div>
+          {allActiveQuests.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {allActiveQuests.map((quest) => (
+                <Link
+                  key={quest.id}
+                  href={`/board/${quest.id}`}
+                  className="flex items-center justify-between p-3 border border-tavern-oak/50 hover:border-tavern-gold/50 transition-none group"
+                >
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-body-sm font-medium text-tavern-parchment group-hover:text-tavern-gold leading-snug">
+                        {quest.title}
+                      </p>
+                    </div>
+                    <p className="text-body-sm text-[--parchment-dim]">+{quest.xp_reward} XP · {quest.category}</p>
+                  </div>
+                  <span className="text-body-sm text-tavern-gold opacity-0 group-hover:opacity-100">→</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-body-sm text-[--parchment-dim]">
+              No open quests yet.{" "}
+              <button
+                type="button"
+                onClick={() => setActiveTab("all")}
+                className="text-tavern-gold hover:underline"
+              >
+                Browse all quests
+              </button>{" "}
+              to find and accept one.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Today / Next Action */}
       <div className="mb-8 tavern-card p-4 md:p-5">
@@ -345,7 +350,7 @@ export default function QuestsPage() {
 
             {todayQuickQuests.length > 0 && (
               <div>
-                <p className="kicker mb-2">Quick Side Quests</p>
+                <p className="kicker mb-2">Quick Quests</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   {todayQuickQuests.map((quest) => (
                     <Link
@@ -395,8 +400,9 @@ export default function QuestsPage() {
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
+      {/* Filters — hidden on the "My Quests" tab since it always shows active-only */}
+      {activeTab !== "open" && (
+        <div className="flex flex-wrap gap-4 mb-8 tavern-card p-4">
         <div>
           <label htmlFor="filter-difficulty" className="text-body-sm font-medium text-[--parchment-dim] block mb-2">
             Difficulty
@@ -460,7 +466,8 @@ export default function QuestsPage() {
             {filteredQuests.length !== 1 ? "s" : ""} found
           </span>
         </div>
-      </div>
+        </div>
+      )}
 
       {isDesktopActive ? (
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6">
@@ -514,7 +521,7 @@ export default function QuestsPage() {
                       <div>
                         <h3 className="text-subhead text-tavern-gold leading-snug mb-2">{selectedQuest.title}</h3>
                         <p className="kicker">
-                          {selectedQuest.type === "main" ? "⚔ Main Quest" : "🗡 Side Quest"} • {selectedQuest.category}
+                          {selectedQuest.category}
                         </p>
                       </div>
                       <span className="badge badge-lime">+{selectedQuest.xp_reward} XP</span>
@@ -545,7 +552,6 @@ export default function QuestsPage() {
                       {isAuthenticated && selectedQuest.status === "available" && (
                         <QuickAcceptButton
                           quest={selectedQuest}
-                          activeMainQuestId={activeMainQuestId}
                           onAccepted={handleQuickAccepted}
                           onAcceptStart={() => { pendingWriteRef.current = true; }}
                           onAcceptEnd={() => { pendingWriteRef.current = false; }}
@@ -561,9 +567,26 @@ export default function QuestsPage() {
             </div>
           ) : (
             <div className="text-center py-16 xl:pr-4">
-              <div className="text-4xl mb-4">🏜</div>
-              <p className="text-body-sm text-[--parchment-dim]">No quests match your filters.</p>
-              <p className="text-body-sm text-retro-gray mt-2">Try adjusting your search criteria.</p>
+              {activeTab === "open" ? (
+                <>
+                  <div className="text-4xl mb-4">📜</div>
+                  <p className="text-body-sm text-[--parchment-dim] mb-3">No open quests yet.</p>
+                  <p className="text-body-sm text-retro-gray mb-6">Browse all quests to find something worth pursuing.</p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("all")}
+                    className="tavrn-btn tavrn-btn-primary"
+                  >
+                    📜 Browse All Quests
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="text-4xl mb-4">🏜</div>
+                  <p className="text-body-sm text-[--parchment-dim]">No quests match your filters.</p>
+                  <p className="text-body-sm text-retro-gray mt-2">Try adjusting your search criteria.</p>
+                </>
+              )}
             </div>
           )}
 
@@ -584,8 +607,8 @@ export default function QuestsPage() {
 
             <div className="bg-retro-black border-2 border-retro-darkgray p-3">
               <p className="kicker mb-2">Quick Stats</p>
-              <p className="text-body-sm text-retro-cyan mb-1">Active: {activeQuests.length}</p>
-              <p className="text-body-sm text-retro-lime mb-1">Available Side: {availableSideQuests.length}</p>
+              <p className="text-body-sm text-retro-cyan mb-1">Active: {allActiveQuests.length}</p>
+              <p className="text-body-sm text-retro-lime mb-1">Available: {availableQuests.length}</p>
               <p className="text-body-sm text-retro-lightblue">Filtered: {filteredQuests.length}</p>
             </div>
 
@@ -610,7 +633,6 @@ export default function QuestsPage() {
                 {isAuthenticated && (
                   <QuickAcceptButton
                     quest={quest}
-                    activeMainQuestId={activeMainQuestId}
                     onAccepted={handleQuickAccepted}
                     onAcceptStart={() => { pendingWriteRef.current = true; }}
                     onAcceptEnd={() => { pendingWriteRef.current = false; }}
@@ -621,13 +643,30 @@ export default function QuestsPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className="text-4xl mb-4">🏜</div>
-            <p className="text-body-sm text-[--parchment-dim]">
-              No quests match your filters.
-            </p>
-            <p className="text-body-sm text-retro-gray mt-2">
-              Try adjusting your search criteria.
-            </p>
+            {activeTab === "open" ? (
+              <>
+                <div className="text-4xl mb-4">📜</div>
+                <p className="text-body-sm text-[--parchment-dim] mb-3">No open quests yet.</p>
+                <p className="text-body-sm text-retro-gray mb-6">Browse all quests to find something worth pursuing.</p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("all")}
+                  className="tavrn-btn tavrn-btn-primary"
+                >
+                  📜 Browse All Quests
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="text-4xl mb-4">🏜</div>
+                <p className="text-body-sm text-[--parchment-dim]">
+                  No quests match your filters.
+                </p>
+                <p className="text-body-sm text-retro-gray mt-2">
+                  Try adjusting your search criteria.
+                </p>
+              </>
+            )}
           </div>
         )
       )}
