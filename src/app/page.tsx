@@ -25,6 +25,19 @@ import BountyBoard from "@/components/quest/BountyBoard";
 
 const OnboardingModal = lazy(() => import("@/components/modals/OnboardingModal"));
 
+interface ActiveExpedition {
+  title: string;
+  city: string;
+  currentStage: number;
+  quests: Array<{
+    id: string;
+    stage: number;
+    completed: boolean;
+    category: string;
+    title: string;
+  }>;
+}
+
 export default function HomePage() {
   const [heroName,       setHeroName]       = useState<string | null>(null);
   const [authChecked,    setAuthChecked]    = useState(false);
@@ -40,7 +53,7 @@ export default function HomePage() {
   const [dataLoading,    setDataLoading]    = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [timeLabel, setTimeLabel] = useState<"Morning" | "Afternoon" | "Tonight">("Tonight");
-  const [activeExpedition, setActiveExpedition] = useState<any | null>(null);
+  const [activeExpedition, setActiveExpedition] = useState<ActiveExpedition | null>(null);
   const [isDailyAccepting, setIsDailyAccepting] = useState(false);
   const [isRerolling, setIsRerolling] = useState(false);
   const [drawMessage, setDrawMessage] = useState<string | null>(null);
@@ -358,7 +371,7 @@ export default function HomePage() {
             <div className="tavrn-panel p-4 border-2 border-tavern-gold bg-tavern-oak/10 relative overflow-hidden">
               {/* warm gold glow overlay */}
               <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(232,184,100,0.06) 0%, transparent 80%)" }} />
-              
+
               <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
@@ -370,23 +383,23 @@ export default function HomePage() {
                     {activeExpedition.title} in {activeExpedition.city}
                   </h3>
                   <p className="text-[12px] text-tavern-parchment-dim leading-relaxed">
-                    Active Objective: <span className="text-tavern-gold">"{activeExpedition.quests.find((q: any) => q.stage === activeExpedition.currentStage)?.title}"</span>
+                    Active Objective: <span className="text-tavern-gold">"{activeExpedition.quests.find((q) => q.stage === activeExpedition.currentStage)?.title}"</span>
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2 self-start md:self-center">
                   <div className="flex gap-1.5 mr-2">
                     {[1, 2, 3].map((stageNum) => {
-                      const stageQuest = activeExpedition.quests.find((q: any) => q.stage === stageNum);
+                      const stageQuest = activeExpedition.quests.find((q) => q.stage === stageNum);
                       const isCompleted = stageQuest?.completed || activeExpedition.currentStage > stageNum;
-                      const isActive = activeExpedition.currentStage === stageNum;
+                      const isActiveSt = activeExpedition.currentStage === stageNum;
                       return (
                         <div
                           key={stageNum}
                           className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold border ${
                             isCompleted
                               ? "bg-retro-lime/20 border-retro-lime text-retro-lime"
-                              : isActive
+                              : isActiveSt
                               ? "bg-tavern-gold/20 border-tavern-gold text-tavern-gold animate-pulse"
                               : "bg-tavern-smoke border-tavern-oak text-tavern-oak"
                           }`}
@@ -398,7 +411,7 @@ export default function HomePage() {
                     })}
                   </div>
                   <Link
-                    href={`/board/${activeExpedition.quests.find((q: any) => q.stage === activeExpedition.currentStage)?.id}`}
+                    href={`/board/${activeExpedition.quests.find((q) => q.stage === activeExpedition.currentStage)?.id}`}
                     className="tavrn-btn tavrn-btn-primary tavrn-btn-sm"
                   >
                     Launch Stage ⚔
@@ -407,6 +420,7 @@ export default function HomePage() {
               </div>
             </div>
           )}
+
 
           {/* Active quests — close steps here */}
           <ActiveQuestTracker
@@ -418,11 +432,11 @@ export default function HomePage() {
             }
           />
 
-          {/* Today's habits — confirm completions here */}
-          <DailyHabitsWidget maxDisplay={20} />
-
           {/* Guild Bounty Board — quick one-off tasks */}
           <BountyBoard />
+
+          {/* Today's habits — confirm completions here */}
+          <DailyHabitsWidget maxDisplay={20} />
         </div>
 
         {/* ── Sidebar: get a new quest ── */}
@@ -503,14 +517,6 @@ export default function HomePage() {
             <Link href="/habits" className="tavern-card p-3 text-center hover:border-tavern-gold/50 transition-none">
               <div className="text-lg mb-1">⚡</div>
               <p className="text-body-sm text-tavern-parchment">All Habits</p>
-            </Link>
-            <Link href="/packs" className="tavern-card p-3 text-center hover:border-tavern-gold/50 transition-none">
-              <div className="text-lg mb-1">🎴</div>
-              <p className="text-body-sm text-tavern-parchment">Quest Packs</p>
-            </Link>
-            <Link href="/nearby" className="tavern-card p-3 text-center hover:border-tavern-gold/50 transition-none">
-              <div className="text-lg mb-1">🗺</div>
-              <p className="text-body-sm text-tavern-parchment">Nearby</p>
             </Link>
             <Link href="/focus" className="tavern-card p-3 text-center hover:border-tavern-gold/50 transition-none">
               <div className="text-lg mb-1">🎯</div>

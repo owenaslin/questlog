@@ -30,10 +30,7 @@ export default function BountyBoard() {
     try {
       const activeUserQuests = await getUserCreatedActiveQuests();
       if (!mountedRef.current) return;
-      // Filter out any quests that are not user-created side quests (our Bounties)
-      const userBounties = activeUserQuests.filter(
-        (q) => q.source === "user" && q.category === "Productivity"
-      );
+      const userBounties = activeUserQuests.filter((q) => q.source === "user");
       setBounties(userBounties);
     } catch (err) {
       console.error("Failed to fetch bounties:", err);
@@ -76,11 +73,7 @@ export default function BountyBoard() {
     setErrorMsg(null);
 
     try {
-      const result = await completeQuest(
-        quest.id,
-        "side",
-        quest.category
-      );
+      const result = await completeQuest(quest.id, "side", quest.category);
 
       if (result.success) {
         // Trigger +XP float animation
@@ -110,7 +103,7 @@ export default function BountyBoard() {
 
   if (loading) {
     return (
-      <div className="tavrn-panel p-4 md:p-5 animate-pulse" style={{ minHeight: "180px" }}>
+      <div className="tavrn-panel p-4 md:p-5 animate-pulse min-h-[180px]">
         <div className="h-4 bg-tavern-oak/50 rounded w-1/4 mb-3" />
         <div className="space-y-2">
           <div className="h-10 bg-tavern-oak/30 rounded" />
@@ -175,7 +168,7 @@ export default function BountyBoard() {
       {/* Bounty list */}
       <div className="space-y-2">
         {bounties.length === 0 ? (
-          <div className="text-center py-6 bg-black/10 border border-tavern-oak/30 p-4 rounded">
+          <div className="text-center py-6 px-4 bg-black/10 border border-tavern-oak/30 rounded">
             <p className="text-sm text-tavern-parchment-dim mb-1">
               Your bounty board is empty.
             </p>
@@ -215,14 +208,7 @@ export default function BountyBoard() {
                 </div>
 
                 {xpAmount && (
-                  <span
-                    style={{
-                      opacity: 1,
-                      transform: "translateY(-15px)",
-                      transition: "all 0.5s ease-out",
-                    }}
-                    className="absolute right-16 text-xs text-retro-lime font-pixel animate-pulse"
-                  >
+                  <span className="xp-particle right-16">
                     +{xpAmount} XP
                   </span>
                 )}
@@ -233,6 +219,7 @@ export default function BountyBoard() {
                   {/* Custom check button */}
                   <button
                     type="button"
+                    aria-label={`Complete bounty: ${bounty.title}`}
                     onClick={() => handleCompleteBounty(bounty)}
                     disabled={!!completingId}
                     className={`w-6 h-6 border-2 flex items-center justify-center rounded cursor-pointer transition-all ${
