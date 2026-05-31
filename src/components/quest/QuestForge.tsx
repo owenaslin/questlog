@@ -20,6 +20,7 @@ interface EvaluatedQuest {
   xp_reward: number;
   location: string | null;
   evaluation_note: string;
+  quest_token: string;
 }
 
 interface QuestForgeProps {
@@ -295,12 +296,24 @@ export default function QuestForge({ isOpen, onClose, onQuestCreated }: QuestFor
 
       const res = await fetch("/api/quests/save", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "X-Quest-Token": preview.quest_token,
+        },
         body: JSON.stringify(preview),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Could not save quest");
+      if (!res.ok) {
+        if (res.status === 401 && /expired|token|re-evaluate/i.test(data.error ?? "")) {
+          setError(data.error || "Quest preview expired — please re-evaluate.");
+          setStage("form");
+          setPreview(null);
+          return;
+        }
+        throw new Error(data.error || "Could not save quest");
+      }
 
       setSavedId(data.questId);
       setStage("done");

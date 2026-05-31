@@ -7,8 +7,9 @@
  * 3. Justified selections (CoT reasoning)
  */
 
-import type { 
-  ProviderPlace, 
+import { wrapUntrusted, UNTRUSTED_INPUT_NOTICE } from '@/lib/api-utils';
+import type {
+  ProviderPlace,
   LocationContext,
   ChainOfThoughtPrompt,
 } from './types';
@@ -72,14 +73,14 @@ export function buildChainOfThoughtPrompt(params: BuildPromptParams): ChainOfTho
     .join('\n\n');
   
   return {
-    system: GRAND_CHRONICLER_SYSTEM_PROMPT,
-    
+    system: `${GRAND_CHRONICLER_SYSTEM_PROMPT}\n\n${UNTRUSTED_INPUT_NOTICE}`,
+
     context: `QUEST CONTEXT:
-- Hero Location: ${location.city}${location.neighborhood ? `, ${location.neighborhood}` : ''}
+- Hero Location: ${wrapUntrusted(location.city)}${location.neighborhood ? `, ${wrapUntrusted(location.neighborhood)}` : ''}
 - Current Time: ${new Date().toLocaleTimeString()} (${timeContext})
 - Hero Level: ${heroLevel}
-- Quest Intent: "${intent}"${theme ? `
-- Requested Theme: "${theme}"` : ''}
+- Quest Intent: ${wrapUntrusted(intent)}${theme ? `
+- Requested Theme: ${wrapUntrusted(theme)}` : ''}
 - Available Candidates: ${places.length} places`,
     
     candidates: `RANKED CANDIDATES (sorted by relevance):

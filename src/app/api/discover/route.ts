@@ -43,6 +43,8 @@ import {
   addRecentSuggestion,
 } from '@/lib/discovery/cache';
 import { getLatestFlashModel } from '@/lib/gemini';
+import { issueQuestToken } from '@/lib/quest-token';
+import { durationLabelToMinutes } from '@/lib/xp';
 
 // Register providers for development
 registerProvider('mock', mockDiscoveryProvider);
@@ -461,13 +463,28 @@ export async function POST(request: NextRequest) {
     });
     
     const generationTime = Date.now() - startTime;
-    
+
+    // Bind canonical XP inputs into a token. DiscoveryForge sends source:"ai"
+    // to /api/quests/save, so issue the token with src:"ai" to match.
+    const quest_duration_minutes = durationLabelToMinutes(quest.duration_label);
+    const quest_token = issueQuestToken({
+      uid: userId,
+      src: "ai",
+      typ: "side",
+      dur: quest_duration_minutes,
+      dif: (quest.difficulty as 1 | 2 | 3 | 4 | 5) ?? 3,
+      cat: quest.category,
+      title: quest.title,
+      description: quest.description,
+    });
+
     return NextResponse.json({
       success: true,
       quest,
       fallback: usedFallback,
       generation_time_ms: generationTime,
       remaining_daily: dailyLimit.remaining,
+      quest_token,
     });
     
   } catch (err) {

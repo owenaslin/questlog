@@ -3,15 +3,25 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { kv } from "@vercel/kv";
 import { QUEST_CATEGORIES } from "@/lib/types";
-import { MAX_MAIN_QUEST_XP } from "@/lib/constants";
+import { calcQuestXP } from "@/lib/xp";
 import { AppError } from "@/lib/api-utils";
+import {
+  QuestTokenError,
+  type QuestTokenPayload,
+  verifyQuestToken,
+} from "@/lib/quest-token";
 
 export const preferredRegion = 'pdx1';
 
-// ── XP cap (defence in depth) ─────────────────────────────────────────────────
-// Client-supplied xp_reward is clamped to the overall ceiling.
-function clampXP(xp: number): number {
-  return Math.min(MAX_MAIN_QUEST_XP, Math.max(1, Math.round(xp)));
+function logSecurityEvent(
+  event: string,
+  details: Record<string, string | number | boolean | null>
+) {
+  console.warn("[security:event]", event, {
+    ...details,
+    route: "/api/quests/save",
+    at: new Date().toISOString(),
+  });
 }
 
 // ── Rate limiting ─────────────────────────────────────────────────────────────
@@ -47,11 +57,14 @@ const bodySchema = z.object({
   duration_minutes: z.number().int().positive().optional().nullable(),
   steps:            z.array(z.object({
     id:       z.string(),
-    title:    z.string().max(200).transform((s: string) => s.replace(/[<>]/g, "").trim()),
+    title:    z.string().max(200).trim(),
     optional: z.boolean().optional(),
   })).optional().default([]),
   category:         z.enum(QUEST_CATEGORIES),
-  xp_reward:        z.number().int().positive(),
+  // xp_reward is ignored — recomputed server-side from type/duration/difficulty
+  // so a client can't inflate it by lying about quest type. Field is accepted
+  // for backward compatibility but never used.
+  xp_reward:        z.number().int().positive().optional(),
   location:         z.string().max(100).nullable().optional(),
   evaluation_note:  z.string().optional().default(""),
 });
@@ -96,7 +109,36 @@ export async function POST(req: NextRequest) {
     }
 
     const quest = parsed.data;
-    const safeXP = clampXP(quest.xp_reward);
+
+    // Token gate: every XP-affecting field (type, duration, difficulty,
+    // category) and the title+description must match what /api/quests/evaluate
+    // or /api/discover signed. The body's values for those fields are ignored
+    // — claims from the token are authoritative.
+    let claims: QuestTokenPayload;
+    try {
+      claims = verifyQuestToken(req.headers.get("x-quest-token"), {
+        expectedUserId: userId,
+        expectedSource: quest.source,
+        title: quest.title,
+        description: quest.description,
+      });
+    } catch (e) {
+      const code = e instanceof QuestTokenError ? e.code : "missing";
+      const status =
+        code === "missing" || code === "expired" || code === "version_mismatch" ? 401 : 400;
+      logSecurityEvent("quest_token_reject", { userId, code, source: quest.source });
+      const message =
+        code === "expired" || code === "version_mismatch"
+          ? "Quest preview expired — please re-evaluate."
+          : code === "missing"
+          ? "Quest token required."
+          : code === "content_mismatch"
+          ? "Quest content changed — please re-evaluate."
+          : "Quest token invalid.";
+      throw new AppError(message, status);
+    }
+
+    const safeXP = calcQuestXP(claims.dur, claims.dif);
 
     // Create an authenticated Supabase client so RLS sees the user's identity
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -108,21 +150,21 @@ export async function POST(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    // 1 — Insert the quest row
+    // 1 — Insert the quest row. Type/difficulty/duration_minutes/category
+    // come from the verified token; the rest comes from the request body.
     const { data: savedQuest, error: questErr } = await db
       .from("quests")
       .insert({
         title:            quest.title,
         description:      quest.description,
-        // Vestigial NOT NULL column kept for legacy schema; quest type is no longer used.
-        type:             "side",
+        type:             claims.typ,
         source:           quest.source,
-        difficulty:       quest.difficulty,
+        difficulty:       claims.dif,
         xp_reward:        safeXP,
         duration_label:   quest.duration_label,
-        duration_minutes: quest.duration_minutes ?? null,
+        duration_minutes: claims.dur,
         steps:            quest.steps ?? [],
-        category:         quest.category,
+        category:         claims.cat,
         location:         quest.location ?? null,
         user_id:          userId,
         status:           "available",
@@ -141,7 +183,8 @@ export async function POST(req: NextRequest) {
       .insert({
         user_id:        userId,
         quest_id:       savedQuest.id,
-        quest_category: quest.category,
+        quest_type:     claims.typ,
+        quest_category: claims.cat,
         status:         "active",
         accepted_at:    new Date().toISOString(),
       });

@@ -23,13 +23,7 @@ export function getSupabaseClient(): SupabaseClient {
   return supabaseClient;
 }
 
-export function getSupabaseServerClient(): SupabaseClient {
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceRoleKey) {
-    throw new Error("SUPABASE_SERVICE_ROLE_KEY environment variable is not configured");
-  }
-
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
-}
+// Service-role client deliberately removed — every server-side read should
+// go through the cookie-bound SSR helper in src/utils/supabase/server.ts
+// and let RLS enforce ownership. Reintroduce only with a clear, audited
+// need (and never on a route that returns data by client-supplied id).

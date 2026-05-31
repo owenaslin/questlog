@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import { getLatestFlashModel } from "@/lib/gemini";
-import { AppError, getAuthenticatedUserId, sanitizePromptInput } from "@/lib/api-utils";
+import { AppError, getAuthenticatedUserId, sanitizePromptInput, wrapUntrusted, UNTRUSTED_INPUT_NOTICE } from "@/lib/api-utils";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { calcQuestXP, durationLabelToMinutes } from "@/lib/xp";
 
@@ -113,11 +113,13 @@ export async function POST(request: NextRequest) {
 
     const prompt = `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest based on these parameters. Pick whatever scope fits the topic — anything from a focused hour to a multi-month goal. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
 
+${UNTRUSTED_INPUT_NOTICE}
+
 ${goodExample}
 Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
 
-Location: ${safeLocation}
-Topic/Interest: ${safeTopic}
+Location: ${wrapUntrusted(safeLocation)}
+Topic/Interest: ${wrapUntrusted(safeTopic)}
 
 Respond with ONLY a JSON object (no markdown, no code fences) with these exact fields:
 {

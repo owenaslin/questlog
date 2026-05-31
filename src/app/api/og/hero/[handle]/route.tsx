@@ -4,11 +4,18 @@ import { fetchHeroByHandle, loadFont, isValidHandle } from "@/lib/og-utils";
 
 export const runtime = "edge";
 
+const HANDLE_RE = /^[a-z0-9][a-z0-9-]{0,30}[a-z0-9]$/i;
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ handle: string }> }
 ) {
   const { handle } = await params;
+
+  if (!HANDLE_RE.test(handle)) {
+    return new Response("Invalid handle", { status: 400 });
+  }
+
   const [heroData, fontData] = await Promise.all([fetchHeroByHandle(handle), loadFont()]);
 
   // Fail closed: never reflect a malformed handle into the rendered card.
@@ -151,6 +158,9 @@ export async function GET(
     {
       width: 1200,
       height: 630,
+      headers: {
+        "Cache-Control": "public, max-age=300, s-maxage=86400, stale-while-revalidate=604800",
+      },
       ...(fontData
         ? { fonts: [{ name: "PressStart2P", data: fontData, style: "normal" as const }] }
         : {}),
