@@ -767,3 +767,60 @@ export async function getUserCreatedActiveQuests(): Promise<Quest[]> {
     status: "active" as QuestStatus,
   }));
 }
+
+export async function createOneOffBounty(
+  title: string,
+  difficulty: number
+): Promise<{ success: boolean; questId?: string; error?: string }> {
+  if (![1, 2, 3].includes(difficulty)) {
+    return { success: false, error: "Invalid difficulty level." };
+  }
+
+  const userId = await getCurrentUserId();
+  if (!userId) return { success: false, error: "Please log in to post bounties." };
+
+  const supabase = getSupabaseClient();
+  const xpReward = difficulty === 1 ? 10 : difficulty === 2 ? 25 : 50;
+  const durationLabel = difficulty === 1 ? "Trivial" : difficulty === 2 ? "Minor" : "Major";
+
+  // 1. Create the side quest row
+  const { data: questData, error: questErr } = await supabase
+    .from("quests")
+    .insert({
+      title,
+      description: "A quick guild bounty.",
+      source: "user",
+      difficulty,
+      xp_reward: xpReward,
+      duration_label: durationLabel,
+      category: "Productivity",
+      user_id: userId,
+      status: "available",
+    })
+    .select("id")
+    .single();
+
+  if (questErr || !questData) {
+    return { success: false, error: questErr?.message || "Failed to post bounty." };
+  }
+
+  // 2. Accept it immediately in user_quests
+  const { error: acceptErr } = await supabase
+    .from("user_quests")
+    .insert({
+      user_id: userId,
+      quest_id: questData.id,
+      quest_category: "Productivity",
+      status: "active",
+      accepted_at: new Date().toISOString(),
+    });
+
+  if (acceptErr) {
+    // Clean up the orphaned quest row so we don't leave dangling data
+    await supabase.from("quests").delete().eq("id", questData.id);
+    return { success: false, error: acceptErr.message };
+  }
+
+  return { success: true, questId: questData.id };
+}
+

@@ -21,6 +21,7 @@ import XPBar from "@/components/ui/XPBar";
 import StreakDisplay from "@/components/ui/StreakDisplay";
 import DailyHabitsWidget from "@/components/habit/DailyHabitsWidget";
 import ActiveQuestTracker from "@/components/quest/ActiveQuestTracker";
+import BountyBoard from "@/components/quest/BountyBoard";
 
 const OnboardingModal = lazy(() => import("@/components/modals/OnboardingModal"));
 
@@ -348,6 +349,9 @@ export default function HomePage() {
               setActiveQuests((prev) => prev.some((q) => q.id === quest.id) ? prev : [...prev, { ...quest, status: "active" }])
             }
           />
+
+          {/* Guild Bounty Board — quick one-off tasks */}
+          <BountyBoard />
 
           {/* Today's habits — confirm completions here */}
           <DailyHabitsWidget maxDisplay={20} />
