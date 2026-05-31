@@ -47,11 +47,32 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
 
   useEffect(() => {
     loadData();
-    // Refresh every minute in case date changes, but skip when tab is hidden
-    const interval = setInterval(() => {
-      if (!document.hidden) loadData();
-    }, 60000);
-    return () => clearInterval(interval);
+
+    // Refresh when the tab regains focus (covers "came back the next day")
+    // instead of polling every minute.
+    const onVisible = () => { if (!document.hidden) loadData(); };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+
+    // Reload at each local midnight so the list rolls over to the new day,
+    // rescheduling so sessions left open across several days keep rolling over.
+    let midnightTimer: ReturnType<typeof setTimeout>;
+    const scheduleMidnight = () => {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+      midnightTimer = setTimeout(() => {
+        loadData();
+        scheduleMidnight();
+      }, midnight.getTime() - now.getTime());
+    };
+    scheduleMidnight();
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+      clearTimeout(midnightTimer);
+    };
   }, [loadData]);
 
   const handleToggle = async (habit: HabitWithStatus) => {
