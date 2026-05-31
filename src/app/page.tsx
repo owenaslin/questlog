@@ -436,6 +436,10 @@ export default function HomePage() {
               <div className="text-lg mb-1">⚡</div>
               <p className="text-body-sm text-tavern-parchment">All Habits</p>
             </Link>
+            <Link href="/focus" className="tavern-card p-3 text-center hover:border-tavern-gold/50 transition-none">
+              <div className="text-lg mb-1">🎯</div>
+              <p className="text-body-sm text-tavern-parchment">Focus Arena</p>
+            </Link>
           </div>
         </aside>
       </div>
