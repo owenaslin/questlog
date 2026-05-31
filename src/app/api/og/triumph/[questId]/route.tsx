@@ -1,33 +1,18 @@
 import { ImageResponse } from "next/og";
 import { AVATAR_PORTRAITS, AvatarKey } from "@/lib/types";
+import { SUPABASE_URL, ANON_KEY, fetchHeroByHandle, loadFont, isUuid, isValidHandle } from "@/lib/og-utils";
 
 export const runtime = "edge";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-  "";
-
-async function fetchHeroByHandle(handle: string) {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_profile_by_handle`, {
-      method: "POST",
-      headers: { apikey: ANON_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ p_handle: handle }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return (Array.isArray(data) ? data[0] : data) ?? null;
-  } catch {
-    return null;
-  }
-}
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function fetchQuest(questId: string) {
+  // Reject anything that isn't a UUID so attacker-controlled filter operators
+  // (e.g. "0&id=neq.0", "(or(...))") can't be smuggled into the PostgREST query.
+  if (!isUuid(questId)) return null;
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/quests?id=eq.${questId}&select=*`,
+      `${SUPABASE_URL}/rest/v1/quests?id=eq.${encodeURIComponent(questId)}&select=*`,
       {
         headers: { apikey: ANON_KEY, "Content-Type": "application/json" },
       }
@@ -40,24 +25,19 @@ async function fetchQuest(questId: string) {
   }
 }
 
-async function loadFont(): Promise<ArrayBuffer | null> {
-  try {
-    const res = await fetch(
-      "https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8T-267oIAQAu6jDQyK3nVivNm4I81.woff"
-    );
-    return res.ok ? res.arrayBuffer() : null;
-  } catch {
-    return null;
-  }
-}
-
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ questId: string }> }
 ) {
   const { questId } = await params;
   const { searchParams } = new URL(request.url);
-  const handle = searchParams.get("user") ?? "adventurer";
+  const rawHandle = searchParams.get("user") ?? "adventurer";
+  // Fail closed: never reflect a malformed handle into the rendered card.
+  const handle = isValidHandle(rawHandle) ? rawHandle : "adventurer";
+
+  if (!UUID_RE.test(questId)) {
+    return new Response("Invalid quest id", { status: 400 });
+  }
 
   const [heroData, questData, fontData] = await Promise.all([
     fetchHeroByHandle(handle),
@@ -74,7 +54,6 @@ export async function GET(
   const quest = questData ?? {
     title: "Unknown Quest",
     xp_reward: 0,
-    type: "side",
   };
 
   const portrait = AVATAR_PORTRAITS[hero.avatar_sprite as AvatarKey] ?? AVATAR_PORTRAITS.wizard;
@@ -190,6 +169,9 @@ export async function GET(
       width: 1200,
       height: 630,
       fonts: fontConfig ? [fontConfig] : undefined,
+      headers: {
+        "Cache-Control": "public, max-age=300, s-maxage=86400, stale-while-revalidate=604800",
+      },
     }
   );
 }

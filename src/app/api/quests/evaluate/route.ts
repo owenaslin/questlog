@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { kv } from "@vercel/kv";
+import { AppError, getAuthenticatedUserId, sanitize, sanitizePromptInput, wrapUntrusted, UNTRUSTED_INPUT_NOTICE } from "@/lib/api-utils";
+import { issueQuestToken } from "@/lib/quest-token";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
-import { durationLabelToMinutes, calcQuestXP, clamp } from "@/lib/xp";
+import { durationLabelToMinutes, calcQuestXP, clamp, LONG_QUEST_THRESHOLD_MINUTES } from "@/lib/xp";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const preferredRegion = 'pdx1';
 
-const XP_CAPS = {
-  side: { min: 25,  max: 2500  },
-  main: { min: 100, max: 8000 },
-} as const;
+const XP_CAP = { min: 25, max: 8000 } as const;
 
 const RATE_LIMIT_WINDOW_SECONDS  = 60;
 const RATE_LIMIT_MAX_REQ         = 12;
@@ -36,13 +34,11 @@ const requestSchema = z.discriminatedUnion("mode", [
     mode:      z.literal("ai"),
     topic:     z.string().trim().min(1).max(100), // trim before min so " " is rejected
     location:  z.string().trim().max(100).optional().default(""),
-    questType: z.enum(["main", "side"]),
   }),
   z.object({
     mode:        z.literal("user"),
     title:       z.string().trim().min(5).max(80),
     description: z.string().trim().min(20).max(400),
-    questType:   z.enum(["main", "side"]),
     category:    z.enum(QUEST_CATEGORIES),
   }),
 ]);
@@ -61,86 +57,27 @@ const aiResponseSchema = z.object({
   evaluation_note: z.string().optional().default(""),
 });
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-class AppError extends Error {
-  constructor(message: string, public statusCode = 500) {
-    super(message);
-    this.name = "AppError";
-  }
-}
-
-function sanitize(s: string) {
-  return s.replace(/[<>]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
-}
-
-async function checkRateLimit(
-  key: string
-): Promise<{ isLimited: boolean; recentCount: number }> {
-  const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW_SECONDS * 1000;
-  try {
-    const timestamps = await kv.lrange<number>(key, 0, -1);
-    const recent = timestamps.filter((ts) => ts > windowStart);
-    if (recent.length >= RATE_LIMIT_MAX_REQ) {
-      return {
-        isLimited: true,
-        recentCount: recent.length,
-      };
-    }
-    await kv.lpush(key, now);
-    await kv.expire(key, RATE_LIMIT_WINDOW_SECONDS);
-    return {
-      isLimited: false,
-      recentCount: recent.length,
-    };
-  } catch (err) {
-    // In development without KV configured, fail open so local testing works.
-    // In production, fail closed to prevent abuse if KV becomes unavailable.
-    if (process.env.NODE_ENV === "development") {
-      console.warn("[rate-limit] KV unavailable in dev — allowing request:", err);
-      return { isLimited: false, recentCount: 0 };
-    }
-    return {
-      isLimited: true,
-      recentCount: RATE_LIMIT_MAX_REQ,
-    };
-  }
-}
-
-async function getAuthenticatedUserId(req: NextRequest): Promise<string | null> {
-  const authHeader = req.headers.get("authorization") ?? "";
-  const [scheme, token] = authHeader.split(" ");
-  if (scheme?.toLowerCase() !== "bearer" || !token) return null;
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-  const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data.user) return null;
-  return data.user.id;
-}
-
 // ── AI prompt builders ───────────────────────────────────────────────────────
 
-function buildAiPrompt(topic: string, location: string, questType: "main" | "side"): string {
-  const typeLabel = questType === "main"
-    ? "Main Quest (a meaningful goal taking weeks to months)"
-    : "Side Quest (a focused task taking an hour to a weekend)";
+function buildAiPrompt(topic: string, location: string): string {
+  const example = `Good (short): "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you." Good (longer): "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`;
 
-  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear objectives.
+  return `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest with clear, actionable objectives. Pick whatever scope fits the topic — anything from a focused hour to a multi-month goal. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
 
-Location: ${sanitize(location) || "anywhere"}
-Topic / Interest: ${sanitize(topic)}
-Quest type: ${typeLabel}
+${UNTRUSTED_INPUT_NOTICE}
+
+${example}
+Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
+
+Location: ${sanitizePromptInput(location) ? wrapUntrusted(sanitizePromptInput(location)) : "anywhere"}
+Topic / Interest: ${wrapUntrusted(sanitizePromptInput(topic))}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
 
 Respond with ONLY a JSON object — no markdown, no code fences:
 {
   "title": "Catchy quest title (max 80 chars)",
-  "description": "2-3 sentence RPG-flavored description written like a quest giver NPC (max 400 chars)",
+  "description": "2-3 sentence description explaining what to do and why it matters — clear and motivating (max 400 chars)",
   "difficulty": <1–5>,
   "duration_label": "Realistic time estimate, e.g. '2-3 hours', '1 weekend', '2-3 months'",
   "category": "one of: Fitness, Education, Creative, Tech, Food, Outdoors, Social, Wellness, Community, Career, Business, Culture, Productivity",
@@ -156,29 +93,28 @@ Respond with ONLY a JSON object — no markdown, no code fences:
 function buildUserPrompt(
   title: string,
   description: string,
-  category: string,
-  questType: "main" | "side"
+  category: string
 ): string {
-  const typeLabel = questType === "main"
-    ? "Main Quest (weeks to months of commitment)"
-    : "Side Quest (hours to a weekend)";
-  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and refine it for RPG flavor while preserving the user's intent exactly.
+  return `You are the Quest Giver in Tarvn. A user has written a quest. Evaluate it honestly and make it clear and motivating while preserving the user's intent exactly.
 
-Quest type: ${typeLabel}
+${UNTRUSTED_INPUT_NOTICE}
+
+Keep the adventure framing (quest structure, step-by-step objectives) — but write the description like you're telling a friend about a genuinely worthwhile thing to do, not narrating an epic saga. Avoid mystical language, invented names, or dramatic flourishes that obscure what the user actually needs to do.
+
 Category: ${category}
-User's title: ${sanitize(title)}
-User's description: ${sanitize(description)}
+User's title: ${wrapUntrusted(sanitizePromptInput(title, 200))}
+User's description: ${wrapUntrusted(sanitize(description, 1000))}
 
 IMPORTANT: Do NOT assign XP — the system calculates it automatically based on duration and difficulty. Focus on creating clear, actionable steps.
 
-- Lightly refine the title and description for RPG flavor while preserving the user's intent exactly.
+- Lightly refine the title and description to be clear and direct, preserving the user's intent exactly.
 - Assign a realistic duration estimate.
 - Break the quest into 3-6 concrete, actionable steps.
 
 Respond with ONLY a JSON object — no markdown, no code fences:
 {
   "title": "Refined title (stay close to theirs, max 80 chars)",
-  "description": "User's quest refined for RPG tone (max 400 chars, 2-3 sentences)",
+  "description": "User's quest rewritten for clarity — plain, motivating, tells them exactly what to do and why (max 400 chars, 2-3 sentences)",
   "difficulty": <1–5>,
   "duration_label": "Realistic estimate, e.g. '1-2 hours', '3 months'",
   "category": "${category}",
@@ -199,7 +135,7 @@ export async function POST(req: NextRequest) {
     if (!userId) throw new AppError("Authentication required", 401);
 
     const rateLimitKey = `rate_limit:evaluate:${userId}`;
-    const rateLimitState = await checkRateLimit(rateLimitKey);
+    const rateLimitState = await checkRateLimit(rateLimitKey, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_MAX_REQ);
     if (rateLimitState.recentCount >= RATE_LIMIT_ALERT_THRESHOLD) {
       logSecurityEvent("rate_limit_pressure", {
         userId,
@@ -236,8 +172,8 @@ export async function POST(req: NextRequest) {
     const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = input.mode === "ai"
-      ? buildAiPrompt(input.topic, input.location, input.questType)
-      : buildUserPrompt(input.title, input.description, input.category, input.questType);
+      ? buildAiPrompt(input.topic, input.location)
+      : buildUserPrompt(input.title, input.description, input.category);
 
     let resultText: string;
     try {
@@ -272,22 +208,33 @@ export async function POST(req: NextRequest) {
     const data = validated.data;
 
     const duration_minutes = durationLabelToMinutes(data.duration_label);
-    const xp_reward = calcQuestXP(input.questType, duration_minutes, data.difficulty);
+    const xp_reward = calcQuestXP(duration_minutes, data.difficulty);
+
+    const quest_token = issueQuestToken({
+      uid: userId,
+      src: input.mode,
+      typ: duration_minutes >= LONG_QUEST_THRESHOLD_MINUTES ? "main" : "side",
+      dur: duration_minutes,
+      dif: data.difficulty as 1 | 2 | 3 | 4 | 5,
+      cat: data.category,
+      title: data.title,
+      description: data.description,
+    });
 
     return NextResponse.json({
       title:           data.title,
       description:     data.description,
-      type:            input.questType,
       source:          input.mode === "ai" ? "ai" : "user",
       difficulty:      data.difficulty,
       duration_label:  data.duration_label,
       duration_minutes,
       category:        data.category,
-      xp_reward:       clamp(xp_reward, XP_CAPS[input.questType as keyof typeof XP_CAPS].min, XP_CAPS[input.questType as keyof typeof XP_CAPS].max),
+      xp_reward:       clamp(xp_reward, XP_CAP.min, XP_CAP.max),
       steps:           data.steps,
       location:        input.mode === "ai" ? (input.location || null) : null,
       evaluation_note: data.evaluation_note,
       status:          "available",
+      quest_token,
     });
   } catch (err) {
     if (err instanceof AppError) {

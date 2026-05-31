@@ -18,6 +18,7 @@ import { kv } from '@vercel/kv';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getBearerToken, getAuthenticatedUserId } from '@/lib/api-utils';
 
 import type { 
   OrchestratorResult,
@@ -42,6 +43,8 @@ import {
   addRecentSuggestion,
 } from '@/lib/discovery/cache';
 import { getLatestFlashModel } from '@/lib/gemini';
+import { issueQuestToken } from '@/lib/quest-token';
+import { durationLabelToMinutes } from '@/lib/xp';
 
 // Register providers for development
 registerProvider('mock', mockDiscoveryProvider);
@@ -77,39 +80,6 @@ const requestSchema = z.object({
 // AUTH & RATE LIMITING
 // ============================================
 
-function getBearerToken(request: NextRequest): string | null {
-  const authHeader = request.headers.get('authorization') || '';
-  const [scheme, token] = authHeader.split(' ');
-  if (scheme?.toLowerCase() !== 'bearer' || !token) {
-    return null;
-  }
-  return token;
-}
-
-async function getAuthenticatedUserId(request: NextRequest): Promise<string | null> {
-  const token = getBearerToken(request);
-  if (!token) return null;
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
-                      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    console.error('[discover] Supabase config missing');
-    return null;
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data.user) {
-    return null;
-  }
-  return data.user.id;
-}
-
 async function checkRateLimit(userId: string): Promise<{ 
   allowed: boolean; 
   remaining: number;
@@ -136,13 +106,8 @@ async function checkRateLimit(userId: string): Promise<{
       allowed: true, 
       remaining: RATE_LIMIT_MAX_REQUESTS - recent.length - 1 
     };
-  } catch (err) {
-    console.warn('[discover] Rate limit check failed:', err);
-    // Only fail open if explicitly configured
-    if (ALLOW_RATE_LIMIT_BYPASS) {
-      console.warn('[discover] Rate limit bypass enabled (ALLOW_RATE_LIMIT_BYPASS=true)');
-      return { allowed: true, remaining: 999 };
-    }
+  } catch {
+    if (ALLOW_RATE_LIMIT_BYPASS) return { allowed: true, remaining: 999 };
     return { allowed: false, remaining: 0 };
   }
 }
@@ -159,11 +124,8 @@ async function checkDailyLimit(userId: string): Promise<{ allowed: boolean; rema
     
     await kv.set(key, count + 1, { ex: 24 * 60 * 60 }); // Expire end of day
     return { allowed: true, remaining: DAILY_DISCOVERY_LIMIT - count - 1 };
-  } catch (err) {
-    console.warn('[discover] Daily limit check failed:', err);
-    // Only fail open if explicitly configured
+  } catch {
     if (ALLOW_RATE_LIMIT_BYPASS) {
-      console.warn('[discover] Rate limit bypass enabled (ALLOW_RATE_LIMIT_BYPASS=true)');
       return { allowed: true, remaining: 999 };
     }
     return { allowed: false, remaining: 0 };
@@ -453,7 +415,6 @@ export async function POST(request: NextRequest) {
     let fallbackLevel: 1 | 2 | 3 = 1;
     
     if (places.partial_results || places.places.length < 3) {
-      console.info('[discover] Insufficient results, expanding search...');
       places = await expandSearchRadius(searchParams, 2);
       
       if (places.places.length === 0) {
@@ -502,13 +463,28 @@ export async function POST(request: NextRequest) {
     });
     
     const generationTime = Date.now() - startTime;
-    
+
+    // Bind canonical XP inputs into a token. DiscoveryForge sends source:"ai"
+    // to /api/quests/save, so issue the token with src:"ai" to match.
+    const quest_duration_minutes = durationLabelToMinutes(quest.duration_label);
+    const quest_token = issueQuestToken({
+      uid: userId,
+      src: "ai",
+      typ: "side",
+      dur: quest_duration_minutes,
+      dif: (quest.difficulty as 1 | 2 | 3 | 4 | 5) ?? 3,
+      cat: quest.category,
+      title: quest.title,
+      description: quest.description,
+    });
+
     return NextResponse.json({
       success: true,
       quest,
       fallback: usedFallback,
       generation_time_ms: generationTime,
       remaining_daily: dailyLimit.remaining,
+      quest_token,
     });
     
   } catch (err) {

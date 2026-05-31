@@ -23,14 +23,6 @@ function DifficultySwords({ difficulty }: { difficulty: number }) {
   );
 }
 
-function QuestTypeBadge({ type }: { type: string }) {
-  return (
-    <span className={`badge ${type === "main" ? "badge-ember" : "badge-blue"}`}>
-      {type === "main" ? "⚔ Main" : "🗡 Side"}
-    </span>
-  );
-}
-
 function SourceBadge({ source }: { source: string }) {
   const labels: Record<string, string> = {
     predefined: "★ Curated",
@@ -69,7 +61,7 @@ function CategoryBadge({ category }: { category: string }) {
 
 export default function QuestCard({ quest }: QuestCardProps) {
   return (
-    <Link href={`/quests/${quest.id}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-blue active:scale-[0.98] transition-transform">
+    <Link href={`/board/${quest.id}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-blue active:scale-[0.98] transition-transform">
       <article
         className="
           tavern-card-wood
@@ -81,8 +73,7 @@ export default function QuestCard({ quest }: QuestCardProps) {
         "
       >
         {/* Top badge row */}
-        <div className="flex items-start justify-between gap-2">
-          <QuestTypeBadge type={quest.type} />
+        <div className="flex items-start justify-end gap-2">
           <SourceBadge source={quest.source} />
         </div>
 

@@ -251,11 +251,6 @@ export function getQuestlineById(id: string): Questline | undefined {
   return QUESTLINES.find((q) => q.id === id);
 }
 
-// Get questlines by category
-export function getQuestlinesByCategory(category: string): Questline[] {
-  return QUESTLINES.filter((q) => q.category.toLowerCase() === category.toLowerCase());
-}
-
 // Get all linear questlines
 export function getLinearQuestlines(): Questline[] {
   return QUESTLINES.filter((q) => q.type === "linear");

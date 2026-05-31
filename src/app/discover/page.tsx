@@ -7,7 +7,7 @@
 
 import { Metadata } from 'next';
 import DiscoverDashboardClient from '@/components/quest/DiscoverDashboardClient';
-import { getSupabaseClient, getSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -18,21 +18,20 @@ export const metadata: Metadata = {
 };
 
 export default async function DiscoverPage() {
-  // Check authentication with anon client
-  const anonClient = getSupabaseClient();
-  const { data: { user } } = await anonClient.auth.getUser();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/auth?redirect=/discover');
   }
 
-  // Get user location preferences with service role for secure server-side access
-  const serverClient = getSupabaseServerClient();
-  const { data: profile } = await serverClient
+  // RLS already restricts profiles to `auth.uid() = id`, so the SSR (anon-key)
+  // client is sufficient here — no need for the service-role bypass.
+  const { data: profile } = await supabase
     .from('profiles')
     .select('location_city, discovery_radius_km, privacy_level')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
   
   return (
     <main className="min-h-screen bg-slate-950">

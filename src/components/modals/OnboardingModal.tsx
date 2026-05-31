@@ -43,6 +43,7 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
   const [suggestedQuest, setSuggestedQuest] = useState<Quest | null>(null);
   const [isAccepting, setIsAccepting] = useState(false);
   const [acceptedQuestId, setAcceptedQuestId] = useState<string | null>(null);
+  const [acceptError, setAcceptError] = useState<string | null>(null);
 
   const toggleCategory = (key: string) => {
     setSelectedCategories((prev) =>
@@ -57,12 +58,12 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
 
     const pool = ALL_QUESTS.filter(
       (q) =>
-        q.type === "side" &&
+        (q.duration_minutes ?? 9999) <= 120 &&
         q.difficulty >= minD &&
         q.difficulty <= maxD &&
         (selectedCategories.length === 0 || selectedCategories.includes(q.category))
     );
-    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : ALL_QUESTS.find((q) => q.type === "side") ?? null;
+    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : ALL_QUESTS[0] ?? null;
     setSuggestedQuest(pick);
     setStep("quest");
   };
@@ -70,12 +71,17 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
   const handleAcceptQuest = async () => {
     if (!suggestedQuest) return;
     setIsAccepting(true);
+    setAcceptError(null);
     try {
-      const result = await acceptQuest(suggestedQuest.id, suggestedQuest.type, suggestedQuest.category);
+      const result = await acceptQuest(suggestedQuest.id, suggestedQuest.category);
       if (result.success) {
         setAcceptedQuestId(suggestedQuest.id);
         setStep("done");
+      } else {
+        setAcceptError(result.error || "Could not accept quest. Please try again.");
       }
+    } catch (err) {
+      setAcceptError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setIsAccepting(false);
     }
@@ -221,9 +227,6 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
                 style={{ border: "2px solid #c4a85a", background: "#0f0d07" }}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={`badge ${suggestedQuest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-                    {suggestedQuest.type === "main" ? "⚔ Main" : "🗡 Side"}
-                  </span>
                   <span className="text-body-sm text-[--parchment-dim]">{suggestedQuest.category}</span>
                 </div>
                 <h3 className="text-subhead text-tavern-gold leading-snug mb-2">
@@ -240,10 +243,14 @@ export default function OnboardingModal({ heroName, onDismiss }: OnboardingModal
               </div>
 
               <div className="flex flex-col gap-2">
+                {acceptError && (
+                  <p className="text-body-sm text-tavern-ember">{acceptError}</p>
+                )}
                 <button
                   type="button"
                   onClick={handleAcceptQuest}
                   disabled={isAccepting}
+                  aria-busy={isAccepting}
                   className="tavrn-btn tavrn-btn-primary tavrn-btn-lg w-full disabled:opacity-60"
                 >
                   {isAccepting ? "Accepting…" : "▶ Accept This Quest"}

@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { kv } from "@vercel/kv";
 import { getLatestFlashModel } from "@/lib/gemini";
+import { AppError, getAuthenticatedUserId, sanitizePromptInput, wrapUntrusted, UNTRUSTED_INPUT_NOTICE } from "@/lib/api-utils";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { calcQuestXP, durationLabelToMinutes } from "@/lib/xp";
 
 export const preferredRegion = 'pdx1';
 
 const requestSchema = z.object({
   location: z.string().trim().min(1).max(100), // trim before min so " " is rejected
   topic: z.string().trim().min(1).max(100),
-  questType: z.enum(["main", "side"]),
 });
 
 const responseSchema = z.object({
@@ -35,15 +35,6 @@ const responseSchema = z.object({
   ]),
 });
 
-class AppError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number = 500
-  ) {
-    super(message);
-    this.name = "AppError";
-  }
-}
 
 const RATE_LIMIT_WINDOW_MS = 60;
 const RATE_LIMIT_MAX_REQUESTS = 12;
@@ -60,98 +51,6 @@ function logSecurityEvent(
   });
 }
 
-/**
- * Check if user is rate limited using Vercel KV (distributed across instances)
- * Stores timestamps as a Redis list with automatic expiration
- */
-async function checkRateLimit(
-  key: string
-): Promise<{ isLimited: boolean; recentCount: number }> {
-  const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW_MS * 1000;
-  
-  try {
-    // Get existing timestamps for this key
-    const timestamps = await kv.lrange<number>(key, 0, -1);
-    
-    // Filter to only recent requests within window
-    const recent = timestamps.filter((ts) => ts > windowStart);
-    
-    if (recent.length >= RATE_LIMIT_MAX_REQUESTS) {
-      return {
-        isLimited: true,
-        recentCount: recent.length,
-      };
-    }
-    
-    // Add current timestamp
-    await kv.lpush(key, now);
-    await kv.expire(key, RATE_LIMIT_WINDOW_MS); // Auto-expire after window
-    
-    return {
-      isLimited: false,
-      recentCount: recent.length,
-    };
-  } catch (err) {
-    // In development without KV configured, fail open so local testing works.
-    // In production, fail closed to prevent abuse if KV becomes unavailable.
-    if (process.env.NODE_ENV === "development") {
-      console.warn("[rate-limit] KV unavailable in dev — allowing request:", err);
-      return { isLimited: false, recentCount: 0 };
-    }
-    console.error("Rate limit KV error:", err);
-    return {
-      isLimited: true,
-      recentCount: RATE_LIMIT_MAX_REQUESTS,
-    };
-  }
-}
-
-function getBearerToken(request: NextRequest): string | null {
-  const authHeader = request.headers.get("authorization") || "";
-  const [scheme, token] = authHeader.split(" ");
-  if (scheme?.toLowerCase() !== "bearer" || !token) {
-    return null;
-  }
-  return token;
-}
-
-async function getAuthenticatedUserId(request: NextRequest): Promise<string | null> {
-  const token = getBearerToken(request);
-  if (!token) {
-    return null;
-  }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    throw new AppError("Supabase auth config is missing", 500);
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
-
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data.user) {
-    return null;
-  }
-
-  return data.user.id;
-}
-
-function sanitizeForPrompt(input: string): string {
-  return input
-    .replace(/[<>]/g, "")
-    .replace(/[\x00-\x1F\x7F]/g, "")
-    .slice(0, 100);
-}
-
 export async function POST(request: NextRequest) {
   try {
     const userId = await getAuthenticatedUserId(request);
@@ -160,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     const rateLimitKey = `rate_limit:generate:${userId}`;
-    const rateLimitState = await checkRateLimit(rateLimitKey);
+    const rateLimitState = await checkRateLimit(rateLimitKey, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS);
     if (rateLimitState.recentCount >= RATE_LIMIT_ALERT_THRESHOLD) {
       logSecurityEvent("rate_limit_pressure", {
         userId,
@@ -195,7 +94,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { location, topic, questType } = parseResult.data;
+    const { location, topic } = parseResult.data;
 
     const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
     if (!apiKey) {
@@ -207,19 +106,25 @@ export async function POST(request: NextRequest) {
     const resolvedModel   = configuredModel || await getLatestFlashModel(apiKey);
     const modelCandidates = [resolvedModel];
 
-    const safeLocation = sanitizeForPrompt(location);
-    const safeTopic = sanitizeForPrompt(topic);
+    const safeLocation = sanitizePromptInput(location);
+    const safeTopic = sanitizePromptInput(topic);
 
-    const prompt = `You are a quest generator for an 8-bit RPG-style task app. Generate a single quest based on these parameters:
+    const goodExample = `Good (short): "Head to the farmers market Saturday morning and pick up ingredients for a meal you've never cooked. Document what surprised you." Good (longer): "Over the next three months, learn enough Python to automate one repetitive task at work. Start with a one-hour tutorial this week and build from there."`;
 
-Location: ${safeLocation}
-Topic/Interest: ${safeTopic}
-Quest Type: ${questType === "main" ? "Main Quest (takes months to complete)" : "Side Quest (takes 1 day to a weekend)"}
+    const prompt = `You are the Quest Giver in Tarvn, an 8-bit RPG productivity tracker. Generate a single quest based on these parameters. Pick whatever scope fits the topic — anything from a focused hour to a multi-month goal. Write descriptions that are engaging but plainspoken — the user should immediately understand what they're doing and why it's worth their time.
+
+${UNTRUSTED_INPUT_NOTICE}
+
+${goodExample}
+Avoid: mystical language, invented names, phrases like "ancient tome vault" or "blessed by spirits."
+
+Location: ${wrapUntrusted(safeLocation)}
+Topic/Interest: ${wrapUntrusted(safeTopic)}
 
 Respond with ONLY a JSON object (no markdown, no code fences) with these exact fields:
 {
   "title": "A catchy quest title (max 50 chars)",
-  "description": "A fun, detailed description of the quest (2-3 sentences, written like an RPG quest giver)",
+  "description": "A clear, motivating description of the quest (2-3 sentences, explaining what to do and why it matters)",
   "difficulty": <number 1-5>,
   "duration_label": "estimated time (e.g., '2-3 hours', '1 weekend', '2-3 months')",
   "category": "one of: Fitness, Education, Creative, Tech, Food, Outdoors, Social, Wellness, Community, Career, Business, Culture, Productivity"
@@ -271,20 +176,18 @@ Respond with ONLY a JSON object (no markdown, no code fences) with these exact f
     }
 
     const validatedData = validateResult.data;
-    const baseXP = questType === "main" ? 200 : 50;
-    const xpReward = validatedData.difficulty * baseXP;
+    const duration_minutes = durationLabelToMinutes(validatedData.duration_label);
+    const xpReward = calcQuestXP(duration_minutes, validatedData.difficulty);
 
     return NextResponse.json({
       ...validatedData,
-      type: questType,
       source: "ai",
       xp_reward: xpReward,
+      duration_minutes,
       location: safeLocation,
       status: "available",
     });
   } catch (error) {
-    console.error("Generation error:", error);
-
     if (error instanceof AppError) {
       const errorMessage =
         error.statusCode >= 500

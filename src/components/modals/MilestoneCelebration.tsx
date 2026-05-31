@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Milestone, getMilestoneColor } from "@/lib/milestones";
+import { Milestone, getMilestoneColor, getMilestoneEmoji } from "@/lib/milestones";
 
 interface MilestoneCelebrationProps {
   milestones: Milestone[];
@@ -106,20 +106,4 @@ export default function MilestoneCelebration({
   );
 }
 
-function getMilestoneEmoji(type: Milestone["type"]): string {
-  switch (type) {
-    case "streak":
-      return "🔥";
-    case "category_mastery":
-      return "🏆";
-    case "level_up":
-      return "⬆️";
-    case "first_quest":
-      return "⚔️";
-    case "total_quests":
-      return "📜";
-    default:
-      return "✨";
-  }
-}
 

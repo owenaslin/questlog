@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Quest } from "@/lib/types";
-import { acceptQuest, abandonAndAccept } from "@/lib/quest-progress";
+import { acceptQuest } from "@/lib/quest-progress";
 
 interface QuestPickerPanelProps {
   quests: Quest[];
@@ -15,21 +15,12 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
   const router = useRouter();
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [conflictQuest, setConflictQuest] = useState<{ questId: string; title: string } | null>(null);
-  const [pendingAccept, setPendingAccept] = useState<Quest | null>(null);
 
   const handleAccept = async (quest: Quest) => {
     setAcceptingId(quest.id);
     setError(null);
 
-    const result = await acceptQuest(quest.id, quest.type, quest.category);
-
-    if (result.conflict) {
-      setConflictQuest(result.conflict);
-      setPendingAccept(quest);
-      setAcceptingId(null);
-      return;
-    }
+    const result = await acceptQuest(quest.id, quest.category);
 
     if (!result.success) {
       setError(result.error || "Could not accept quest.");
@@ -40,24 +31,6 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
     setAcceptingId(null);
     onAccepted?.(quest);
     router.refresh();
-  };
-
-  const handleAbandonAndAccept = async () => {
-    if (!conflictQuest || !pendingAccept) return;
-    setAcceptingId(pendingAccept.id);
-
-    const result = await abandonAndAccept(conflictQuest.questId, pendingAccept.id, pendingAccept.type, pendingAccept.category);
-
-    setConflictQuest(null);
-    setPendingAccept(null);
-
-    if (result.success) {
-      onAccepted?.(pendingAccept);
-      router.refresh();
-    } else {
-      setError(result.error || "Could not switch quest.");
-    }
-    setAcceptingId(null);
   };
 
   return (
@@ -73,33 +46,6 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
         </div>
       )}
 
-      {/* Abandon conflict modal */}
-      {conflictQuest && pendingAccept && (
-        <div className="mb-4 p-3 border-2 border-tavern-ember bg-black/60">
-          <p className="text-body-sm text-tavern-parchment leading-relaxed mb-3">
-            You&apos;re already on <span className="text-tavern-gold font-semibold">{conflictQuest.title}</span>. Abandon it and start <span className="text-tavern-gold font-semibold">{pendingAccept.title}</span> instead?
-          </p>
-          <p className="text-body-sm text-[--parchment-dim] mb-3">Abandoning will not erase any XP you&apos;ve already earned.</p>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleAbandonAndAccept}
-              disabled={!!acceptingId}
-              className="tavrn-btn tavrn-btn-danger tavrn-btn-sm"
-            >
-              Abandon &amp; Switch
-            </button>
-            <button
-              type="button"
-              onClick={() => { setConflictQuest(null); setPendingAccept(null); }}
-              className="tavrn-btn tavrn-btn-ghost tavrn-btn-sm"
-            >
-              Keep Current
-            </button>
-          </div>
-        </div>
-      )}
-
       <div className="space-y-3">
         {quests.map((quest) => {
           const isAccepting = acceptingId === quest.id;
@@ -111,9 +57,6 @@ export default function QuestPickerPanel({ quests, onAccepted }: QuestPickerPane
             <div key={quest.id} className="border border-tavern-oak/60 bg-black/20 p-3 flex items-start gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`badge ${quest.type === "main" ? "badge-ember" : "badge-blue"}`}>
-                    {quest.type === "main" ? "⚔ Main" : "🗡 Side"}
-                  </span>
                   <span className="badge badge-lime">+{quest.xp_reward} XP</span>
                 </div>
                 <p className="text-body-sm font-medium text-tavern-parchment leading-snug mb-1">{quest.title}</p>
