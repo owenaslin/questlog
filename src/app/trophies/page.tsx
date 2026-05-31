@@ -163,18 +163,12 @@ export default function TrophiesPage() {
       </div>
 
       {/* Badge Grid */}
-      {isLoading ? (
-        <div className="text-center py-8">
-          <p className="text-body-sm text-retro-lightgray">Loading badges...</p>
-        </div>
-      ) : (
-        <BadgeGrid
-          badges={filteredBadges}
-          earnedBadgeIds={earnedBadgeIds}
-          onBadgeClick={(badge) => setSelectedBadge(badge)}
-          columns={2}
-        />
-      )}
+      <BadgeGrid
+        badges={filteredBadges}
+        earnedBadgeIds={earnedBadgeIds}
+        onBadgeClick={(badge) => setSelectedBadge(badge)}
+        columns={2}
+      />
 
       {/* Badge Detail Modal */}
       {selectedBadge && (

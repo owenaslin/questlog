@@ -118,7 +118,7 @@ export default function DailyHabitsWidget({ maxDisplay = 20 }: DailyHabitsWidget
 
   if (summary.loading) {
     return (
-      <div className="tavrn-panel p-4 animate-pulse">
+      <div className="tavrn-panel p-4 animate-pulse" style={{ minHeight: "220px" }}>
         <div className="h-4 bg-tavern-oak/50 rounded w-1/3 mb-3" />
         <div className="space-y-2">
           {[1, 2, 3].map((i) => (
