@@ -5,7 +5,7 @@ import { AppError, getAuthenticatedUserId, sanitize, sanitizePromptInput, wrapUn
 import { issueQuestToken } from "@/lib/quest-token";
 import { QUEST_CATEGORIES } from "@/lib/types";
 import { getLatestFlashModel } from "@/lib/gemini";
-import { durationLabelToMinutes, calcQuestXP, clamp } from "@/lib/xp";
+import { durationLabelToMinutes, calcQuestXP, clamp, LONG_QUEST_THRESHOLD_MINUTES } from "@/lib/xp";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export const preferredRegion = 'pdx1';
@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
     const quest_token = issueQuestToken({
       uid: userId,
       src: input.mode,
-      typ: input.questType,
+      typ: duration_minutes >= LONG_QUEST_THRESHOLD_MINUTES ? "main" : "side",
       dur: duration_minutes,
       dif: data.difficulty as 1 | 2 | 3 | 4 | 5,
       cat: data.category,
