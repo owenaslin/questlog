@@ -302,7 +302,7 @@ export default function FocusArenaPage() {
         return;
       }
 
-      const result = await completeQuest(questData.id, xpReward, "side", "Productivity");
+      const result = await completeQuest(questData.id, "side", "Productivity");
 
       if (!mountedRef.current) return;
       if (result.success) {
@@ -652,7 +652,7 @@ export default function FocusArenaPage() {
             <div>
               <p className="kicker mb-2">Current Arena Target</p>
               <h3 className="text-subhead text-tavern-gold font-bold leading-snug mb-3">
-                "{objective}"
+                &ldquo;{objective}&rdquo;
               </h3>
               <div className="space-y-1 text-xs text-tavern-parchment-dim border-t border-tavern-oak/30 pt-3">
                 <p>🏆 XP stakes: <span className="text-retro-lime font-bold">+{durationPreset === 15 ? 15 : durationPreset === 25 ? 25 : 50} XP</span></p>

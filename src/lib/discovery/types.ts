@@ -204,6 +204,7 @@ export interface DiscoveryResponse {
   generation_time_ms: number;
   message?: string;
   remaining_daily: number;
+  quest_token?: string;
 }
 
 export interface DiscoveryState {

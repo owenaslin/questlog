@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { isValidHandle } from "@/lib/og-utils";
 import HeroPageClient from "./HeroPageClient";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -11,6 +13,12 @@ type Props = { params: Promise<{ handle: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { handle } = await params;
+
+  // Reject malformed handles before they reach PostgREST or are reflected into
+  // OG/meta tags (which feed external preview crawlers).
+  if (!isValidHandle(handle)) {
+    return { title: "Adventurer not found — tavrn" };
+  }
 
   let displayName = handle;
   let level = 1;
@@ -58,6 +66,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function HeroPage() {
+export default async function HeroPage({ params }: Props) {
+  const { handle } = await params;
+  if (!isValidHandle(handle)) notFound();
   return <HeroPageClient />;
 }

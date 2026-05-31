@@ -16,11 +16,11 @@ export async function getHeroByHandle(handle: string): Promise<HeroProfile | nul
   return row as HeroProfile;
 }
 
-export async function getHeroPinnedQuests(userId: string): Promise<PinnedQuest[]> {
+async function getHeroPinnedQuests(userId: string): Promise<PinnedQuest[]> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("pinned_quests")
-    .select("id,quest_id,quest_title,quest_type,quest_xp_reward,position,pinned_at")
+    .select("id,quest_id,quest_title,quest_xp_reward,position,pinned_at")
     .eq("user_id", userId)
     .order("position", { ascending: true })
     .limit(5);
@@ -63,7 +63,27 @@ export async function getHeroDashboard(userId: string): Promise<HeroDashboard> {
 
 /* ── Owner reads (auth required) ─────────────────────────────────────── */
 
+let _heroProfilePromise: Promise<HeroProfile | null> | null = null;
+let _heroProfileExpiry = 0;
+
+export function invalidateOwnHeroProfile(): void {
+  _heroProfilePromise = null;
+  _heroProfileExpiry = 0;
+}
+
 export async function getOwnHeroProfile(): Promise<HeroProfile | null> {
+  const now = Date.now();
+  if (_heroProfilePromise && now < _heroProfileExpiry) return _heroProfilePromise;
+
+  _heroProfileExpiry = now + 30_000;
+  _heroProfilePromise = _fetchOwnHeroProfile().then((result) => {
+    if (!result) { _heroProfilePromise = null; _heroProfileExpiry = 0; }
+    return result;
+  });
+  return _heroProfilePromise;
+}
+
+async function _fetchOwnHeroProfile(): Promise<HeroProfile | null> {
   const userId = await getCurrentUserId();
   if (!userId) return null;
 
@@ -106,13 +126,13 @@ export async function updateHeroProfile(
     .eq("id", userId);
 
   if (error) return { success: false, error: error.message };
+  invalidateOwnHeroProfile();
   return { success: true };
 }
 
 export async function pinQuest(
   questId: string,
   questTitle: string,
-  questType: "main" | "side",
   questXpReward: number
 ): Promise<{ success: boolean; error?: string }> {
   const userId = await getCurrentUserId();
@@ -137,7 +157,8 @@ export async function pinQuest(
         user_id: userId,
         quest_id: questId,
         quest_title: questTitle,
-        quest_type: questType,
+        // Vestigial NOT NULL column kept for legacy schema; quest type is no longer used.
+        quest_type: "side",
         quest_xp_reward: questXpReward,
         position: nextPos,
       },

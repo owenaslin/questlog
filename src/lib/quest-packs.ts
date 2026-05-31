@@ -121,21 +121,6 @@ export const QUEST_PACKS: QuestPack[] = [
   },
 ];
 
-export function getQuestPackById(id: string): QuestPack | undefined {
-  return QUEST_PACKS.find((pack) => pack.id === id);
-}
-
-export function getQuestsForPack(pack: QuestPack, excludeQuestIds: string[] = []): Quest[] {
-  const excluded = new Set(excludeQuestIds);
-  return ALL_QUESTS.filter((quest) => {
-    if (excluded.has(quest.id)) return false;
-    if (pack.sideOnly && quest.type !== "side") return false;
-    if (pack.maxDifficulty && quest.difficulty > pack.maxDifficulty) return false;
-    if (pack.durationMinutesMax && (quest.duration_minutes ?? 9999) > pack.durationMinutesMax) return false;
-    return pack.categories.includes(quest.category);
-  }).slice(0, 12);
-}
-
 export function drawQuestsByMood(input: {
   availableTimeMinutes: number;
   energyLevel: "low" | "normal" | "high";

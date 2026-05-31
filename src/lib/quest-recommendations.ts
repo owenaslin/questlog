@@ -1,5 +1,6 @@
 import { Quest, RecommendationPreferences } from "@/lib/types";
 import { ALL_QUESTS } from "@/lib/quests";
+import { LONG_QUEST_THRESHOLD_MINUTES } from "@/lib/xp";
 
 // O(1) quest lookup by ID — avoids repeated O(n) ALL_QUESTS.find() calls.
 const questById = new Map(ALL_QUESTS.map((q) => [q.id, q]));
@@ -181,8 +182,7 @@ function getDifficultyProgressionRecommendations(context: RecommendationContext)
     (q) =>
       q.difficulty === targetDifficulty &&
       !completedQuestIdSet.has(q.id) &&
-      !activeQuestIdSet.has(q.id) &&
-      q.type === "main" // Prefer main quests for progression
+      !activeQuestIdSet.has(q.id)
   );
 
   // Pick 2 random challenging quests (Fisher-Yates ensures uniform distribution).
@@ -204,11 +204,11 @@ function getQuickWinRecommendations(context: RecommendationContext): QuestRecomm
   const completedQuestIdSet = new Set(context.completedQuestIds);
   const activeQuestIdSet = new Set(context.activeQuestIds);
 
-  // Find short, easy side quests for busy days
+  // Find short, easy quests for busy days
   const quickQuests = ALL_QUESTS.filter(
     (q) =>
-      q.type === "side" &&
       q.difficulty <= 2 &&
+      (q.duration_minutes ?? 9999) <= 60 &&
       !completedQuestIdSet.has(q.id) &&
       !activeQuestIdSet.has(q.id)
   );
@@ -314,11 +314,11 @@ export async function getLowEnergySuggestion(): Promise<Quest | null> {
   const completedIdSet = new Set(completedIds);
   const activeIdSet = new Set(activeIds);
 
-  // Find easiest side quest that hasn't been done
+  // Find easiest quick quest that hasn't been done
   const candidates = ALL_QUESTS.filter(
     (q) =>
-      q.type === "side" &&
       q.difficulty === 1 &&
+      (q.duration_minutes ?? 9999) <= 60 &&
       !completedIdSet.has(q.id) &&
       !activeIdSet.has(q.id)
   ).sort((a, b) => a.xp_reward - b.xp_reward);
@@ -336,14 +336,19 @@ export function getRecommendedSideQuest(options: RecommendedSideQuestOptions = {
 
   const candidates = ALL_QUESTS.filter(
     (quest) =>
-      quest.type === "side" &&
       !excluded.has(quest.id) &&
       (quest.duration_minutes ?? 9999) <= availableTime * 1.5
   );
 
+  // Fallback: any quest that isn't a long-term commitment, so the daily
+  // suggestion stays a quick win rather than a months-long project.
   const pool = candidates.length > 0
     ? candidates
-    : ALL_QUESTS.filter((quest) => quest.type === "side" && !excluded.has(quest.id));
+    : ALL_QUESTS.filter(
+        (quest) =>
+          !excluded.has(quest.id) &&
+          (quest.duration_minutes ?? 9999) < LONG_QUEST_THRESHOLD_MINUTES
+      );
 
   if (!pool.length) return null;
 

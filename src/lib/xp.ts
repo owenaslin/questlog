@@ -6,6 +6,8 @@
  * Habit:       XP = duration_minutes × 2   × DIFF_MOD  (round to 5,  clamp 5–300)
  */
 
+import { MAX_SIDE_QUEST_XP, MAX_MAIN_QUEST_XP } from "@/lib/constants";
+
 export const DIFF_MOD: Record<number, number> = {
   1: 1.0, 2: 1.25, 3: 1.5, 4: 1.75, 5: 2.0,
 };
@@ -21,12 +23,12 @@ export function clamp(value: number, min: number, max: number): number {
 
 export function calcSideQuestXP(duration_minutes: number, difficulty: number): number {
   const raw = duration_minutes * 5 * (DIFF_MOD[difficulty] ?? 1.0);
-  return Math.max(25, Math.min(2500, roundTo(raw, 25)));
+  return Math.max(25, Math.min(MAX_SIDE_QUEST_XP, roundTo(raw, 25)));
 }
 
 export function calcMainQuestXP(duration_minutes: number, difficulty: number): number {
   const raw = duration_minutes * 0.5 * (DIFF_MOD[difficulty] ?? 1.0);
-  return Math.max(100, Math.min(8000, roundTo(raw, 50)));
+  return Math.max(100, Math.min(MAX_MAIN_QUEST_XP, roundTo(raw, 50)));
 }
 
 export function calcHabitXP(duration_minutes: number, difficulty: number): number {
@@ -34,12 +36,20 @@ export function calcHabitXP(duration_minutes: number, difficulty: number): numbe
   return Math.max(5, Math.min(300, roundTo(raw, 5)));
 }
 
+/**
+ * Duration-driven XP. Month-scale commitments use the gentler long-quest curve;
+ * shorter quests use the steeper short-session curve. The threshold sits in the
+ * gap between the longest short quest (~1 week of effort) and the shortest
+ * long-term quest (~1 month), so every existing quest keeps its previous reward
+ * without needing an explicit main/side type.
+ */
+export const LONG_QUEST_THRESHOLD_MINUTES = 2400;
+
 export function calcQuestXP(
-  type: "main" | "side",
   duration_minutes: number,
   difficulty: number
 ): number {
-  return type === "main"
+  return duration_minutes >= LONG_QUEST_THRESHOLD_MINUTES
     ? calcMainQuestXP(duration_minutes, difficulty)
     : calcSideQuestXP(duration_minutes, difficulty);
 }
