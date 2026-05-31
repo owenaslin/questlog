@@ -17,8 +17,20 @@ import {
   invalidateProgressCaches,
   updateStreakOnCompletion,
   getSuggestedNextQuests,
-  getCurrentUserId,
 } from "@/lib/quest-progress";
+
+interface ActiveExpedition {
+  title: string;
+  city: string;
+  currentStage: number;
+  quests: Array<{
+    id: string;
+    stage: number;
+    completed: boolean;
+    category: string;
+    title: string;
+  }>;
+}
 import { useQuestStepProgress } from "@/lib/hooks/useQuestStepProgress";
 import { getOwnHeroProfile } from "@/lib/hero";
 import { buildAuthUrl } from "@/lib/auth-redirect";
@@ -193,22 +205,21 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
       let nextStageTitle = "";
       let completedStage = 0;
       let expeditionFinished = false;
-      let activeExp: any = null;
+      let activeExp: ActiveExpedition | null = null;
 
       if (typeof window !== "undefined") {
         const activeExpRaw = localStorage.getItem("tavrn_active_expedition");
         if (activeExpRaw) {
           try {
-            activeExp = JSON.parse(activeExpRaw);
-            const questIndex = activeExp.quests.findIndex((q: any) => q.id === quest.id);
+            activeExp = JSON.parse(activeExpRaw) as ActiveExpedition;
+            const questIndex = activeExp.quests.findIndex((q) => q.id === quest.id);
             if (questIndex !== -1 && !activeExp.quests[questIndex].completed) {
               activeExp.quests[questIndex].completed = true;
               completedStage = activeExp.quests[questIndex].stage;
-              
+
               if (completedStage < 3) {
-                const nextQuest = activeExp.quests.find((q: any) => q.stage === completedStage + 1);
+                const nextQuest = activeExp.quests.find((q) => q.stage === completedStage + 1);
                 if (nextQuest) {
-                  // Automatically accept the next stage quest in user_quests
                   const acceptRes = await acceptQuest(nextQuest.id, nextQuest.category);
                   if (acceptRes.success) {
                     activeExp.currentStage = completedStage + 1;
@@ -221,43 +232,23 @@ export default function QuestDetailClient({ quest }: QuestDetailClientProps) {
                 localStorage.setItem("tavrn_active_expedition", JSON.stringify(activeExp));
                 expeditionFinished = true;
 
-                // Award +50 XP bonus securely via dynamic custom side quest completion
-                const userId = await getCurrentUserId();
-                if (userId) {
-                  const supabase = getSupabaseClient();
-                  const { data: questData, error: questErr } = await supabase
-                    .from("quests")
-                    .insert({
-                      title: `Expedition Complete: ${activeExp?.title || "Travel Expedition"}`,
-                      description: `Victory bonus for completing the Travel Expedition in ${activeExp?.city || "the region"}!`,
-                      type: "side",
-                      source: "user",
-                      difficulty: 3,
-                      xp_reward: 50,
-                      duration_label: "Trivial",
-                      category: "Travel",
-                      user_id: userId,
-                      status: "available",
-                    })
-                    .select("id")
-                    .single();
-
-                  if (questData && !questErr) {
-                    const { error: acceptErr } = await supabase
-                      .from("user_quests")
-                      .insert({
-                        user_id: userId,
-                        quest_id: questData.id,
-                        quest_type: "side",
-                        quest_category: "Travel",
-                        status: "active",
-                        accepted_at: new Date().toISOString(),
-                      });
-
-                    if (!acceptErr) {
-                      await completeQuest(questData.id, "side", "Travel");
-                    }
-                  }
+                // Award +50 XP bonus via server route — XP value is server-controlled,
+                // preventing client-side inflation. Fire-and-forget; UI is updated optimistically.
+                const session = await getSupabaseClient().auth.getSession();
+                const accessToken = session.data.session?.access_token;
+                if (accessToken) {
+                  fetch("/api/expeditions/complete", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                      lastStageQuestId: quest.id,
+                      expeditionTitle: activeExp.title || "Travel Expedition",
+                      city: activeExp.city || "the region",
+                    }),
+                  }).catch((e) => console.error("Expedition bonus award failed:", e));
                 }
               }
             }

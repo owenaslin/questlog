@@ -8,19 +8,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { kv } from '@vercel/kv';
 import { z } from 'zod';
-import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-import type { 
-  OrchestratorResult,
-  ProviderSearchParams,
-} from '@/lib/discovery/types';
+import type { OrchestratorResult } from '@/lib/discovery/types';
 
 import { discoverPlaces, registerProvider } from '@/lib/discovery/orchestrator';
 import { mockDiscoveryProvider } from '@/lib/discovery/providers/mock';
 import { openStreetMapProvider } from '@/lib/discovery/providers/openstreetmap';
-import { buildLocationContext, isValidPrivacyLevel } from '@/lib/discovery/privacy';
+import { buildLocationContext } from '@/lib/discovery/privacy';
 import { getLatestFlashModel } from '@/lib/gemini';
+import { getBearerToken, getAuthenticatedUserId } from '@/lib/api-utils';
 
 // Register providers in case they aren't registered yet
 registerProvider('mock', mockDiscoveryProvider);
@@ -65,31 +62,6 @@ const VIBE_INTENT_MAP = {
   },
 };
 
-// Auth and Rate limit helpers
-function getBearerToken(request: NextRequest): string | null {
-  const authHeader = request.headers.get('authorization') || '';
-  const [scheme, token] = authHeader.split(' ');
-  return scheme?.toLowerCase() === 'bearer' && token ? token : null;
-}
-
-async function getAuthenticatedUserId(request: NextRequest): Promise<string | null> {
-  const token = getBearerToken(request);
-  if (!token) return null;
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
-                      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) return null;
-
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-
-  const { data, error } = await supabase.auth.getUser(token);
-  return error || !data.user ? null : data.user.id;
-}
-
 async function checkDailyLimit(userId: string): Promise<{ allowed: boolean; remaining: number }> {
   const key = `daily_limit:discover:${userId}:${new Date().toISOString().split('T')[0]}`;
   try {
@@ -101,22 +73,6 @@ async function checkDailyLimit(userId: string): Promise<{ allowed: boolean; rema
     if (ALLOW_RATE_LIMIT_BYPASS) return { allowed: true, remaining: 999 };
     return { allowed: false, remaining: 0 };
   }
-}
-
-async function getUserCity(userId: string, token: string): Promise<string> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-                      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) return 'Your City';
-
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  });
-
-  const { data } = await supabase.from('profiles').select('location_city').eq('id', userId).single();
-  return data?.location_city || 'Your City';
 }
 
 // Prompt Builder for Gemini
@@ -277,7 +233,6 @@ export async function POST(request: NextRequest) {
 
     const { city, vibe, coords } = parseResult.data;
     const vibeConfig = VIBE_INTENT_MAP[vibe as keyof typeof VIBE_INTENT_MAP];
-    const token = getBearerToken(request) || "";
 
     // 1. Resolve coordinates
     let coordinates = coords;
