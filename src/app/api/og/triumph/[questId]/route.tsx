@@ -1,13 +1,16 @@
 import { ImageResponse } from "next/og";
 import { AVATAR_PORTRAITS, AvatarKey } from "@/lib/types";
-import { SUPABASE_URL, ANON_KEY, fetchHeroByHandle, loadFont } from "@/lib/og-utils";
+import { SUPABASE_URL, ANON_KEY, fetchHeroByHandle, loadFont, isUuid, isValidHandle } from "@/lib/og-utils";
 
 export const runtime = "edge";
 
 async function fetchQuest(questId: string) {
+  // Reject anything that isn't a UUID so attacker-controlled filter operators
+  // (e.g. "0&id=neq.0", "(or(...))") can't be smuggled into the PostgREST query.
+  if (!isUuid(questId)) return null;
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/quests?id=eq.${questId}&select=*`,
+      `${SUPABASE_URL}/rest/v1/quests?id=eq.${encodeURIComponent(questId)}&select=*`,
       {
         headers: { apikey: ANON_KEY, "Content-Type": "application/json" },
       }
@@ -26,7 +29,9 @@ export async function GET(
 ) {
   const { questId } = await params;
   const { searchParams } = new URL(request.url);
-  const handle = searchParams.get("user") ?? "adventurer";
+  const rawHandle = searchParams.get("user") ?? "adventurer";
+  // Fail closed: never reflect a malformed handle into the rendered card.
+  const handle = isValidHandle(rawHandle) ? rawHandle : "adventurer";
 
   const [heroData, questData, fontData] = await Promise.all([
     fetchHeroByHandle(handle),

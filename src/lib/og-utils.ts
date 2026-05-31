@@ -4,7 +4,24 @@ export const ANON_KEY =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
   "";
 
+/** RFC 4122 UUID format check. Used to validate path params before they reach the DB. */
+export function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
+/**
+ * Validate a public profile handle. Mirrors the DB-side constraint in
+ * supabase/migrations/007_security_hardening.sql so invalid handles are rejected
+ * before being interpolated into URLs or sent to PostgREST. Case-insensitive:
+ * handles are stored lowercase and get_profile_by_handle lower()s its input, so
+ * mixed-case URLs (e.g. /hero/JohnDoe) must still resolve.
+ */
+export function isValidHandle(value: string): boolean {
+  return /^[a-z0-9][a-z0-9-]{1,18}[a-z0-9]$/i.test(value);
+}
+
 export async function fetchHeroByHandle(handle: string) {
+  if (!isValidHandle(handle)) return null;
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_profile_by_handle`, {
       method: "POST",
