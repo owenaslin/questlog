@@ -11,17 +11,9 @@ export default function TrophiesPage() {
   const [filter, setFilter] = useState<BadgeRarity | "all">("all");
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [earnedBadgeIds, setEarnedBadgeIds] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadBadges = async () => {
-      setIsLoading(true);
-      const ids = await getUserEarnedBadgeIds();
-      setEarnedBadgeIds(ids);
-      setIsLoading(false);
-    };
-
-    loadBadges();
+    getUserEarnedBadgeIds().then(setEarnedBadgeIds);
   }, []);
 
   const earnedIdSet = useMemo(() => new Set(earnedBadgeIds), [earnedBadgeIds]);
