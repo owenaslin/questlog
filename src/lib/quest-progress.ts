@@ -772,11 +772,16 @@ export async function createOneOffBounty(
   title: string,
   difficulty: number
 ): Promise<{ success: boolean; questId?: string; error?: string }> {
+  if (![1, 2, 3].includes(difficulty)) {
+    return { success: false, error: "Invalid difficulty level." };
+  }
+
   const userId = await getCurrentUserId();
   if (!userId) return { success: false, error: "Please log in to post bounties." };
 
   const supabase = getSupabaseClient();
   const xpReward = difficulty === 1 ? 10 : difficulty === 2 ? 25 : 50;
+  const durationLabel = difficulty === 1 ? "Trivial" : difficulty === 2 ? "Minor" : "Major";
 
   // 1. Create the side quest row
   const { data: questData, error: questErr } = await supabase
@@ -784,11 +789,10 @@ export async function createOneOffBounty(
     .insert({
       title,
       description: "A quick guild bounty.",
-      type: "side",
       source: "user",
       difficulty,
       xp_reward: xpReward,
-      duration_label: difficulty === 1 ? "Trivial" : difficulty === 2 ? "Quick" : "Moderate",
+      duration_label: durationLabel,
       category: "Productivity",
       user_id: userId,
       status: "available",
@@ -806,13 +810,14 @@ export async function createOneOffBounty(
     .insert({
       user_id: userId,
       quest_id: questData.id,
-      quest_type: "side",
       quest_category: "Productivity",
       status: "active",
       accepted_at: new Date().toISOString(),
     });
 
   if (acceptErr) {
+    // Clean up the orphaned quest row so we don't leave dangling data
+    await supabase.from("quests").delete().eq("id", questData.id);
     return { success: false, error: acceptErr.message };
   }
 
